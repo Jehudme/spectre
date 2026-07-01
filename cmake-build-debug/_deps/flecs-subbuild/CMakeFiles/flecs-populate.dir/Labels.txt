@@ -1,0 +1,14 @@
+# Target labels
+ flecs-populate
+# Source files and their labels
+/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/CMakeFiles/flecs-populate
+/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/CMakeFiles/flecs-populate.rule
+/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/CMakeFiles/flecs-populate-complete.rule
+/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-build.rule
+/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-configure.rule
+/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-download.rule
+/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-install.rule
+/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-mkdir.rule
+/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-patch.rule
+/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-test.rule
+/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-update.rule

@@ -1,0 +1,21 @@
+# ninja log v7
+1	8	1782932601202193787	glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-mkdir	3aa1a5e4dadbb3b
+1	8	1782932601202193787	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/glaze-subbuild/glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-mkdir	3aa1a5e4dadbb3b
+8	4845	1782932606038087569	glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-download	f096e51bc1af9c0b
+8	4845	1782932606038087569	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/glaze-subbuild/glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-download	f096e51bc1af9c0b
+4845	4864	1782932606039087547	glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-update	2977da7a08c9838e
+4845	4864	1782932606039087547	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/glaze-subbuild/glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-update	2977da7a08c9838e
+4864	4872	1782932606065086976	glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-patch	15d0aa0ffb10a742
+4864	4872	1782932606065086976	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/glaze-subbuild/glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-patch	15d0aa0ffb10a742
+4872	4880	1782932606073086800	glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-configure	11453d22ed499267
+4872	4880	1782932606073086800	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/glaze-subbuild/glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-configure	11453d22ed499267
+4880	4887	1782932606080086647	glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-build	a89d97f9eb1a6d6c
+4880	4887	1782932606080086647	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/glaze-subbuild/glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-build	a89d97f9eb1a6d6c
+4888	4894	1782932606087086493	glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-install	44b867b86be01465
+4888	4894	1782932606087086493	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/glaze-subbuild/glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-install	44b867b86be01465
+4894	4901	1782932606094086339	glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-test	b2ec0782588dcfe7
+4894	4901	1782932606094086339	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/glaze-subbuild/glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-test	b2ec0782588dcfe7
+4901	4911	1782932606104086120	CMakeFiles/glaze-populate-complete	c224cfd42ee80d9
+4901	4911	1782932606104086120	glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-done	c224cfd42ee80d9
+4901	4911	1782932606104086120	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/glaze-subbuild/CMakeFiles/glaze-populate-complete	c224cfd42ee80d9
+4901	4911	1782932606104086120	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/glaze-subbuild/glaze-populate-prefix/src/glaze-populate-stamp/glaze-populate-done	c224cfd42ee80d9

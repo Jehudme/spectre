@@ -1,0 +1,21 @@
+# ninja log v7
+1	10	1782932606197084077	flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-mkdir	5b8116da3b769b01
+1	10	1782932606197084077	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-mkdir	5b8116da3b769b01
+10	41020	1782932647207183088	flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-download	5d84c350d0ad58b1
+10	41020	1782932647207183088	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-download	5d84c350d0ad58b1
+41020	41032	1782932647208183066	flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-update	fd41087a6f15a9d6
+41020	41032	1782932647208183066	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-update	fd41087a6f15a9d6
+41033	41039	1782932647227182648	flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-patch	d5d7e6a54e63b098
+41033	41039	1782932647227182648	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-patch	d5d7e6a54e63b098
+41039	41046	1782932647233182517	flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-configure	6aec28cf23db2fa2
+41039	41046	1782932647233182517	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-configure	6aec28cf23db2fa2
+41046	41052	1782932647239182385	flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-build	ceba924051d68013
+41046	41052	1782932647239182385	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-build	ceba924051d68013
+41052	41058	1782932647246182231	flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-install	16885bf706ef9127
+41052	41058	1782932647246182231	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-install	16885bf706ef9127
+41059	41065	1782932647252182099	flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-test	5a022d5b8804b77f
+41059	41065	1782932647252182099	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-test	5a022d5b8804b77f
+41065	41075	1782932647263181857	CMakeFiles/flecs-populate-complete	39a85b52857a94f5
+41065	41075	1782932647263181857	flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-done	39a85b52857a94f5
+41065	41075	1782932647263181857	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/CMakeFiles/flecs-populate-complete	39a85b52857a94f5
+41065	41075	1782932647263181857	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-subbuild/flecs-populate-prefix/src/flecs-populate-stamp/flecs-populate-done	39a85b52857a94f5

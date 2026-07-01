@@ -1,0 +1,21 @@
+# ninja log v7
+1	9	1782932648328158455	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-mkdir	e6f4a7295b4c296
+1	9	1782932648328158455	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-mkdir	e6f4a7295b4c296
+9	1363	1782932649683128680	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-download	560063a21de8d6de
+9	1363	1782932649683128680	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-download	560063a21de8d6de
+1363	1377	1782932649683128680	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-update	b1d155d2f897a8e
+1363	1377	1782932649683128680	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-update	b1d155d2f897a8e
+1377	1384	1782932649703128240	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-patch	4e3fb1d6b7b8740a
+1377	1384	1782932649703128240	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-patch	4e3fb1d6b7b8740a
+1384	1393	1782932649711128064	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-configure	ac48adb2efa27750
+1384	1393	1782932649711128064	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-configure	ac48adb2efa27750
+1393	1399	1782932649719127889	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-build	7701ff948f2718e2
+1393	1399	1782932649719127889	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-build	7701ff948f2718e2
+1400	1408	1782932649727127713	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-install	cb7f5cae46d21a70
+1400	1408	1782932649727127713	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-install	cb7f5cae46d21a70
+1408	1415	1782932649735127537	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-test	240e970d6db15bf9
+1408	1415	1782932649735127537	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-test	240e970d6db15bf9
+1415	1425	1782932649744127339	CMakeFiles/spdlog-populate-complete	bb6ca56f4b19868c
+1415	1425	1782932649744127339	spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-done	bb6ca56f4b19868c
+1415	1425	1782932649744127339	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/spdlog-subbuild/CMakeFiles/spdlog-populate-complete	bb6ca56f4b19868c
+1415	1425	1782932649744127339	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/spdlog-subbuild/spdlog-populate-prefix/src/spdlog-populate-stamp/spdlog-populate-done	bb6ca56f4b19868c

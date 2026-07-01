@@ -1,0 +1,67 @@
+Start testing: Jul 01 15:07 EDT
+----------------------------------------------------------
+Unable to find executable: sandbox_unit_tests_NOT_BUILT-b12d07c
+1/4 Testing: sandbox_unit_tests_NOT_BUILT-b12d07c
+1/4 Test: sandbox_unit_tests_NOT_BUILT-b12d07c
+Command: ""
+Directory: /home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-build/tests/unit
+"sandbox_unit_tests_NOT_BUILT-b12d07c" start time: 
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"sandbox_unit_tests_NOT_BUILT-b12d07c" end time: Jul 01 15:07 EDT
+"sandbox_unit_tests_NOT_BUILT-b12d07c" time elapsed: 00:00:00
+----------------------------------------------------------
+
+Unable to find executable: sandbox_suite_tests_NOT_BUILT-b12d07c
+2/4 Testing: sandbox_suite_tests_NOT_BUILT-b12d07c
+2/4 Test: sandbox_suite_tests_NOT_BUILT-b12d07c
+Command: ""
+Directory: /home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-build/tests/suite
+"sandbox_suite_tests_NOT_BUILT-b12d07c" start time: 
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"sandbox_suite_tests_NOT_BUILT-b12d07c" end time: Jul 01 15:07 EDT
+"sandbox_suite_tests_NOT_BUILT-b12d07c" time elapsed: 00:00:00
+----------------------------------------------------------
+
+Unable to find executable: spectre_unit_tests_NOT_BUILT-b12d07c
+3/4 Testing: spectre_unit_tests_NOT_BUILT-b12d07c
+3/4 Test: spectre_unit_tests_NOT_BUILT-b12d07c
+Command: ""
+Directory: /home/jehud/CLionProjects/spectre/cmake-build-debug/tests/unit
+"spectre_unit_tests_NOT_BUILT-b12d07c" start time: 
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"spectre_unit_tests_NOT_BUILT-b12d07c" end time: Jul 01 15:07 EDT
+"spectre_unit_tests_NOT_BUILT-b12d07c" time elapsed: 00:00:00
+----------------------------------------------------------
+
+Unable to find executable: spectre_suite_tests_NOT_BUILT-b12d07c
+4/4 Testing: spectre_suite_tests_NOT_BUILT-b12d07c
+4/4 Test: spectre_suite_tests_NOT_BUILT-b12d07c
+Command: ""
+Directory: /home/jehud/CLionProjects/spectre/cmake-build-debug/tests/suite
+"spectre_suite_tests_NOT_BUILT-b12d07c" start time: 
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"spectre_suite_tests_NOT_BUILT-b12d07c" end time: Jul 01 15:07 EDT
+"spectre_suite_tests_NOT_BUILT-b12d07c" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Jul 01 15:07 EDT

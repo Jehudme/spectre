@@ -1,0 +1,5 @@
+if(EXISTS "/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-build/tests/unit/sandbox_unit_tests-b12d07c_tests.cmake")
+  include("/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-build/tests/unit/sandbox_unit_tests-b12d07c_tests.cmake")
+else()
+  add_test(sandbox_unit_tests_NOT_BUILT-b12d07c sandbox_unit_tests_NOT_BUILT-b12d07c)
+endif()

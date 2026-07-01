@@ -1,0 +1,21 @@
+# ninja log v7
+1	9	1782932650082119912	miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-mkdir	5c4a93268ddcf7ac
+1	9	1782932650082119912	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-mkdir	5c4a93268ddcf7ac
+10	721	1782932650793104288	miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-download	6297abb34087872c
+10	721	1782932650793104288	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-download	6297abb34087872c
+721	734	1782932650794104266	miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-update	41dde50b42b742ec
+721	734	1782932650794104266	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-update	41dde50b42b742ec
+734	741	1782932650814103826	miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-patch	1ea6ed0441fd1acc
+734	741	1782932650814103826	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-patch	1ea6ed0441fd1acc
+741	748	1782932650820103694	miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-configure	33a393217abc3328
+741	748	1782932650820103694	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-configure	33a393217abc3328
+748	754	1782932650826103563	miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-build	600933971594eaf4
+748	754	1782932650826103563	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-build	600933971594eaf4
+754	761	1782932650833103409	miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-install	d80b6b13433bd7ac
+754	761	1782932650833103409	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-install	d80b6b13433bd7ac
+761	767	1782932650839103277	miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-test	35a907ad466f2681
+761	767	1782932650839103277	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-test	35a907ad466f2681
+767	777	1782932650849103057	CMakeFiles/miniz-populate-complete	60b846a371233e46
+767	777	1782932650849103057	miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-done	60b846a371233e46
+767	777	1782932650849103057	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/CMakeFiles/miniz-populate-complete	60b846a371233e46
+767	777	1782932650849103057	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-done	60b846a371233e46

@@ -1,0 +1,3 @@
+/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/CMakeFiles/miniz-populate.dir
+/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/CMakeFiles/edit_cache.dir
+/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/CMakeFiles/rebuild_cache.dir

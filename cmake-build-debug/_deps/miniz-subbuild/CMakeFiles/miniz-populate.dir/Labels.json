@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/CMakeFiles/miniz-populate"
+		},
+		{
+			"file" : "/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/CMakeFiles/miniz-populate.rule"
+		},
+		{
+			"file" : "/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/CMakeFiles/miniz-populate-complete.rule"
+		},
+		{
+			"file" : "/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-build.rule"
+		},
+		{
+			"file" : "/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-configure.rule"
+		},
+		{
+			"file" : "/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-download.rule"
+		},
+		{
+			"file" : "/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-install.rule"
+		},
+		{
+			"file" : "/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-mkdir.rule"
+		},
+		{
+			"file" : "/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-patch.rule"
+		},
+		{
+			"file" : "/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-test.rule"
+		},
+		{
+			"file" : "/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-subbuild/miniz-populate-prefix/src/miniz-populate-stamp/miniz-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"miniz-populate"
+		],
+		"name" : "miniz-populate"
+	}
+}

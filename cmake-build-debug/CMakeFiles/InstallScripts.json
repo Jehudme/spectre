@@ -1,0 +1,36 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-build/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-build/sandbox/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/glaze-build/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-build/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/dylib-build/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-build/modules/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-build/modules/core/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/spdlog-build/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/miniz-build/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-build/launcher/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/cli11-build/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/cli11-build/fuzz/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/cli11-build/src/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/cli11-build/single-include/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-build/tests/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/catch2-build/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/catch2-build/src/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-build/tests/dummy_plugin/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-build/tests/unit/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-build/tests/suite/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/raylib-build/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/raylib-build/raylib/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/raylib-build/raylib/external/glfw/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/raylib-build/raylib/external/glfw/src/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/entt-build/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/spectre/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/unit/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/suite/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

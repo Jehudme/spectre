@@ -1,0 +1,21 @@
+# ninja log v7
+2	10	1782932660124899209	raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-mkdir	fc5672ca8dc2e49b
+2	10	1782932660124899209	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/raylib-subbuild/raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-mkdir	fc5672ca8dc2e49b
+10	118336	1782932778451297335	raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-download	ec9b89f26dbb6e9d
+10	118336	1782932778451297335	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/raylib-subbuild/raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-download	ec9b89f26dbb6e9d
+118336	119976	1782932778452297314	raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-update	e5d957cab47bda17
+118336	119976	1782932778452297314	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/raylib-subbuild/raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-update	e5d957cab47bda17
+119976	119983	1782932780098261102	raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-patch	e1db610fb2d41a2f
+119976	119983	1782932780098261102	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/raylib-subbuild/raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-patch	e1db610fb2d41a2f
+119983	119989	1782932780105260948	raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-configure	e6a3f82924986f14
+119983	119989	1782932780105260948	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/raylib-subbuild/raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-configure	e6a3f82924986f14
+119989	119996	1782932780111260816	raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-build	f9978d7995bcc476
+119989	119996	1782932780111260816	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/raylib-subbuild/raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-build	f9978d7995bcc476
+119996	120002	1782932780118260662	raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-install	cf3c60e62a3202ed
+119996	120002	1782932780118260662	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/raylib-subbuild/raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-install	cf3c60e62a3202ed
+120002	120009	1782932780124260531	raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-test	cac7c260e0f5360c
+120002	120009	1782932780124260531	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/raylib-subbuild/raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-test	cac7c260e0f5360c
+120009	120018	1782932780133260332	CMakeFiles/raylib-populate-complete	6eb951827e865d5c
+120009	120018	1782932780133260332	raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-done	6eb951827e865d5c
+120009	120018	1782932780133260332	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/raylib-subbuild/CMakeFiles/raylib-populate-complete	6eb951827e865d5c
+120009	120018	1782932780133260332	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/raylib-subbuild/raylib-populate-prefix/src/raylib-populate-stamp/raylib-populate-done	6eb951827e865d5c

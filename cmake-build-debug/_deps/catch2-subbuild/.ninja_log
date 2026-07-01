@@ -1,0 +1,21 @@
+# ninja log v7
+1	8	1782932654104031528	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-mkdir	398f07b379039c44
+1	8	1782932654104031528	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-mkdir	398f07b379039c44
+8	5705	1782932659799906352	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-download	bb4af4894193bd9
+8	5705	1782932659799906352	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-download	bb4af4894193bd9
+5705	5719	1782932659800906330	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-update	be85e7e978f7a302
+5705	5719	1782932659800906330	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-update	be85e7e978f7a302
+5719	5726	1782932659820905890	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-patch	f3271c5813533b48
+5719	5726	1782932659820905890	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-patch	f3271c5813533b48
+5726	5732	1782932659826905758	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-configure	36ec281f14663782
+5726	5732	1782932659826905758	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-configure	36ec281f14663782
+5732	5738	1782932659833905605	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-build	9e2078e57a5be1a3
+5732	5738	1782932659833905605	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-build	9e2078e57a5be1a3
+5739	5745	1782932659839905473	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-install	51cc4c6fd81711a5
+5739	5745	1782932659839905473	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-install	51cc4c6fd81711a5
+5745	5752	1782932659846905319	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-test	8f204d6712ced695
+5745	5752	1782932659846905319	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-test	8f204d6712ced695
+5752	5761	1782932659855905121	CMakeFiles/catch2-populate-complete	1061bece784b7f45
+5752	5761	1782932659855905121	catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-done	1061bece784b7f45
+5752	5761	1782932659855905121	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/catch2-subbuild/CMakeFiles/catch2-populate-complete	1061bece784b7f45
+5752	5761	1782932659855905121	/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/catch2-populate-done	1061bece784b7f45
