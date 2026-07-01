@@ -63,7 +63,6 @@
 /home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/glaze-build/CMakeFiles/install.dir
 /home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/glaze-build/CMakeFiles/install/local.dir
 /home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/glaze-build/CMakeFiles/install/strip.dir
-/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-build/CMakeFiles/flecs.dir
 /home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-build/CMakeFiles/flecs_static.dir
 /home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-build/CMakeFiles/package.dir
 /home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-build/CMakeFiles/package_source.dir
@@ -316,3 +315,13 @@
 /home/jehud/CLionProjects/spectre/cmake-build-debug/tests/suite/CMakeFiles/install.dir
 /home/jehud/CLionProjects/spectre/cmake-build-debug/tests/suite/CMakeFiles/install/local.dir
 /home/jehud/CLionProjects/spectre/cmake-build-debug/tests/suite/CMakeFiles/install/strip.dir
+/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/application/CMakeFiles/spectre_test_application.dir
+/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/application/CMakeFiles/package.dir
+/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/application/CMakeFiles/package_source.dir
+/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/application/CMakeFiles/test.dir
+/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/application/CMakeFiles/edit_cache.dir
+/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/application/CMakeFiles/rebuild_cache.dir
+/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/application/CMakeFiles/list_install_components.dir
+/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/application/CMakeFiles/install.dir
+/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/application/CMakeFiles/install/local.dir
+/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/application/CMakeFiles/install/strip.dir

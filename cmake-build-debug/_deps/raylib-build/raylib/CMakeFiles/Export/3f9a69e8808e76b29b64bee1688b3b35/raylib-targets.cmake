@@ -56,12 +56,12 @@ if(_IMPORT_PREFIX STREQUAL "/")
 endif()
 
 # Create imported target raylib
-add_library(raylib SHARED IMPORTED)
+add_library(raylib STATIC IMPORTED)
 
 set_target_properties(raylib PROPERTIES
-  INTERFACE_COMPILE_DEFINITIONS "USE_LIBTYPE_SHARED;PLATFORM_DESKTOP;GRAPHICS_API_OPENGL_33"
+  INTERFACE_COMPILE_DEFINITIONS "PLATFORM_DESKTOP;GRAPHICS_API_OPENGL_33"
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
-  INTERFACE_LINK_LIBRARIES "m"
+  INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:>;m;/usr/lib/x86_64-linux-gnu/libSM.so;/usr/lib/x86_64-linux-gnu/libICE.so;/usr/lib/x86_64-linux-gnu/libX11.so;/usr/lib/x86_64-linux-gnu/libXext.so"
 )
 
 # Load information for each installed configuration.

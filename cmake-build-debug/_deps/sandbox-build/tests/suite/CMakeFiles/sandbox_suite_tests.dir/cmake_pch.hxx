@@ -2,5 +2,5 @@
 
 #pragma GCC system_header
 #ifdef __cplusplus
-#include "/home/jehud/CLionProjects/spectre/sandbox/source/pch.h"
+#include "/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-src/tests/suite/../../sandbox/source/pch.h"
 #endif // __cplusplus

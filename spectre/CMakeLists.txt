@@ -20,7 +20,11 @@ set(HEADERS
     source/modules/resources/resource_module.h
     source/modules/scene/scene_module.h
     source/modules/window/window_module.h
+    include/spectre/abi/window_service.h
+    include/spectre/sdk/window.hpp
 )
+
+option(SPECTRE_MODULES_STATIC "Build modules statically and link them directly" OFF)
 
 if(SPECTRE_MODULES_STATIC)
     add_library(spectre_plugin STATIC ${SOURCES} ${HEADERS})

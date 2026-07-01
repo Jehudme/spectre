@@ -11,11 +11,14 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
-option(SPECTRE_MODULES_STATIC "Build spectre modules statically" OFF)
+set(SPECTRE_MODULES_STATIC ON CACHE BOOL "Build spectre modules statically" FORCE)
+set(SANDBOX_MODULES_STATIC ON CACHE BOOL "Build sandbox modules statically" FORCE)
 
 include(FetchContent)
 
 # 1. Fetch dependencies
+set(SPECTRE_ORIGINAL_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+set(BUILD_SHARED_LIBS OFF)
 
 
 # sandbox engine
@@ -68,6 +71,8 @@ if(NOT Catch2_FOUND)
 endif()
 
 
+
+set(BUILD_SHARED_LIBS ${SPECTRE_ORIGINAL_BUILD_SHARED_LIBS})
 
 # 2. Add source directories
 add_subdirectory(spectre)

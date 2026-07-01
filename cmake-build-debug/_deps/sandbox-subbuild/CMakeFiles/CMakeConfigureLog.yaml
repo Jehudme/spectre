@@ -20,9 +20,7 @@ events:
     names:
       - "uname"
     candidate_directories:
-      - "/home/jehud/.gemini/antigravity-cli/bin/"
       - "/home/jehud/.local/bin/"
-      - "/home/jehud/.nvm/versions/node/v24.16.0/bin/"
       - "/usr/local/sbin/"
       - "/usr/local/bin/"
       - "/usr/sbin/"
@@ -33,20 +31,15 @@ events:
       - "/usr/local/games/"
       - "/snap/bin/"
       - "/home/jehud/.local/share/JetBrains/Toolbox/scripts/"
+      - "/home/jehud/.local/share/JetBrains/Toolbox/apps/clion/bin/ninja/linux/x64/"
     searched_directories:
-      - "/home/jehud/.gemini/antigravity-cli/bin/uname"
       - "/home/jehud/.local/bin/uname"
-      - "/home/jehud/.nvm/versions/node/v24.16.0/bin/uname"
       - "/usr/local/sbin/uname"
       - "/usr/local/bin/uname"
       - "/usr/sbin/uname"
     found: "/usr/bin/uname"
     search_context:
       ENV{PATH}:
-        - "/home/jehud/.gemini/antigravity-cli/bin"
-        - "/home/jehud/.local/bin"
-        - "/home/jehud/.local/bin"
-        - "/home/jehud/.nvm/versions/node/v24.16.0/bin"
         - "/home/jehud/.local/bin"
         - "/home/jehud/.local/bin"
         - "/usr/local/sbin"
@@ -59,6 +52,7 @@ events:
         - "/usr/local/games"
         - "/snap/bin"
         - "/home/jehud/.local/share/JetBrains/Toolbox/scripts"
+        - "/home/jehud/.local/share/JetBrains/Toolbox/apps/clion/bin/ninja/linux/x64"
   -
     kind: "message-v1"
     backtrace:

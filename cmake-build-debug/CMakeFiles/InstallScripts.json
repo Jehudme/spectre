@@ -30,7 +30,8 @@
 		"/home/jehud/CLionProjects/spectre/cmake-build-debug/spectre/cmake_install.cmake",
 		"/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/cmake_install.cmake",
 		"/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/unit/cmake_install.cmake",
-		"/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/suite/cmake_install.cmake"
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/suite/cmake_install.cmake",
+		"/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/application/cmake_install.cmake"
 	],
 	"Parallel" : false
 }

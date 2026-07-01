@@ -26,7 +26,7 @@ BUILD_FUZZERS:BOOL=OFF
 //Build a header-only version
 BUILD_HEADER_ONLY:BOOL=OFF
 
-//Build shared libraries
+//Build shared library instead of static
 BUILD_SHARED_LIBS:BOOL=ON
 
 //Build the testing tree.
@@ -236,6 +236,9 @@ CMAKE_AR:FILEPATH=/usr/bin/ar
 // MinSizeRel ...
 CMAKE_BUILD_TYPE:STRING=Debug
 
+//Enable colored diagnostics throughout.
+CMAKE_COLOR_DIAGNOSTICS:BOOL=ON
+
 //CXX compiler
 CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/c++
 
@@ -310,7 +313,7 @@ CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 CMAKE_EXPORT_BUILD_DATABASE:BOOL=
 
 //Enable/Disable output of compile commands during generation.
-CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=
+CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=1
 
 //Value Computed by CMake.
 CMAKE_FIND_PACKAGE_REDIRECTS_DIR:STATIC=/home/jehud/CLionProjects/spectre/cmake-build-debug/CMakeFiles/pkgRedirects
@@ -806,7 +809,7 @@ SANDBOX_BUILD_TESTING:BOOL=ON
 SANDBOX_ENABLE_LTO:BOOL=OFF
 
 //Build modules statically and link them directly
-SANDBOX_MODULES_STATIC:BOOL=OFF
+SANDBOX_MODULES_STATIC:BOOL=ON
 
 //Name of the computer/site where compile is being run
 SITE:STRING=Jehud-PC
@@ -903,8 +906,8 @@ SPDLOG_WCHAR_FILENAMES:BOOL=OFF
 //non supported option
 SPDLOG_WCHAR_SUPPORT:BOOL=OFF
 
-//Build spectre modules statically
-SPECTRE_MODULES_STATIC:BOOL=OFF
+//Build modules statically and link them directly
+SPECTRE_MODULES_STATIC:BOOL=ON
 
 //Link raylib against system GLFW instead of embedded one
 USE_EXTERNAL_GLFW:STRING=OFF
@@ -1519,6 +1522,15 @@ spectre_suite_tests_IS_TOP_LEVEL:STATIC=OFF
 spectre_suite_tests_SOURCE_DIR:STATIC=/home/jehud/CLionProjects/spectre/tests/suite
 
 //Value Computed by CMake
+spectre_test_application_BINARY_DIR:STATIC=/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/application
+
+//Value Computed by CMake
+spectre_test_application_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+spectre_test_application_SOURCE_DIR:STATIC=/home/jehud/CLionProjects/spectre/tests/application
+
+//Value Computed by CMake
 spectre_unit_tests_BINARY_DIR:STATIC=/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/unit
 
 //Value Computed by CMake
@@ -1793,7 +1805,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=30
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=31
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
