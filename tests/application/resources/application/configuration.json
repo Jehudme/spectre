@@ -1,7 +1,8 @@
 {
     "engine": {
         "sandbox": [
-            "spectre-window@1.0.0"
+            "spectre-window@1.0.0",
+            "spectre-renderer@1.0.0"
         ]
     },
     "window": {

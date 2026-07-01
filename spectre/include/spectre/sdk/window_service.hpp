@@ -9,7 +9,7 @@ namespace spectre::module {
     /**
      * @brief High-level C++ SDK for interacting with the window module.
      */
-    class window {
+    class window_service {
     public:
         // --- Core Application Loop ---
         static bool should_close(const flecs::world& entity_world) {

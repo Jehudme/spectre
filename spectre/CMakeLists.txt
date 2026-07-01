@@ -21,7 +21,8 @@ set(HEADERS
     source/modules/scene/scene_module.h
     source/modules/window/window_module.h
     include/spectre/abi/window_service.h
-    include/spectre/sdk/window.hpp
+        include/spectre/sdk/window_service.hpp
+        include/spectre/abi/renderer_service.h
 )
 
 option(SPECTRE_MODULES_STATIC "Build modules statically and link them directly" OFF)
