@@ -15,8 +15,8 @@
         "PolygonRenderer": {
           "radius": 50.0,
           "point_count": 4,
-          "fill_color": [0.0, 0.0, 1.0, 1.0],
-          "outline_color": [0.0, 1.0, 0.0, 1.0],
+          "fill_color": {"r": 0.0, "g": 0.0, "b": 1.0, "a": 1.0},
+          "outline_color": {"r": 0.0, "g": 1.0, "b": 0.0, "a": 1.0},
           "outline_thickness": 3.0
         }
       },
@@ -39,8 +39,8 @@
         "PolygonRenderer": {
           "radius": 40.0,
           "point_count": 3,
-          "fill_color": [0.8, 0.2, 0.2, 1.0],
-          "outline_color": [1.0, 1.0, 1.0, 1.0],
+          "fill_color": {"r": 0.8, "g": 0.2, "b": 0.2, "a": 1.0},
+          "outline_color": {"r": 1.0, "g": 1.0, "b": 1.0, "a": 1.0},
           "outline_thickness": 2.0
         }
       },
@@ -60,7 +60,7 @@
             },
             "LineRenderer": {
               "end_point_local": [0.0, -30.0],
-              "color": [1.0, 0.5, 0.0, 0.8],
+              "color": {"r": 1.0, "g": 0.5, "b": 0.0, "a": 0.8},
               "thickness": 4.0
             }
           },
@@ -81,7 +81,7 @@
             },
             "LineRenderer": {
               "end_point_local": [0.0, -30.0],
-              "color": [1.0, 0.5, 0.0, 0.8],
+              "color": {"r": 1.0, "g": 0.5, "b": 0.0, "a": 0.8},
               "thickness": 4.0
             }
           },

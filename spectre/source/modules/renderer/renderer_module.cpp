@@ -65,10 +65,19 @@ namespace spectre::module {
     }
 
     static spectre_color_t read_color(sandbox::properties& props, const std::string& key) {
-        std::vector<double> arr;
-        if (props.get_array(key, arr) && arr.size() == 4) {
-            return spectre_color_t{(float)arr[0], (float)arr[1], (float)arr[2], (float)arr[3]};
+        auto color_node = props.sub(key);
+        if (color_node.is_valid()) {
+            // Try object first (r, g, b, a)
+            if (color_node.has("r") && color_node.has("g") && color_node.has("b") && color_node.has("a")) {
+                float r = color_node.get<double>("r").value_or(1.0);
+                float g = color_node.get<double>("g").value_or(1.0);
+                float b = color_node.get<double>("b").value_or(1.0);
+                float a = color_node.get<double>("a").value_or(1.0);
+                return spectre_color_t{r, g, b, a};
+            }
         }
+        
+        // Fallback
         return spectre_color_t{1.0f, 1.0f, 1.0f, 1.0f};
     }
 
