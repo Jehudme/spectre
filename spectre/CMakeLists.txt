@@ -9,9 +9,9 @@ set(SOURCES
     source/modules/renderer/renderer_module.cpp
     source/modules/resources/resource_module.cpp
     source/modules/scene/scene_module.cpp
-    source/modules/window/window_module.cpp
-        source/modules/prefabs/prefabs.cpp
-        source/modules/prefabs/prefabs.h
+    source/modules/window/window_input_module.cpp
+    source/modules/prefabs/prefabs.cpp
+    source/modules/prefabs/prefabs.h
 )
 
 # Headers
@@ -19,9 +19,8 @@ set(HEADERS
     source/modules/renderer/renderer_module.h
     source/modules/resources/resource_module.h
     source/modules/scene/scene_module.h
-    source/modules/window/window_module.h
-    include/spectre/abi/window_service.h
-        include/spectre/sdk/window_service.hpp
+    include/spectre/abi/spectre_window_input_abi.h
+        include/sandbox/sdk/window_input_service.hpp
         include/spectre/abi/renderer_service.h
         include/spectre/abi/renderer_components.h
 )
