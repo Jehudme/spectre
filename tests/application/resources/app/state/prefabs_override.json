@@ -1,0 +1,11 @@
+{
+  "children": {
+    "child_prefab": {
+      "components": {
+        "DummyComponent": {
+          "value": 99
+        }
+      }
+    }
+  }
+}
