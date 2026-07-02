@@ -2,6 +2,7 @@
 #include <spectre/abi/window_service.h>
 #include <sandbox/sdk/configuration.hpp>
 #include <sandbox/sdk/logs.hpp>
+#include <sandbox/sdk/runtime.hpp>
 #include <stdexcept>
 #include <raylib.h>
 #include <string>
@@ -23,6 +24,15 @@ namespace spectre::module {
             InitWindow(static_cast<int>(width), static_cast<int>(height), title.c_str());
             SetTargetFPS(static_cast<int>(fps));
             
+            m_window_system = m_entity_world.system("WindowSystem")
+                .kind(flecs::OnUpdate)
+                .run([this](flecs::iter& it) {
+                    if (WindowShouldClose()) {
+                        sandbox::modules::logs::info(m_entity_world, "Window Module: Close requested, stopping runtime.");
+                        sandbox::modules::runtime::stop(m_entity_world);
+                    }
+                });
+            
             sandbox::modules::logs::info(m_entity_world, "Window Module: Successfully initialized raylib window.");
         } catch (const std::exception& e) {
             sandbox::modules::logs::error(m_entity_world, "Window Module: Exception during initialization - {}", e.what());
@@ -31,6 +41,10 @@ namespace spectre::module {
     }
     
     WindowModule::~WindowModule() {
+        if (m_window_system.is_valid()) {
+            m_window_system.destruct();
+        }
+        
         if (IsWindowReady()) {
             sandbox::modules::logs::trace(m_entity_world, "Window Module: Closing window...");
             CloseWindow();
@@ -338,6 +352,15 @@ namespace spectre::module {
             .version_major = 1,
             .version_minor = 0,
             .version_patch = -1
+        },
+        {
+            .kind = SANDBOX_REQUIREMENT_KIND_MODULE,
+            .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+            .name = "runtime",
+            .architecture = "sandbox",
+            .version_major = 1,
+            .version_minor = 0,
+            .version_patch = -1
         }
     };
 
@@ -355,7 +378,7 @@ namespace spectre::module {
         .version_patch = 0,
         .service = &spectre_window_service_t_info,
         .requirements = window_requirements,
-        .requirement_count = 2
+        .requirement_count = 3
     })
 
 }

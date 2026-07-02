@@ -18,7 +18,7 @@ namespace spectre::module {
     inline void draw_polygon(const spectre_polygon_renderer_t* poly);
     inline void draw_line(const spectre_line_renderer_t* line);
     inline void draw_rectangle(const spectre_rectangle_renderer_t* rect);
-    inline void draw_complex_polygon(const spectre_complex_polygon_renderer_t* poly);
+    inline void draw_custom_polygon(const spectre_custom_polygon_renderer_t* poly);
 
     // ------------------------------------------------------------------------
     // MODULE LIFECYCLE
@@ -32,7 +32,7 @@ namespace spectre::module {
         m_entity_world.component<spectre_polygon_renderer_t>("PolygonRenderer");
         m_entity_world.component<spectre_line_renderer_t>("LineRenderer");
         m_entity_world.component<spectre_rectangle_renderer_t>("RectangleRenderer");
-        m_entity_world.component<spectre_complex_polygon_renderer_t>("ComplexPolygonRenderer");
+        m_entity_world.component<spectre_custom_polygon_renderer_t>("CustomPolygonRenderer");
 
         // 2. Define the main rendering system
         m_render_system = m_entity_world.system("RenderSystem")
@@ -81,8 +81,8 @@ namespace spectre::module {
                         if (const auto* line = data.entity.try_get<spectre_line_renderer_t>()) draw_line(line);
                     } else if (data.renderable->type == SPECTRE_RENDER_2D_RECTANGLE) {
                         if (const auto* rect = data.entity.try_get<spectre_rectangle_renderer_t>()) draw_rectangle(rect);
-                    } else if (data.renderable->type == SPECTRE_RENDER_2D_COMPLEX_POLYGON) {
-                        if (const auto* cpoly = data.entity.try_get<spectre_complex_polygon_renderer_t>()) draw_complex_polygon(cpoly);
+                    } else if (data.renderable->type == SPECTRE_RENDER_2D_CUSTOM_POLYGON) {
+                        if (const auto* cpoly = data.entity.try_get<spectre_custom_polygon_renderer_t>()) draw_custom_polygon(cpoly);
                     }
 
                     rlPopMatrix();
@@ -193,11 +193,11 @@ namespace spectre::module {
                 .scale = {1.5f, 1.5f}
             })
             .set<spectre_renderable_2d_t>({
-                .type = SPECTRE_RENDER_2D_COMPLEX_POLYGON,
+                .type = SPECTRE_RENDER_2D_CUSTOM_POLYGON,
                 .is_visible = true,
                 .z_order = 5
             })
-            .set<spectre_complex_polygon_renderer_t>({
+            .set<spectre_custom_polygon_renderer_t>({
                 .vertices = star_points,
                 .vertex_count = 10,
                 .fill_color = {0.8f, 0.2f, 0.8f, 1.0f}, // Purple
@@ -246,7 +246,7 @@ namespace spectre::module {
         }
     }
 
-    inline void draw_complex_polygon(const spectre_complex_polygon_renderer_t* poly) {
+    inline void draw_custom_polygon(const spectre_custom_polygon_renderer_t* poly) {
         if (!poly->vertices || poly->vertex_count < 3) return;
 
         Vector2 center = {0, 0};

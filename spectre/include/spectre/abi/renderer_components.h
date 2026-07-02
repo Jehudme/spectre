@@ -41,7 +41,7 @@ typedef enum spectre_render_type_2d_t {
     SPECTRE_RENDER_2D_POLYGON = 0, // Handles Triangles, Squares, Rectangles, Hexagons, and Circles
     SPECTRE_RENDER_2D_LINE,
     SPECTRE_RENDER_2D_RECTANGLE,
-    SPECTRE_RENDER_2D_COMPLEX_POLYGON
+    SPECTRE_RENDER_2D_CUSTOM_POLYGON
 } spectre_render_type_2d_t;
 
 /**
@@ -101,7 +101,7 @@ typedef struct spectre_rectangle_renderer_t {
 /**
  * @brief Represents a custom polygon built from a list of points.
  */
-typedef struct spectre_complex_polygon_renderer_t {
+typedef struct spectre_custom_polygon_renderer_t {
     // Array of floats, structured as [x1, y1, x2, y2, ...]
     // These points are relative to the transform position.
     float* vertices;
@@ -110,7 +110,7 @@ typedef struct spectre_complex_polygon_renderer_t {
     spectre_color_t fill_color;
     spectre_color_t outline_color;
     float outline_thickness;
-} spectre_complex_polygon_renderer_t;
+} spectre_custom_polygon_renderer_t;
 
 #ifdef __cplusplus
 }

@@ -57,5 +57,6 @@ namespace spectre::module {
 
     private:
         flecs::world m_entity_world;
+        flecs::system m_window_system;
     };
 }
