@@ -3,92 +3,11 @@
     "square": {
       "components": {
         "Transform2D": {
-          "position": [0.0, 0.0],
-          "rotation": 0.0,
-          "scale": [1.0, 1.0]
-        },
-        "Renderable2D": {
-          "type": "SPECTRE_RENDER_2D_POLYGON",
-          "is_visible": true,
-          "z_order": 1
-        },
-        "PolygonRenderer": {
-          "radius": 50.0,
-          "point_count": 4,
-          "fill_color": [0.0, 0.0, 1.0, 1.0],
-          "outline_color": [0.0, 1.0, 0.0, 1.0],
-          "outline_thickness": 3.0
+          "position": [0.0, 0.0]
         }
       },
       "auto_overrides": ["Transform2D"],
       "children": {}
-    },
-
-    "spaceship_striker": {
-      "components": {
-        "Transform2D": {
-          "position": [0.0, 0.0],
-          "rotation": 0.0,
-          "scale": [1.0, 1.0]
-        },
-        "Renderable2D": {
-          "type": "SPECTRE_RENDER_2D_POLYGON",
-          "is_visible": true,
-          "z_order": 2
-        },
-        "PolygonRenderer": {
-          "radius": 40.0,
-          "point_count": 3,
-          "fill_color": [0.8, 0.2, 0.2, 1.0],
-          "outline_color": [1.0, 1.0, 1.0, 1.0],
-          "outline_thickness": 2.0
-        }
-      },
-      "auto_overrides": ["Transform2D"],
-      "children": {
-        "left_engine_trail": {
-          "components": {
-            "Transform2D": {
-              "position": [-15.0, -20.0],
-              "rotation": 0.0,
-              "scale": [1.0, 1.0]
-            },
-            "Renderable2D": {
-              "type": "SPECTRE_RENDER_2D_LINE",
-              "is_visible": true,
-              "z_order": 1
-            },
-            "LineRenderer": {
-              "end_point_local": [0.0, -30.0],
-              "color": [1.0, 0.5, 0.0, 0.8],
-              "thickness": 4.0
-            }
-          },
-          "auto_overrides": [],
-          "children": {}
-        },
-        "right_engine_trail": {
-          "components": {
-            "Transform2D": {
-              "position": [15.0, -20.0],
-              "rotation": 0.0,
-              "scale": [1.0, 1.0]
-            },
-            "Renderable2D": {
-              "type": "SPECTRE_RENDER_2D_LINE",
-              "is_visible": true,
-              "z_order": 1
-            },
-            "LineRenderer": {
-              "end_point_local": [0.0, -30.0],
-              "color": [1.0, 0.5, 0.0, 0.8],
-              "thickness": 4.0
-            }
-          },
-          "auto_overrides": [],
-          "children": {}
-        }
-      }
     }
   }
 }
