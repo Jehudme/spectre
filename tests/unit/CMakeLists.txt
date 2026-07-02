@@ -3,14 +3,26 @@ project(spectre_unit_tests LANGUAGES C CXX)
 
 set(SPECTRE_UNIT_TEST_SOURCES
     source/main.cpp
+    source/resources_test.cpp
 )
 
 add_executable(spectre_unit_tests ${SPECTRE_UNIT_TEST_SOURCES})
 set_target_properties(spectre_unit_tests PROPERTIES ENABLE_EXPORTS ON)
 
+target_compile_definitions(spectre_unit_tests PRIVATE
+    APP_RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../application/resources/app"
+)
+
 target_link_libraries(spectre_unit_tests
     PRIVATE
         sandbox::library
+        -Wl,--whole-archive 
+        $<TARGET_FILE:sandbox_plugin>
+        $<TARGET_FILE:spectre_plugin>
+        $<TARGET_FILE:flecs_static> 
+        -Wl,--no-whole-archive
+        sandbox_plugin
+        spectre_plugin
         Catch2::Catch2WithMain
         raylib
         EnTT::EnTT
