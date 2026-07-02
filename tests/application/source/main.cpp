@@ -14,10 +14,6 @@ int main(int argc, char* argv[]) {
         sandbox::engine engine;
         sandbox::properties props;
 
-        // Mount the application resources folder as app://
-        props.set("filesystem/mounts/app/physical", APP_RESOURCES_DIR);
-        props.set("filesystem/mounts/app/readonly", true);
-
         // Simulate launcher loading the app configuration
         std::string config_path = std::string(APP_RESOURCES_DIR) + "/configuration.json";
         if (FILE* f = fopen(config_path.c_str(), "rb")) {
@@ -31,6 +27,10 @@ int main(int argc, char* argv[]) {
             sandbox::properties app_props(content, sandbox::properties::Format::JSON);
             props.merge("", app_props);
         }
+
+        // Mount the application resources folder as app://
+        props.set("filesystem/mounts/app/physical", APP_RESOURCES_DIR);
+        props.set("filesystem/mounts/app/readonly", true);
 
         // Ensure mandatory modules are present
         std::vector<std::string> modules;
