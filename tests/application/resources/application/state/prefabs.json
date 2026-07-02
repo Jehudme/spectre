@@ -25,6 +25,7 @@
           "fill_color": {"r": 0.3, "g": 0.3, "b": 0.3, "a": 1.0},
           "outline_color": {"r": 0.5, "g": 0.5, "b": 0.5, "a": 1.0},
           "outline_thickness": 2.0
+        }
       },
       "children": {}
     },
