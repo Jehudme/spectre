@@ -29,16 +29,16 @@ namespace spectre::module {
         sandbox::properties props(props_h, false);
         spectre_transform_2d_t t = {0};
         
-        std::vector<double> pos;
-        if (props.get_array("position", pos) && pos.size() == 2) {
-            t.position[0] = (float)pos[0];
-            t.position[1] = (float)pos[1];
+        auto pos_node = props.sub("position");
+        if (pos_node.is_valid() && pos_node.has("x") && pos_node.has("y")) {
+            t.position[0] = (float)pos_node.get<double>("x").value_or(0.0);
+            t.position[1] = (float)pos_node.get<double>("y").value_or(0.0);
         }
         t.rotation = (float)props.get<double>("rotation").value_or(0.0);
-        std::vector<double> scale;
-        if (props.get_array("scale", scale) && scale.size() == 2) {
-            t.scale[0] = (float)scale[0];
-            t.scale[1] = (float)scale[1];
+        auto scale_node = props.sub("scale");
+        if (scale_node.is_valid() && scale_node.has("x") && scale_node.has("y")) {
+            t.scale[0] = (float)scale_node.get<double>("x").value_or(1.0);
+            t.scale[1] = (float)scale_node.get<double>("y").value_or(1.0);
         } else {
             t.scale[0] = 1.0f;
             t.scale[1] = 1.0f;
@@ -95,14 +95,49 @@ namespace spectre::module {
     static void factory_LineRenderer(ecs_world_t* ecs, ecs_entity_t e, sandbox_properties_handle_t props_h) {
         sandbox::properties props(props_h, false);
         spectre_line_renderer_t r = {0};
-        std::vector<double> ep;
-        if (props.get_array("end_point_local", ep) && ep.size() == 2) {
-            r.end_point_local[0] = (float)ep[0];
-            r.end_point_local[1] = (float)ep[1];
+        auto ep_node = props.sub("end_point_local");
+        if (ep_node.is_valid() && ep_node.has("x") && ep_node.has("y")) {
+            r.end_point_local[0] = (float)ep_node.get<double>("x").value_or(0.0);
+            r.end_point_local[1] = (float)ep_node.get<double>("y").value_or(0.0);
         }
         r.color = read_color(props, "color");
         r.thickness = (float)props.get<double>("thickness").value_or(1.0);
         flecs::world(ecs).entity(e).set<spectre_line_renderer_t>(r);
+    }
+
+    static void factory_RectangleRenderer(ecs_world_t* ecs, ecs_entity_t e, sandbox_properties_handle_t props_h) {
+        sandbox::properties props(props_h, false);
+        spectre_rectangle_renderer_t r = {0};
+        r.width = (float)props.get<double>("width").value_or(50.0);
+        r.height = (float)props.get<double>("height").value_or(50.0);
+        r.fill_color = read_color(props, "fill_color");
+        r.outline_color = read_color(props, "outline_color");
+        r.outline_thickness = (float)props.get<double>("outline_thickness").value_or(1.0);
+        flecs::world(ecs).entity(e).set<spectre_rectangle_renderer_t>(r);
+    }
+
+    static void factory_CustomPolygonRenderer(ecs_world_t* ecs, ecs_entity_t e, sandbox_properties_handle_t props_h) {
+        sandbox::properties props(props_h, false);
+        spectre_custom_polygon_renderer_t r = {0};
+        
+        int count = (int)props.get<int64_t>("vertex_count").value_or(0);
+        if (count > 0) {
+            r.vertices = new float[count * 2];
+            r.vertex_count = count;
+            auto vertices_node = props.sub("vertices");
+            if (vertices_node.is_valid()) {
+                for (int i = 0; i < count; ++i) {
+                    std::string key = std::to_string(i);
+                    auto v_node = vertices_node.sub(key);
+                    r.vertices[i*2] = (float)v_node.get<double>("x").value_or(0.0);
+                    r.vertices[i*2+1] = (float)v_node.get<double>("y").value_or(0.0);
+                }
+            }
+        }
+        r.fill_color = read_color(props, "fill_color");
+        r.outline_color = read_color(props, "outline_color");
+        r.outline_thickness = (float)props.get<double>("outline_thickness").value_or(1.0);
+        flecs::world(ecs).entity(e).set<spectre_custom_polygon_renderer_t>(r);
     }
 
     // ------------------------------------------------------------------------
@@ -147,7 +182,13 @@ namespace spectre::module {
             .member<float>("thickness");
 
         m_entity_world.component<spectre_rectangle_renderer_t>("RectangleRenderer");
-        m_entity_world.component<spectre_custom_polygon_renderer_t>("CustomPolygonRenderer");
+        m_entity_world.component<spectre_custom_polygon_renderer_t>("CustomPolygonRenderer")
+            .on_remove([](flecs::entity e, spectre_custom_polygon_renderer_t& cpoly) {
+                if (cpoly.vertices) {
+                    delete[] cpoly.vertices;
+                    cpoly.vertices = nullptr;
+                }
+            });
 
         // 2. Define the main rendering system
         m_render_system = m_entity_world.system("RenderSystem")
@@ -214,20 +255,21 @@ namespace spectre::module {
             prefabs->api->register_component_factory(m_entity_world.c_ptr(), "Renderable2D", factory_Renderable2D);
             prefabs->api->register_component_factory(m_entity_world.c_ptr(), "PolygonRenderer", factory_PolygonRenderer);
             prefabs->api->register_component_factory(m_entity_world.c_ptr(), "LineRenderer", factory_LineRenderer);
+            prefabs->api->register_component_factory(m_entity_world.c_ptr(), "RectangleRenderer", factory_RectangleRenderer);
+            prefabs->api->register_component_factory(m_entity_world.c_ptr(), "CustomPolygonRenderer", factory_CustomPolygonRenderer);
             
             // Create test prefabs from JSON
             sandbox_properties_handle_t empty = {0};
             
-            auto square = prefabs->api->create_prefab(m_entity_world.c_ptr(), "square", empty);
-            if (square) {
-                // Adjust position for testing
+            auto asteroid = prefabs->api->create_prefab(m_entity_world.c_ptr(), "asteroid", empty);
+            if (asteroid) {
                 auto comp_id = m_entity_world.component<spectre_transform_2d_t>().id();
-                const auto* t = (const spectre_transform_2d_t*)ecs_get_id(m_entity_world.c_ptr(), square, comp_id);
+                const auto* t = (const spectre_transform_2d_t*)ecs_get_id(m_entity_world.c_ptr(), asteroid, comp_id);
                 if (t) {
                     spectre_transform_2d_t nt = *t;
-                    nt.position[0] = 400.0f;
-                    nt.position[1] = 360.0f;
-                    ecs_set_id(m_entity_world.c_ptr(), square, comp_id, sizeof(spectre_transform_2d_t), &nt);
+                    nt.position[0] = 300.0f;
+                    nt.position[1] = 200.0f;
+                    ecs_set_id(m_entity_world.c_ptr(), asteroid, comp_id, sizeof(spectre_transform_2d_t), &nt);
                 }
             }
             
@@ -237,9 +279,21 @@ namespace spectre::module {
                 const auto* t = (const spectre_transform_2d_t*)ecs_get_id(m_entity_world.c_ptr(), ship, comp_id);
                 if (t) {
                     spectre_transform_2d_t nt = *t;
-                    nt.position[0] = 800.0f;
-                    nt.position[1] = 360.0f;
+                    nt.position[0] = 640.0f;
+                    nt.position[1] = 400.0f;
                     ecs_set_id(m_entity_world.c_ptr(), ship, comp_id, sizeof(spectre_transform_2d_t), &nt);
+                }
+            }
+            
+            auto station = prefabs->api->create_prefab(m_entity_world.c_ptr(), "space_station", empty);
+            if (station) {
+                auto comp_id = m_entity_world.component<spectre_transform_2d_t>().id();
+                const auto* t = (const spectre_transform_2d_t*)ecs_get_id(m_entity_world.c_ptr(), station, comp_id);
+                if (t) {
+                    spectre_transform_2d_t nt = *t;
+                    nt.position[0] = 1000.0f;
+                    nt.position[1] = 500.0f;
+                    ecs_set_id(m_entity_world.c_ptr(), station, comp_id, sizeof(spectre_transform_2d_t), &nt);
                 }
             }
         }
