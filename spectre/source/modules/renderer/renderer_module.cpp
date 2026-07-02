@@ -292,13 +292,15 @@ namespace spectre::module {
         if (!prefabs || !prefabs->api) return;
 
         sandbox_properties_handle_t no_override = {0};
-        const ecs_entity_t entity_id = prefabs->api->create_prefab(world.c_ptr(), prefab_name, no_override);
+        const ecs_entity_t prefab_id = prefabs->api->create_prefab(world.c_ptr(), prefab_name, no_override);
 
-        if (!entity_id) {
+        if (!prefab_id) {
             sandbox::modules::logs::warn(world,
-                "Renderer Module: Failed to create test entity from prefab '{}'.", prefab_name);
+                "Renderer Module: Failed to load prefab '{}' for test entity.", prefab_name);
             return;
         }
+
+        const ecs_entity_t entity_id = ecs_new_w_pair(world.c_ptr(), EcsIsA, prefab_id);
 
         const ecs_id_t transform_component_id = world.component<spectre_transform_2d_t>().id();
         const auto* existing_transform =
@@ -341,7 +343,18 @@ namespace spectre::module {
 
         // Spawn test entities placed across the scene.
         spawn_test_entity_at(m_entity_world, "asteroid",           300.0f, 200.0f);
-        spawn_test_entity_at(m_entity_world, "spaceship_striker",  640.0f, 400.0f);
+
+        // Example: Build the prefab, set a default override, then instantiate it
+        if (const auto* prefabs = SANDBOX_GET_SERVICE(m_entity_world, spectre_prefabs_service_t)) {
+            sandbox_properties_handle_t no_override = {0};
+            ecs_entity_t prefab_id = prefabs->api->create_prefab(m_entity_world.c_ptr(), "spaceship_striker", no_override);
+            if (prefab_id) {
+                // Modify the prefab directly (affects all instances created hereafter)
+                m_entity_world.prefab("spaceship_striker").set<spectre_transform_2d_t>({{640.0f, 400.0f}, 0.0f, {1.0f, 1.0f}});
+                // Create an instance from the modified prefab
+                m_entity_world.entity().is_a(prefab_id);
+            }
+        }
         spawn_test_entity_at(m_entity_world, "space_station",     1000.0f, 500.0f);
 
         sandbox::modules::logs::info(m_entity_world, "Renderer Module: Initialized.");

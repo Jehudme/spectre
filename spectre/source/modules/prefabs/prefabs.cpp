@@ -117,7 +117,7 @@ namespace spectre::module {
         if (!children_node.is_valid()) return;
 
         for (const auto& child_name : children_node.keys("")) {
-            flecs::entity child_entity = m_entity_world.entity().child_of(entity);
+            flecs::entity child_entity = m_entity_world.prefab(child_name.c_str()).child_of(entity);
             parse_entity_recursive(child_entity, children_node.sub(child_name.c_str()));
         }
     }
@@ -131,7 +131,7 @@ namespace spectre::module {
             return flecs::entity::null();
         }
 
-        flecs::entity new_entity = m_entity_world.entity();
+        flecs::entity new_entity = m_entity_world.prefab(prefab_name.c_str());
         parse_entity_recursive(new_entity, template_it->second.template_props);
         return new_entity;
     }

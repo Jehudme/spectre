@@ -47,8 +47,8 @@ namespace spectre::module {
 
         // ── Entity Creation ────────────────────────────────────────────────────
         /**
-         * @brief Instantiates an entity from the prefab named `prefab_name`.
-         *        Returns a null entity if the prefab is not found.
+         * @brief Instantiates a Flecs prefab entity from the JSON definition named `prefab_name`.
+         *        Returns a null entity if the prefab definition is not found.
          *        Override properties can be passed via `override_props` (unused placeholder).
          */
         flecs::entity create_prefab(const std::string& prefab_name,
