@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Source files
 set(SOURCES
-    source/modules/input/input_module.cpp
     source/modules/renderer/renderer_module.cpp
     source/modules/resources/resource_module.cpp
     source/modules/scene/scene_module.cpp
@@ -17,7 +16,6 @@ set(SOURCES
 
 # Headers
 set(HEADERS
-    source/modules/input/input_module.h
     source/modules/renderer/renderer_module.h
     source/modules/resources/resource_module.h
     source/modules/scene/scene_module.h

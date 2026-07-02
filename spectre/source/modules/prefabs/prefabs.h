@@ -13,6 +13,7 @@ namespace spectre::module {
     struct PrefabTemplate {
         std::string name;
         sandbox::properties template_props;
+        bool is_built = false;
     };
 
     class PrefabsModule {
@@ -28,6 +29,7 @@ namespace spectre::module {
                                     const sandbox::properties& override_props);
 
     private:
+        void build_prefab_hierarchy(flecs::entity prefab_entity, const sandbox::properties& props);
         void apply_component(flecs::entity entity, std::string_view component_name, 
                              const sandbox::properties& component_props, bool override_comp);
 
