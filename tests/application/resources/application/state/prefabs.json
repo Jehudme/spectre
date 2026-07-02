@@ -25,8 +25,8 @@
           "fill_color": {"r": 0.3, "g": 0.3, "b": 0.3, "a": 1.0},
           "outline_color": {"r": 0.5, "g": 0.5, "b": 0.5, "a": 1.0},
           "outline_thickness": 2.0
-        }
-      }
+      },
+      "children": {}
     },
     "spaceship_striker": {
       "components": {
@@ -53,9 +53,8 @@
           "outline_thickness": 2.0
         }
       },
-      "children": [
-        {
-          "name": "left_engine_trail",
+      "children": {
+        "left_engine_trail": {
           "components": {
             "Transform2D": {
               "position": {"x": -10.0, "y": 15.0},
@@ -74,8 +73,7 @@
             }
           }
         },
-        {
-          "name": "right_engine_trail",
+        "right_engine_trail": {
           "components": {
             "Transform2D": {
               "position": {"x": 10.0, "y": 15.0},
@@ -94,7 +92,7 @@
             }
           }
         }
-      ]
+      }
     },
     "space_station": {
       "components": {
@@ -116,9 +114,8 @@
           "outline_thickness": 2.0
         }
       },
-      "children": [
-        {
-          "name": "solar_panel_left",
+      "children": {
+        "solar_panel_left": {
           "components": {
             "Transform2D": {
               "position": {"x": -80.0, "y": 0.0},
@@ -139,8 +136,7 @@
             }
           }
         },
-        {
-          "name": "solar_panel_right",
+        "solar_panel_right": {
           "components": {
             "Transform2D": {
               "position": {"x": 80.0, "y": 0.0},
@@ -161,7 +157,7 @@
             }
           }
         }
-      ]
+      }
     }
   }
 }
