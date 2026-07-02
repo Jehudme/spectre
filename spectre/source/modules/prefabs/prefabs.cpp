@@ -19,7 +19,7 @@ namespace spectre::module {
                 for (const auto& key : keys) {
                     prefab_type_t pt;
                     pt.name = key;
-                    pt.template_props = prefabs_node.sub(key.c_str()).get_raw();
+                    pt.template_props = prefabs_node.sub(key.c_str());
                     m_prefabs_types[key] = std::move(pt);
                 }
             }
@@ -77,8 +77,7 @@ namespace spectre::module {
         }
 
         flecs::entity e = m_entity_world.entity();
-        sandbox::properties props(it->second.template_props, false);
-        parse_prefab_recursive(e, props);
+        parse_prefab_recursive(e, it->second.template_props);
         return e;
     }
 }

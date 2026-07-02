@@ -11,7 +11,7 @@ namespace spectre::module {
 
     struct prefab_type_t {
         std::string name;
-        sandbox_properties_handle_t template_props;
+        sandbox::properties template_props;
     };
 
     class prefabs_module {
