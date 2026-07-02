@@ -6909,6 +6909,16 @@ build spectre/CMakeFiles/spectre_plugin.dir/source/modules/window/window_module.
   OBJECT_FILE_DIR = spectre/CMakeFiles/spectre_plugin.dir/source/modules/window
   TARGET_SUPPORT_DIR = spectre/CMakeFiles/spectre_plugin.dir
 
+build spectre/CMakeFiles/spectre_plugin.dir/source/modules/prefabs/prefabs.cpp.o: CXX_COMPILER__spectre_plugin_unscanned_Debug /home/jehud/CLionProjects/spectre/spectre/source/modules/prefabs/prefabs.cpp | spectre/CMakeFiles/spectre_plugin.dir/cmake_pch.hxx spectre/CMakeFiles/spectre_plugin.dir/cmake_pch.hxx.gch || cmake_object_order_depends_target_spectre_plugin
+  CONFIG = Debug
+  DEFINES = -DGRAPHICS_API_OPENGL_33 -DPLATFORM_DESKTOP -Dflecs_STATIC
+  DEP_FILE = spectre/CMakeFiles/spectre_plugin.dir/source/modules/prefabs/prefabs.cpp.o.d
+  FLAGS = -g -std=gnu++23 -fPIC -fdiagnostics-color=always -Winvalid-pch -include /home/jehud/CLionProjects/spectre/cmake-build-debug/spectre/CMakeFiles/spectre_plugin.dir/cmake_pch.hxx
+  INCLUDES = -I/home/jehud/CLionProjects/spectre/spectre/source -I/home/jehud/CLionProjects/spectre/spectre/include -I/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-src/modules/core/include -I/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-src/sandbox/include -I/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-src/include -I/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/raylib-src/src -I/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/entt-src/src
+  OBJECT_DIR = spectre/CMakeFiles/spectre_plugin.dir
+  OBJECT_FILE_DIR = spectre/CMakeFiles/spectre_plugin.dir/source/modules/prefabs
+  TARGET_SUPPORT_DIR = spectre/CMakeFiles/spectre_plugin.dir
+
 
 # =============================================================================
 # Link build statements for STATIC_LIBRARY target spectre_plugin
@@ -6917,7 +6927,7 @@ build spectre/CMakeFiles/spectre_plugin.dir/source/modules/window/window_module.
 #############################################
 # Link the static library lib/libspectre_plugin.a
 
-build lib/libspectre_plugin.a: CXX_STATIC_LIBRARY_LINKER__spectre_plugin_Debug spectre/CMakeFiles/spectre_plugin.dir/source/modules/input/input_module.cpp.o spectre/CMakeFiles/spectre_plugin.dir/source/modules/renderer/renderer_module.cpp.o spectre/CMakeFiles/spectre_plugin.dir/source/modules/resources/resource_module.cpp.o spectre/CMakeFiles/spectre_plugin.dir/source/modules/scene/scene_module.cpp.o spectre/CMakeFiles/spectre_plugin.dir/source/modules/window/window_module.cpp.o || _deps/raylib-build/raylib/external/glfw/src/glfw lib/libdylib.a lib/libflecs_static.a lib/libraylib.a lib/libsandbox_library.a
+build lib/libspectre_plugin.a: CXX_STATIC_LIBRARY_LINKER__spectre_plugin_Debug spectre/CMakeFiles/spectre_plugin.dir/source/modules/input/input_module.cpp.o spectre/CMakeFiles/spectre_plugin.dir/source/modules/renderer/renderer_module.cpp.o spectre/CMakeFiles/spectre_plugin.dir/source/modules/resources/resource_module.cpp.o spectre/CMakeFiles/spectre_plugin.dir/source/modules/scene/scene_module.cpp.o spectre/CMakeFiles/spectre_plugin.dir/source/modules/window/window_module.cpp.o spectre/CMakeFiles/spectre_plugin.dir/source/modules/prefabs/prefabs.cpp.o || _deps/raylib-build/raylib/external/glfw/src/glfw lib/libdylib.a lib/libflecs_static.a lib/libraylib.a lib/libsandbox_library.a
   CONFIG = Debug
   LANGUAGE_COMPILE_FLAGS = -g
   OBJECT_DIR = spectre/CMakeFiles/spectre_plugin.dir
@@ -7178,6 +7188,16 @@ build tests/unit/CMakeFiles/spectre_unit_tests.dir/source/resources_test.cpp.o: 
   OBJECT_FILE_DIR = tests/unit/CMakeFiles/spectre_unit_tests.dir/source
   TARGET_SUPPORT_DIR = tests/unit/CMakeFiles/spectre_unit_tests.dir
 
+build tests/unit/CMakeFiles/spectre_unit_tests.dir/source/prefabs_test.cpp.o: CXX_COMPILER__spectre_unit_tests_unscanned_Debug /home/jehud/CLionProjects/spectre/tests/unit/source/prefabs_test.cpp | tests/unit/CMakeFiles/spectre_unit_tests.dir/cmake_pch.hxx tests/unit/CMakeFiles/spectre_unit_tests.dir/cmake_pch.hxx.gch || cmake_object_order_depends_target_spectre_unit_tests
+  CONFIG = Debug
+  DEFINES = -DAPP_RESOURCES_DIR=\"/home/jehud/CLionProjects/spectre/tests/unit/../application/resources/app\" -DGRAPHICS_API_OPENGL_33 -DPLATFORM_DESKTOP -Dflecs_STATIC -Dspectre_unit_tests_EXPORTS
+  DEP_FILE = tests/unit/CMakeFiles/spectre_unit_tests.dir/source/prefabs_test.cpp.o.d
+  FLAGS = -g -std=gnu++23 -fPIE -fdiagnostics-color=always -Winvalid-pch -include /home/jehud/CLionProjects/spectre/cmake-build-debug/tests/unit/CMakeFiles/spectre_unit_tests.dir/cmake_pch.hxx
+  INCLUDES = -I/home/jehud/CLionProjects/spectre/tests/unit/source -I/home/jehud/CLionProjects/spectre/tests/unit/../../spectre/source -I/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-src/modules/core/include -I/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-src/sandbox/include -I/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/flecs-src/include -I/home/jehud/CLionProjects/spectre/spectre/include -I/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/catch2-src/src/catch2/.. -I/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/catch2-build/generated-includes -I/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/raylib-src/src -I/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/entt-src/src
+  OBJECT_DIR = tests/unit/CMakeFiles/spectre_unit_tests.dir
+  OBJECT_FILE_DIR = tests/unit/CMakeFiles/spectre_unit_tests.dir/source
+  TARGET_SUPPORT_DIR = tests/unit/CMakeFiles/spectre_unit_tests.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target spectre_unit_tests
@@ -7186,7 +7206,7 @@ build tests/unit/CMakeFiles/spectre_unit_tests.dir/source/resources_test.cpp.o: 
 #############################################
 # Link the executable bin/spectre_unit_tests
 
-build bin/spectre_unit_tests tests/unit/spectre_unit_tests-b12d07c_tests.cmake | ${cmake_ninja_workdir}tests/unit/spectre_unit_tests-b12d07c_tests.cmake: CXX_EXECUTABLE_LINKER__spectre_unit_tests_Debug tests/unit/CMakeFiles/spectre_unit_tests.dir/source/main.cpp.o tests/unit/CMakeFiles/spectre_unit_tests.dir/source/resources_test.cpp.o | lib/libsandbox_library.a lib/libsandbox_plugin.a lib/libspectre_plugin.a lib/libflecs_static.a lib/libsandbox_plugin.a lib/libspectre_plugin.a lib/libCatch2Maind.a lib/libraylib.a lib/libspdlogd.a lib/libminiz.a lib/libsandbox_library.a lib/libdylib.a lib/libflecs_static.a /usr/lib/x86_64-linux-gnu/libOpenGL.so /usr/lib/x86_64-linux-gnu/libGLX.so /usr/lib/x86_64-linux-gnu/libGLU.so /usr/lib/x86_64-linux-gnu/librt.a /usr/lib/x86_64-linux-gnu/libm.so /usr/lib/x86_64-linux-gnu/libSM.so /usr/lib/x86_64-linux-gnu/libICE.so /usr/lib/x86_64-linux-gnu/libX11.so /usr/lib/x86_64-linux-gnu/libXext.so lib/libCatch2d.a || _deps/raylib-build/raylib/external/glfw/src/glfw lib/libCatch2Maind.a lib/libCatch2d.a lib/libdylib.a lib/libflecs_static.a lib/libminiz.a lib/libraylib.a lib/libsandbox_library.a lib/libsandbox_plugin.a lib/libspdlogd.a lib/libspectre_plugin.a
+build bin/spectre_unit_tests tests/unit/spectre_unit_tests-b12d07c_tests.cmake | ${cmake_ninja_workdir}tests/unit/spectre_unit_tests-b12d07c_tests.cmake: CXX_EXECUTABLE_LINKER__spectre_unit_tests_Debug tests/unit/CMakeFiles/spectre_unit_tests.dir/source/main.cpp.o tests/unit/CMakeFiles/spectre_unit_tests.dir/source/resources_test.cpp.o tests/unit/CMakeFiles/spectre_unit_tests.dir/source/prefabs_test.cpp.o | lib/libsandbox_library.a lib/libsandbox_plugin.a lib/libspectre_plugin.a lib/libflecs_static.a lib/libsandbox_plugin.a lib/libspectre_plugin.a lib/libCatch2Maind.a lib/libraylib.a lib/libspdlogd.a lib/libminiz.a lib/libsandbox_library.a lib/libdylib.a lib/libflecs_static.a /usr/lib/x86_64-linux-gnu/libOpenGL.so /usr/lib/x86_64-linux-gnu/libGLX.so /usr/lib/x86_64-linux-gnu/libGLU.so /usr/lib/x86_64-linux-gnu/librt.a /usr/lib/x86_64-linux-gnu/libm.so /usr/lib/x86_64-linux-gnu/libSM.so /usr/lib/x86_64-linux-gnu/libICE.so /usr/lib/x86_64-linux-gnu/libX11.so /usr/lib/x86_64-linux-gnu/libXext.so lib/libCatch2d.a || _deps/raylib-build/raylib/external/glfw/src/glfw lib/libCatch2Maind.a lib/libCatch2d.a lib/libdylib.a lib/libflecs_static.a lib/libminiz.a lib/libraylib.a lib/libsandbox_library.a lib/libsandbox_plugin.a lib/libspdlogd.a lib/libspectre_plugin.a
   CONFIG = Debug
   DEP_FILE = tests/unit/CMakeFiles/spectre_unit_tests.dir/link.d
   FLAGS = -g

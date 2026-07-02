@@ -1,7 +1,9 @@
 #include "renderer_module.h"
 #include <spectre/abi/renderer_service.h>
 #include <spectre/abi/renderer_components.h>
+#include <spectre/abi/prefabs_service.h>
 #include <sandbox/sdk/logs.hpp>
+#include <sandbox/sdk/properties.hpp>
 
 #include <raylib.h>
 #include <rlgl.h>
@@ -21,16 +23,120 @@ namespace spectre::module {
     inline void draw_custom_polygon(const spectre_custom_polygon_renderer_t* poly);
 
     // ------------------------------------------------------------------------
+    // FACTORY FUNCTIONS
+    // ------------------------------------------------------------------------
+    static void factory_Transform2D(ecs_world_t* ecs, ecs_entity_t e, sandbox_properties_handle_t props_h) {
+        sandbox::properties props(props_h, false);
+        spectre_transform_2d_t t = {0};
+        
+        std::vector<double> pos;
+        if (props.get_array("position", pos) && pos.size() == 2) {
+            t.position[0] = (float)pos[0];
+            t.position[1] = (float)pos[1];
+        }
+        t.rotation = (float)props.get<double>("rotation").value_or(0.0);
+        std::vector<double> scale;
+        if (props.get_array("scale", scale) && scale.size() == 2) {
+            t.scale[0] = (float)scale[0];
+            t.scale[1] = (float)scale[1];
+        } else {
+            t.scale[0] = 1.0f;
+            t.scale[1] = 1.0f;
+        }
+        flecs::world(ecs).entity(e).set<spectre_transform_2d_t>(t);
+    }
+
+    static void factory_Renderable2D(ecs_world_t* ecs, ecs_entity_t e, sandbox_properties_handle_t props_h) {
+        sandbox::properties props(props_h, false);
+        spectre_renderable_2d_t r;
+        r.type = SPECTRE_RENDER_2D_POLYGON;
+        r.is_visible = false;
+        r.z_order = 0;
+        
+        std::string type_str = props.get<std::string>("type").value_or("SPECTRE_RENDER_2D_POLYGON");
+        if (type_str == "SPECTRE_RENDER_2D_POLYGON") r.type = SPECTRE_RENDER_2D_POLYGON;
+        else if (type_str == "SPECTRE_RENDER_2D_LINE") r.type = SPECTRE_RENDER_2D_LINE;
+        else if (type_str == "SPECTRE_RENDER_2D_RECTANGLE") r.type = SPECTRE_RENDER_2D_RECTANGLE;
+        else if (type_str == "SPECTRE_RENDER_2D_CUSTOM_POLYGON") r.type = SPECTRE_RENDER_2D_CUSTOM_POLYGON;
+        
+        r.is_visible = props.get<bool>("is_visible").value_or(true);
+        r.z_order = (uint32_t)props.get<int64_t>("z_order").value_or(0);
+        flecs::world(ecs).entity(e).set<spectre_renderable_2d_t>(r);
+    }
+
+    static spectre_color_t read_color(sandbox::properties& props, const std::string& key) {
+        std::vector<double> arr;
+        if (props.get_array(key, arr) && arr.size() == 4) {
+            return spectre_color_t{(float)arr[0], (float)arr[1], (float)arr[2], (float)arr[3]};
+        }
+        return spectre_color_t{1.0f, 1.0f, 1.0f, 1.0f};
+    }
+
+    static void factory_PolygonRenderer(ecs_world_t* ecs, ecs_entity_t e, sandbox_properties_handle_t props_h) {
+        sandbox::properties props(props_h, false);
+        spectre_polygon_renderer_t r = {0};
+        r.radius = (float)props.get<double>("radius").value_or(10.0);
+        r.point_count = (uint32_t)props.get<int64_t>("point_count").value_or(4);
+        r.fill_color = read_color(props, "fill_color");
+        r.outline_color = read_color(props, "outline_color");
+        r.outline_thickness = (float)props.get<double>("outline_thickness").value_or(1.0);
+        flecs::world(ecs).entity(e).set<spectre_polygon_renderer_t>(r);
+    }
+
+    static void factory_LineRenderer(ecs_world_t* ecs, ecs_entity_t e, sandbox_properties_handle_t props_h) {
+        sandbox::properties props(props_h, false);
+        spectre_line_renderer_t r = {0};
+        std::vector<double> ep;
+        if (props.get_array("end_point_local", ep) && ep.size() == 2) {
+            r.end_point_local[0] = (float)ep[0];
+            r.end_point_local[1] = (float)ep[1];
+        }
+        r.color = read_color(props, "color");
+        r.thickness = (float)props.get<double>("thickness").value_or(1.0);
+        flecs::world(ecs).entity(e).set<spectre_line_renderer_t>(r);
+    }
+
+    // ------------------------------------------------------------------------
     // MODULE LIFECYCLE
     // ------------------------------------------------------------------------
     RendererModule::RendererModule(flecs::world& world) : m_entity_world(world) {
         sandbox::modules::logs::trace(m_entity_world, "Renderer Module: Initializing...");
 
-        // Register components
-        m_entity_world.component<spectre_transform_2d_t>("Transform2D");
-        m_entity_world.component<spectre_renderable_2d_t>("Renderable2D");
-        m_entity_world.component<spectre_polygon_renderer_t>("PolygonRenderer");
-        m_entity_world.component<spectre_line_renderer_t>("LineRenderer");
+        // Register components with reflection members
+        m_entity_world.component<spectre_color_t>("spectre_color_t")
+            .member<float>("r")
+            .member<float>("g")
+            .member<float>("b")
+            .member<float>("a");
+
+        m_entity_world.component<spectre_transform_2d_t>("Transform2D")
+            .member<float>("position", 2)
+            .member<float>("rotation")
+            .member<float>("scale", 2);
+            
+        m_entity_world.component<spectre_render_type_2d_t>("spectre_render_type_2d_t")
+            .constant("SPECTRE_RENDER_2D_POLYGON", SPECTRE_RENDER_2D_POLYGON)
+            .constant("SPECTRE_RENDER_2D_LINE", SPECTRE_RENDER_2D_LINE)
+            .constant("SPECTRE_RENDER_2D_RECTANGLE", SPECTRE_RENDER_2D_RECTANGLE)
+            .constant("SPECTRE_RENDER_2D_CUSTOM_POLYGON", SPECTRE_RENDER_2D_CUSTOM_POLYGON);
+
+        m_entity_world.component<spectre_renderable_2d_t>("Renderable2D")
+            .member<spectre_render_type_2d_t>("type")
+            .member<bool>("is_visible")
+            .member<uint32_t>("z_order");
+
+        m_entity_world.component<spectre_polygon_renderer_t>("PolygonRenderer")
+            .member<float>("radius")
+            .member<uint32_t>("point_count")
+            .member<spectre_color_t>("fill_color")
+            .member<spectre_color_t>("outline_color")
+            .member<float>("outline_thickness");
+
+        m_entity_world.component<spectre_line_renderer_t>("LineRenderer")
+            .member<float>("end_point_local", 2)
+            .member<spectre_color_t>("color")
+            .member<float>("thickness");
+
         m_entity_world.component<spectre_rectangle_renderer_t>("RectangleRenderer");
         m_entity_world.component<spectre_custom_polygon_renderer_t>("CustomPolygonRenderer");
 
@@ -92,118 +198,42 @@ namespace spectre::module {
             });
 
         // --------------------------------------------------------------------
-        // TEST ENTITIES (Bootstrapping visual verification)
-        // --------------------------------------------------------------------
-
-        // 1. Test Triangle
-        m_entity_world.entity("TestTriangle")
-            .set<spectre_transform_2d_t>({
-                .position = {400.0f, 360.0f},
-                .rotation = 0.0f,
-                .scale = {1.0f, 1.0f}
-            })
-            .set<spectre_renderable_2d_t>({
-                .type = SPECTRE_RENDER_2D_POLYGON,
-                .is_visible = true,
-                .z_order = 1
-            })
-            .set<spectre_polygon_renderer_t>({
-                .radius = 100.0f,
-                .point_count = 3,
-                .fill_color = {1.0f, 0.0f, 0.0f, 1.0f}, // Red
-                .outline_color = {1.0f, 1.0f, 1.0f, 1.0f}, // White
-                .outline_thickness = 5.0f
-            });
-
-        // 2. Test Square/Rectangle (Rotated)
-        m_entity_world.entity("TestSquare")
-            .set<spectre_transform_2d_t>({
-                .position = {800.0f, 360.0f},
-                .rotation = 45.0f * (PI / 180.0f),
-                .scale = {1.5f, 1.0f}
-            })
-            .set<spectre_renderable_2d_t>({
-                .type = SPECTRE_RENDER_2D_POLYGON,
-                .is_visible = true,
-                .z_order = 2
-            })
-            .set<spectre_polygon_renderer_t>({
-                .radius = 100.0f,
-                .point_count = 4,
-                .fill_color = {0.0f, 0.0f, 1.0f, 1.0f}, // Blue
-                .outline_color = {0.0f, 1.0f, 0.0f, 1.0f}, // Green
-                .outline_thickness = 3.0f
-            });
-
-        // 3. Test Line
-        m_entity_world.entity("TestLine")
-            .set<spectre_transform_2d_t>({
-                .position = {200.0f, 100.0f},
-                .rotation = 0.0f,
-                .scale = {1.0f, 1.0f}
-            })
-            .set<spectre_renderable_2d_t>({
-                .type = SPECTRE_RENDER_2D_LINE,
-                .is_visible = true,
-                .z_order = 3
-            })
-            .set<spectre_line_renderer_t>({
-                .end_point_local = {800.0f, 100.0f},
-                .color = {1.0f, 1.0f, 0.0f, 1.0f}, // Yellow
-                .thickness = 10.0f
-            });
-
-        // 4. Test Rectangle
-        m_entity_world.entity("TestRect")
-            .set<spectre_transform_2d_t>({
-                .position = {200.0f, 600.0f},
-                .rotation = 15.0f * (PI / 180.0f),
-                .scale = {1.0f, 1.0f}
-            })
-            .set<spectre_renderable_2d_t>({
-                .type = SPECTRE_RENDER_2D_RECTANGLE,
-                .is_visible = true,
-                .z_order = 4
-            })
-            .set<spectre_rectangle_renderer_t>({
-                .width = 150.0f,
-                .height = 80.0f,
-                .fill_color = {1.0f, 0.5f, 0.0f, 1.0f}, // Orange
-                .outline_color = {1.0f, 1.0f, 1.0f, 1.0f}, // White
-                .outline_thickness = 4.0f
-            });
-
-        // 5. Test Complex Polygon (Star shape)
-        static float star_points[] = {
-            0.0f, -50.0f,
-            15.0f, -15.0f,
-            50.0f, -15.0f,
-            20.0f, 5.0f,
-            30.0f, 40.0f,
-            0.0f, 20.0f,
-            -30.0f, 40.0f,
-            -20.0f, 5.0f,
-            -50.0f, -15.0f,
-            -15.0f, -15.0f
-        };
-        m_entity_world.entity("TestStar")
-            .set<spectre_transform_2d_t>({
-                .position = {600.0f, 600.0f},
-                .rotation = 0.0f,
-                .scale = {1.5f, 1.5f}
-            })
-            .set<spectre_renderable_2d_t>({
-                .type = SPECTRE_RENDER_2D_CUSTOM_POLYGON,
-                .is_visible = true,
-                .z_order = 5
-            })
-            .set<spectre_custom_polygon_renderer_t>({
-                .vertices = star_points,
-                .vertex_count = 10,
-                .fill_color = {0.8f, 0.2f, 0.8f, 1.0f}, // Purple
-                .outline_color = {1.0f, 1.0f, 0.0f, 1.0f}, // Yellow
-                .outline_thickness = 2.0f
-            });
+        // Register factories to prefabs module
+        const auto* prefabs = SANDBOX_GET_SERVICE(m_entity_world, spectre_prefabs_service_t);
+        if (prefabs && prefabs->api) {
+            prefabs->api->register_component_factory(m_entity_world.c_ptr(), "Transform2D", factory_Transform2D);
+            prefabs->api->register_component_factory(m_entity_world.c_ptr(), "Renderable2D", factory_Renderable2D);
+            prefabs->api->register_component_factory(m_entity_world.c_ptr(), "PolygonRenderer", factory_PolygonRenderer);
+            prefabs->api->register_component_factory(m_entity_world.c_ptr(), "LineRenderer", factory_LineRenderer);
+            
+            // Create test prefabs from JSON
+            sandbox_properties_handle_t empty = {0};
+            
+            auto square = prefabs->api->create_prefab(m_entity_world.c_ptr(), "square", empty);
+            if (square) {
+                // Adjust position for testing
+                auto comp_id = m_entity_world.component<spectre_transform_2d_t>().id();
+                const auto* t = (const spectre_transform_2d_t*)ecs_get_id(m_entity_world.c_ptr(), square, comp_id);
+                if (t) {
+                    spectre_transform_2d_t nt = *t;
+                    nt.position[0] = 400.0f;
+                    nt.position[1] = 360.0f;
+                    ecs_set_id(m_entity_world.c_ptr(), square, comp_id, sizeof(spectre_transform_2d_t), &nt);
+                }
+            }
+            
+            auto ship = prefabs->api->create_prefab(m_entity_world.c_ptr(), "spaceship_striker", empty);
+            if (ship) {
+                auto comp_id = m_entity_world.component<spectre_transform_2d_t>().id();
+                const auto* t = (const spectre_transform_2d_t*)ecs_get_id(m_entity_world.c_ptr(), ship, comp_id);
+                if (t) {
+                    spectre_transform_2d_t nt = *t;
+                    nt.position[0] = 800.0f;
+                    nt.position[1] = 360.0f;
+                    ecs_set_id(m_entity_world.c_ptr(), ship, comp_id, sizeof(spectre_transform_2d_t), &nt);
+                }
+            }
+        }
 
         sandbox::modules::logs::info(m_entity_world, "Renderer Module: Initialized with test entities.");
     }
@@ -303,6 +333,15 @@ namespace spectre::module {
             .version_major = 1,
             .version_minor = 0,
             .version_patch = -1
+        },
+        {
+            .kind = SANDBOX_REQUIREMENT_KIND_MODULE,
+            .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+            .name = "prefabs",
+            .architecture = "spectre",
+            .version_major = 1,
+            .version_minor = 0,
+            .version_patch = -1
         }
     };
 
@@ -315,6 +354,6 @@ namespace spectre::module {
         .version_patch = 0,
         .service = &spectre_renderer_service_t_info,
         .requirements = renderer_requirements,
-        .requirement_count = 2
+        .requirement_count = 3
     })
 }

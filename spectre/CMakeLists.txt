@@ -11,6 +11,8 @@ set(SOURCES
     source/modules/resources/resource_module.cpp
     source/modules/scene/scene_module.cpp
     source/modules/window/window_module.cpp
+        source/modules/prefabs/prefabs.cpp
+        source/modules/prefabs/prefabs.h
 )
 
 # Headers
