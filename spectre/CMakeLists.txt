@@ -23,6 +23,7 @@ set(HEADERS
     include/spectre/abi/window_service.h
         include/spectre/sdk/window_service.hpp
         include/spectre/abi/renderer_service.h
+        include/spectre/abi/renderer_components.h
 )
 
 option(SPECTRE_MODULES_STATIC "Build modules statically and link them directly" OFF)
