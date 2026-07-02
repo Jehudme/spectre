@@ -394,3 +394,15 @@
 3564	4316	1782951462727306555	tests/suite/spectre_suite_tests-b12d07c_tests.cmake	16e950f5e7e4ac12
 3564	4316	1782951462727306555	/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/suite/spectre_suite_tests-b12d07c_tests.cmake	16e950f5e7e4ac12
 3565	4986	1782951462727824438	bin/spectre_test_application	adecb915225ea510
+28	4606	1782951966600344985	spectre/CMakeFiles/spectre_plugin.dir/source/modules/renderer/renderer_module.cpp.o	748b5dd3b36d7821
+4606	4731	1782951971178241352	lib/libspectre_plugin.a	6ad7702a779ca247
+4731	6297	1782951971303238522	bin/spectre_test_application	adecb915225ea510
+29	3536	1782952475966898955	spectre/CMakeFiles/spectre_plugin.dir/source/modules/renderer/renderer_module.cpp.o	748b5dd3b36d7821
+3537	3666	1782952479474820556	lib/libspectre_plugin.a	6ad7702a779ca247
+3667	4383	1782952479605949486	bin/spectre_suite_tests	16e950f5e7e4ac12
+3667	4383	1782952479605949486	tests/suite/spectre_suite_tests-b12d07c_tests.cmake	16e950f5e7e4ac12
+3667	4383	1782952479605949486	/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/suite/spectre_suite_tests-b12d07c_tests.cmake	16e950f5e7e4ac12
+3666	4389	1782952479604817651	bin/spectre_unit_tests	e64e95f4bcfdd15f
+3666	4389	1782952479604817651	tests/unit/spectre_unit_tests-b12d07c_tests.cmake	e64e95f4bcfdd15f
+3666	4389	1782952479604817651	/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/unit/spectre_unit_tests-b12d07c_tests.cmake	e64e95f4bcfdd15f
+3668	5137	1782952479606505732	bin/spectre_test_application	adecb915225ea510
