@@ -51,7 +51,7 @@ TEST_CASE("ResourceModule Initialization and Core Functions", "[resources]") {
         REQUIRE_NOTHROW(res_module.create_resource_instance("mock_type", "app://resources/mock.txt"));
 
         // Get handle
-        uint64_t handle = res_module.handle("app://resources/mock.txt");
+        uint64_t handle = res_module.handle_for_path("app://resources/mock.txt");
         REQUIRE(handle != 0);
 
         SECTION("Load and Free") {
