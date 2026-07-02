@@ -5,151 +5,224 @@
 
 namespace spectre::module {
 
-    prefabs_module::prefabs_module(flecs::world& ecs) : m_entity_world(ecs) {
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers (declarations at top, implementations at bottom of file)
+// ─────────────────────────────────────────────────────────────────────────────
+
+    inline bool is_valid_prefab_name(const char* name);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE LIFECYCLE
+// ─────────────────────────────────────────────────────────────────────────────
+
+    PrefabsModule::PrefabsModule(flecs::world& ecs) : m_entity_world(ecs) {
         sandbox::modules::logs::trace(m_entity_world, "Prefabs Module: Initializing...");
 
+        const std::string prefabs_path = "app://state/prefabs.json";
+
         try {
-            std::string content = sandbox::modules::filesystem::read_all_text(m_entity_world, "app://state/prefabs.json");
-            m_root_props = std::make_unique<sandbox::properties>(content, sandbox::properties::Format::JSON);
-            
+            std::string json_content =
+                sandbox::modules::filesystem::read_all_text(m_entity_world, prefabs_path.c_str());
+
+            m_root_props = std::make_unique<sandbox::properties>(
+                json_content, sandbox::properties::Format::JSON);
+
             auto prefabs_node = m_root_props->sub("prefabs");
-            if (prefabs_node.is_valid()) {
-                std::vector<std::string> keys = prefabs_node.keys("");
-
-                for (const auto& key : keys) {
-                    prefab_type_t pt;
-                    pt.name = key;
-                    pt.template_props = prefabs_node.sub(key.c_str());
-                    m_prefabs_types[key] = std::move(pt);
-                }
+            if (!prefabs_node.is_valid()) {
+                sandbox::modules::logs::warn(m_entity_world,
+                    "Prefabs Module: '{}' parsed successfully but has no 'prefabs' root key.", prefabs_path);
+                return;
             }
-            sandbox::modules::logs::info(m_entity_world, "Prefabs Module: Loaded {} prefabs from JSON", m_prefabs_types.size());
-        } catch (const std::exception& e) {
-            sandbox::modules::logs::error(m_entity_world, "Prefabs Module: Failed to load prefabs.json: {}", e.what());
+
+            for (const auto& prefab_name : prefabs_node.keys("")) {
+                PrefabTemplate prefab_template;
+                prefab_template.name           = prefab_name;
+                prefab_template.template_props = prefabs_node.sub(prefab_name.c_str());
+                m_prefab_templates[prefab_name] = std::move(prefab_template);
+            }
+
+            sandbox::modules::logs::info(m_entity_world,
+                "Prefabs Module: Loaded {} prefab(s) from '{}'.",
+                m_prefab_templates.size(), prefabs_path);
+
+        } catch (const std::exception& ex) {
+            sandbox::modules::logs::error(m_entity_world,
+                "Prefabs Module: Failed to load '{}': {}", prefabs_path, ex.what());
         }
     }
 
-    prefabs_module::~prefabs_module() {
-    }
+// ─────────────────────────────────────────────────────────────────────────────
+// FACTORY REGISTRATION
+// ─────────────────────────────────────────────────────────────────────────────
 
-    void prefabs_module::register_component_factory(std::string_view name, spectre_component_factory_fn create_fn) {
-        m_component_factories[std::string(name)] = create_fn;
-    }
-
-    bool prefabs_module::has_component_factory(std::string_view name) const {
-        return m_component_factories.find(std::string(name)) != m_component_factories.end();
-    }
-
-    flecs::entity prefabs_module::create_component(flecs::entity entity, std::string_view name, const sandbox::properties& component_props) {
-        auto it = m_component_factories.find(std::string(name));
-        if (it != m_component_factories.end()) {
-            it->second(m_entity_world.c_ptr(), entity.id(), component_props.get_raw());
-        } else {
-            sandbox::modules::logs::warn(m_entity_world, "Prefabs Module: Component factory for '{}' not found", std::string(name));
+    void PrefabsModule::register_component_factory(std::string_view component_name,
+                                                   spectre_component_factory_fn factory_fn) {
+        if (component_name.empty()) {
+            sandbox::modules::logs::warn(m_entity_world,
+                "Prefabs Module: register_component_factory() called with empty component name — ignoring.");
+            return;
         }
-        return entity;
+        if (!factory_fn) {
+            sandbox::modules::logs::warn(m_entity_world,
+                "Prefabs Module: register_component_factory('{}') — factory_fn is null — ignoring.",
+                std::string(component_name));
+            return;
+        }
+
+        const std::string key(component_name);
+        if (m_component_factories.count(key)) {
+            sandbox::modules::logs::warn(m_entity_world,
+                "Prefabs Module: Component factory for '{}' already registered — overwriting.", key);
+        }
+
+        m_component_factories[key] = factory_fn;
     }
 
-    void prefabs_module::parse_prefab_recursive(flecs::entity e, const sandbox::properties& props) {
-        auto components_node = props.sub("components");
+    bool PrefabsModule::has_component_factory(std::string_view component_name) const {
+        return m_component_factories.count(std::string(component_name)) > 0;
+    }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ENTITY CREATION
+// ─────────────────────────────────────────────────────────────────────────────
+
+    void PrefabsModule::apply_component(flecs::entity entity, std::string_view component_name,
+                                        const sandbox::properties& component_props) {
+        const std::string key(component_name);
+        auto factory_it = m_component_factories.find(key);
+        if (factory_it == m_component_factories.end()) {
+            sandbox::modules::logs::warn(m_entity_world,
+                "Prefabs Module: No factory registered for component '{}' — skipping.", key);
+            return;
+        }
+        factory_it->second(m_entity_world.c_ptr(), entity.id(), component_props.get_raw());
+    }
+
+    void PrefabsModule::parse_entity_recursive(flecs::entity entity,
+                                               const sandbox::properties& entity_props) {
+        // Apply all components defined for this entity.
+        auto components_node = entity_props.sub("components");
         if (components_node.is_valid()) {
-            std::vector<std::string> keys = components_node.keys("");
-            for (const auto& comp_name : keys) {
-                create_component(e, comp_name, components_node.sub(comp_name.c_str()));
+            for (const auto& component_name : components_node.keys("")) {
+                apply_component(entity, component_name,
+                                components_node.sub(component_name.c_str()));
             }
+        } else {
+            sandbox::modules::logs::warn(m_entity_world,
+                "Prefabs Module: Entity has no 'components' node.");
         }
-        
-        auto children_node = props.sub("children");
-        if (children_node.is_valid()) {
-            std::vector<std::string> keys = children_node.keys("");
-            for (const auto& child_name : keys) {
-                flecs::entity child = m_entity_world.entity().child_of(e);
-                parse_prefab_recursive(child, children_node.sub(child_name.c_str()));
-            }
+
+        // Recursively create child entities.
+        auto children_node = entity_props.sub("children");
+        if (!children_node.is_valid()) return;
+
+        for (const auto& child_name : children_node.keys("")) {
+            flecs::entity child_entity = m_entity_world.entity().child_of(entity);
+            parse_entity_recursive(child_entity, children_node.sub(child_name.c_str()));
         }
     }
 
-    flecs::entity prefabs_module::create_prefab(std::string name, const sandbox::properties& entity_props) {
-        auto it = m_prefabs_types.find(name);
-        if (it == m_prefabs_types.end()) {
-            sandbox::modules::logs::error(m_entity_world, "Prefabs Module: Prefab '{}' not found", name);
+    flecs::entity PrefabsModule::create_prefab(const std::string& prefab_name,
+                                               const sandbox::properties& /*override_props*/) {
+        auto template_it = m_prefab_templates.find(prefab_name);
+        if (template_it == m_prefab_templates.end()) {
+            sandbox::modules::logs::error(m_entity_world,
+                "Prefabs Module: Prefab '{}' not found — was it defined in prefabs.json?", prefab_name);
             return flecs::entity::null();
         }
 
-        flecs::entity e = m_entity_world.entity();
-        parse_prefab_recursive(e, it->second.template_props);
-        return e;
+        flecs::entity new_entity = m_entity_world.entity();
+        parse_entity_recursive(new_entity, template_it->second.template_props);
+        return new_entity;
     }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+    inline bool is_valid_prefab_name(const char* name) {
+        return name != nullptr && name[0] != '\0';
+    }
+
+} // namespace spectre::module
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// C-ABI BRIDGE
+// ─────────────────────────────────────────────────────────────────────────────
+
+using spectre::module::PrefabsModule;
+
+static PrefabsModule* get_module(ecs_world_t* ecs) {
+    if (!ecs) return nullptr;
+    return flecs::world(ecs).try_get_mut<PrefabsModule>();
 }
 
-using spectre::module::prefabs_module;
-
-static void api_register_component_factory(ecs_world_t* ecs, const char* name, spectre_component_factory_fn create_fn) {
-    if (!ecs) return;
-    flecs::world w(ecs);
-    if (auto* mod = w.try_get_mut<prefabs_module>()) {
-        mod->register_component_factory(name, create_fn);
-    }
+static void abi_register_component_factory(ecs_world_t* ecs, const char* component_name,
+                                           spectre_component_factory_fn factory_fn) {
+    if (auto* module = get_module(ecs)) module->register_component_factory(component_name, factory_fn);
 }
 
-static bool api_has_component_factory(ecs_world_t* ecs, const char* name) {
-    if (!ecs) return false;
-    flecs::world w(ecs);
-    if (auto* mod = w.try_get_mut<prefabs_module>()) {
-        return mod->has_component_factory(name);
-    }
+static bool abi_has_component_factory(ecs_world_t* ecs, const char* component_name) {
+    if (auto* module = get_module(ecs)) return module->has_component_factory(component_name);
     return false;
 }
 
-static ecs_entity_t api_create_prefab(ecs_world_t* ecs, const char* name, sandbox_properties_handle_t entity_props) {
-    if (!ecs) return 0;
-    flecs::world w(ecs);
-    if (auto* mod = w.try_get_mut<prefabs_module>()) {
-        sandbox::properties props(entity_props, false);
-        return mod->create_prefab(name, props).id();
-    }
-    return 0;
+static ecs_entity_t abi_create_prefab(ecs_world_t* ecs, const char* prefab_name,
+                                      sandbox_properties_handle_t override_props) {
+    if (!ecs || !prefab_name || prefab_name[0] == '\0') return 0;
+    auto* module = get_module(ecs);
+    if (!module) return 0;
+
+    sandbox::properties props(override_props, false);
+    return module->create_prefab(prefab_name, props).id();
 }
 
 static spectre_prefabs_api_t g_prefabs_api = {
-    .register_component_factory = api_register_component_factory,
-    .has_component_factory = api_has_component_factory,
-    .create_prefab = api_create_prefab
+    .register_component_factory = abi_register_component_factory,
+    .has_component_factory      = abi_has_component_factory,
+    .create_prefab              = abi_create_prefab,
 };
 
 SANDBOX_DEFINE_SERVICE(spectre_prefabs_service_t, spectre_prefabs_api_t, &g_prefabs_api)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE REGISTRATION
+// ─────────────────────────────────────────────────────────────────────────────
 
 namespace spectre::module {
 
     static sandbox_requirement_info_t prefabs_requirements[] = {
         {
-            .kind = SANDBOX_REQUIREMENT_KIND_MODULE,
-            .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
-            .name = "logs",
-            .architecture = "sandbox",
+            .kind          = SANDBOX_REQUIREMENT_KIND_MODULE,
+            .strictness    = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+            .name          = "logs",
+            .architecture  = "sandbox",
             .version_major = 1,
             .version_minor = 0,
             .version_patch = -1
         },
         {
-            .kind = SANDBOX_REQUIREMENT_KIND_MODULE,
-            .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
-            .name = "filesystem",
-            .architecture = "sandbox",
+            .kind          = SANDBOX_REQUIREMENT_KIND_MODULE,
+            .strictness    = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+            .name          = "filesystem",
+            .architecture  = "sandbox",
             .version_major = 1,
             .version_minor = 0,
             .version_patch = -1
         }
     };
 
-    SANDBOX_DECLARE_MODULE(prefabs_module, {
-        .name = "prefabs",
-        .description = "Prefabs Module",
-        .architecture = "spectre",
+    SANDBOX_DECLARE_MODULE(PrefabsModule, {
+        .name          = "prefabs",
+        .description   = "Loads prefab definitions from JSON and spawns ECS entities from them.",
+        .architecture  = "spectre",
         .version_major = 1,
         .version_minor = 0,
-        .service = &spectre_prefabs_service_t_info,
-        .requirements = prefabs_requirements,
+        .version_patch = 0,
+        .service       = &spectre_prefabs_service_t_info,
+        .requirements  = prefabs_requirements,
         .requirement_count = 2
     })
-}
+
+} // namespace spectre::module
