@@ -83,7 +83,69 @@ namespace spectre::module {
                 EndDrawing();
             });
             
-        sandbox::modules::logs::info(m_entity_world, "Renderer Module: Initialized.");
+        // --------------------------------------------------------------------
+        // TEST ENTITIES
+        // --------------------------------------------------------------------
+        
+        // 1. Test Triangle
+        m_entity_world.entity("TestTriangle")
+            .set<spectre_transform_2d_t>({
+                .position = {400.0f, 360.0f},
+                .rotation = 0.0f,
+                .scale = {1.0f, 1.0f}
+            })
+            .set<spectre_renderable_2d_t>({
+                .type = SPECTRE_RENDER_2D_POLYGON,
+                .is_visible = true,
+                .z_order = 1
+            })
+            .set<spectre_polygon_renderer_t>({
+                .radius = 100.0f,
+                .point_count = 3,
+                .fill_color = {1.0f, 0.0f, 0.0f, 1.0f}, // Red
+                .outline_color = {1.0f, 1.0f, 1.0f, 1.0f}, // White
+                .outline_thickness = 5.0f
+            });
+
+        // 2. Test Square/Rectangle
+        m_entity_world.entity("TestSquare")
+            .set<spectre_transform_2d_t>({
+                .position = {800.0f, 360.0f},
+                .rotation = 45.0f * (PI / 180.0f), // Rotated 45 degrees
+                .scale = {1.5f, 1.0f}
+            })
+            .set<spectre_renderable_2d_t>({
+                .type = SPECTRE_RENDER_2D_POLYGON,
+                .is_visible = true,
+                .z_order = 2
+            })
+            .set<spectre_polygon_renderer_t>({
+                .radius = 100.0f,
+                .point_count = 4,
+                .fill_color = {0.0f, 0.0f, 1.0f, 1.0f}, // Blue
+                .outline_color = {0.0f, 1.0f, 0.0f, 1.0f}, // Green
+                .outline_thickness = 3.0f
+            });
+
+        // 3. Test Line
+        m_entity_world.entity("TestLine")
+            .set<spectre_transform_2d_t>({
+                .position = {200.0f, 100.0f},
+                .rotation = 0.0f,
+                .scale = {1.0f, 1.0f}
+            })
+            .set<spectre_renderable_2d_t>({
+                .type = SPECTRE_RENDER_2D_LINE,
+                .is_visible = true,
+                .z_order = 3
+            })
+            .set<spectre_line_renderer_t>({
+                .end_point_local = {800.0f, 100.0f},
+                .color = {1.0f, 1.0f, 0.0f, 1.0f}, // Yellow
+                .thickness = 10.0f
+            });
+
+        sandbox::modules::logs::info(m_entity_world, "Renderer Module: Initialized with test entities.");
     }
 
     RendererModule::~RendererModule() {

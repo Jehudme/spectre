@@ -385,3 +385,12 @@
 3578	4387	1782951187773462907	tests/suite/spectre_suite_tests-b12d07c_tests.cmake	16e950f5e7e4ac12
 3578	4387	1782951187773462907	/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/suite/spectre_suite_tests-b12d07c_tests.cmake	16e950f5e7e4ac12
 3578	5054	1782951187775071091	bin/spectre_test_application	adecb915225ea510
+26	3437	1782951459187998644	spectre/CMakeFiles/spectre_plugin.dir/source/modules/renderer/renderer_module.cpp.o	748b5dd3b36d7821
+3437	3564	1782951462598918772	lib/libspectre_plugin.a	6ad7702a779ca247
+3564	4290	1782951462725915799	bin/spectre_unit_tests	e64e95f4bcfdd15f
+3564	4290	1782951462725915799	tests/unit/spectre_unit_tests-b12d07c_tests.cmake	e64e95f4bcfdd15f
+3564	4290	1782951462725915799	/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/unit/spectre_unit_tests-b12d07c_tests.cmake	e64e95f4bcfdd15f
+3564	4316	1782951462727306555	bin/spectre_suite_tests	16e950f5e7e4ac12
+3564	4316	1782951462727306555	tests/suite/spectre_suite_tests-b12d07c_tests.cmake	16e950f5e7e4ac12
+3564	4316	1782951462727306555	/home/jehud/CLionProjects/spectre/cmake-build-debug/tests/suite/spectre_suite_tests-b12d07c_tests.cmake	16e950f5e7e4ac12
+3565	4986	1782951462727824438	bin/spectre_test_application	adecb915225ea510
