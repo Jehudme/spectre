@@ -283,44 +283,6 @@ namespace spectre::module {
     }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Test Entity Spawning
-// ─────────────────────────────────────────────────────────────────────────────
-
-    static void spawn_test_entity_at(flecs::world& world, const char* prefab_name,
-                                     float x, float y) {
-        const auto* prefabs = SANDBOX_GET_SERVICE(world, spectre_prefabs_service_t);
-        if (!prefabs || !prefabs->api) return;
-
-        sandbox_properties_handle_t no_override = {0};
-        const ecs_entity_t prefab_id = prefabs->api->create_prefab(world.c_ptr(), prefab_name, no_override);
-
-        if (!prefab_id) {
-            sandbox::modules::logs::warn(world,
-                "Renderer Module: Failed to load prefab '{}' for test entity.", prefab_name);
-            return;
-        }
-
-        const ecs_entity_t entity_id = ecs_new_w_pair(world.c_ptr(), EcsIsA, prefab_id);
-
-        const ecs_id_t transform_component_id = world.component<spectre_transform_2d_t>().id();
-        const auto* existing_transform =
-            static_cast<const spectre_transform_2d_t*>(
-                ecs_get_id(world.c_ptr(), entity_id, transform_component_id));
-
-        if (!existing_transform) {
-            sandbox::modules::logs::warn(world,
-                "Renderer Module: Prefab '{}' has no Transform2D — cannot reposition.", prefab_name);
-            return;
-        }
-
-        spectre_transform_2d_t repositioned = *existing_transform;
-        repositioned.position[0] = x;
-        repositioned.position[1] = y;
-        ecs_set_id(world.c_ptr(), entity_id, transform_component_id,
-                   sizeof(spectre_transform_2d_t), &repositioned);
-    }
-
-// ─────────────────────────────────────────────────────────────────────────────
 // MODULE LIFECYCLE
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -341,21 +303,23 @@ namespace spectre::module {
 
         register_all_factories(m_entity_world);
 
-        // Spawn test entities placed across the scene.
-        spawn_test_entity_at(m_entity_world, "asteroid",           300.0f, 200.0f);
-
-        // Example: Build the prefab, set a default override, then instantiate it
+        // First, load the shared prefab instances into the world
         if (const auto* prefabs = SANDBOX_GET_SERVICE(m_entity_world, spectre_prefabs_service_t)) {
             sandbox_properties_handle_t no_override = {0};
-            ecs_entity_t prefab_id = prefabs->api->create_prefab(m_entity_world.c_ptr(), "spaceship_striker", no_override);
-            if (prefab_id) {
-                // Modify the prefab directly (affects all instances created hereafter)
-                m_entity_world.prefab("spaceship_striker").set<spectre_transform_2d_t>({{640.0f, 400.0f}, 0.0f, {1.0f, 1.0f}});
-                // Create an instance from the modified prefab
-                m_entity_world.entity().is_a(prefab_id);
-            }
+            prefabs->api->create_prefab(m_entity_world.c_ptr(), "asteroid", no_override);
+            prefabs->api->create_prefab(m_entity_world.c_ptr(), "spaceship_striker", no_override);
+            prefabs->api->create_prefab(m_entity_world.c_ptr(), "space_station", no_override);
         }
-        spawn_test_entity_at(m_entity_world, "space_station",     1000.0f, 500.0f);
+
+        // Now use m_entity_world.prefab("...") to create useful entities
+        m_entity_world.entity().is_a(m_entity_world.prefab("asteroid"))
+            .set<spectre_transform_2d_t>({{300.0f, 200.0f}, 0.0f, {1.0f, 1.0f}});
+
+        m_entity_world.entity().is_a(m_entity_world.prefab("spaceship_striker"))
+            .set<spectre_transform_2d_t>({{640.0f, 400.0f}, 0.0f, {1.0f, 1.0f}});
+
+        m_entity_world.entity().is_a(m_entity_world.prefab("space_station"))
+            .set<spectre_transform_2d_t>({{1000.0f, 500.0f}, 0.0f, {1.0f, 1.0f}});
 
         sandbox::modules::logs::info(m_entity_world, "Renderer Module: Initialized.");
     }
