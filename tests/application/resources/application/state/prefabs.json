@@ -1,0 +1,58 @@
+{
+  "prefabs": {
+    "square": {
+      "components": {
+        "Transform2D": {
+          "position": {"x": 0.0, "y": 0.0},
+          "rotation": 0.0,
+          "scale": {"x": 1.0, "y": 1.0}
+        },
+        "Renderable2D": {
+          "type": "SPECTRE_RENDER_2D_RECTANGLE",
+          "is_visible": true,
+          "z_order": 1
+        },
+        "RectangleRenderer": {
+          "width": 100.0,
+          "height": 100.0,
+          "fill_color": {"r": 0.2, "g": 0.4, "b": 0.8, "a": 1.0},
+          "outline_color": {"r": 0.5, "g": 0.8, "b": 1.0, "a": 1.0},
+          "outline_thickness": 2.0
+        }
+      }
+    },
+
+    "spaceship_striker": {
+      "scripts": {
+        "on_update": "spaceship_striker_on_update"
+      },
+      "components": {
+        "Transform2D": {
+          "position": {"x": 0.0, "y": 0.0},
+          "rotation": 0.0,
+          "scale": {"x": 1.0, "y": 1.0}
+        },
+        "Renderable2D": {
+          "type": "SPECTRE_RENDER_2D_CUSTOM_POLYGON",
+          "is_visible": true,
+          "z_order": 5
+        },
+        "CustomPolygonRenderer": {
+          "vertex_count": 4,
+          "vertices": {
+            "0": {"x": 0.0, "y": -40.0},
+            "1": {"x": 20.0, "y": 20.0},
+            "2": {"x": 0.0, "y": 10.0},
+            "3": {"x": -20.0, "y": 20.0}
+          },
+          "fill_color": {"r": 0.8, "g": 0.2, "b": 0.2, "a": 1.0},
+          "outline_color": {"r": 1.0, "g": 1.0, "b": 1.0, "a": 1.0},
+          "outline_thickness": 2.0
+        }
+      },
+      "children": [
+
+      ]
+    }
+  }
+}

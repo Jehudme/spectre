@@ -1,19 +1,56 @@
 {
-  "prefabs": {
-    "square": {
-      "scripts": {
-        "on_enter": [],
-        "on_exit": [],
-        "on_update": ["player_movement"]
-      },
-
-      "components": {
-        "Transform2D": {
-          "position": [0.0, 0.0]
+  "object_1": {
+    "components": {
+      "Transform2D": {
+        "position": {
+          "x" : 400,
+          "y" : 400
+        },
+        "scale": {
+          "x" : 1,
+          "y" : 1
+        },
+        "rotation": 0,
+        "origin": {
+          "x" : 0,
+          "y" : 0
         }
       },
-      "auto_overrides": ["Transform2D"],
-      "children": {}
+      "PolygoneRenderable" : {
+      }
+    },
+    "children": []
+  },
+  "object_2": {
+    "components": {
+      "Transform2D": {
+        "position": {
+          "x" : 700,
+          "y" : 400
+        },
+        "scale": {
+          "x" : 1,
+          "y" : 1
+        },
+        "rotation": 0,
+        "origin": {
+          "x" : 0,
+          "y" : 0
+        },
+        "RectangleRenderable" : {
+        }
+      },
+      "children": [{
+        "prefab": "object_1",
+        "component": {
+          "Transform2D": {
+            "position": {
+              "x" : 0,
+              "y" : 0
+            }
+          }
+        }
+      }]
     }
   }
 }

@@ -13,8 +13,8 @@ set(SOURCES
     source/modules/renderer/renderer_module.cpp
     source/modules/resources/resource_module.cpp
         source/modules/window/window_module.cpp
-    source/modules/prefabs/prefabs.cpp
-    source/modules/prefabs/prefabs.h
+        source/modules/prefabs/prefabs_module.cpp
+        source/modules/prefabs/prefabs_module.h
     source/modules/scripts/scripts_module.cpp
     source/modules/scripts/scripts_module.hpp
 )

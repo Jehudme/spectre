@@ -30,7 +30,7 @@ namespace spectre::module {
 
     private:
         void build_prefab_hierarchy(flecs::entity prefab_entity, const sandbox::properties& props);
-        void apply_component(flecs::entity entity, std::string_view component_name, 
+        void apply_component(flecs::entity entity, std::string_view component_name,
                              const sandbox::properties& component_props, bool override_comp);
 
         flecs::world m_world;

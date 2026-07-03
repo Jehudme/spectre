@@ -1,4 +1,4 @@
-#include "prefabs.h"
+#include "prefabs_module.h"
 #include <sandbox/sdk/filesystem.hpp>
 #include <sandbox/sdk/logs.hpp>
 #include <stdexcept>
