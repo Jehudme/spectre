@@ -1,13 +1,28 @@
-//
-// Created by jehud on 2026-07-02.
-//
+#pragma once
+#include <stack>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-#ifndef SPECTRE_WORKSPACE_SCENES_MODUDE_H
-#define SPECTRE_WORKSPACE_SCENES_MODUDE_H
+#include "flecs.h"
 
+namespace spectre::module {
+    struct Scene {};
+    struct State {};
 
-class scenes_modude {
-};
+    class ScenesModule {
+    public:
+        ScenesModule(flecs::world& ecs);
+        ~ScenesModule();
 
+        void push_state(const char* state_name);
+        void pop_state();
 
-#endif //SPECTRE_WORKSPACE_SCENES_MODUDE_H
+        flecs::entity current_state();
+        std::vector<flecs::entity> currents_scenes();
+
+    private:
+        std::stack<flecs::world> m_state_stack;
+
+    };
+}
