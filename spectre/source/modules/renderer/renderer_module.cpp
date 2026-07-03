@@ -59,31 +59,12 @@ namespace spectre::module {
         transform.scale[0] = scale ? scale->first  : 1.0f;
         transform.scale[1] = scale ? scale->second : 1.0f;
 
+        transform.z = static_cast<float>(props.get<double>("z").value_or(0.0));
+
         world.entity(entity_id).set<spectre_transform_2d_t>(transform);
     }
 
-    static void factory_Renderable2D(ecs_world_t* ecs, ecs_entity_t entity_id,
-                                     sandbox_properties_handle_t props_handle) {
-        sandbox::properties props(props_handle, false);
-        flecs::world world(ecs);
 
-        spectre_renderable_2d_t renderable;
-        renderable.is_visible = props.get<bool>("is_visible").value_or(true);
-        renderable.z_order    = static_cast<uint32_t>(props.get<int64_t>("z_order").value_or(0));
-
-        const std::string type_str = props.get<std::string>("type").value_or("");
-        if (type_str.empty()) {
-            sandbox::modules::logs::warn(world,
-                "Renderable2D factory: 'type' key missing — defaulting to SPECTRE_RENDER_2D_POLYGON.");
-        }
-
-        if      (type_str == "SPECTRE_RENDER_2D_LINE")           renderable.type = SPECTRE_RENDER_2D_LINE;
-        else if (type_str == "SPECTRE_RENDER_2D_RECTANGLE")      renderable.type = SPECTRE_RENDER_2D_RECTANGLE;
-        else if (type_str == "SPECTRE_RENDER_2D_CUSTOM_POLYGON") renderable.type = SPECTRE_RENDER_2D_CUSTOM_POLYGON;
-        else                                                      renderable.type = SPECTRE_RENDER_2D_POLYGON;
-
-        world.entity(entity_id).set<spectre_renderable_2d_t>(renderable);
-    }
 
     static void factory_PolygonRenderer(ecs_world_t* ecs, ecs_entity_t entity_id,
                                         sandbox_properties_handle_t props_handle) {
@@ -227,18 +208,8 @@ namespace spectre::module {
         world.component<spectre_transform_2d_t>("Transform2D")
             .member<float>("position", 2)
             .member<float>("rotation")
-            .member<float>("scale", 2);
-
-        world.component<spectre_render_type_2d_t>("spectre_render_type_2d_t")
-            .constant("SPECTRE_RENDER_2D_POLYGON",        SPECTRE_RENDER_2D_POLYGON)
-            .constant("SPECTRE_RENDER_2D_LINE",            SPECTRE_RENDER_2D_LINE)
-            .constant("SPECTRE_RENDER_2D_RECTANGLE",       SPECTRE_RENDER_2D_RECTANGLE)
-            .constant("SPECTRE_RENDER_2D_CUSTOM_POLYGON",  SPECTRE_RENDER_2D_CUSTOM_POLYGON);
-
-        world.component<spectre_renderable_2d_t>("Renderable2D")
-            .member<spectre_render_type_2d_t>("type")
-            .member<bool>("is_visible")
-            .member<uint32_t>("z_order");
+            .member<float>("scale", 2)
+            .member<float>("z");
 
         world.component<spectre_polygon_renderer_t>("PolygonRenderer")
             .member<float>("radius")
@@ -275,7 +246,6 @@ namespace spectre::module {
 
         auto* ecs = world.c_ptr();
         prefabs->api->register_component_factory(ecs, "Transform2D",            factory_Transform2D);
-        prefabs->api->register_component_factory(ecs, "Renderable2D",           factory_Renderable2D);
         prefabs->api->register_component_factory(ecs, "PolygonRenderer",        factory_PolygonRenderer);
         prefabs->api->register_component_factory(ecs, "LineRenderer",           factory_LineRenderer);
         prefabs->api->register_component_factory(ecs, "RectangleRenderer",      factory_RectangleRenderer);
@@ -321,6 +291,19 @@ namespace spectre::module {
         m_entity_world.entity().is_a(m_entity_world.prefab("space_station"))
             .set<spectre_transform_2d_t>({{1000.0f, 500.0f}, 0.0f, {1.0f, 1.0f}});
 
+        // Create the persistent render query, ordered by Transform2D's z value
+        m_render_query = m_entity_world.query_builder<spectre_transform_2d_t>()
+            .with<spectre_polygon_renderer_t>().or_()
+            .with<spectre_line_renderer_t>().or_()
+            .with<spectre_rectangle_renderer_t>().or_()
+            .with<spectre_custom_polygon_renderer_t>()
+            .order_by<spectre_transform_2d_t>([](flecs::entity_t, const spectre_transform_2d_t* t1, flecs::entity_t, const spectre_transform_2d_t* t2) {
+                if (t1->z < t2->z) return -1;
+                if (t1->z > t2->z) return 1;
+                return 0;
+            })
+            .build();
+
         sandbox::modules::logs::info(m_entity_world, "Renderer Module: Initialized.");
     }
 
@@ -331,58 +314,24 @@ namespace spectre::module {
     }
 
     void RendererModule::render_frame() {
-        // ── Phase A: Collect visible renderables ──────────────────────────────
-        struct RenderEntry {
-            flecs::entity           entity;
-            spectre_transform_2d_t* transform;
-            spectre_renderable_2d_t* renderable;
-        };
-
-        std::vector<RenderEntry> render_queue;
-
-        m_entity_world.query<spectre_transform_2d_t, spectre_renderable_2d_t>()
-            .each([&render_queue](flecs::entity entity,
-                                  spectre_transform_2d_t& transform,
-                                  spectre_renderable_2d_t& renderable) {
-                if (renderable.is_visible) {
-                    render_queue.push_back({ entity, &transform, &renderable });
-                }
-            });
-
-        // ── Phase B: Sort by z-order (ascending = back to front) ──────────────
-        std::sort(render_queue.begin(), render_queue.end(),
-            [](const RenderEntry& lhs, const RenderEntry& rhs) {
-                return lhs.renderable->z_order < rhs.renderable->z_order;
-            });
-
-        // ── Phase C: Draw each entry ──────────────────────────────────────────
-        for (const auto& entry : render_queue) {
+        m_render_query.each([](flecs::entity entity, spectre_transform_2d_t& transform) {
             rlPushMatrix();
-            rlTranslatef(entry.transform->position[0], entry.transform->position[1], 0.0f);
-            rlRotatef(entry.transform->rotation * RAD2DEG, 0.0f, 0.0f, 1.0f);
-            rlScalef(entry.transform->scale[0], entry.transform->scale[1], 1.0f);
+            rlTranslatef(transform.position[0], transform.position[1], 0.0f);
+            rlRotatef(transform.rotation * RAD2DEG, 0.0f, 0.0f, 1.0f);
+            rlScalef(transform.scale[0], transform.scale[1], 1.0f);
 
-            switch (entry.renderable->type) {
-                case SPECTRE_RENDER_2D_POLYGON:
-                    if (const auto* polygon = entry.entity.try_get<spectre_polygon_renderer_t>())
-                        draw_polygon(polygon);
-                    break;
-                case SPECTRE_RENDER_2D_LINE:
-                    if (const auto* line = entry.entity.try_get<spectre_line_renderer_t>())
-                        draw_line(line);
-                    break;
-                case SPECTRE_RENDER_2D_RECTANGLE:
-                    if (const auto* rect = entry.entity.try_get<spectre_rectangle_renderer_t>())
-                        draw_rectangle(rect);
-                    break;
-                case SPECTRE_RENDER_2D_CUSTOM_POLYGON:
-                    if (const auto* cpoly = entry.entity.try_get<spectre_custom_polygon_renderer_t>())
-                        draw_custom_polygon(cpoly);
-                    break;
+            if (const auto* polygon = entity.try_get<spectre_polygon_renderer_t>()) {
+                draw_polygon(polygon);
+            } else if (const auto* rect = entity.try_get<spectre_rectangle_renderer_t>()) {
+                draw_rectangle(rect);
+            } else if (const auto* line = entity.try_get<spectre_line_renderer_t>()) {
+                draw_line(line);
+            } else if (const auto* cpoly = entity.try_get<spectre_custom_polygon_renderer_t>()) {
+                draw_custom_polygon(cpoly);
             }
 
             rlPopMatrix();
-        }
+        });
     }
 
 // ─────────────────────────────────────────────────────────────────────────────

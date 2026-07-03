@@ -30,33 +30,12 @@ typedef struct spectre_transform_2d_t {
     float position[2]; // X, Y (World Space)
     float rotation;    // Rotation in radians
     float scale[2];    // Scale X, Scale Y (Crucial for scaling squares into rectangles)
+    float z;           // Z-Axis (Used for render depth sorting)
 } spectre_transform_2d_t;
 
 
 // ============================================================================
-// 2. THE RENDER FLAG / TAG
-// ============================================================================
-
-typedef enum spectre_render_type_2d_t {
-    SPECTRE_RENDER_2D_POLYGON = 0, // Handles Triangles, Squares, Rectangles, Hexagons, and Circles
-    SPECTRE_RENDER_2D_LINE,
-    SPECTRE_RENDER_2D_RECTANGLE,
-    SPECTRE_RENDER_2D_CUSTOM_POLYGON
-} spectre_render_type_2d_t;
-
-/**
- * @brief The base tag for all 2D renderable entities.
- * The renderer queries this to filter entities and dictate draw order.
- */
-typedef struct spectre_renderable_2d_t {
-    spectre_render_type_2d_t type;
-    bool     is_visible;
-    uint32_t z_order; // Used to sort which shape draws on top of another
-} spectre_renderable_2d_t;
-
-
-// ============================================================================
-// 3. SPECIFIC SHAPE DATA COMPONENTS
+// 2. SPECIFIC SHAPE DATA COMPONENTS
 // ============================================================================
 
 /**

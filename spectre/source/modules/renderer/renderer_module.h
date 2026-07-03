@@ -1,6 +1,7 @@
 #pragma once
 
 #include <flecs.h>
+#include <spectre/abi/renderer_components.h>
 
 namespace spectre::module {
 
@@ -24,6 +25,7 @@ namespace spectre::module {
 
         flecs::world  m_entity_world;
         flecs::system m_render_system;
+        flecs::query<spectre_transform_2d_t> m_render_query;
     };
 
 } // namespace spectre::module
