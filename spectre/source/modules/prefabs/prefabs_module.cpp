@@ -85,26 +85,27 @@ namespace spectre::module {
     flecs::entity PrefabsModule::create_prefab(std::string_view prefab_name, const sandbox::properties &override_props) {
         auto template_it = m_prefab_templates.find(std::string(prefab_name));
         if (template_it == m_prefab_templates.end()) {
+            sandbox::modules::logs::error(m_world, "Prefabs Module: Prefab '{}' not found in templates.", prefab_name);
             return flecs::entity::null();
         }
 
-        flecs::entity prefab_entity = m_world.prefab(prefab_name.data());
+        flecs::entity prefab_template = m_world.prefab(prefab_name.data());
 
-        // PASS 2: Lazy evaluation. We only apply components once per prefab.
-        // We use a flag to prevent rebuilding if create_prefab is called multiple times.
+        // PASS 2: Lazy evaluation. We only apply components once per prefab template.
         if (!template_it->second.is_built) {
             template_it->second.is_built = true;
-            build_prefab_hierarchy(prefab_entity, template_it->second.template_props);
+            build_prefab_hierarchy(prefab_template, template_it->second.template_props);
         }
 
-        // If override_props are provided, we could apply them here to the prefab.
-        // However, usually overrides are applied to instances, not the shared prefab.
-        // For now, we apply any overrides passed directly to the prefab entity.
+        // Instantiate the entity from the template using is_a
+        flecs::entity instance = m_world.entity().is_a(prefab_template);
+
+        // Apply any overrides directly to the instance
         if (override_props.is_valid()) {
-             build_prefab_hierarchy(prefab_entity, override_props);
+             build_prefab_hierarchy(instance, override_props);
         }
 
-        return prefab_entity;
+        return instance;
     }
 
     void PrefabsModule::apply_component(flecs::entity prefab_entity, std::string_view component_name, const sandbox::properties &component_props, bool override_comp) {
