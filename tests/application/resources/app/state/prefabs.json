@@ -1,56 +1,50 @@
 {
-  "object_1": {
-    "components": {
-      "Transform2D": {
-        "position": {
-          "x" : 400,
-          "y" : 400
+  "prefabs": {
+    "object_1": {
+      "components": {
+        "Transform2D": {
+          "position": { "x": 400, "y": 400 },
+          "scale": { "x": 1, "y": 1 },
+          "rotation": 0,
+          "origin": { "x": 0, "y": 0 }
         },
-        "scale": {
-          "x" : 1,
-          "y" : 1
-        },
-        "rotation": 0,
-        "origin": {
-          "x" : 0,
-          "y" : 0
+        "PolygoneRenderable": {
+          "point_count": 5,
+          "radius": 50,
+          "fill_color": { "r": 1.0, "g": 0.0, "b": 0.0, "a": 1.0 },
+          "outline_thickness": 2.0
         }
       },
-      "PolygoneRenderable" : {
-      }
+      "children": {}
     },
-    "children": []
-  },
-  "object_2": {
-    "components": {
-      "Transform2D": {
-        "position": {
-          "x" : 700,
-          "y" : 400
+    "object_2": {
+      "components": {
+        "Transform2D": {
+          "position": { "x": 700, "y": 400 },
+          "scale": { "x": 1, "y": 1 },
+          "rotation": 0,
+          "origin": { "x": 0, "y": 0 }
         },
-        "scale": {
-          "x" : 1,
-          "y" : 1
-        },
-        "rotation": 0,
-        "origin": {
-          "x" : 0,
-          "y" : 0
-        },
-        "RectangleRenderable" : {
+        "RectangleRenderable": {
+          "width": 100,
+          "height": 100,
+          "fill_color": { "r": 0.0, "g": 1.0, "b": 0.0, "a": 1.0 },
+          "outline_thickness": 2.0
         }
       },
-      "children": [{
-        "prefab": "object_1",
-        "component": {
-          "Transform2D": {
-            "position": {
-              "x" : 0,
-              "y" : 0
+      "children": {
+        "child_1": {
+          "prefab": "object_1",
+          "components": {
+            "Transform2D": {
+              "position": { "x": 100, "y": 100 }
+            },
+            "PolygoneRenderable": {
+               "fill_color": { "r": 0.0, "g": 0.0, "b": 1.0, "a": 1.0 }
             }
           }
         }
-      }]
+      }
     }
   }
 }

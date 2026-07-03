@@ -33,24 +33,11 @@ TEST_CASE("Prefabs Module Initialization and Overrides", "[prefabs]") {
     };
     props.set_array("engine/sandbox", modules);
 
-    // Create the dummy prefabs.json
+    // Clear the dummy prefabs.json to prevent the constructor from loading it prematurely
+    // before the component factories are registered!
     std::system("mkdir -p /tmp/spectre_tests/app/state");
-    std::system("cat << 'EOF' > /tmp/spectre_tests/app/state/prefabs.json\n"
-                "{\n"
-                "  \"prefabs\": {\n"
-                "    \"parent_prefab\": {\n"
-                "      \"components\": { \"DummyComponent\": { \"value\": 10 } },\n"
-                "      \"auto_overrides\": [\"DummyComponent\"],\n"
-                "      \"children\": {\n"
-                "        \"child_prefab\": {\n"
-                "          \"components\": { \"DummyComponent\": { \"value\": 20 } },\n"
-                "          \"auto_overrides\": []\n"
-                "        }\n"
-                "      }\n"
-                "    }\n"
-                "  }\n"
-                "}\n"
-                "EOF");
+    std::system("rm -f /tmp/spectre_tests/app/state/prefabs.json");
+
 
     REQUIRE(engine.initialize(props) == true);
     flecs::world ecs(static_cast<ecs_world_t*>(engine.get_ecs()));
@@ -62,20 +49,50 @@ TEST_CASE("Prefabs Module Initialization and Overrides", "[prefabs]") {
     prefabs_api->api->register_component_factory(ecs.c_ptr(), "DummyComponent", factory_Dummy);
 
     SECTION("Create Prefab Without Overrides") {
-        sandbox_properties_handle_t empty = {0};
-        ecs_entity_t parent = prefabs_api->api->create_prefab(ecs.c_ptr(), "parent_prefab", empty);
+        std::string prefab_json = R"({
+          "components": { "DummyComponent": { "value": 10 } },
+          "auto_overrides": ["DummyComponent"],
+          "children": {
+            "child_prefab": {
+              "components": { "DummyComponent": { "value": 20 } },
+              "auto_overrides": []
+            }
+          }
+        })";
+        sandbox::properties parent_props(prefab_json, sandbox::properties::Format::JSON);
+        prefabs_api->api->create_prefab(ecs.c_ptr(), "parent_prefab", parent_props.get_raw());
+
+        std::string entity_json = R"({ "prefab": "parent_prefab" })";
+        sandbox::properties props(entity_json, sandbox::properties::Format::JSON);
+        ecs_entity_t parent = prefabs_api->api->create_entity(ecs.c_ptr(), props.get_raw());
         REQUIRE(parent != 0);
 
         flecs::entity p = ecs.entity(parent);
+        REQUIRE(p.has<DummyComponent>());
         REQUIRE(p.get<DummyComponent>().value == 10);
         
         flecs::entity c = p.lookup("child_prefab");
         REQUIRE(c.is_valid());
+        REQUIRE(c.has<DummyComponent>());
         REQUIRE(c.get<DummyComponent>().value == 20);
     }
 
     SECTION("Create Prefab With Child Overrides") {
+        std::string prefab_json = R"({
+          "components": { "DummyComponent": { "value": 10 } },
+          "auto_overrides": ["DummyComponent"],
+          "children": {
+            "child_prefab": {
+              "components": { "DummyComponent": { "value": 20 } },
+              "auto_overrides": []
+            }
+          }
+        })";
+        sandbox::properties parent_props(prefab_json, sandbox::properties::Format::JSON);
+        prefabs_api->api->create_prefab(ecs.c_ptr(), "parent_prefab", parent_props.get_raw());
+
         std::string override_json = R"({
+            "prefab": "parent_prefab",
             "children": {
                 "child_prefab": {
                     "components": {
@@ -88,15 +105,16 @@ TEST_CASE("Prefabs Module Initialization and Overrides", "[prefabs]") {
         })";
         sandbox::properties overrides(override_json, sandbox::properties::Format::JSON);
 
-        // create_prefab should apply the overrides
-        ecs_entity_t parent = prefabs_api->api->create_prefab(ecs.c_ptr(), "parent_prefab", overrides.get_raw());
+        ecs_entity_t parent = prefabs_api->api->create_entity(ecs.c_ptr(), overrides.get_raw());
         REQUIRE(parent != 0);
 
         flecs::entity p = ecs.entity(parent);
+        REQUIRE(p.has<DummyComponent>());
         REQUIRE(p.get<DummyComponent>().value == 10); // Parent unchanged
         
         flecs::entity c = p.lookup("child_prefab");
         REQUIRE(c.is_valid());
+        REQUIRE(c.has<DummyComponent>());
         REQUIRE(c.get<DummyComponent>().value == 99); // Child overridden
     }
 }

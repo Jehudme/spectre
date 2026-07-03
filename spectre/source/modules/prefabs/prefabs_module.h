@@ -10,32 +10,20 @@
 
 namespace spectre::module {
 
-    struct PrefabTemplate {
-        std::string name;
-        sandbox::properties template_props;
-        bool is_built = false;
-    };
-
     class PrefabsModule {
     public:
-        explicit PrefabsModule(flecs::world& ecs);
+        explicit PrefabsModule(flecs::world& ecs); // create prefab from app://state/prefabs.json then make the entity an prefab
         ~PrefabsModule() = default;
 
-        void register_component_factory(std::string_view component_name,
-                                        spectre_component_factory_fn factory_fn);
+        void register_component_factory(std::string_view component_name, spectre_component_factory_fn factory_fn);
         bool has_component_factory(std::string_view component_name) const;
 
-        flecs::entity create_prefab(std::string_view prefab_name,
-                                    const sandbox::properties& override_props);
+        flecs::entity create_prefab(const char* name, const sandbox::properties& props); // create the entity from configuration and make it an prefab, if the prefab already exist with this name but is empty kus add to it, if it exist and is not empty logs error and ignore it
+        flecs::entity create_entity(const sandbox::properties& props); // create the entity from configuration if it have an an prefab configuration, if it already exist apply to it if not create an empty prefab to his name and later i should automaticly sync when this prefab get "created" 
 
     private:
-        void build_prefab_hierarchy(flecs::entity prefab_entity, const sandbox::properties& props);
-        void apply_component(flecs::entity entity, std::string_view component_name,
-                             const sandbox::properties& component_props, bool override_comp);
 
         flecs::world m_world;
-        std::unique_ptr<sandbox::properties> m_root_props;
-        std::unordered_map<std::string, PrefabTemplate> m_prefab_templates;
         std::unordered_map<std::string, spectre_component_factory_fn> m_component_factories;
     };
 

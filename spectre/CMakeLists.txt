@@ -24,7 +24,7 @@ set(HEADERS
     source/modules/renderer/renderer_module.h
     source/modules/resources/resource_module.h
         include/spectre/abi/spectre_window_input_abi.h
-    include/sandbox/sdk/window_input_service.hpp
+        include/spectre/sdk/window_input_service.hpp
     include/spectre/abi/renderer_service.h
     include/spectre/abi/renderer_components.h
         source/modules/scenes/scenes_modude.cpp

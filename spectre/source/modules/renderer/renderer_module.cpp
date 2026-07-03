@@ -79,14 +79,14 @@ namespace spectre::module {
         auto fill_color = utilities::try_read_color(props, "fill_color");
         if (!fill_color.has_value()) {
             sandbox::modules::logs::warn(world,
-                "PolygonRenderer factory: 'fill_color' missing — defaulting to white.");
+                "PolygoneRenderable factory: 'fill_color' missing — defaulting to white.");
         }
         polygon.fill_color = fill_color.value_or(spectre_color_t{1,1,1,1});
 
         auto outline_color = utilities::try_read_color(props, "outline_color");
         if (!outline_color.has_value()) {
             sandbox::modules::logs::warn(world,
-                "PolygonRenderer factory: 'outline_color' missing — defaulting to white.");
+                "PolygoneRenderable factory: 'outline_color' missing — defaulting to white.");
         }
         polygon.outline_color = outline_color.value_or(spectre_color_t{1,1,1,1});
 
@@ -104,7 +104,7 @@ namespace spectre::module {
         auto endpoint = utilities::try_read_vec2(props, "end_point_local");
         if (!endpoint.has_value()) {
             sandbox::modules::logs::warn(world,
-                "LineRenderer factory: 'end_point_local' missing or malformed — defaulting to (0,0).");
+                "LineRenderable factory: 'end_point_local' missing or malformed — defaulting to (0,0).");
         }
         line.end_point_local[0] = endpoint ? endpoint->first  : 0.0f;
         line.end_point_local[1] = endpoint ? endpoint->second : 0.0f;
@@ -112,7 +112,7 @@ namespace spectre::module {
         auto color = utilities::try_read_color(props, "color");
         if (!color.has_value()) {
             sandbox::modules::logs::warn(world,
-                "LineRenderer factory: 'color' missing — defaulting to white.");
+                "LineRenderable factory: 'color' missing — defaulting to white.");
         }
         line.color = color.value_or(spectre_color_t{1,1,1,1});
 
@@ -132,14 +132,14 @@ namespace spectre::module {
         auto fill_color = utilities::try_read_color(props, "fill_color");
         if (!fill_color.has_value()) {
             sandbox::modules::logs::warn(world,
-                "RectangleRenderer factory: 'fill_color' missing — defaulting to white.");
+                "RectangleRenderable factory: 'fill_color' missing — defaulting to white.");
         }
         rect.fill_color = fill_color.value_or(spectre_color_t{1,1,1,1});
 
         auto outline_color = utilities::try_read_color(props, "outline_color");
         if (!outline_color.has_value()) {
             sandbox::modules::logs::warn(world,
-                "RectangleRenderer factory: 'outline_color' missing — defaulting to white.");
+                "RectangleRenderable factory: 'outline_color' missing — defaulting to white.");
         }
         rect.outline_color = outline_color.value_or(spectre_color_t{1,1,1,1});
 
@@ -156,7 +156,7 @@ namespace spectre::module {
 
         if (vertex_count <= 0) {
             sandbox::modules::logs::warn(world,
-                "CustomPolygonRenderer factory: 'vertex_count' is 0 or missing — no vertices created.");
+                "CustomPolygoneRenderable factory: 'vertex_count' is 0 or missing — no vertices created.");
         } else {
             polygon.vertices     = new float[vertex_count * 2];
             polygon.vertex_count = static_cast<uint32_t>(vertex_count);
@@ -164,7 +164,7 @@ namespace spectre::module {
             auto vertices_node = props.sub("vertices");
             if (!vertices_node.is_valid()) {
                 sandbox::modules::logs::warn(world,
-                    "CustomPolygonRenderer factory: 'vertices' node missing — all vertices will be (0,0).");
+                    "CustomPolygoneRenderable factory: 'vertices' node missing — all vertices will be (0,0).");
             }
 
             for (int vertex_index = 0; vertex_index < vertex_count; ++vertex_index) {
@@ -172,7 +172,7 @@ namespace spectre::module {
                 auto vertex_node = vertices_node.sub(vertex_key);
                 if (!vertex_node.is_valid()) {
                     sandbox::modules::logs::warn(world,
-                        "CustomPolygonRenderer factory: Vertex '{}' missing — defaulting to (0,0).", vertex_key);
+                        "CustomPolygoneRenderable factory: Vertex '{}' missing — defaulting to (0,0).", vertex_key);
                 }
                 polygon.vertices[vertex_index * 2]     = static_cast<float>(vertex_node.get<double>("x").value_or(0.0));
                 polygon.vertices[vertex_index * 2 + 1] = static_cast<float>(vertex_node.get<double>("y").value_or(0.0));
@@ -182,14 +182,14 @@ namespace spectre::module {
         auto fill_color = utilities::try_read_color(props, "fill_color");
         if (!fill_color.has_value()) {
             sandbox::modules::logs::warn(world,
-                "CustomPolygonRenderer factory: 'fill_color' missing — defaulting to white.");
+                "CustomPolygoneRenderable factory: 'fill_color' missing — defaulting to white.");
         }
         polygon.fill_color = fill_color.value_or(spectre_color_t{1,1,1,1});
 
         auto outline_color = utilities::try_read_color(props, "outline_color");
         if (!outline_color.has_value()) {
             sandbox::modules::logs::warn(world,
-                "CustomPolygonRenderer factory: 'outline_color' missing — defaulting to white.");
+                "CustomPolygoneRenderable factory: 'outline_color' missing — defaulting to white.");
         }
         polygon.outline_color     = outline_color.value_or(spectre_color_t{1,1,1,1});
         polygon.outline_thickness = static_cast<float>(props.get<double>("outline_thickness").value_or(1.0));
@@ -211,21 +211,21 @@ namespace spectre::module {
             .member<float>("scale", 2)
             .member<float>("z");
 
-        world.component<spectre_polygon_renderer_t>("PolygonRenderer")
+        world.component<spectre_polygon_renderer_t>("PolygoneRenderable")
             .member<float>("radius")
             .member<uint32_t>("point_count")
             .member<spectre_color_t>("fill_color")
             .member<spectre_color_t>("outline_color")
             .member<float>("outline_thickness");
 
-        world.component<spectre_line_renderer_t>("LineRenderer")
+        world.component<spectre_line_renderer_t>("LineRenderable")
             .member<float>("end_point_local", 2)
             .member<spectre_color_t>("color")
             .member<float>("thickness");
 
-        world.component<spectre_rectangle_renderer_t>("RectangleRenderer");
+        world.component<spectre_rectangle_renderer_t>("RectangleRenderable");
 
-        world.component<spectre_custom_polygon_renderer_t>("CustomPolygonRenderer")
+        world.component<spectre_custom_polygon_renderer_t>("CustomPolygoneRenderable")
             .on_remove([](flecs::entity /*entity*/, spectre_custom_polygon_renderer_t& polygon) {
                 delete[] polygon.vertices;
                 polygon.vertices = nullptr;
@@ -246,10 +246,10 @@ namespace spectre::module {
 
         auto* ecs = world.c_ptr();
         prefabs->api->register_component_factory(ecs, "Transform2D",            factory_Transform2D);
-        prefabs->api->register_component_factory(ecs, "PolygonRenderer",        factory_PolygonRenderer);
-        prefabs->api->register_component_factory(ecs, "LineRenderer",           factory_LineRenderer);
-        prefabs->api->register_component_factory(ecs, "RectangleRenderer",      factory_RectangleRenderer);
-        prefabs->api->register_component_factory(ecs, "CustomPolygonRenderer",  factory_CustomPolygonRenderer);
+        prefabs->api->register_component_factory(ecs, "PolygoneRenderable",     factory_PolygonRenderer);
+        prefabs->api->register_component_factory(ecs, "LineRenderable",         factory_LineRenderer);
+        prefabs->api->register_component_factory(ecs, "RectangleRenderable",    factory_RectangleRenderer);
+        prefabs->api->register_component_factory(ecs, "CustomPolygoneRenderable",factory_CustomPolygonRenderer);
     }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -273,30 +273,35 @@ namespace spectre::module {
 
         register_all_factories(m_entity_world);
 
-        // First, load the shared prefab instances into the world
+        // Use create_entity to properly test the PrefabsModule instantiation
         if (const auto* prefabs = SANDBOX_GET_SERVICE(m_entity_world, spectre_prefabs_service_t)) {
-            sandbox_properties_handle_t no_override = {0};
-            prefabs->api->create_prefab(m_entity_world.c_ptr(), "asteroid", no_override);
-            prefabs->api->create_prefab(m_entity_world.c_ptr(), "spaceship_striker", no_override);
-            prefabs->api->create_prefab(m_entity_world.c_ptr(), "space_station", no_override);
+            // Instantiate object_1 with an override
+            std::string obj1_json = R"({
+                "prefab": "object_1",
+                "components": {
+                    "Transform2D": {
+                        "position": { "x": 200, "y": 200 }
+                    }
+                }
+            })";
+            sandbox::properties obj1_props(obj1_json, sandbox::properties::Format::JSON);
+            prefabs->api->create_entity(m_entity_world.c_ptr(), obj1_props.get_raw());
+
+            // Instantiate object_2 (which has object_1 as a child)
+            std::string obj2_json = R"({
+                "prefab": "object_2",
+                "components": {
+                    "Transform2D": {
+                        "position": { "x": 600, "y": 300 }
+                    }
+                }
+            })";
+            sandbox::properties obj2_props(obj2_json, sandbox::properties::Format::JSON);
+            prefabs->api->create_entity(m_entity_world.c_ptr(), obj2_props.get_raw());
         }
-
-        // Now use m_entity_world.prefab("...") to create useful entities
-        m_entity_world.entity().is_a(m_entity_world.prefab("asteroid"))
-            .set<spectre_transform_2d_t>({{300.0f, 200.0f}, 0.0f, {1.0f, 1.0f}});
-
-        m_entity_world.entity().is_a(m_entity_world.prefab("spaceship_striker"))
-            .set<spectre_transform_2d_t>({{640.0f, 400.0f}, 0.0f, {1.0f, 1.0f}});
-
-        m_entity_world.entity().is_a(m_entity_world.prefab("space_station"))
-            .set<spectre_transform_2d_t>({{1000.0f, 500.0f}, 0.0f, {1.0f, 1.0f}});
 
         // Create the persistent render query, ordered by Transform2D's z value
         m_render_query = m_entity_world.query_builder<spectre_transform_2d_t>()
-            .with<spectre_polygon_renderer_t>().or_()
-            .with<spectre_line_renderer_t>().or_()
-            .with<spectre_rectangle_renderer_t>().or_()
-            .with<spectre_custom_polygon_renderer_t>()
             .order_by<spectre_transform_2d_t>([](flecs::entity_t, const spectre_transform_2d_t* t1, flecs::entity_t, const spectre_transform_2d_t* t2) {
                 if (t1->z < t2->z) return -1;
                 if (t1->z > t2->z) return 1;
@@ -315,19 +320,49 @@ namespace spectre::module {
 
     void RendererModule::render_frame() {
         m_render_query.each([](flecs::entity entity, spectre_transform_2d_t& transform) {
+            flecs::world w = entity.world();
+            sandbox::modules::logs::info(w, "Renderer: Rendering entity '{}'", entity.path().c_str());
             rlPushMatrix();
             rlTranslatef(transform.position[0], transform.position[1], 0.0f);
             rlRotatef(transform.rotation * RAD2DEG, 0.0f, 0.0f, 1.0f);
             rlScalef(transform.scale[0], transform.scale[1], 1.0f);
 
-            if (const auto* polygon = entity.try_get<spectre_polygon_renderer_t>()) {
-                draw_polygon(polygon);
-            } else if (const auto* rect = entity.try_get<spectre_rectangle_renderer_t>()) {
-                draw_rectangle(rect);
-            } else if (const auto* line = entity.try_get<spectre_line_renderer_t>()) {
-                draw_line(line);
-            } else if (const auto* cpoly = entity.try_get<spectre_custom_polygon_renderer_t>()) {
-                draw_custom_polygon(cpoly);
+            bool drawn = false;
+            flecs::entity current = entity;
+            
+            while (current.is_valid() && !drawn) {
+                current.get([&](const spectre_polygon_renderer_t& polygon) {
+                    sandbox::modules::logs::info(w, "Renderer: Drawing Polygon for entity '{}' at ({}, {})", entity.path().c_str(), transform.position[0], transform.position[1]);
+                    draw_polygon(&polygon);
+                    drawn = true;
+                });
+                if (drawn) break;
+
+                current.get([&](const spectre_rectangle_renderer_t& rect) {
+                    sandbox::modules::logs::info(w, "Renderer: Drawing Rectangle for entity '{}' at ({}, {})", entity.path().c_str(), transform.position[0], transform.position[1]);
+                    draw_rectangle(&rect);
+                    drawn = true;
+                });
+                if (drawn) break;
+
+                current.get([&](const spectre_line_renderer_t& line) {
+                    draw_line(&line);
+                    drawn = true;
+                });
+                if (drawn) break;
+
+                current.get([&](const spectre_custom_polygon_renderer_t& cpoly) {
+                    draw_custom_polygon(&cpoly);
+                    drawn = true;
+                });
+                if (drawn) break;
+
+                // Move up the prefab hierarchy
+                current = current.target(flecs::IsA);
+            }
+
+            if (!drawn) {
+                sandbox::modules::logs::warn(w, "Renderer: Entity '{}' has Transform2D but no valid renderable component!", entity.path().c_str());
             }
 
             rlPopMatrix();
