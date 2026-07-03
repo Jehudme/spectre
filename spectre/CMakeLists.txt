@@ -12,8 +12,7 @@ find_package(Lua REQUIRED)
 set(SOURCES
     source/modules/renderer/renderer_module.cpp
     source/modules/resources/resource_module.cpp
-        source/modules/scenes/scene_module.cpp
-    source/modules/window/window_module.cpp
+        source/modules/window/window_module.cpp
     source/modules/prefabs/prefabs.cpp
     source/modules/prefabs/prefabs.h
     source/modules/scripts/scripts_module.cpp
@@ -24,8 +23,7 @@ set(SOURCES
 set(HEADERS
     source/modules/renderer/renderer_module.h
     source/modules/resources/resource_module.h
-        source/modules/scenes/scene_module.h
-    include/spectre/abi/spectre_window_input_abi.h
+        include/spectre/abi/spectre_window_input_abi.h
     include/sandbox/sdk/window_input_service.hpp
     include/spectre/abi/renderer_service.h
     include/spectre/abi/renderer_components.h

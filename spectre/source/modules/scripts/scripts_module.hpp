@@ -1,9 +1,15 @@
 #pragma once
+#include <string>
+
 #include "flecs.h"
 
 struct lua_State; // Clean forward declaration to keep compile times fast
 
 namespace spectre::module {
+
+    struct Script { //
+        const char* function_name;
+    };
 
     class ScriptsModule {
     public:

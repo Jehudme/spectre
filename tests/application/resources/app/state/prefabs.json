@@ -1,6 +1,12 @@
 {
   "prefabs": {
     "square": {
+      "scripts": {
+        "on_enter": [],
+        "on_exit": [],
+        "on_update": ["player_movement"]
+      },
+
       "components": {
         "Transform2D": {
           "position": [0.0, 0.0]
