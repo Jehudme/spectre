@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/jehud/CLionProjects/spectre/cmake-build-debug/_deps/sandbox-subbuild/cmake_install.cmake"
-	],
-	"Parallel" : false
-}

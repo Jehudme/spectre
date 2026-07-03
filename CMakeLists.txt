@@ -27,7 +27,7 @@ if(NOT sandbox_FOUND)
     FetchContent_Declare(
         sandbox
         GIT_REPOSITORY https://github.com/Jehudme/sandbox.git
-        GIT_TAG master
+        GIT_TAG 5ddfea4ea32e2290f0052e148cbcc595fd7c44fa # Locked to specific commit for reproducibility
         GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
     )
@@ -40,7 +40,7 @@ if(NOT raylib_FOUND)
     FetchContent_Declare(
         raylib
         GIT_REPOSITORY https://github.com/raysan5/raylib.git
-        GIT_TAG master
+        GIT_TAG 5.0 # Locked to specific tag
         GIT_SHALLOW TRUE
     )
     FetchContent_MakeAvailable(raylib)
@@ -52,7 +52,7 @@ if(NOT EnTT_FOUND)
     FetchContent_Declare(
         entt
         GIT_REPOSITORY https://github.com/skypjack/entt.git
-        GIT_TAG main
+        GIT_TAG v3.13.2 # Locked to specific tag
         GIT_SHALLOW TRUE
     )
     FetchContent_MakeAvailable(entt)
