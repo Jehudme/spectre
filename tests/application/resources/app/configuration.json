@@ -1,0 +1,14 @@
+{
+    "engine": {
+        "sandbox": [
+            "spectre-window@1.0.0",
+            "spectre-renderer@1.0.0"
+        ]
+    },
+    "window": {
+        "width": 1280,
+        "height": 720,
+        "title": "Spectre Application Module Test",
+        "fps": 60
+    }
+}

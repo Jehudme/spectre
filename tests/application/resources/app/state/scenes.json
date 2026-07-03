@@ -1,0 +1,38 @@
+{
+  "startups_state" : "spectre_boot",
+
+  "states" : {
+    "spectre_boot" : {
+      "components" : [""],
+
+      "scenes" : ["spectre_boot_scene"],
+
+      "scripts" : {
+        "on_enter" : "spectre_boot_on_enter",
+        "on_exit" : "spectre_boot_on_exit",
+        "on_update" : "spectre_boot_on_update"
+      }
+    }
+  },
+
+  "scenes" : {
+    "spectre_boot_scene" : {
+      "components" : [""],
+
+      "scripts" : {
+        "on_enter" : "spectre_boot_on_enter",
+        "on_exit" : "spectre_boot_on_exit",
+        "on_update" : "spectre_boot_on_update"
+      },
+
+      "entities" : [
+        {
+          "player": {
+            "prefab": "player",
+            "components":
+          }
+        }
+      ]
+    }
+  }
+}
