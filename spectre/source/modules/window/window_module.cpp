@@ -1,4 +1,4 @@
-#include <spectre/abi/spectre_window_input_abi.h>
+#include <spectre/abi/window_service.h>
 #include <sandbox/abi/bootstrapper.h>
 #include <sandbox/sdk/logs.hpp>
 #include <flecs.h>

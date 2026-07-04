@@ -15,20 +15,22 @@ set(SOURCES
         source/modules/window/window_module.cpp
         source/modules/prefabs/prefabs_module.cpp
         source/modules/prefabs/prefabs_module.h
-    source/modules/scripts/scripts_module.cpp
-    source/modules/scripts/scripts_module.hpp
+        source/modules/scripts/scripts_module.cpp
+        source/modules/scripts/scripts_module.h
 )
 
 # Headers
 set(HEADERS
     source/modules/renderer/renderer_module.h
     source/modules/resources/resource_module.h
-        include/spectre/abi/spectre_window_input_abi.h
+        include/spectre/abi/window_service.h
         include/spectre/sdk/window_input_service.hpp
     include/spectre/abi/renderer_service.h
     include/spectre/abi/renderer_components.h
         source/modules/scenes/scenes_modude.cpp
         source/modules/scenes/scenes_modude.h
+        include/spectre/abi/scripts_service.h
+        include/spectre/abi/scripts_components.h
 )
 
 option(SPECTRE_MODULES_STATIC "Build modules statically and link them directly" OFF)
@@ -68,10 +70,10 @@ target_link_libraries(spectre_plugin PRIVATE
 
 # SWIG Scripting Generation
 set_property(SOURCE source/modules/scripts/spectre_scripting.i PROPERTY CPLUSPLUS ON)
-set_property(SOURCE source/modules/scripts/spectre_scripting.i PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/_deps/flecs-src/include)
+set_property(SOURCE source/modules/scripts/spectre_scripting.i PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/_deps/flecs-src/include ${CMAKE_BINARY_DIR}/_deps/sandbox-src/sandbox/include)
 swig_add_library(spectre_scripting TYPE STATIC LANGUAGE lua SOURCES source/modules/scripts/spectre_scripting.i)
 target_compile_options(spectre_scripting PRIVATE -fpermissive)
-target_include_directories(spectre_scripting PRIVATE ${LUA_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/_deps/flecs-src/include)
+target_include_directories(spectre_scripting PRIVATE ${LUA_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_BINARY_DIR}/_deps/flecs-src/include ${CMAKE_BINARY_DIR}/_deps/sandbox-src/sandbox/include)
 target_link_libraries(spectre_scripting PRIVATE ${LUA_LIBRARIES} sandbox::library)
 
 # Link SWIG library to plugin

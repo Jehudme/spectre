@@ -1,6 +1,6 @@
 #pragma once
 
-#include <spectre/abi/spectre_window_input_abi.h>
+#include <spectre/abi/window_service.h>
 
 namespace sandbox::sdk {
 

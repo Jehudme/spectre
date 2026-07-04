@@ -2,7 +2,9 @@
     "engine": {
         "sandbox": [
             "spectre-window@1.0.0",
-            "spectre-renderer@1.0.0"
+            "spectre-renderer@1.0.0",
+            "spectre-scripts@1.0.0",
+            "spectre-prefabs@1.0.0"
         ]
     },
     "window": {
