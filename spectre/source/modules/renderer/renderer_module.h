@@ -1,31 +1,34 @@
 #pragma once
+#include "flecs.h"
+#include "sandbox/sdk/properties.hpp"
 
-#include <flecs.h>
-#include <spectre/abi/renderer_components.h>
+namespace spectre::modules {
 
-namespace spectre::module {
-
-    /**
-     * @brief 2D batch renderer backed by raylib.
-     *
-     * On construction, registers ECS components, component factory functions with
-     * the PrefabsModule, and starts the RenderSystem.
-     *
-     * The render system runs each frame and dispatches draw calls in z-order for
-     * all entities that have both a Transform2D and a Renderable2D component.
-     */
-    class RendererModule {
+    class renderer_module_t {
     public:
-        explicit RendererModule(flecs::world& world);
-        ~RendererModule();
+        explicit renderer_module_t(flecs::world& world);
+        ~renderer_module_t();
+
+        renderer_module_t(const renderer_module_t&) = delete;
+        renderer_module_t& operator=(const renderer_module_t&) = delete;
+        renderer_module_t(renderer_module_t&&) = delete;
+        renderer_module_t& operator=(renderer_module_t&&) = delete;
+
+        flecs::entity deserialize_renderer(sandbox::properties props);
+        sandbox::properties serialize_renderer(flecs::entity renderer);
+
+        void register_renderer(sandbox::properties props);
+        bool is_renderer() const;
 
     private:
-        /** Collects visible entities, sorts by z_order, and dispatches draw calls. */
         void render_frame();
+        void render(flecs::entity entity);
 
-        flecs::world  m_entity_world;
-        flecs::system m_render_system;
-        flecs::query<spectre_transform_2d_t> m_render_query;
+        flecs::query<> find_renderable() const;
+
+        flecs::world m_world;
+        flecs::entity m_renderer;
+        flecs::entity m_renderer_serializer;
     };
 
 } // namespace spectre::module

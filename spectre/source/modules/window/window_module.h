@@ -1,13 +1,24 @@
 #pragma once
-
-#include <flecs.h>
 #include <cstdint>
 
-namespace spectre::module {
-    class WindowModule {
+#include "flecs/addons/cpp/flecs.hpp"
+#include "sandbox/sdk/properties.hpp"
+
+namespace spectre::modules {
+    class window_module_t {
     public:
-        WindowModule(flecs::world& world);
-        ~WindowModule();
+        window_module_t(flecs::world& world);
+        ~window_module_t() = default;
+
+        window_module_t(const window_module_t&) = delete;
+        window_module_t& operator=(const window_module_t&) = delete;
+        window_module_t(window_module_t&&) = delete;
+        window_module_t& operator=(window_module_t&&) = delete;
+
+        flecs::entity deserialize_window(sandbox::properties props);
+        sandbox::properties serialize_window(flecs::entity window);
+
+        void register_window(sandbox::properties props);
 
         bool should_close() const;
         void set_should_close(bool close);
@@ -55,9 +66,25 @@ namespace spectre::module {
 
         void* get_native_handle() const;
 
+        // --- Input Queries (For gameplay systems) ---
+        bool is_key_down(int keycode) const;
+        bool is_key_pressed(int keycode) const;
+        bool is_key_released(int keycode) const;
+
+        float get_mouse_x() const;
+        float get_mouse_y() const;
+        float get_mouse_delta_x() const;
+        float get_mouse_delta_y() const;
+
     private:
-        flecs::world m_entity_world;
-        flecs::system m_window_system;
-        const char* m_title = "Spectre Engine";
+        void begin_input_frame();
+        void set_key_down(int keycode);
+        void set_key_up(int keycode);
+        void set_mouse_position(float x, float y);
+        void set_mouse_delta(float dx, float dy);
+
+    private:
+        flecs::entity m_window_module;
+        flecs::world m_world;
     };
 }

@@ -10,27 +10,43 @@ find_package(Lua REQUIRED)
 
 # Source files
 set(SOURCES
-    source/modules/renderer/renderer_module.cpp
-    source/modules/resources/resource_module.cpp
         source/modules/window/window_module.cpp
-        source/modules/prefabs/prefabs_module.cpp
-        source/modules/prefabs/prefabs_module.h
-        source/modules/scripts/scripts_module.cpp
-        source/modules/scripts/scripts_module.h
+        source/modules/serializer/serializer_module.cpp
+        source/modules/serializer/serializer_module.h
 )
 
 # Headers
 set(HEADERS
     source/modules/renderer/renderer_module.h
     source/modules/resources/resource_module.h
-        include/spectre/abi/window_service.h
         include/spectre/sdk/window_input_service.hpp
-    include/spectre/abi/renderer_service.h
-    include/spectre/abi/renderer_components.h
         source/modules/scenes/scenes_modude.cpp
         source/modules/scenes/scenes_modude.h
-        include/spectre/abi/scripts_service.h
-        include/spectre/abi/scripts_components.h
+        source/modules/prefabs/prefabs_module.cpp
+        source/modules/prefabs/prefabs_module.h
+        source/modules/renderer/renderer_module.cpp
+        source/modules/renderer/renderer_module.h
+        source/modules/resources/resources_module.cpp
+        source/modules/resources/resources_module.h
+        source/modules/scenes/scenes_module.cpp
+        source/modules/scenes/scenes_module.h
+        source/modules/scripts/scripts_module.cpp
+        source/modules/scripts/scripts_module.h
+        source/modules/window/window_module.cpp
+        source/modules/window/window_module.h
+        include/spectre/api/resources_api.h
+        include/spectre/api/renderer_api.h
+        include/spectre/api/prefabs_api.h
+        include/spectre/api/scripts_api.h
+        include/spectre/api/window_api.h
+        include/spectre/api/serializer_api.h
+        include/spectre/api/scenes_api.h
+        source/modules/components/components_module.cpp
+        source/modules/components/components_module.h
+        include/spectre/components.h
+        include/spectre/services.h
+        include/spectre/spectre.h
+        source/spectre.cpp
 )
 
 option(SPECTRE_MODULES_STATIC "Build modules statically and link them directly" OFF)
@@ -89,7 +105,7 @@ add_custom_command(TARGET spectre_plugin POST_BUILD
 # Add a post-build command to copy the engine's script-facing headers and the compiled script module into the virtual directory layout "app://state/scripts/".
 add_custom_command(TARGET spectre_plugin POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/app/state/scripts
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/include/spectre/abi ${CMAKE_BINARY_DIR}/app/state/scripts/include
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/include/spectre/api ${CMAKE_BINARY_DIR}/app/state/scripts/include
 )
 
 target_precompile_headers(spectre_plugin PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/source/pch.h>")
