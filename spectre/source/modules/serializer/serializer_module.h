@@ -4,8 +4,7 @@
 
 #include "flecs.h"
 #include "sandbox/sdk/properties.hpp"
-#include "../../../include/spectre/api/serializer_api.h"
-
+#include "spectre/components.h"
 namespace spectre::modules {
 
     using serializer_t = spectre_serializer_t;

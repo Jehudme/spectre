@@ -5,7 +5,7 @@
 #include "flecs.h"
 #include "sandbox/sdk/properties.hpp"
 #include "sandbox/sdk/detail/bootstrapper.inl"
-#include "spectre/api/resources_api.h"
+#include "spectre/components.h"
 
 namespace spectre::modules {
     using ResourceLoader = spectre_resource_loader_t;

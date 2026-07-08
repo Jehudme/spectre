@@ -1,11 +1,11 @@
 #pragma once
 
+#include <flecs.h>
+#include "../components.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <flecs.h>
-#include "../components.h"
 
 // ==============================================================================
 // Scenes Module

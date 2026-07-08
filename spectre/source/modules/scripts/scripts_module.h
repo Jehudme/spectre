@@ -2,7 +2,7 @@
 #include <string_view>
 #include "flecs.h"
 #include "sandbox/sdk/properties.hpp"
-#include "spectre/api/scripts_api.h"
+#include "spectre/components.h"
 
 namespace spectre::modules {
     using script_argument_t = spectre_script_argument_t;

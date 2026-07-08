@@ -1,14 +1,14 @@
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <flecs.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include "sandbox/abi/properties.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // --- prefabs ---
 typedef struct spectre_prefab_t {

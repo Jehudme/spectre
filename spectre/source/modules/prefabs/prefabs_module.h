@@ -1,6 +1,5 @@
 #pragma once
-#include "flecs/addons/cpp/entity.hpp"
-#include "flecs/addons/cpp/world.hpp"
+#include <flecs.h>
 #include "sandbox/sdk/properties.hpp"
 #include "sandbox/sdk/detail/bootstrapper.inl"
 
