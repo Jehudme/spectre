@@ -4,15 +4,15 @@
 #include "sandbox/sdk/detail/bootstrapper.inl"
 
 namespace spectre::modules {
-    class components_module_t {
+    class prefabs_module_t {
     public:
-        explicit components_module_t(flecs::world& world);
-        ~components_module_t();
+        explicit prefabs_module_t(flecs::world& world);
+        ~prefabs_module_t();
 
-        components_module_t(const components_module_t&) = delete;
-        components_module_t& operator=(const components_module_t&) = delete;
-        components_module_t(components_module_t&&) = delete;
-        components_module_t& operator=(components_module_t&&) = delete;
+        prefabs_module_t(const prefabs_module_t&) = delete;
+        prefabs_module_t& operator=(const prefabs_module_t&) = delete;
+        prefabs_module_t(prefabs_module_t&&) = delete;
+        prefabs_module_t& operator=(prefabs_module_t&&) = delete;
 
         sandbox::properties serialize_entity(flecs::entity entity);
         flecs::entity deserialize_entity(sandbox::properties props);

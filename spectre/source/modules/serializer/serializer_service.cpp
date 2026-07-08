@@ -2,7 +2,7 @@
 #include "spectre/services/serializer_service.h"
 #include "serializer_module.h"
 
-static void                         serializer_register_serializer(ecs_world_t* entity_world, const char* type, const spectre_serializer_t* serializer);
+static void                         serializer_register_serializer(ecs_world_t* entity_world, const char* type, const spectre_serializer_component* serializer);
 static bool                         serializer_has_serializer(ecs_world_t* entity_world, const char* type);
 static ecs_entity_t                serializer_find_serializer(ecs_world_t* entity_world, const char* type);
 static sandbox_properties_handle_t serializer_serialize_entity(ecs_world_t* entity_world, ecs_entity_t serializer, ecs_entity_t entity);
@@ -18,7 +18,7 @@ spectre_serializer_api_t g_serializer_api = {
 
 SANDBOX_DEFINE_SERVICE(spectre_serializer_service_t, spectre_serializer_api_t, &g_serializer_api)
 
-static void serializer_register_serializer(ecs_world_t* entity_world, const char* type, const spectre_serializer_t* serializer) {
+static void serializer_register_serializer(ecs_world_t* entity_world, const char* type, const spectre_serializer_component* serializer) {
     if (!entity_world || !serializer) return;
     flecs::world flecs_world(entity_world);
     auto* module = flecs_world.try_get_mut<spectre::modules::serializer_module>();
@@ -58,7 +58,7 @@ static ecs_entity_t serializer_deserialize_entity(ecs_world_t* entity_world, ecs
 }
 
 // --- Public C API Implementations ---
-void spectre_serializer_register_serializer(ecs_world_t* world, const char* type, const spectre_serializer_t* serializer) {
+void spectre_serializer_register_serializer(ecs_world_t* world, const char* type, const spectre_serializer_component* serializer) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_serializer_service_t* service = flecs_world.try_get<spectre_serializer_service_t>();
@@ -155,7 +155,7 @@ ecs_entity_t spectre_serializer_deserialize_entity(ecs_world_t* world, ecs_entit
 
 // --- SDK Implementations ---
 namespace spectre::modules {
-void serializer::register_serializer(const flecs::world& entity_world, const char* type, const spectre_serializer_t* serializer) {
+void serializer::register_serializer(const flecs::world& entity_world, const char* type, const spectre_serializer_component* serializer) {
             spectre_serializer_register_serializer(entity_world.c_ptr(), type, serializer);}
 
 bool serializer::has_serializer(const flecs::world& entity_world, const char* type) {

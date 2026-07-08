@@ -11,61 +11,59 @@ extern "C" {
 #endif
 
 // --- prefabs ---
-typedef struct spectre_prefab_t {
+typedef struct spectre_prefab_flag_t {
     char dummy;
-} spectre_prefab_t;
+} spectre_prefab_flag_t;
 
 // --- serializer ---
-typedef struct spectre_serializer_t {
+typedef struct spectre_serializer_component {
     ecs_entity_t (*deserialize)(ecs_world_t* world, sandbox_properties_handle_t props);
     sandbox_properties_handle_t (*serialize)(ecs_world_t* world, ecs_entity_t entity);
-} spectre_serializer_t;
+} spectre_serializer_component;
+
+typedef struct spectre_serializer_relation_t {
+    char dummy;
+} spectre_serializer_relation_t;
 
 // --- resources ---
-typedef struct spectre_resource_flag            {} spectre_resource_flag;
-typedef struct spectre_resource_loader_flag     {} spectre_resource_type;
-typedef struct spectre_resource_loader_relation {} spectre_resource_loader_relation;
-typedef struct spectre_use_resource_relation    {} spectre_use_resource_relation;
+typedef struct spectre_use_loader_relation_t { char dummy; } spectre_resource_loader_relation;
+typedef struct spectre_use_resource_relation_t { char dummy; } spectre_use_resource_relation;
 
-typedef struct spectre_resource_t {
+typedef struct spectre_resource_component_t {
     const char* path;
     void* instance;
-} spectre_resource_t;
+} spectre_resource_component_t;
 
-typedef struct spectre_resource_loader_t {
-    void (*load_fn)(ecs_world_t* world, spectre_resource_t* resource);
-    void (*free_fn)(ecs_world_t* world, spectre_resource_t* resource);
-} spectre_resource_loader_t;
+typedef struct spectre_resource_loader_component_t {
+    void (*load_fn)(ecs_world_t* world, spectre_resource_component_t* resource);
+    void (*free_fn)(ecs_world_t* world, spectre_resource_component_t* resource);
+} spectre_resource_loader_component_t;
 
 // --- scenes ---
-typedef struct spectre_scene_t {
+typedef struct spectre_scene_flag_t {
     char dummy;
 } spectre_scene_t;
 
-typedef struct spectre_state_t {
+typedef struct spectre_state_flag_t {
     char dummy;
 } spectre_state_t;
 
-typedef struct spectre_state_use_scene {
+typedef struct spectre_use_scene_relation_t {
     uint32_t layer_index;
-} spectre_state_use_scene_t;
+} spectre_state_use_scene_relation_t;
 
 // --- renderer ---
 typedef struct spectre_renderable_t {
     char dummy;
-} spectre_renderable_flag;
-
-typedef struct specter_disable_rendering_flag {
-    char dummy;
-} specter_disable_rendering_flag;
+} spectre_renderable_t;
 
 // --- scripts ---
-typedef struct spectre_script_on_enter_t   { char dummy; } spectre_script_on_enter_t;
-typedef struct spectre_script_on_exit_t    { char dummy; } spectre_script_on_exit_t;
-typedef struct spectre_script_on_create_t  { char dummy; } spectre_script_on_create_t;
-typedef struct spectre_script_on_destroy_t { char dummy; } spectre_script_on_destroy_t;
-typedef struct spectre_script_on_update_t  { char dummy; } spectre_script_on_update_t;
-typedef struct spectre_script_on_render_t  { char dummy; } spectre_script_on_render_t;
+typedef struct spectre_use_script_on_enter_relation_t   { char dummy; } spectre_use_script_on_enter_relation_t;
+typedef struct spectre_use_script_on_exit_relation_t    { char dummy; } spectre_use_script_on_exit_relation_t;
+typedef struct spectre_use_script_on_create_relation_t  { char dummy; } spectre_use_script_on_create_relation_t;
+typedef struct spectre_use_script_on_destroy_relation_t { char dummy; } spectre_use_script_on_destroy_relation_t;
+typedef struct spectre_use_script_on_update_relation_t  { char dummy; } spectre_use_script_on_update_relation_t;
+typedef struct spectre_use_script_on_render_relation_t  { char dummy; } spectre_use_script_on_render_relation_t;
 
 typedef enum spectre_script_argument_type_t {
     SPECTRE_SCRIPT_ARGUMENT_TYPE_NIL,
@@ -89,9 +87,9 @@ typedef struct spectre_script_argument_t {
     } value;
 } spectre_script_argument_t;
 
-typedef struct spectre_script_t {
+typedef struct spectre_script_component_t {
     const char* function_name;
-} spectre_script_t;
+} spectre_script_component_t;
 
 // --- window ---
 typedef struct spectre_input_state_t {
@@ -101,6 +99,9 @@ typedef struct spectre_input_state_t {
     float mouse_position[2];
     float mouse_delta[2];
 } spectre_input_state_t;
+
+// --- Components ---
+typedef struct spectre_component_serializer_t { char dummy; } spectre_component_serializer_t;
 
 #ifdef __cplusplus
 }

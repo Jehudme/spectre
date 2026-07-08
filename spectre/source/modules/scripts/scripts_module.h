@@ -8,7 +8,7 @@ namespace spectre::modules {
     using script_argument_t = spectre_script_argument_t;
     using script_arguments_t = std::vector<spectre_script_argument_t>;
 
-    using script_t = spectre_script_t;
+    using script_t = spectre_script_component_t;
 
     class script_module_t {
     public:

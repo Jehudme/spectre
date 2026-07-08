@@ -7,7 +7,7 @@
 #include "spectre/components.h"
 namespace spectre::modules {
 
-    using serializer_t = spectre_serializer_t;
+    using serializer_t = spectre_serializer_component;
     class serializer_module {
     public:
         explicit serializer_module(flecs::world& world);

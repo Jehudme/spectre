@@ -7,8 +7,6 @@
 extern "C" {
 #endif
 
-
-
 typedef struct spectre_prefabs_api_t {
     sandbox_properties_handle_t (*serialize_entity)(ecs_world_t* world, ecs_entity_t entity);
     ecs_entity_t (*deserialize_entity)(ecs_world_t* world, sandbox_properties_handle_t props);

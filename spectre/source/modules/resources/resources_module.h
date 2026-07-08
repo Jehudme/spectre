@@ -8,8 +8,8 @@
 #include "spectre/components.h"
 
 namespace spectre::modules {
-    using ResourceLoader = spectre_resource_loader_t;
-    using Resource = spectre_resource_t;
+    using ResourceLoader = spectre_resource_loader_component_t;
+    using Resource = spectre_resource_component_t;
 
     class resource_module_t {
     public:

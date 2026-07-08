@@ -39,7 +39,9 @@ set(HEADERS
     source/utilities/properties_helpers.h
 )
 
-add_library(spectre_plugin MODULE ${SOURCES} ${HEADERS})
+add_library(spectre_plugin MODULE ${SOURCES} ${HEADERS}
+        source/modules/components/components_module.cpp
+        source/modules/components/components_module.h)
 set_target_properties(spectre_plugin PROPERTIES
     PREFIX ""
     CXX_VISIBILITY_PRESET hidden

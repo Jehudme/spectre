@@ -12,7 +12,7 @@ extern "C" {
 typedef struct spectre_resources_api_t {
     ecs_entity_t (*deserialize_resource)(ecs_world_t* world, sandbox_properties_handle_t props);
     sandbox_properties_handle_t (*serialize_resource)(ecs_world_t* world, ecs_entity_t resourceEntity);
-    void (*register_resource_loader)(ecs_world_t* world, const char* type, spectre_resource_loader_t loader);
+    void (*register_resource_loader)(ecs_world_t* world, const char* type, spectre_resource_loader_component_t loader);
     void (*register_resource)(ecs_world_t* world, sandbox_properties_handle_t props);
     bool (*has_resource_loader)(ecs_world_t* world, const char* type);
     bool (*has_resource)(ecs_world_t* world, const char* name);
@@ -37,7 +37,7 @@ SANDBOX_DECLARE_SERVICE(spectre_resources_service_t, spectre_resources_api_t, {
 // --- Public C API ---
 SANDBOX_API ecs_entity_t spectre_resources_deserialize_resource(ecs_world_t* world, sandbox_properties_handle_t props);
 SANDBOX_API sandbox_properties_handle_t spectre_resources_serialize_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
-SANDBOX_API void spectre_resources_register_resource_loader(ecs_world_t* world, const char* type, spectre_resource_loader_t loader);
+SANDBOX_API void spectre_resources_register_resource_loader(ecs_world_t* world, const char* type, spectre_resource_loader_component_t loader);
 SANDBOX_API void spectre_resources_register_resource(ecs_world_t* world, sandbox_properties_handle_t props);
 SANDBOX_API bool spectre_resources_has_resource_loader(ecs_world_t* world, const char* type);
 SANDBOX_API bool spectre_resources_has_resource(ecs_world_t* world, const char* name);
