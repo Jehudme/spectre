@@ -8,7 +8,7 @@ namespace spectre::modules {
     class window_module_t {
     public:
         window_module_t(flecs::world& world);
-        ~window_module_t() = default;
+        ~window_module_t();
 
         window_module_t(const window_module_t&) = delete;
         window_module_t& operator=(const window_module_t&) = delete;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <sandbox/sdk/properties.hpp>
-#include <spectre/abi/renderer_components.h>
+#include <spectre/services/renderer_components.h>
 #include <string>
 #include <optional>
 

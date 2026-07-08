@@ -1,18 +1,29 @@
-//
-// Created by jehud on 2026-07-04.
-//
-
 #include "prefabs_module.h"
+#include "spectre/abi/prefabs_service.h"
+#include <iostream>
 
 namespace spectre::modules {
-    components_module_t::components_module_t(flecs::world &world) {
-    }
 
-    components_module_t::~components_module_t() {
+    SANDBOX_DECLARE_MODULE(components_module_t, {
+        .name = "prefabs",
+        .description = "Prefabs Module",
+        .architecture = "spectre",
+        .version_major = 1,
+        .version_minor = 0,
+        .version_patch = 0,
+        .service = &spectre_prefabs_service_t_info_decl,
+        .requirements = nullptr,
+        .requirement_count = 0
+    })
+
+    components_module_t::components_module_t(flecs::world& world) : m_world(world) {
+        std::cout << "[SPECTRE] Initializing " << "prefabs" << " module" << std::endl;
     }
+    
+    components_module_t::~components_module_t() = default;
 
     sandbox::properties components_module_t::serialize_entity(flecs::entity entity) {
-        return sandbox::properties();
+        return sandbox::properties{};
     }
 
     flecs::entity components_module_t::deserialize_entity(sandbox::properties props) {
@@ -45,4 +56,5 @@ namespace spectre::modules {
     flecs::entity components_module_t::create_entity(std::string_view name) {
         return flecs::entity::null();
     }
+
 }

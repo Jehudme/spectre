@@ -8,20 +8,25 @@ find_package(Lua REQUIRED)
 
 # Source files
 set(SOURCES
-    source/spectre.cpp
+    source/modules/prefabs/prefabs_service.cpp
     source/modules/prefabs/prefabs_module.cpp
+    source/modules/renderer/renderer_service.cpp
     source/modules/renderer/renderer_module.cpp
+    source/modules/resources/resources_service.cpp
     source/modules/resources/resources_module.cpp
+    source/modules/scenes/scenes_service.cpp
     source/modules/scenes/scenes_module.cpp
+    source/modules/scripts/scripts_service.cpp
     source/modules/scripts/scripts_module.cpp
+    source/modules/serializer/serializer_service.cpp
     source/modules/serializer/serializer_module.cpp
+    source/modules/window/window_service.cpp
     source/modules/window/window_module.cpp
 )
 
 # Headers
 set(HEADERS
     include/spectre/components.h
-    include/spectre/services.h
     include/spectre/spectre.h
     source/pch.h
     source/modules/prefabs/prefabs_module.h

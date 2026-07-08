@@ -1,10 +1,18 @@
 {
     "engine": {
         "sandbox": [
+            "sandbox-configuration@1.0.0",
+            "sandbox-logs@1.0.0",
+            "sandbox-filesystem@1.0.0",
+            "sandbox-runtime@1.0.0",
+
             "spectre-window@1.0.0",
             "spectre-renderer@1.0.0",
             "spectre-scripts@1.0.0",
-            "spectre-prefabs@1.0.0"
+            "spectre-prefabs@1.0.0",
+            "spectre-scenes@1.0.0",
+            "spectre-serializer@1.0.0",
+            "spectre-resources@1.0.0"
         ]
     },
     "window": {
