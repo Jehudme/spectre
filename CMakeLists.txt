@@ -27,7 +27,7 @@ if(NOT sandbox_FOUND)
     FetchContent_Declare(
         sandbox
         GIT_REPOSITORY https://github.com/Jehudme/sandbox.git
-        GIT_TAG 5ddfea4ea32e2290f0052e148cbcc595fd7c44fa # Locked to specific commit for reproducibility
+        GIT_TAG e718525 # Locked to specific commit for reproducibility
         GIT_SHALLOW TRUE
         EXCLUDE_FROM_ALL
     )
