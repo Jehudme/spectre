@@ -1,3 +1,4 @@
+#include <spectre/sdk/scripts.hpp>
 #include "spectre/services/scripts_service.h"
 #include "scripts_module.h"
 
@@ -85,4 +86,189 @@ static void scripts_execute_script(ecs_world_t* entity_world, ecs_entity_t scrip
         spectre::modules::script_arguments_t cpp_args(args, args + arg_count);
         module->execute_script(flecs_world.entity(script_entity), std::move(cpp_args));
     }
+}
+
+// --- Public C API Implementations ---
+sandbox_properties_handle_t spectre_scripts_serialize_script(ecs_world_t* world, ecs_entity_t script) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scripts_service_t* service = flecs_world.try_get<spectre_scripts_service_t>();
+#else
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scripts_service_t* service = flecs_world.try_get<spectre_scripts_service_t>();
+#else
+    const spectre_scripts_service_t* service = (const spectre_scripts_service_t*)ecs_singleton_get(world, spectre_scripts_service_t);
+#endif
+#endif
+    if (service && service->api && service->api->serialize_script) {
+        return service->api->serialize_script(world, script);
+        
+    }
+    sandbox_properties_handle_t invalid = {0}; return invalid;
+}
+
+ecs_entity_t spectre_scripts_deserialize_script(ecs_world_t* world, sandbox_properties_handle_t props) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scripts_service_t* service = flecs_world.try_get<spectre_scripts_service_t>();
+#else
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scripts_service_t* service = flecs_world.try_get<spectre_scripts_service_t>();
+#else
+    const spectre_scripts_service_t* service = (const spectre_scripts_service_t*)ecs_singleton_get(world, spectre_scripts_service_t);
+#endif
+#endif
+    if (service && service->api && service->api->deserialize_script) {
+        return service->api->deserialize_script(world, props);
+        
+    }
+    return (ecs_entity_t){0};
+}
+
+void spectre_scripts_register_script(ecs_world_t* world, sandbox_properties_handle_t props) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scripts_service_t* service = flecs_world.try_get<spectre_scripts_service_t>();
+#else
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scripts_service_t* service = flecs_world.try_get<spectre_scripts_service_t>();
+#else
+    const spectre_scripts_service_t* service = (const spectre_scripts_service_t*)ecs_singleton_get(world, spectre_scripts_service_t);
+#endif
+#endif
+    if (service && service->api && service->api->register_script) {
+        service->api->register_script(world, props);
+        return;
+    }
+    
+}
+
+bool spectre_scripts_has_script(ecs_world_t* world, const char* name) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scripts_service_t* service = flecs_world.try_get<spectre_scripts_service_t>();
+#else
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scripts_service_t* service = flecs_world.try_get<spectre_scripts_service_t>();
+#else
+    const spectre_scripts_service_t* service = (const spectre_scripts_service_t*)ecs_singleton_get(world, spectre_scripts_service_t);
+#endif
+#endif
+    if (service && service->api && service->api->has_script) {
+        return service->api->has_script(world, name);
+        
+    }
+    return false;
+}
+
+bool spectre_scripts_is_script(ecs_world_t* world, ecs_entity_t entity) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scripts_service_t* service = flecs_world.try_get<spectre_scripts_service_t>();
+#else
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scripts_service_t* service = flecs_world.try_get<spectre_scripts_service_t>();
+#else
+    const spectre_scripts_service_t* service = (const spectre_scripts_service_t*)ecs_singleton_get(world, spectre_scripts_service_t);
+#endif
+#endif
+    if (service && service->api && service->api->is_script) {
+        return service->api->is_script(world, entity);
+        
+    }
+    return false;
+}
+
+ecs_entity_t spectre_scripts_find_script(ecs_world_t* world, const char* name) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scripts_service_t* service = flecs_world.try_get<spectre_scripts_service_t>();
+#else
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scripts_service_t* service = flecs_world.try_get<spectre_scripts_service_t>();
+#else
+    const spectre_scripts_service_t* service = (const spectre_scripts_service_t*)ecs_singleton_get(world, spectre_scripts_service_t);
+#endif
+#endif
+    if (service && service->api && service->api->find_script) {
+        return service->api->find_script(world, name);
+        
+    }
+    return (ecs_entity_t){0};
+}
+
+void spectre_scripts_include_code(ecs_world_t* world, const char* path) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scripts_service_t* service = flecs_world.try_get<spectre_scripts_service_t>();
+#else
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scripts_service_t* service = flecs_world.try_get<spectre_scripts_service_t>();
+#else
+    const spectre_scripts_service_t* service = (const spectre_scripts_service_t*)ecs_singleton_get(world, spectre_scripts_service_t);
+#endif
+#endif
+    if (service && service->api && service->api->include_code) {
+        service->api->include_code(world, path);
+        return;
+    }
+    
+}
+
+void spectre_scripts_execute_script(ecs_world_t* world, ecs_entity_t script_entity, const spectre_script_argument_t* args, size_t arg_count) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scripts_service_t* service = flecs_world.try_get<spectre_scripts_service_t>();
+#else
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scripts_service_t* service = flecs_world.try_get<spectre_scripts_service_t>();
+#else
+    const spectre_scripts_service_t* service = (const spectre_scripts_service_t*)ecs_singleton_get(world, spectre_scripts_service_t);
+#endif
+#endif
+    if (service && service->api && service->api->execute_script) {
+        service->api->execute_script(world, script_entity, args, arg_count);
+        return;
+    }
+    
+}
+
+// --- SDK Implementations ---
+namespace spectre::modules {
+sandbox_properties_handle_t scripts::serialize_script(const flecs::world& entity_world, ecs_entity_t script) {
+            return spectre_scripts_serialize_script(entity_world.c_ptr(), script);
+        }
+
+ecs_entity_t scripts::deserialize_script(const flecs::world& entity_world, sandbox_properties_handle_t props) {
+            return spectre_scripts_deserialize_script(entity_world.c_ptr(), props);
+        }
+
+void scripts::register_script(const flecs::world& entity_world, sandbox_properties_handle_t props) {
+            spectre_scripts_register_script(entity_world.c_ptr(), props);}
+
+bool scripts::has_script(const flecs::world& entity_world, const char* name) {
+            return spectre_scripts_has_script(entity_world.c_ptr(), name);
+        }
+
+bool scripts::is_script(const flecs::world& entity_world, ecs_entity_t entity) {
+            return spectre_scripts_is_script(entity_world.c_ptr(), entity);
+        }
+
+ecs_entity_t scripts::find_script(const flecs::world& entity_world, const char* name) {
+            return spectre_scripts_find_script(entity_world.c_ptr(), name);
+        }
+
+void scripts::include_code(const flecs::world& entity_world, const char* path) {
+            spectre_scripts_include_code(entity_world.c_ptr(), path);}
+
+void scripts::execute_script(const flecs::world& entity_world, ecs_entity_t script_entity, const spectre_script_argument_t* args, size_t arg_count) {
+            spectre_scripts_execute_script(entity_world.c_ptr(), script_entity, args, arg_count);}
 }

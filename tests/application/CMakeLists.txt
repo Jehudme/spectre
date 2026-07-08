@@ -12,13 +12,11 @@ target_compile_definitions(spectre_test_application PRIVATE
 target_link_libraries(spectre_test_application
     PRIVATE
         sandbox::library
+        sandbox::plugins_static
+        spectre::plugin_static
         -Wl,--whole-archive 
-        $<TARGET_FILE:sandbox_plugin>
-        $<TARGET_FILE:spectre_plugin>
         $<TARGET_FILE:flecs_static> 
         -Wl,--no-whole-archive
-        sandbox_plugin
-        spectre_plugin
 )
 
 # Use the same PCH as spectre

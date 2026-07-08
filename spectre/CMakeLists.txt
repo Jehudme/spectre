@@ -39,20 +39,16 @@ set(HEADERS
     source/utilities/properties_helpers.h
 )
 
-option(SPECTRE_MODULES_STATIC "Build modules statically and link them directly" OFF)
-
-if(SPECTRE_MODULES_STATIC)
-    add_library(spectre_plugin STATIC ${SOURCES} ${HEADERS})
-else()
-    add_library(spectre_plugin MODULE ${SOURCES} ${HEADERS})
-    set_target_properties(spectre_plugin PROPERTIES
-        PREFIX ""
-        CXX_VISIBILITY_PRESET hidden
-        VISIBILITY_INLINES_HIDDEN ON
-    )
-endif()
+add_library(spectre_plugin MODULE ${SOURCES} ${HEADERS})
+set_target_properties(spectre_plugin PROPERTIES
+    PREFIX ""
+    CXX_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON
+)
+add_library(spectre_plugin_static STATIC ${SOURCES} ${HEADERS})
 
 add_library(spectre::plugin ALIAS spectre_plugin)
+add_library(spectre::plugin_static ALIAS spectre_plugin_static)
 
 # Includes
 target_include_directories(spectre_plugin PRIVATE
@@ -66,8 +62,26 @@ target_include_directories(spectre_plugin PUBLIC
     ${LUA_INCLUDE_DIR}
 )
 
+target_include_directories(spectre_plugin_static PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/source
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_include_directories(spectre_plugin_static PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+    ${LUA_INCLUDE_DIR}
+)
+
 # Link dependencies
 target_link_libraries(spectre_plugin PRIVATE
+    sandbox::library
+    raylib
+    EnTT::EnTT
+    ${LUA_LIBRARIES}
+)
+
+target_link_libraries(spectre_plugin_static PRIVATE
     sandbox::library
     raylib
     EnTT::EnTT
@@ -82,6 +96,7 @@ add_custom_command(TARGET spectre_plugin POST_BUILD
 )
 
 target_precompile_headers(spectre_plugin PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/source/pch.h>")
+target_precompile_headers(spectre_plugin_static PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/source/pch.h>")
 
 # Installation rules
 include(GNUInstallDirs)

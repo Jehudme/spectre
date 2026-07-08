@@ -1,3 +1,4 @@
+#include <spectre/sdk/renderer.hpp>
 #include "spectre/services/renderer_service.h"
 #include "renderer_module.h"
 
@@ -44,4 +45,99 @@ static bool renderer_is_renderer(ecs_world_t* entity_world) {
     auto* module = flecs_world.try_get_mut<spectre::modules::renderer_module_t>();
     if (module) return module->is_renderer();
     return false;
+}
+
+// --- Public C API Implementations ---
+ecs_entity_t spectre_renderer_deserialize_renderer(ecs_world_t* world, sandbox_properties_handle_t props) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_renderer_service_t* service = flecs_world.try_get<spectre_renderer_service_t>();
+#else
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_renderer_service_t* service = flecs_world.try_get<spectre_renderer_service_t>();
+#else
+    const spectre_renderer_service_t* service = (const spectre_renderer_service_t*)ecs_singleton_get(world, spectre_renderer_service_t);
+#endif
+#endif
+    if (service && service->api && service->api->deserialize_renderer) {
+        return service->api->deserialize_renderer(world, props);
+        
+    }
+    return (ecs_entity_t){0};
+}
+
+sandbox_properties_handle_t spectre_renderer_serialize_renderer(ecs_world_t* world, ecs_entity_t renderer) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_renderer_service_t* service = flecs_world.try_get<spectre_renderer_service_t>();
+#else
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_renderer_service_t* service = flecs_world.try_get<spectre_renderer_service_t>();
+#else
+    const spectre_renderer_service_t* service = (const spectre_renderer_service_t*)ecs_singleton_get(world, spectre_renderer_service_t);
+#endif
+#endif
+    if (service && service->api && service->api->serialize_renderer) {
+        return service->api->serialize_renderer(world, renderer);
+        
+    }
+    sandbox_properties_handle_t invalid = {0}; return invalid;
+}
+
+void spectre_renderer_register_renderer(ecs_world_t* world, sandbox_properties_handle_t props) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_renderer_service_t* service = flecs_world.try_get<spectre_renderer_service_t>();
+#else
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_renderer_service_t* service = flecs_world.try_get<spectre_renderer_service_t>();
+#else
+    const spectre_renderer_service_t* service = (const spectre_renderer_service_t*)ecs_singleton_get(world, spectre_renderer_service_t);
+#endif
+#endif
+    if (service && service->api && service->api->register_renderer) {
+        service->api->register_renderer(world, props);
+        return;
+    }
+    
+}
+
+bool spectre_renderer_is_renderer(ecs_world_t* world) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_renderer_service_t* service = flecs_world.try_get<spectre_renderer_service_t>();
+#else
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_renderer_service_t* service = flecs_world.try_get<spectre_renderer_service_t>();
+#else
+    const spectre_renderer_service_t* service = (const spectre_renderer_service_t*)ecs_singleton_get(world, spectre_renderer_service_t);
+#endif
+#endif
+    if (service && service->api && service->api->is_renderer) {
+        return service->api->is_renderer(world);
+        
+    }
+    return false;
+}
+
+// --- SDK Implementations ---
+namespace spectre::modules {
+ecs_entity_t renderer::deserialize_renderer(const flecs::world& entity_world, sandbox_properties_handle_t props) {
+            return spectre_renderer_deserialize_renderer(entity_world.c_ptr(), props);
+        }
+
+sandbox_properties_handle_t renderer::serialize_renderer(const flecs::world& entity_world, ecs_entity_t renderer) {
+            return spectre_renderer_serialize_renderer(entity_world.c_ptr(), renderer);
+        }
+
+void renderer::register_renderer(const flecs::world& entity_world, sandbox_properties_handle_t props) {
+            spectre_renderer_register_renderer(entity_world.c_ptr(), props);}
+
+bool renderer::is_renderer(const flecs::world& entity_world) {
+            return spectre_renderer_is_renderer(entity_world.c_ptr());
+        }
 }

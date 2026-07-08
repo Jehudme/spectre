@@ -15,13 +15,11 @@ target_compile_definitions(spectre_unit_tests PRIVATE
 target_link_libraries(spectre_unit_tests
     PRIVATE
         sandbox::library
+        sandbox::plugins_static
+        spectre::plugin_static
         -Wl,--whole-archive 
-        $<TARGET_FILE:sandbox_plugin>
-        $<TARGET_FILE:spectre_plugin>
         $<TARGET_FILE:flecs_static> 
         -Wl,--no-whole-archive
-        sandbox_plugin
-        spectre_plugin
         Catch2::Catch2WithMain
         raylib
         EnTT::EnTT
@@ -34,7 +32,7 @@ target_include_directories(spectre_unit_tests
 )
 
 # Ensure the shared libraries are built before the test executable
-add_dependencies(spectre_unit_tests spectre_plugin)
+add_dependencies(spectre_unit_tests spectre_plugin spectre_plugin_static sandbox_plugin_static)
 
 # Register tests with CTest
 catch_discover_tests(spectre_unit_tests WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")

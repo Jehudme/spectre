@@ -26,10 +26,7 @@ find_package(sandbox QUIET)
 if(NOT sandbox_FOUND)
     FetchContent_Declare(
         sandbox
-        GIT_REPOSITORY https://github.com/Jehudme/sandbox.git
-        GIT_TAG 6ccf3e6 # Locked to specific commit for reproducibility
-        GIT_SHALLOW TRUE
-        EXCLUDE_FROM_ALL
+        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../sandbox
     )
     FetchContent_MakeAvailable(sandbox)
 endif()
