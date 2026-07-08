@@ -8,11 +8,6 @@ extern "C" {
 #endif
 
 
-// --- Public C API ---
-SANDBOX_API ecs_entity_t spectre_renderer_deserialize_renderer(ecs_world_t* entity_world, sandbox_properties_handle_t props);
-SANDBOX_API sandbox_properties_handle_t spectre_renderer_serialize_renderer(ecs_world_t* entity_world, ecs_entity_t renderer);
-SANDBOX_API void spectre_renderer_register_renderer(ecs_world_t* entity_world, sandbox_properties_handle_t props);
-SANDBOX_API bool spectre_renderer_is_renderer(ecs_world_t* entity_world);
 
 typedef struct spectre_renderer_api_t {
     ecs_entity_t (*deserialize_renderer)(ecs_world_t* world, sandbox_properties_handle_t props);

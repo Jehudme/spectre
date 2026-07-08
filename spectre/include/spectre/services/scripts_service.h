@@ -8,15 +8,6 @@ extern "C" {
 #endif
 
 
-// --- Public C API ---
-SANDBOX_API sandbox_properties_handle_t spectre_scripts_serialize_script(ecs_world_t* entity_world, ecs_entity_t script);
-SANDBOX_API ecs_entity_t spectre_scripts_deserialize_script(ecs_world_t* entity_world, sandbox_properties_handle_t props);
-SANDBOX_API void spectre_scripts_register_script(ecs_world_t* entity_world, sandbox_properties_handle_t props);
-SANDBOX_API bool spectre_scripts_has_script(ecs_world_t* entity_world, const char* name);
-SANDBOX_API bool spectre_scripts_is_script(ecs_world_t* entity_world, ecs_entity_t entity);
-SANDBOX_API ecs_entity_t spectre_scripts_find_script(ecs_world_t* entity_world, const char* name);
-SANDBOX_API void spectre_scripts_include_code(ecs_world_t* entity_world, const char* path);
-SANDBOX_API void spectre_scripts_execute_script(ecs_world_t* entity_world, ecs_entity_t script_entity, const spectre_script_argument_t* args, size_t arg_count);
 
 typedef struct spectre_scripts_api_t {
     sandbox_properties_handle_t (*serialize_script)(ecs_world_t* world, ecs_entity_t script);

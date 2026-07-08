@@ -8,16 +8,6 @@ extern "C" {
 #endif
 
 
-// --- Public C API ---
-SANDBOX_API sandbox_properties_handle_t spectre_prefabs_serialize_entity(ecs_world_t* entity_world, ecs_entity_t entity);
-SANDBOX_API ecs_entity_t spectre_prefabs_deserialize_entity(ecs_world_t* entity_world, sandbox_properties_handle_t props);
-SANDBOX_API void spectre_prefabs_register_prefab(ecs_world_t* entity_world, sandbox_properties_handle_t props);
-SANDBOX_API bool spectre_prefabs_has_prefab(ecs_world_t* entity_world, const char* name);
-SANDBOX_API bool spectre_prefabs_is_prefab(ecs_world_t* entity_world, ecs_entity_t entity);
-SANDBOX_API ecs_entity_t spectre_prefabs_find_prefab(ecs_world_t* entity_world, const char* name);
-SANDBOX_API ecs_entity_t spectre_prefabs_create_entity_from_props(ecs_world_t* entity_world, sandbox_properties_handle_t props);
-SANDBOX_API ecs_entity_t spectre_prefabs_create_entity_from_prefab(ecs_world_t* entity_world, ecs_entity_t prefab);
-SANDBOX_API ecs_entity_t spectre_prefabs_create_entity_from_name(ecs_world_t* entity_world, const char* name);
 
 typedef struct spectre_prefabs_api_t {
     sandbox_properties_handle_t (*serialize_entity)(ecs_world_t* world, ecs_entity_t entity);

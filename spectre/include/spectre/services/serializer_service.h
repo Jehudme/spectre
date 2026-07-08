@@ -8,12 +8,6 @@ extern "C" {
 #endif
 
 
-// --- Public C API ---
-SANDBOX_API void spectre_serializer_register_serializer(ecs_world_t* entity_world, const char* type, const spectre_serializer_t* serializer);
-SANDBOX_API bool spectre_serializer_has_serializer(ecs_world_t* entity_world, const char* type);
-SANDBOX_API ecs_entity_t spectre_serializer_find_serializer(ecs_world_t* entity_world, const char* type);
-SANDBOX_API sandbox_properties_handle_t spectre_serializer_serialize_entity(ecs_world_t* entity_world, ecs_entity_t serializer, ecs_entity_t entity);
-SANDBOX_API ecs_entity_t spectre_serializer_deserialize_entity(ecs_world_t* entity_world, ecs_entity_t serializer, sandbox_properties_handle_t props);
 
 typedef struct spectre_serializer_api_t {
     void (*register_serializer)(ecs_world_t* world, const char* type, const spectre_serializer_t* serializer);

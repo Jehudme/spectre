@@ -8,23 +8,6 @@ extern "C" {
 #endif
 
 
-// --- Public C API ---
-SANDBOX_API sandbox_properties_handle_t spectre_scenes_serialize_state(ecs_world_t* entity_world, ecs_entity_t state);
-SANDBOX_API ecs_entity_t spectre_scenes_deserialize_state(ecs_world_t* entity_world, sandbox_properties_handle_t props);
-SANDBOX_API sandbox_properties_handle_t spectre_scenes_serialize_scene(ecs_world_t* entity_world, ecs_entity_t scene);
-SANDBOX_API ecs_entity_t spectre_scenes_deserialize_scene(ecs_world_t* entity_world, sandbox_properties_handle_t props);
-SANDBOX_API void spectre_scenes_register_state(ecs_world_t* entity_world, sandbox_properties_handle_t props);
-SANDBOX_API void spectre_scenes_register_scene(ecs_world_t* entity_world, sandbox_properties_handle_t props);
-SANDBOX_API ecs_entity_t spectre_scenes_find_state(ecs_world_t* entity_world, const char* name);
-SANDBOX_API ecs_entity_t spectre_scenes_find_scene(ecs_world_t* entity_world, const char* name);
-SANDBOX_API bool spectre_scenes_has_state(ecs_world_t* entity_world, const char* name);
-SANDBOX_API bool spectre_scenes_has_scene(ecs_world_t* entity_world, const char* name);
-SANDBOX_API bool spectre_scenes_is_state(ecs_world_t* entity_world, ecs_entity_t entity);
-SANDBOX_API bool spectre_scenes_is_scene(ecs_world_t* entity_world, ecs_entity_t entity);
-SANDBOX_API ecs_entity_t spectre_scenes_find_current_state(ecs_world_t* entity_world);
-SANDBOX_API ecs_query_t* spectre_scenes_find_current_scenes(ecs_world_t* entity_world);
-SANDBOX_API void spectre_scenes_push_state(ecs_world_t* entity_world, ecs_entity_t state);
-SANDBOX_API void spectre_scenes_pop_state(ecs_world_t* entity_world);
 
 typedef struct spectre_scenes_api_t {
     sandbox_properties_handle_t (*serialize_state)(ecs_world_t* world, ecs_entity_t state);
