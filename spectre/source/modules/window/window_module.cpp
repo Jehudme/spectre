@@ -11,7 +11,7 @@ namespace spectre::modules {
         .version_major = 1,
         .version_minor = 0,
         .version_patch = 0,
-        .service = &spectre_window_service_t_info_decl,
+        .service = &spectre_window_service_t_info,
         .requirements = nullptr,
         .requirement_count = 0
     })

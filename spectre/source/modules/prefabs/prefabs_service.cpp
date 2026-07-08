@@ -3,9 +3,9 @@
 
 static sandbox_properties_handle_t prefabs_serialize_entity(ecs_world_t* entity_world, ecs_entity_t entity);
 static ecs_entity_t                prefabs_deserialize_entity(ecs_world_t* entity_world, sandbox_properties_handle_t props);
-static void                         prefabs_register_prefab(ecs_world_t* entity_world, sandbox_properties_handle_t props);
-static bool                         prefabs_has_prefab(ecs_world_t* entity_world, const char* name);
-static bool                         prefabs_is_prefab(ecs_world_t* entity_world, ecs_entity_t entity);
+static void                        prefabs_register_prefab(ecs_world_t* entity_world, sandbox_properties_handle_t props);
+static bool                        prefabs_has_prefab(ecs_world_t* entity_world, const char* name);
+static bool                        prefabs_is_prefab(ecs_world_t* entity_world, ecs_entity_t entity);
 static ecs_entity_t                prefabs_find_prefab(ecs_world_t* entity_world, const char* name);
 static ecs_entity_t                prefabs_create_entity_from_props(ecs_world_t* entity_world, sandbox_properties_handle_t props);
 static ecs_entity_t                prefabs_create_entity_from_prefab(ecs_world_t* entity_world, ecs_entity_t prefab);

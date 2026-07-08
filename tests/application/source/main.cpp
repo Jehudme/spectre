@@ -1,6 +1,6 @@
 #include <flecs.h>
 #include <sandbox/sdk/engine.hpp>
-#include <sandbox/sdk/runtime.hpp>
+#include <sandbox/services/runtime_service.h>
 #include <iostream>
 #include <algorithm>
 #include <fstream>
