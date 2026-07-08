@@ -1,18 +1,18 @@
 #include "spectre/services/resources_service.h"
 #include "resources_module.h"
 
-static ecs_entity_t                resources_deserialize_resource(ecs_world_t* world, sandbox_properties_handle_t props);
-static sandbox_properties_handle_t resources_serialize_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
-static void                         resources_register_resource_loader(ecs_world_t* world, const char* type, spectre_resource_loader_t loader);
-static void                         resources_register_resource(ecs_world_t* world, sandbox_properties_handle_t props);
-static bool                         resources_has_resource_loader(ecs_world_t* world, const char* type);
-static bool                         resources_has_resource(ecs_world_t* world, const char* name);
-static bool                         resources_is_resource(ecs_world_t* world, ecs_entity_t entity);
-static ecs_entity_t                resources_find_resource_loader(ecs_world_t* world, const char* type);
-static ecs_entity_t                resources_find_resource(ecs_world_t* world, const char* name);
-static bool                         resources_is_resource_loaded(ecs_world_t* world, ecs_entity_t resource);
-static void                         resources_load_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
-static void                         resources_free_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
+static ecs_entity_t                resources_deserialize_resource(ecs_world_t* entity_world, sandbox_properties_handle_t props);
+static sandbox_properties_handle_t resources_serialize_resource(ecs_world_t* entity_world, ecs_entity_t resourceEntity);
+static void                         resources_register_resource_loader(ecs_world_t* entity_world, const char* type, spectre_resource_loader_t loader);
+static void                         resources_register_resource(ecs_world_t* entity_world, sandbox_properties_handle_t props);
+static bool                         resources_has_resource_loader(ecs_world_t* entity_world, const char* type);
+static bool                         resources_has_resource(ecs_world_t* entity_world, const char* name);
+static bool                         resources_is_resource(ecs_world_t* entity_world, ecs_entity_t entity);
+static ecs_entity_t                resources_find_resource_loader(ecs_world_t* entity_world, const char* type);
+static ecs_entity_t                resources_find_resource(ecs_world_t* entity_world, const char* name);
+static bool                         resources_is_resource_loaded(ecs_world_t* entity_world, ecs_entity_t resource);
+static void                         resources_load_resource(ecs_world_t* entity_world, ecs_entity_t resourceEntity);
+static void                         resources_free_resource(ecs_world_t* entity_world, ecs_entity_t resourceEntity);
 
 spectre_resources_api_t g_resources_api = {
     .deserialize_resource    = resources_deserialize_resource,
@@ -31,94 +31,224 @@ spectre_resources_api_t g_resources_api = {
 
 SANDBOX_DEFINE_SERVICE(spectre_resources_service_t, spectre_resources_api_t, &g_resources_api)
 
-static ecs_entity_t resources_deserialize_resource(ecs_world_t* world, sandbox_properties_handle_t props) {
-    if (!world) return 0;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::resource_module_t>();
-    if (m) return m->deserialize_resource(sandbox::properties(props)).id();
+static ecs_entity_t resources_deserialize_resource(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
+    if (!entity_world) return 0;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::resource_module_t>();
+    if (module) return module->deserialize_resource(sandbox::properties(props)).id();
     return 0;
 }
 
-static sandbox_properties_handle_t resources_serialize_resource(ecs_world_t* world, ecs_entity_t resourceEntity) {
-    if (!world) return {0};
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::resource_module_t>();
-    if (m) return m->serialize_resource(w.entity(resourceEntity)).get_raw();
+static sandbox_properties_handle_t resources_serialize_resource(ecs_world_t* entity_world, ecs_entity_t resourceEntity) {
+    if (!entity_world) return {0};
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::resource_module_t>();
+    if (module) return module->serialize_resource(flecs_world.entity(resourceEntity)).get_raw();
     return {0};
 }
 
-static void resources_register_resource_loader(ecs_world_t* world, const char* type, spectre_resource_loader_t loader) {
-    if (!world) return;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::resource_module_t>();
-    if (m) m->register_resource_loader(type, loader);
+static void resources_register_resource_loader(ecs_world_t* entity_world, const char* type, spectre_resource_loader_t loader) {
+    if (!entity_world) return;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::resource_module_t>();
+    if (module) module->register_resource_loader(type, loader);
 }
 
-static void resources_register_resource(ecs_world_t* world, sandbox_properties_handle_t props) {
-    if (!world) return;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::resource_module_t>();
-    if (m) m->register_resource(sandbox::properties(props));
+static void resources_register_resource(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
+    if (!entity_world) return;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::resource_module_t>();
+    if (module) module->register_resource(sandbox::properties(props));
 }
 
-static bool resources_has_resource_loader(ecs_world_t* world, const char* type) {
-    if (!world) return false;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::resource_module_t>();
-    if (m) return m->has_resource_loader(type);
+static bool resources_has_resource_loader(ecs_world_t* entity_world, const char* type) {
+    if (!entity_world) return false;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::resource_module_t>();
+    if (module) return module->has_resource_loader(type);
     return false;
 }
 
-static bool resources_has_resource(ecs_world_t* world, const char* name) {
-    if (!world) return false;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::resource_module_t>();
-    if (m) return m->has_resource(name);
+static bool resources_has_resource(ecs_world_t* entity_world, const char* name) {
+    if (!entity_world) return false;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::resource_module_t>();
+    if (module) return module->has_resource(name);
     return false;
 }
 
-static bool resources_is_resource(ecs_world_t* world, ecs_entity_t entity) {
-    if (!world) return false;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::resource_module_t>();
-    if (m) return m->is_resource(w.entity(entity));
+static bool resources_is_resource(ecs_world_t* entity_world, ecs_entity_t entity) {
+    if (!entity_world) return false;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::resource_module_t>();
+    if (module) return module->is_resource(flecs_world.entity(entity));
     return false;
 }
 
-static ecs_entity_t resources_find_resource_loader(ecs_world_t* world, const char* type) {
-    if (!world) return 0;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::resource_module_t>();
-    if (m) return m->find_resource_loader(type).id();
+static ecs_entity_t resources_find_resource_loader(ecs_world_t* entity_world, const char* type) {
+    if (!entity_world) return 0;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::resource_module_t>();
+    if (module) return module->find_resource_loader(type).id();
     return 0;
 }
 
-static ecs_entity_t resources_find_resource(ecs_world_t* world, const char* name) {
-    if (!world) return 0;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::resource_module_t>();
-    if (m) return m->find_resource(name).id();
+static ecs_entity_t resources_find_resource(ecs_world_t* entity_world, const char* name) {
+    if (!entity_world) return 0;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::resource_module_t>();
+    if (module) return module->find_resource(name).id();
     return 0;
 }
 
-static bool resources_is_resource_loaded(ecs_world_t* world, ecs_entity_t resource) {
-    if (!world) return false;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::resource_module_t>();
-    if (m) return m->is_resource_loaded(w.entity(resource));
+static bool resources_is_resource_loaded(ecs_world_t* entity_world, ecs_entity_t resource) {
+    if (!entity_world) return false;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::resource_module_t>();
+    if (module) return module->is_resource_loaded(flecs_world.entity(resource));
     return false;
 }
 
-static void resources_load_resource(ecs_world_t* world, ecs_entity_t resourceEntity) {
-    if (!world) return;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::resource_module_t>();
-    if (m) m->load_resource(w.entity(resourceEntity));
+static void resources_load_resource(ecs_world_t* entity_world, ecs_entity_t resourceEntity) {
+    if (!entity_world) return;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::resource_module_t>();
+    if (module) module->load_resource(flecs_world.entity(resourceEntity));
 }
 
-static void resources_free_resource(ecs_world_t* world, ecs_entity_t resourceEntity) {
-    if (!world) return;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::resource_module_t>();
-    if (m) m->free_resource(w.entity(resourceEntity));
+static void resources_free_resource(ecs_world_t* entity_world, ecs_entity_t resourceEntity) {
+    if (!entity_world) return;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::resource_module_t>();
+    if (module) module->free_resource(flecs_world.entity(resourceEntity));
 }
+
+// --- Public C API Implementations ---
+ecs_entity_t spectre_resources_deserialize_resource(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
+    if (!entity_world) return 0;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_resources_service_t)) {
+        if (service->api && service->api->deserialize_resource) {
+            return service->api->deserialize_resource(entity_world, props);
+        }
+    }
+    return 0;
+}
+
+sandbox_properties_handle_t spectre_resources_serialize_resource(ecs_world_t* entity_world, ecs_entity_t resourceEntity) {
+    if (!entity_world) return {0};
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_resources_service_t)) {
+        if (service->api && service->api->serialize_resource) {
+            return service->api->serialize_resource(entity_world, resourceEntity);
+        }
+    }
+    return {0};
+}
+
+void spectre_resources_register_resource_loader(ecs_world_t* entity_world, const char* type, spectre_resource_loader_t loader) {
+    if (!entity_world) return;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_resources_service_t)) {
+        if (service->api && service->api->register_resource_loader) {
+            service->api->register_resource_loader(entity_world, type, loader);
+        }
+    }
+}
+
+void spectre_resources_register_resource(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
+    if (!entity_world) return;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_resources_service_t)) {
+        if (service->api && service->api->register_resource) {
+            service->api->register_resource(entity_world, props);
+        }
+    }
+}
+
+bool spectre_resources_has_resource_loader(ecs_world_t* entity_world, const char* type) {
+    if (!entity_world) return false;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_resources_service_t)) {
+        if (service->api && service->api->has_resource_loader) {
+            return service->api->has_resource_loader(entity_world, type);
+        }
+    }
+    return false;
+}
+
+bool spectre_resources_has_resource(ecs_world_t* entity_world, const char* name) {
+    if (!entity_world) return false;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_resources_service_t)) {
+        if (service->api && service->api->has_resource) {
+            return service->api->has_resource(entity_world, name);
+        }
+    }
+    return false;
+}
+
+bool spectre_resources_is_resource(ecs_world_t* entity_world, ecs_entity_t entity) {
+    if (!entity_world) return false;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_resources_service_t)) {
+        if (service->api && service->api->is_resource) {
+            return service->api->is_resource(entity_world, entity);
+        }
+    }
+    return false;
+}
+
+ecs_entity_t spectre_resources_find_resource_loader(ecs_world_t* entity_world, const char* type) {
+    if (!entity_world) return 0;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_resources_service_t)) {
+        if (service->api && service->api->find_resource_loader) {
+            return service->api->find_resource_loader(entity_world, type);
+        }
+    }
+    return 0;
+}
+
+ecs_entity_t spectre_resources_find_resource(ecs_world_t* entity_world, const char* name) {
+    if (!entity_world) return 0;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_resources_service_t)) {
+        if (service->api && service->api->find_resource) {
+            return service->api->find_resource(entity_world, name);
+        }
+    }
+    return 0;
+}
+
+bool spectre_resources_is_resource_loaded(ecs_world_t* entity_world, ecs_entity_t resource) {
+    if (!entity_world) return false;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_resources_service_t)) {
+        if (service->api && service->api->is_resource_loaded) {
+            return service->api->is_resource_loaded(entity_world, resource);
+        }
+    }
+    return false;
+}
+
+void spectre_resources_load_resource(ecs_world_t* entity_world, ecs_entity_t resourceEntity) {
+    if (!entity_world) return;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_resources_service_t)) {
+        if (service->api && service->api->load_resource) {
+            service->api->load_resource(entity_world, resourceEntity);
+        }
+    }
+}
+
+void spectre_resources_free_resource(ecs_world_t* entity_world, ecs_entity_t resourceEntity) {
+    if (!entity_world) return;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_resources_service_t)) {
+        if (service->api && service->api->free_resource) {
+            service->api->free_resource(entity_world, resourceEntity);
+        }
+    }
+}
+

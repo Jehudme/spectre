@@ -1,15 +1,15 @@
 #include "spectre/services/prefabs_service.h"
 #include "prefabs_module.h"
 
-static sandbox_properties_handle_t prefabs_serialize_entity(ecs_world_t* world, ecs_entity_t entity);
-static ecs_entity_t                prefabs_deserialize_entity(ecs_world_t* world, sandbox_properties_handle_t props);
-static void                         prefabs_register_prefab(ecs_world_t* world, sandbox_properties_handle_t props);
-static bool                         prefabs_has_prefab(ecs_world_t* world, const char* name);
-static bool                         prefabs_is_prefab(ecs_world_t* world, ecs_entity_t entity);
-static ecs_entity_t                prefabs_find_prefab(ecs_world_t* world, const char* name);
-static ecs_entity_t                prefabs_create_entity_from_props(ecs_world_t* world, sandbox_properties_handle_t props);
-static ecs_entity_t                prefabs_create_entity_from_prefab(ecs_world_t* world, ecs_entity_t prefab);
-static ecs_entity_t                prefabs_create_entity_from_name(ecs_world_t* world, const char* name);
+static sandbox_properties_handle_t prefabs_serialize_entity(ecs_world_t* entity_world, ecs_entity_t entity);
+static ecs_entity_t                prefabs_deserialize_entity(ecs_world_t* entity_world, sandbox_properties_handle_t props);
+static void                         prefabs_register_prefab(ecs_world_t* entity_world, sandbox_properties_handle_t props);
+static bool                         prefabs_has_prefab(ecs_world_t* entity_world, const char* name);
+static bool                         prefabs_is_prefab(ecs_world_t* entity_world, ecs_entity_t entity);
+static ecs_entity_t                prefabs_find_prefab(ecs_world_t* entity_world, const char* name);
+static ecs_entity_t                prefabs_create_entity_from_props(ecs_world_t* entity_world, sandbox_properties_handle_t props);
+static ecs_entity_t                prefabs_create_entity_from_prefab(ecs_world_t* entity_world, ecs_entity_t prefab);
+static ecs_entity_t                prefabs_create_entity_from_name(ecs_world_t* entity_world, const char* name);
 
 spectre_prefabs_api_t g_prefabs_api = {
     .serialize_entity         = prefabs_serialize_entity,
@@ -25,73 +25,173 @@ spectre_prefabs_api_t g_prefabs_api = {
 
 SANDBOX_DEFINE_SERVICE(spectre_prefabs_service_t, spectre_prefabs_api_t, &g_prefabs_api)
 
-static sandbox_properties_handle_t prefabs_serialize_entity(ecs_world_t* world, ecs_entity_t entity) {
-    if (!world) return {0};
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::components_module_t>();
-    if (m) return m->serialize_entity(w.entity(entity)).get_raw();
+static sandbox_properties_handle_t prefabs_serialize_entity(ecs_world_t* entity_world, ecs_entity_t entity) {
+    if (!entity_world) return {0};
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::components_module_t>();
+    if (module) return module->serialize_entity(flecs_world.entity(entity)).get_raw();
     return {0};
 }
 
-static ecs_entity_t prefabs_deserialize_entity(ecs_world_t* world, sandbox_properties_handle_t props) {
-    if (!world) return 0;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::components_module_t>();
-    if (m) return m->deserialize_entity(sandbox::properties(props)).id();
+static ecs_entity_t prefabs_deserialize_entity(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
+    if (!entity_world) return 0;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::components_module_t>();
+    if (module) return module->deserialize_entity(sandbox::properties(props)).id();
     return 0;
 }
 
-static void prefabs_register_prefab(ecs_world_t* world, sandbox_properties_handle_t props) {
-    if (!world) return;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::components_module_t>();
-    if (m) m->register_prefab(sandbox::properties(props));
+static void prefabs_register_prefab(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
+    if (!entity_world) return;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::components_module_t>();
+    if (module) module->register_prefab(sandbox::properties(props));
 }
 
-static bool prefabs_has_prefab(ecs_world_t* world, const char* name) {
-    if (!world) return false;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::components_module_t>();
-    if (m) return m->has_prefab(name);
+static bool prefabs_has_prefab(ecs_world_t* entity_world, const char* name) {
+    if (!entity_world) return false;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::components_module_t>();
+    if (module) return module->has_prefab(name);
     return false;
 }
 
-static bool prefabs_is_prefab(ecs_world_t* world, ecs_entity_t entity) {
-    if (!world) return false;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::components_module_t>();
-    if (m) return m->is_prefab(w.entity(entity));
+static bool prefabs_is_prefab(ecs_world_t* entity_world, ecs_entity_t entity) {
+    if (!entity_world) return false;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::components_module_t>();
+    if (module) return module->is_prefab(flecs_world.entity(entity));
     return false;
 }
 
-static ecs_entity_t prefabs_find_prefab(ecs_world_t* world, const char* name) {
-    if (!world) return 0;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::components_module_t>();
-    if (m) return m->find_prefab(name).id();
+static ecs_entity_t prefabs_find_prefab(ecs_world_t* entity_world, const char* name) {
+    if (!entity_world) return 0;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::components_module_t>();
+    if (module) return module->find_prefab(name).id();
     return 0;
 }
 
-static ecs_entity_t prefabs_create_entity_from_props(ecs_world_t* world, sandbox_properties_handle_t props) {
-    if (!world) return 0;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::components_module_t>();
-    if (m) return m->create_entity(sandbox::properties(props)).id();
+static ecs_entity_t prefabs_create_entity_from_props(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
+    if (!entity_world) return 0;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::components_module_t>();
+    if (module) return module->create_entity(sandbox::properties(props)).id();
     return 0;
 }
 
-static ecs_entity_t prefabs_create_entity_from_prefab(ecs_world_t* world, ecs_entity_t prefab) {
-    if (!world) return 0;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::components_module_t>();
-    if (m) return m->create_entity(w.entity(prefab)).id();
+static ecs_entity_t prefabs_create_entity_from_prefab(ecs_world_t* entity_world, ecs_entity_t prefab) {
+    if (!entity_world) return 0;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::components_module_t>();
+    if (module) return module->create_entity(flecs_world.entity(prefab)).id();
     return 0;
 }
 
-static ecs_entity_t prefabs_create_entity_from_name(ecs_world_t* world, const char* name) {
-    if (!world) return 0;
-    flecs::world w(world);
-    auto* m = w.try_get_mut<spectre::modules::components_module_t>();
-    if (m) return m->create_entity(std::string_view(name)).id();
+static ecs_entity_t prefabs_create_entity_from_name(ecs_world_t* entity_world, const char* name) {
+    if (!entity_world) return 0;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::components_module_t>();
+    if (module) return module->create_entity(std::string_view(name)).id();
     return 0;
 }
+
+// --- Public C API Implementations ---
+sandbox_properties_handle_t spectre_prefabs_serialize_entity(ecs_world_t* entity_world, ecs_entity_t entity) {
+    if (!entity_world) return {0};
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_prefabs_service_t)) {
+        if (service->api && service->api->serialize_entity) {
+            return service->api->serialize_entity(entity_world, entity);
+        }
+    }
+    return {0};
+}
+
+ecs_entity_t spectre_prefabs_deserialize_entity(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
+    if (!entity_world) return 0;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_prefabs_service_t)) {
+        if (service->api && service->api->deserialize_entity) {
+            return service->api->deserialize_entity(entity_world, props);
+        }
+    }
+    return 0;
+}
+
+void spectre_prefabs_register_prefab(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
+    if (!entity_world) return;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_prefabs_service_t)) {
+        if (service->api && service->api->register_prefab) {
+            service->api->register_prefab(entity_world, props);
+        }
+    }
+}
+
+bool spectre_prefabs_has_prefab(ecs_world_t* entity_world, const char* name) {
+    if (!entity_world) return false;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_prefabs_service_t)) {
+        if (service->api && service->api->has_prefab) {
+            return service->api->has_prefab(entity_world, name);
+        }
+    }
+    return false;
+}
+
+bool spectre_prefabs_is_prefab(ecs_world_t* entity_world, ecs_entity_t entity) {
+    if (!entity_world) return false;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_prefabs_service_t)) {
+        if (service->api && service->api->is_prefab) {
+            return service->api->is_prefab(entity_world, entity);
+        }
+    }
+    return false;
+}
+
+ecs_entity_t spectre_prefabs_find_prefab(ecs_world_t* entity_world, const char* name) {
+    if (!entity_world) return 0;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_prefabs_service_t)) {
+        if (service->api && service->api->find_prefab) {
+            return service->api->find_prefab(entity_world, name);
+        }
+    }
+    return 0;
+}
+
+ecs_entity_t spectre_prefabs_create_entity_from_props(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
+    if (!entity_world) return 0;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_prefabs_service_t)) {
+        if (service->api && service->api->create_entity_from_props) {
+            return service->api->create_entity_from_props(entity_world, props);
+        }
+    }
+    return 0;
+}
+
+ecs_entity_t spectre_prefabs_create_entity_from_prefab(ecs_world_t* entity_world, ecs_entity_t prefab) {
+    if (!entity_world) return 0;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_prefabs_service_t)) {
+        if (service->api && service->api->create_entity_from_prefab) {
+            return service->api->create_entity_from_prefab(entity_world, prefab);
+        }
+    }
+    return 0;
+}
+
+ecs_entity_t spectre_prefabs_create_entity_from_name(ecs_world_t* entity_world, const char* name) {
+    if (!entity_world) return 0;
+    flecs::world flecs_world(entity_world);
+    if (const auto* service = SANDBOX_GET_SERVICE(flecs_world, spectre_prefabs_service_t)) {
+        if (service->api && service->api->create_entity_from_name) {
+            return service->api->create_entity_from_name(entity_world, name);
+        }
+    }
+    return 0;
+}
+
