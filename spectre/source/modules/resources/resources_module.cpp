@@ -1,5 +1,5 @@
 #include "resources_module.h"
-#include "spectre/abi/resources_service.h"
+#include "spectre/services/resources_service.h"
 #include <iostream>
 
 namespace spectre::modules {

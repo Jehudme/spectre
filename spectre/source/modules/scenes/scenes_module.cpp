@@ -1,5 +1,5 @@
 #include "scenes_module.h"
-#include "spectre/abi/scenes_service.h"
+#include "spectre/services/scenes_service.h"
 #include <iostream>
 
 namespace spectre::modules {

@@ -1,5 +1,5 @@
 #include "scripts_module.h"
-#include "spectre/abi/scripts_service.h"
+#include "spectre/services/scripts_service.h"
 #include <iostream>
 
 namespace spectre::modules {

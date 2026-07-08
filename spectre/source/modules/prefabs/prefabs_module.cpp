@@ -1,5 +1,5 @@
 #include "prefabs_module.h"
-#include "spectre/abi/prefabs_service.h"
+#include "spectre/services/prefabs_service.h"
 #include <iostream>
 
 namespace spectre::modules {

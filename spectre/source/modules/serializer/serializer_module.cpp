@@ -1,5 +1,5 @@
 #include "serializer_module.h"
-#include "spectre/abi/serializer_service.h"
+#include "spectre/services/serializer_service.h"
 #include <iostream>
 
 namespace spectre::modules {

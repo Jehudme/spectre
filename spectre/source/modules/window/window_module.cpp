@@ -1,5 +1,5 @@
 #include "window_module.h"
-#include "spectre/abi/window_service.h"
+#include "spectre/services/window_service.h"
 #include <iostream>
 
 namespace spectre::modules {

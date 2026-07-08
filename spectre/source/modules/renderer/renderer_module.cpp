@@ -1,5 +1,5 @@
 #include "renderer_module.h"
-#include "spectre/abi/renderer_service.h"
+#include "spectre/services/renderer_service.h"
 #include <iostream>
 
 namespace spectre::modules {
