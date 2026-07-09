@@ -5,6 +5,7 @@ set(SPECTRE_UNIT_TEST_SOURCES
     source/main.cpp
     source/modules/test_serializer.cpp
     source/modules/test_components.cpp
+    source/modules/test_prefabs.cpp
 )
 
 add_executable(spectre_unit_tests ${SPECTRE_UNIT_TEST_SOURCES})

@@ -16,8 +16,9 @@ namespace spectre::modules {
 
         sandbox::properties serialize_entity(flecs::entity entity);
         flecs::entity deserialize_entity(sandbox::properties props);
+        flecs::entity deserialize_entity_target(flecs::entity entity, sandbox::properties props);
 
-        void register_prefab(sandbox::properties props);
+        void register_prefab(std::string_view name, sandbox::properties props);
         bool has_prefab(std::string_view name) const;
         bool is_prefab(flecs::entity entity) const;
         flecs::entity find_prefab(std::string_view name);
@@ -28,7 +29,8 @@ namespace spectre::modules {
 
     private:
         flecs::world m_world;
-        flecs::entity m_prefabs_module;
-        flecs::entity m_entity_serializer;
+        flecs::entity m_prefabs_root;
+        flecs::entity m_entity_prefab; // prefab that all entity created by this module share, usefull for is_prefab function
+        flecs::entity m_entity_serializer; // store the entity serializer so that you do not need to keep retrieve it from serializer moddule
     };
 }

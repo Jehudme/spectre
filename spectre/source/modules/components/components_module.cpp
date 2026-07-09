@@ -69,6 +69,7 @@ namespace spectre::modules {
                         sandbox::properties comp_props = serializer_mod->serialize_entity(serializer_entity, entity);
                         if (comp_props.is_valid()) {
                             result.merge(comp_name, comp_props);
+                            comp_props.release();
                             has_any = true;
                         }
                     }
