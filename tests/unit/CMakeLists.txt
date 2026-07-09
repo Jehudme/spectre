@@ -3,6 +3,7 @@ project(spectre_unit_tests LANGUAGES C CXX)
 
 set(SPECTRE_UNIT_TEST_SOURCES
     source/main.cpp
+    source/modules/test_serializer.cpp
 )
 
 add_executable(spectre_unit_tests ${SPECTRE_UNIT_TEST_SOURCES})

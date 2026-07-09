@@ -22,8 +22,8 @@ namespace spectre::modules {
         bool has_serializer(std::string_view type) const;
         flecs::entity find_serializer(std::string_view type) const;
 
-        sandbox::properties serialize_entity(flecs::entity serializer, flecs::entity entity);
-        flecs::entity deserialize_entity(flecs::entity serializer, const sandbox::properties& props);
+        sandbox::properties serialize_entity(flecs::entity serializer_entity, flecs::entity target_entity);
+        flecs::entity deserialize_entity(flecs::entity serializer_entity, const sandbox::properties& props);
 
     private:
         flecs::entity m_serializer;
