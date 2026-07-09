@@ -20,6 +20,7 @@ namespace spectre::modules {
 
         void register_serializer(std::string_view type, const serializer_t& serializer);
         bool has_serializer(std::string_view type) const;
+        bool is_serializer(flecs::entity entity) const;
         flecs::entity find_serializer(std::string_view type) const;
 
         sandbox::properties serialize_entity(flecs::entity serializer_entity, flecs::entity target_entity);
@@ -27,6 +28,7 @@ namespace spectre::modules {
 
     private:
         flecs::entity m_serializer;
+        flecs::entity m_serializable_prefab;
         flecs::world m_world;
     };
 

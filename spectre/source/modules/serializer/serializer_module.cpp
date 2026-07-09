@@ -22,6 +22,10 @@ namespace spectre::modules {
 
     serializer_module::serializer_module(flecs::world& world) : m_world(world) {
         m_serializer = m_world.entity("::serializers");
+        
+        m_serializable_prefab = m_world.prefab("::serializers::prefab")
+            .set<serializer_t>({});
+            
         sandbox::modules::logs::trace(m_world, "Serializer module initialized.");
     }
     
@@ -42,6 +46,7 @@ namespace spectre::modules {
 
         flecs::entity serializer_entity = m_world.entity()
                                                 .child_of(m_serializer)
+                                                .is_a(m_serializable_prefab)
                                                 .set_name(std::string(serializer_type).c_str())
                                                 .set<serializer_t>(serializer_component);
 
@@ -54,7 +59,11 @@ namespace spectre::modules {
         }
 
         flecs::entity serializer_entity = find_serializer(serializer_type);
-        return serializer_entity.is_valid() && serializer_entity.has<serializer_t>();
+        return is_serializer(serializer_entity);
+    }
+
+    bool serializer_module::is_serializer(flecs::entity entity) const {
+        return entity.is_valid() && entity.has(flecs::IsA, m_serializable_prefab);
     }
 
     flecs::entity serializer_module::find_serializer(std::string_view serializer_type) const {

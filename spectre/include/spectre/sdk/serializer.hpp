@@ -8,6 +8,7 @@ namespace spectre::modules {
     static void register_serializer(const flecs::world& entity_world, const char* type, const spectre_serializer_component* serializer);
 
     static bool has_serializer(const flecs::world& entity_world, const char* type);
+    static bool is_serializer(const flecs::world& entity_world, flecs::entity entity);
 
     static ecs_entity_t find_serializer(const flecs::world& entity_world, const char* type);
 

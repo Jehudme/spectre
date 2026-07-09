@@ -130,7 +130,7 @@ namespace spectre::modules {
     }
 
     flecs::entity components::deserialize_component(const flecs::world& entity_world, std::string_view type, sandbox::properties props) {
-        ecs_entity_t ent = spectre_components_deserialize_component(entity_world.c_ptr(), type.data(), props.handle());
+        ecs_entity_t ent = spectre_components_deserialize_component(entity_world.c_ptr(), type.data(), props.get_raw());
         return flecs::entity(entity_world, ent);
     }
 

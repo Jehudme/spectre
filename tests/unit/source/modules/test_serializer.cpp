@@ -47,6 +47,7 @@ TEST_CASE("Serializer Module: Registration and Queries", "[serializers module te
         flecs::entity found = serializer_mod->find_serializer("test_serializer");
         REQUIRE(found.is_valid() == true);
         REQUIRE(found.has<spectre_serializer_component>() == true);
+        REQUIRE(serializer_mod->is_serializer(found) == true);
     }
 }
 

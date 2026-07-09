@@ -30,6 +30,7 @@ namespace spectre::modules {
 
     private:
         flecs::world m_world;
-        flecs::entity m_prefabs_module;
+        flecs::entity m_component_prefab;
+        flecs::entity m_components_root;
     };
 }

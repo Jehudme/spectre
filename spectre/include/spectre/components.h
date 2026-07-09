@@ -57,6 +57,14 @@ typedef struct spectre_renderable_t {
     char dummy;
 } spectre_renderable_t;
 
+typedef struct spectre_2D_transform_component_t {
+    float position_x, position_y, position_z;
+    float scale_x, scale_y;
+    float origin_x, origin_y;
+    float rotation;
+} spectre_2D_transform_component_t;
+
+
 // --- scripts ---
 typedef struct spectre_use_script_on_enter_relation_t   { char dummy; } spectre_use_script_on_enter_relation_t;
 typedef struct spectre_use_script_on_exit_relation_t    { char dummy; } spectre_use_script_on_exit_relation_t;
@@ -101,7 +109,7 @@ typedef struct spectre_input_state_t {
 } spectre_input_state_t;
 
 // --- Components ---
-typedef struct spectre_component_serializer_t { char dummy; } spectre_component_serializer_t;
+typedef struct spectre_component_t { char dummy; } spectre_component_serializer_t;
 
 #ifdef __cplusplus
 }
