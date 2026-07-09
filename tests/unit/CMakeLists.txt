@@ -6,6 +6,7 @@ set(SPECTRE_UNIT_TEST_SOURCES
     source/modules/test_serializer.cpp
     source/modules/test_components.cpp
     source/modules/test_prefabs.cpp
+    source/modules/test_scripts.cpp
 )
 
 add_executable(spectre_unit_tests ${SPECTRE_UNIT_TEST_SOURCES})
@@ -17,9 +18,9 @@ target_compile_definitions(spectre_unit_tests PRIVATE
 
 target_link_libraries(spectre_unit_tests
     PRIVATE
-        sandbox::library
-        sandbox::plugins_static
         spectre::plugin_static
+        sandbox::plugins_static
+        sandbox::library
         -Wl,--whole-archive 
         $<TARGET_FILE:flecs_static> 
         -Wl,--no-whole-archive

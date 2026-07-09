@@ -1,14 +1,19 @@
 #pragma once
 #include <string_view>
+#include <vector>
+#include <deque>
 #include "flecs.h"
 #include "sandbox/sdk/properties.hpp"
 #include "spectre/components.h"
+#include <lua.hpp>
 
 namespace spectre::modules {
     using script_argument_t = spectre_script_argument_t;
+    using script_argument_type_t = spectre_script_argument_type_t;
     using script_arguments_t = std::vector<spectre_script_argument_t>;
 
-    using script_t = spectre_script_component_t;
+    using script_t = spectre_script_t;
+    using scripts_t = std::vector<spectre_script_t>;
 
     class script_module_t {
     public:
@@ -20,20 +25,25 @@ namespace spectre::modules {
         script_module_t(script_module_t&&) = delete;
         script_module_t& operator=(script_module_t&&) = delete;
 
-        sandbox::properties serialize_script(flecs::entity script);
-        flecs::entity deserialize_script(sandbox::properties props);
-
-        void register_script(sandbox::properties props);
-        bool has_script(std::string_view name) const;
+        bool has_script(std::string_view function_name, const std::vector<script_argument_type_t>& args) const;
         bool is_script(flecs::entity entity) const;
-        flecs::entity find_script(std::string_view name);
+        flecs::entity find_script(std::string_view function_name);
 
         void include_code(std::string_view path);
-        void execute_script(flecs::entity script_entity, script_arguments_t args);
+        void execute_script(std::string_view function_name, script_arguments_t& args);
+
+    private:
+        scripts_t parse_code(std::string_view code);
+        void register_scripts(const scripts_t& scripts);
 
     private:
         flecs::world m_world;
-        flecs::entity m_scripts;
-        flecs::entity m_script_serializer;
+        flecs::entity m_scripts_root;
+        flecs::entity m_script_prefab;
+        
+        lua_State* m_lua; // Lua state
+        std::deque<std::string> m_string_pool;
+        std::vector<std::vector<spectre_script_argument_type_t>> m_type_pool;
+        std::vector<std::vector<const char*>> m_ptr_pool;
     };
 }

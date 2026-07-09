@@ -29,7 +29,7 @@ namespace spectre::modules {
         m_world.component<spectre_use_script_on_destroy_relation_t>("spectre_use_script_on_destroy_relation_t");
         m_world.component<spectre_use_script_on_update_relation_t>("spectre_use_script_on_update_relation_t");
         m_world.component<spectre_use_script_on_render_relation_t>("spectre_use_script_on_render_relation_t");
-        m_world.component<spectre_script_component_t>("spectre_script_component_t");
+        m_world.component<spectre_script_t>("spectre_script_component_t");
         m_world.component<spectre_input_state_t>("spectre_input_state_t");
         m_world.component<spectre_component_serializer_t>("spectre_component_serializer_t");
 

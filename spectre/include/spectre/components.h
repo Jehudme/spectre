@@ -66,12 +66,6 @@ typedef struct spectre_2D_transform_component_t {
 
 
 // --- scripts ---
-typedef struct spectre_use_script_on_enter_relation_t   { char dummy; } spectre_use_script_on_enter_relation_t;
-typedef struct spectre_use_script_on_exit_relation_t    { char dummy; } spectre_use_script_on_exit_relation_t;
-typedef struct spectre_use_script_on_create_relation_t  { char dummy; } spectre_use_script_on_create_relation_t;
-typedef struct spectre_use_script_on_destroy_relation_t { char dummy; } spectre_use_script_on_destroy_relation_t;
-typedef struct spectre_use_script_on_update_relation_t  { char dummy; } spectre_use_script_on_update_relation_t;
-typedef struct spectre_use_script_on_render_relation_t  { char dummy; } spectre_use_script_on_render_relation_t;
 
 typedef enum spectre_script_argument_type_t {
     SPECTRE_SCRIPT_ARGUMENT_TYPE_NIL,
@@ -95,9 +89,21 @@ typedef struct spectre_script_argument_t {
     } value;
 } spectre_script_argument_t;
 
-typedef struct spectre_script_component_t {
+typedef struct spectre_script_t {
     const char* function_name;
-} spectre_script_component_t;
+    const char** arguments_name;
+    const spectre_script_argument_type_t* argument_types;
+    uint32_t argument_count;
+} spectre_script_t;
+
+#define SPECTRE_SCRIPT_RELATION_FIELDS spectre_script_argument_t* arguments; int argument_count;
+
+typedef struct spectre_use_script_on_enter_relation_t { SPECTRE_SCRIPT_RELATION_FIELDS } spectre_use_script_on_enter_relation_t;
+typedef struct spectre_use_script_on_exit_relation_t { SPECTRE_SCRIPT_RELATION_FIELDS } spectre_use_script_on_exit_relation_t;
+typedef struct spectre_use_script_on_create_relation_t { SPECTRE_SCRIPT_RELATION_FIELDS} spectre_use_script_on_create_relation_t;
+typedef struct spectre_use_script_on_destroy_relation_t { SPECTRE_SCRIPT_RELATION_FIELDS } spectre_use_script_on_destroy_relation_t;
+typedef struct spectre_use_script_on_update_relation_t { SPECTRE_SCRIPT_RELATION_FIELDS } spectre_use_script_on_update_relation_t;
+typedef struct spectre_use_script_on_render_relation_t { SPECTRE_SCRIPT_RELATION_FIELDS } spectre_use_script_on_render_relation_t;
 
 // --- window ---
 typedef struct spectre_input_state_t {
