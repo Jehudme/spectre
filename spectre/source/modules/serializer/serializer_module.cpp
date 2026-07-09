@@ -1,9 +1,10 @@
 #include "serializer_module.h"
 
 #include <format>
-
-#include "spectre/services/serializer_service.h"
 #include <iostream>
+
+#include "sandbox/sdk/logs.hpp"
+#include "spectre/services/serializer_service.h"
 
 namespace spectre::modules {
 
@@ -20,42 +21,121 @@ namespace spectre::modules {
     })
 
     serializer_module::serializer_module(flecs::world& world) : m_world(world) {
-        m_serializer = m_world.entity("::serializer");
+        m_serializer = m_world.entity("::serializers");
+        sandbox::modules::logs::trace(m_world, "Serializer module initialized.");
     }
     
-    serializer_module::~serializer_module() = default;
-
-    void serializer_module::register_serializer(std::string_view type, const serializer_t& serializer) {
-        auto  entity = m_world.entity(type.data()).set<serializer_t>(serializer);
-
-        m_serializer.child(entity);
-
+    serializer_module::~serializer_module() {
+        sandbox::modules::logs::trace(m_world, "Serializer module destroyed.");
     }
 
-    bool serializer_module::has_serializer(std::string_view type) const {
-        return find_serializer(type).is_valid();
-    }
-
-    flecs::entity serializer_module::find_serializer(std::string_view type) const {
-        return m_serializer.lookup(type.data());
-    }
-
-    sandbox::properties serializer_module::serialize_entity(flecs::entity serializer, flecs::entity entity) {
-        if (!serializer.is_valid() || !entity.is_valid()) return sandbox::properties{};
-        const serializer_t* s = &serializer.get<serializer_t>();
-        if (s && s->serialize) {
-            return sandbox::properties{s->serialize(m_world.c_ptr(), entity.id())};
+    void serializer_module::register_serializer(std::string_view serializer_type, const serializer_t& serializer_component) {
+        if (serializer_type.empty()) {
+            sandbox::modules::logs::error(m_world, "Failed to register serializer: serializer type name is empty.");
+            return;
         }
-        return sandbox::properties{};
+
+        if (serializer_component.serialize == nullptr || serializer_component.deserialize == nullptr) {
+            sandbox::modules::logs::error(m_world, "Failed to register serializer '{}': missing serialize or deserialize function pointers.", serializer_type);
+            return;
+        }
+
+        flecs::entity serializer_entity = m_world.entity(serializer_type.data()).set<serializer_t>(serializer_component);
+        m_serializer.child(serializer_entity);
+
+        sandbox::modules::logs::info(m_world, "Registered serializer for type: '{}'.", serializer_type);
     }
 
-    flecs::entity serializer_module::deserialize_entity(flecs::entity serializer, const sandbox::properties& props) {
-        if (!serializer.is_valid()) return flecs::entity::null();
-        const serializer_t* s = &serializer.get<serializer_t>();
-        if (s && s->deserialize) {
-            return flecs::entity(m_world, s->deserialize(m_world.c_ptr(), props.get_raw()));
+    bool serializer_module::has_serializer(std::string_view serializer_type) const {
+        if (serializer_type.empty()) {
+            return false;
         }
-        return flecs::entity::null();
+
+        flecs::entity serializer_entity = find_serializer(serializer_type);
+        return serializer_entity.is_valid() && serializer_entity.has<serializer_t>();
+    }
+
+    flecs::entity serializer_module::find_serializer(std::string_view serializer_type) const {
+        if (serializer_type.empty()) {
+            sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world), "Attempted to find serializer with an empty type name.");
+            return flecs::entity::null();
+        }
+
+        flecs::entity serializer_entity = m_serializer.lookup(serializer_type.data());
+        
+        if (!serializer_entity.is_valid()) {
+            sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "Serializer for type '{}' not found.", serializer_type);
+        }
+        
+        return serializer_entity;
+    }
+
+    sandbox::properties serializer_module::serialize_entity(flecs::entity serializer_entity, flecs::entity target_entity) {
+        if (!serializer_entity.is_valid()) {
+            sandbox::modules::logs::error(m_world, "Failed to serialize entity: serializer entity is invalid.");
+            return sandbox::properties{};
+        }
+
+        if (!target_entity.is_valid()) {
+            sandbox::modules::logs::error(m_world, "Failed to serialize entity: target entity is invalid.");
+            return sandbox::properties{};
+        }
+
+        if (!serializer_entity.has<serializer_t>()) {
+            sandbox::modules::logs::error(m_world, "Failed to serialize entity: serializer entity {} does not have a serializer_t component.", serializer_entity.id());
+            return sandbox::properties{};
+        }
+
+        const serializer_t* serializer_component = &serializer_entity.get<serializer_t>();
+        
+        if (serializer_component == nullptr || serializer_component->serialize == nullptr) {
+            sandbox::modules::logs::error(m_world, "Failed to serialize entity: serializer component or serialize function is null.");
+            return sandbox::properties{};
+        }
+
+        sandbox::properties serialized_properties{serializer_component->serialize(m_world.c_ptr(), target_entity.id())};
+        
+        if (!serialized_properties.is_valid()) {
+            sandbox::modules::logs::warn(m_world, "Serialization of entity {} returned invalid properties.", target_entity.id());
+        } else {
+            sandbox::modules::logs::trace(m_world, "Successfully serialized entity {}.", target_entity.id());
+        }
+
+        return serialized_properties;
+    }
+
+    flecs::entity serializer_module::deserialize_entity(flecs::entity serializer_entity, const sandbox::properties& properties) {
+        if (!serializer_entity.is_valid()) {
+            sandbox::modules::logs::error(m_world, "Failed to deserialize entity: serializer entity is invalid.");
+            return flecs::entity::null();
+        }
+
+        if (!properties.is_valid()) {
+            sandbox::modules::logs::error(m_world, "Failed to deserialize entity: input properties are invalid.");
+            return flecs::entity::null();
+        }
+
+        if (!serializer_entity.has<serializer_t>()) {
+            sandbox::modules::logs::error(m_world, "Failed to deserialize entity: serializer entity {} does not have a serializer_t component.", serializer_entity.id());
+            return flecs::entity::null();
+        }
+
+        const serializer_t* serializer_component = &serializer_entity.get<serializer_t>();
+        
+        if (serializer_component == nullptr || serializer_component->deserialize == nullptr) {
+            sandbox::modules::logs::error(m_world, "Failed to deserialize entity: serializer component or deserialize function is null.");
+            return flecs::entity::null();
+        }
+
+        flecs::entity deserialized_entity(m_world, serializer_component->deserialize(m_world.c_ptr(), properties.get_raw()));
+        
+        if (!deserialized_entity.is_valid()) {
+            sandbox::modules::logs::warn(m_world, "Deserialization resulted in an invalid entity.");
+        } else {
+            sandbox::modules::logs::trace(m_world, "Successfully deserialized entity {}.", deserialized_entity.id());
+        }
+
+        return deserialized_entity;
     }
 
 }
