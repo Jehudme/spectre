@@ -2,7 +2,7 @@
 #include "spectre/services/window_service.h"
 #include "sandbox/sdk/logs.hpp"
 #include "sandbox/sdk/runtime.hpp"
-#include "spectre/components.h"
+#include "spectre/spectre.h"
 #include <raylib.h>
 #include <iostream>
 #include <cstring>

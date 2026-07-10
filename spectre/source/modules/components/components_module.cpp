@@ -33,6 +33,11 @@ namespace spectre::modules {
         m_world.component<spectre_input_state_t>("spectre_input_state_t");
         m_world.component<spectre_component_serializer_t>("spectre_component_serializer_t");
 
+        m_world.component<spectre_rectange_renderable_t>("spectre_rectange_renderable_t");
+        m_world.component<spectre_polygone_renderable_t>("spectre_polygone_renderable_t");
+        m_world.component<spectre_custom_polygone_renderable_t>("spectre_custom_polygone_renderable_t");
+        m_world.component<spectre_ligne_renderable_t>("spectre_ligne_renderable_t");
+
         m_components_root = m_world.entity("::components");
         
         m_component_prefab = m_world.prefab("::components::prefab")

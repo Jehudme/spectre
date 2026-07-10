@@ -93,16 +93,16 @@ namespace spectre::modules {
                 if (current.is_valid() && !current.has<spectre_disable_rendering_t>()) {
                     ::spectre::sdk::scripts::execute_on_update(current);
                     
-                    auto scenes_query = find_current_scenes();
-                    scenes_query.each([&](flecs::entity scene) {
-                        ::spectre::sdk::scripts::execute_on_update(scene);
-                        
-                        scene.children([&](flecs::entity child) {
-                            execute_recursive(child, [](ecs_world_t* world, ecs_entity_t entity, void* payload) {
-                                flecs::world fw(world);
-                                ::spectre::sdk::scripts::execute_on_update(fw.entity(entity));
-                            }, nullptr);
-                        });
+                    current.children([&](flecs::entity scene) {
+                        if (scene.has<spectre_state_use_scene_relation_t>()) {
+                            ::spectre::sdk::scripts::execute_on_update(scene);
+                            
+                            scene.children([&](flecs::entity child) {
+                                if (!child.has<spectre_scene_t>() && !child.has<spectre_state_t>()) {
+                                    ::spectre::sdk::scripts::execute_on_update(child);
+                                }
+                            });
+                        }
                     });
                 }
             });

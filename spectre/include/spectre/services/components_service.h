@@ -2,7 +2,7 @@
 
 #include <sandbox/abi/bootstrapper.h>
 #include <sandbox/abi/properties.h>
-#include "spectre/components.h"
+#include "spectre/spectre.h"
 
 #ifdef __cplusplus
 extern "C" {

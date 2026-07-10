@@ -1,7 +1,7 @@
 #pragma once
 #include <sandbox/abi/bootstrapper.h>
 #include <sandbox/abi/properties.h>
-#include "spectre/components.h" // for custom types
+#include "spectre/spectre.h" // for custom types
 
 #ifdef __cplusplus
 extern "C" {

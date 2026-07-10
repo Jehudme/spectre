@@ -3,7 +3,7 @@
 #include <stack>
 
 #include "sandbox/sdk/properties.hpp"
-#include "spectre/components.h"
+#include "spectre/spectre.h"
 
 namespace spectre::modules {
     class scenes_module_t {

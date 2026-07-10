@@ -1,7 +1,7 @@
 #include <catch2/catch_all.hpp>
 #include <flecs.h>
 #include "modules/serializer/serializer_module.h"
-#include "spectre/components.h"
+#include "spectre/spectre.h"
 #include "sandbox/sdk/properties.hpp"
 
 using namespace spectre::modules;

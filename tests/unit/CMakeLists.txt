@@ -10,6 +10,7 @@ set(SPECTRE_UNIT_TEST_SOURCES
     source/modules/test_scenes.cpp
     source/modules/test_resources.cpp
     source/modules/test_window.cpp
+    source/modules/test_renderer.cpp
 )
 
 add_executable(spectre_unit_tests ${SPECTRE_UNIT_TEST_SOURCES})

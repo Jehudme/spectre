@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include "spectre/services/scripts_service.h"
-#include "spectre/components.h"
+#include "spectre/spectre.h"
 
 namespace spectre::sdk {
 

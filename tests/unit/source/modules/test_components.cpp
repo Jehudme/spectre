@@ -2,7 +2,7 @@
 #include <flecs.h>
 #include "modules/components/components_module.h"
 #include "modules/serializer/serializer_module.h"
-#include "spectre/components.h"
+#include "spectre/spectre.h"
 #include "sandbox/sdk/properties.hpp"
 
 using namespace spectre::modules;

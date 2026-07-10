@@ -14,10 +14,10 @@ namespace spectre::modules {
         renderer_module_t(renderer_module_t&&) = delete;
         renderer_module_t& operator=(renderer_module_t&&) = delete;
 
-        flecs::entity deserialize_renderer(sandbox::properties props);
+        flecs::entity deserialize_renderer(const sandbox::properties& props);
         sandbox::properties serialize_renderer(flecs::entity renderer);
 
-        void register_renderer(sandbox::properties props);
+        void register_renderer(const sandbox::properties& props);
         bool is_renderer() const;
 
     private:
@@ -28,6 +28,7 @@ namespace spectre::modules {
 
         flecs::world m_world;
         flecs::entity m_renderer;
+        flecs::entity m_renderer_prefab;
         flecs::entity m_renderer_serializer;
     };
 

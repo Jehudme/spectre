@@ -4,7 +4,7 @@
 
 #include "sandbox/sdk/properties.hpp"
 #include "sandbox/sdk/detail/bootstrapper.inl"
-#include "spectre/components.h"
+#include "spectre/spectre.h"
 
 namespace spectre::modules {
 
