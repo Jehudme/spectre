@@ -28,6 +28,8 @@ namespace spectre::modules {
     static void load_resource(const flecs::world& entity_world, ecs_entity_t resourceEntity);
 
     static void free_resource(const flecs::world& entity_world, ecs_entity_t resourceEntity);
+
+    static void* get_resource(const flecs::world& entity_world, ecs_entity_t resourceEntity);
     };
 }
 #endif

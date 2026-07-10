@@ -14,6 +14,7 @@ static ecs_entity_t                resources_find_resource(ecs_world_t* entity_w
 static bool                         resources_is_resource_loaded(ecs_world_t* entity_world, ecs_entity_t resource);
 static void                         resources_load_resource(ecs_world_t* entity_world, ecs_entity_t resourceEntity);
 static void                         resources_free_resource(ecs_world_t* entity_world, ecs_entity_t resourceEntity);
+static void*                        resources_get_resource(ecs_world_t* entity_world, ecs_entity_t resourceEntity);
 
 spectre_resources_api_t g_resources_api = {
     .deserialize_resource    = resources_deserialize_resource,
@@ -28,6 +29,7 @@ spectre_resources_api_t g_resources_api = {
     .is_resource_loaded      = resources_is_resource_loaded,
     .load_resource           = resources_load_resource,
     .free_resource           = resources_free_resource,
+    .get_resource            = resources_get_resource,
 };
 
 SANDBOX_DEFINE_SERVICE(spectre_resources_service_t, spectre_resources_api_t, &g_resources_api)
@@ -122,6 +124,14 @@ static void resources_free_resource(ecs_world_t* entity_world, ecs_entity_t reso
     flecs::world flecs_world(entity_world);
     auto* module = flecs_world.try_get_mut<spectre::modules::resource_module_t>();
     if (module) module->free_resource(flecs_world.entity(resourceEntity));
+}
+
+static void* resources_get_resource(ecs_world_t* entity_world, ecs_entity_t resourceEntity) {
+    if (!entity_world) return nullptr;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.try_get_mut<spectre::modules::resource_module_t>();
+    if (module) return module->get_resource(flecs_world.entity(resourceEntity));
+    return nullptr;
 }
 
 // --- Public C API Implementations ---
@@ -353,6 +363,24 @@ void spectre_resources_free_resource(ecs_world_t* world, ecs_entity_t resourceEn
     
 }
 
+void* spectre_resources_get_resource(ecs_world_t* world, ecs_entity_t resourceEntity) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
+#else
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
+#else
+    const spectre_resources_service_t* service = (const spectre_resources_service_t*)ecs_singleton_get(world, spectre_resources_service_t);
+#endif
+#endif
+    if (service && service->api && service->api->get_resource) {
+        return service->api->get_resource(world, resourceEntity);
+    }
+    return nullptr;
+}
+
 // --- SDK Implementations ---
 namespace spectre::modules {
 ecs_entity_t resources::deserialize_resource(const flecs::world& entity_world, sandbox_properties_handle_t props) {
@@ -398,4 +426,7 @@ void resources::load_resource(const flecs::world& entity_world, ecs_entity_t res
 
 void resources::free_resource(const flecs::world& entity_world, ecs_entity_t resourceEntity) {
             spectre_resources_free_resource(entity_world.c_ptr(), resourceEntity);}
+
+void* resources::get_resource(const flecs::world& entity_world, ecs_entity_t resourceEntity) {
+            return spectre_resources_get_resource(entity_world.c_ptr(), resourceEntity);}
 }

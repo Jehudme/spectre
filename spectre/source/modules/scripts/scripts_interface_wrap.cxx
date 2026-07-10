@@ -2741,96 +2741,99 @@ SWIG_Lua_dostring(lua_State *L, const char *str) {
 #define SWIGTYPE_p_f_p_ecs_world_t_bool__void swig_types[13]
 #define SWIGTYPE_p_f_p_ecs_world_t_ecs_entity_t__bool swig_types[14]
 #define SWIGTYPE_p_f_p_ecs_world_t_ecs_entity_t__ecs_entity_t swig_types[15]
-#define SWIGTYPE_p_f_p_ecs_world_t_ecs_entity_t__sandbox_properties_handle_t swig_types[16]
-#define SWIGTYPE_p_f_p_ecs_world_t_ecs_entity_t__void swig_types[17]
-#define SWIGTYPE_p_f_p_ecs_world_t_ecs_entity_t_ecs_entity_t__sandbox_properties_handle_t swig_types[18]
-#define SWIGTYPE_p_f_p_ecs_world_t_ecs_entity_t_sandbox_properties_handle_t__ecs_entity_t swig_types[19]
-#define SWIGTYPE_p_f_p_ecs_world_t_int32_t_int32_t__void swig_types[20]
-#define SWIGTYPE_p_f_p_ecs_world_t_int__bool swig_types[21]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_p_char_size_t__void swig_types[22]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char__bool swig_types[23]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char__ecs_entity_t swig_types[24]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char__int64_t swig_types[25]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char__sandbox_file_handle_t swig_types[26]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char__size_t swig_types[27]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char__void swig_types[28]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_bool__bool swig_types[29]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_bool_bool__sandbox_file_handle_t swig_types[30]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_bool_p_p_p_char_p_size_t__bool swig_types[31]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_p_f_p_ecs_world_t__ecs_entity_t_spectre_serializer_component__void swig_types[32]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_p_p_uint8_t_p_size_t__bool swig_types[33]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_p_q_const__char_bool__bool swig_types[34]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_p_q_const__char_bool_bool__bool swig_types[35]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_p_q_const__enum_spectre_script_argument_type_t_size_t__bool swig_types[36]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_p_q_const__spectre_serializer_component__void swig_types[37]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_p_spectre_script_argument_t_size_t__void swig_types[38]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_sandbox_properties_handle_t__ecs_entity_t swig_types[39]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_sandbox_properties_handle_t__void swig_types[40]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_spectre_resource_loader_component_t__void swig_types[41]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_spectre_resource_component_t__void swig_types[42]
-#define SWIGTYPE_p_f_p_ecs_world_t_p_uint8_t__void swig_types[43]
-#define SWIGTYPE_p_f_p_ecs_world_t_sandbox_file_handle_t__bool swig_types[44]
-#define SWIGTYPE_p_f_p_ecs_world_t_sandbox_file_handle_t__size_t swig_types[45]
-#define SWIGTYPE_p_f_p_ecs_world_t_sandbox_file_handle_t__void swig_types[46]
-#define SWIGTYPE_p_f_p_ecs_world_t_sandbox_file_handle_t_p_q_const__void_size_t__size_t swig_types[47]
-#define SWIGTYPE_p_f_p_ecs_world_t_sandbox_file_handle_t_p_void_size_t__size_t swig_types[48]
-#define SWIGTYPE_p_f_p_ecs_world_t_sandbox_file_handle_t_size_t__bool swig_types[49]
-#define SWIGTYPE_p_f_p_ecs_world_t_sandbox_properties_handle_t__ecs_entity_t swig_types[50]
-#define SWIGTYPE_p_f_p_ecs_world_t_sandbox_properties_handle_t__void swig_types[51]
-#define SWIGTYPE_p_f_p_ecs_world_t_uint32_t_uint32_t__void swig_types[52]
-#define SWIGTYPE_p_f_p_ecs_world_t_uint32_t_uint32_t_uint32_t_uint32_t__void swig_types[53]
-#define SWIGTYPE_p_float swig_types[54]
-#define SWIGTYPE_p_int32_t swig_types[55]
-#define SWIGTYPE_p_int64_t swig_types[56]
-#define SWIGTYPE_p_p_char swig_types[57]
-#define SWIGTYPE_p_p_p_char swig_types[58]
-#define SWIGTYPE_p_p_uint8_t swig_types[59]
-#define SWIGTYPE_p_sandbox_application_api_t swig_types[60]
-#define SWIGTYPE_p_sandbox_configuration_api_t swig_types[61]
-#define SWIGTYPE_p_sandbox_file_handle_t swig_types[62]
-#define SWIGTYPE_p_sandbox_filesystem_api_t swig_types[63]
-#define SWIGTYPE_p_sandbox_logs_api_t swig_types[64]
-#define SWIGTYPE_p_sandbox_properties_handle_t swig_types[65]
-#define SWIGTYPE_p_sandbox_runtime_api_t swig_types[66]
-#define SWIGTYPE_p_size_t swig_types[67]
-#define SWIGTYPE_p_spectre_2D_transform_component_t swig_types[68]
-#define SWIGTYPE_p_spectre_component_t swig_types[69]
-#define SWIGTYPE_p_spectre_components_api_t swig_types[70]
-#define SWIGTYPE_p_spectre_input_state_t swig_types[71]
-#define SWIGTYPE_p_spectre_prefab_flag_t swig_types[72]
-#define SWIGTYPE_p_spectre_prefabs_api_t swig_types[73]
-#define SWIGTYPE_p_spectre_renderable_t swig_types[74]
-#define SWIGTYPE_p_spectre_renderer_api_t swig_types[75]
-#define SWIGTYPE_p_spectre_resource_component_t swig_types[76]
-#define SWIGTYPE_p_spectre_resource_loader_component_t swig_types[77]
-#define SWIGTYPE_p_spectre_resources_api_t swig_types[78]
-#define SWIGTYPE_p_spectre_scene_flag_t swig_types[79]
-#define SWIGTYPE_p_spectre_scenes_api_t swig_types[80]
-#define SWIGTYPE_p_spectre_script_argument_t swig_types[81]
-#define SWIGTYPE_p_spectre_script_argument_type_t swig_types[82]
-#define SWIGTYPE_p_spectre_script_t swig_types[83]
-#define SWIGTYPE_p_spectre_scripts_api_t swig_types[84]
-#define SWIGTYPE_p_spectre_serializer_api_t swig_types[85]
-#define SWIGTYPE_p_spectre_serializer_component swig_types[86]
-#define SWIGTYPE_p_spectre_serializer_relation_t swig_types[87]
-#define SWIGTYPE_p_spectre_state_flag_t swig_types[88]
-#define SWIGTYPE_p_spectre_use_loader_relation_t swig_types[89]
-#define SWIGTYPE_p_spectre_use_resource_relation_t swig_types[90]
-#define SWIGTYPE_p_spectre_use_scene_relation_t swig_types[91]
-#define SWIGTYPE_p_spectre_use_script_on_create_relation_t swig_types[92]
-#define SWIGTYPE_p_spectre_use_script_on_destroy_relation_t swig_types[93]
-#define SWIGTYPE_p_spectre_use_script_on_enter_relation_t swig_types[94]
-#define SWIGTYPE_p_spectre_use_script_on_exit_relation_t swig_types[95]
-#define SWIGTYPE_p_spectre_use_script_on_render_relation_t swig_types[96]
-#define SWIGTYPE_p_spectre_use_script_on_update_relation_t swig_types[97]
-#define SWIGTYPE_p_spectre_window_api_t swig_types[98]
-#define SWIGTYPE_p_uint32_t swig_types[99]
-#define SWIGTYPE_p_uint64_t swig_types[100]
-#define SWIGTYPE_p_uint8_t swig_types[101]
-#define SWIGTYPE_p_uintptr_t swig_types[102]
-#define SWIGTYPE_p_void swig_types[103]
-static swig_type_info *swig_types[105];
-static swig_module_info swig_module = {swig_types, 104, 0, 0, 0, 0};
+#define SWIGTYPE_p_f_p_ecs_world_t_ecs_entity_t__p_void swig_types[16]
+#define SWIGTYPE_p_f_p_ecs_world_t_ecs_entity_t__sandbox_properties_handle_t swig_types[17]
+#define SWIGTYPE_p_f_p_ecs_world_t_ecs_entity_t__void swig_types[18]
+#define SWIGTYPE_p_f_p_ecs_world_t_ecs_entity_t_ecs_entity_t__sandbox_properties_handle_t swig_types[19]
+#define SWIGTYPE_p_f_p_ecs_world_t_ecs_entity_t_sandbox_properties_handle_t__ecs_entity_t swig_types[20]
+#define SWIGTYPE_p_f_p_ecs_world_t_int32_t_int32_t__void swig_types[21]
+#define SWIGTYPE_p_f_p_ecs_world_t_int__bool swig_types[22]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_p_char_size_t__void swig_types[23]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char__bool swig_types[24]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char__ecs_entity_t swig_types[25]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char__int64_t swig_types[26]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char__sandbox_file_handle_t swig_types[27]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char__size_t swig_types[28]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char__void swig_types[29]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_bool__bool swig_types[30]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_bool_bool__sandbox_file_handle_t swig_types[31]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_bool_p_p_p_char_p_size_t__bool swig_types[32]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_p_f_p_ecs_world_t__ecs_entity_t_spectre_serializer_component__void swig_types[33]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_p_p_uint8_t_p_size_t__bool swig_types[34]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_p_q_const__char_bool__bool swig_types[35]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_p_q_const__char_bool_bool__bool swig_types[36]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_p_q_const__enum_spectre_script_argument_type_t_size_t__bool swig_types[37]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_p_q_const__spectre_serializer_component__void swig_types[38]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_p_spectre_script_argument_t_size_t__void swig_types[39]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_sandbox_properties_handle_t__ecs_entity_t swig_types[40]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_sandbox_properties_handle_t__void swig_types[41]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_q_const__char_spectre_resource_loader_component_t__void swig_types[42]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_spectre_resource_component_t__void swig_types[43]
+#define SWIGTYPE_p_f_p_ecs_world_t_p_uint8_t__void swig_types[44]
+#define SWIGTYPE_p_f_p_ecs_world_t_sandbox_file_handle_t__bool swig_types[45]
+#define SWIGTYPE_p_f_p_ecs_world_t_sandbox_file_handle_t__size_t swig_types[46]
+#define SWIGTYPE_p_f_p_ecs_world_t_sandbox_file_handle_t__void swig_types[47]
+#define SWIGTYPE_p_f_p_ecs_world_t_sandbox_file_handle_t_p_q_const__void_size_t__size_t swig_types[48]
+#define SWIGTYPE_p_f_p_ecs_world_t_sandbox_file_handle_t_p_void_size_t__size_t swig_types[49]
+#define SWIGTYPE_p_f_p_ecs_world_t_sandbox_file_handle_t_size_t__bool swig_types[50]
+#define SWIGTYPE_p_f_p_ecs_world_t_sandbox_properties_handle_t__ecs_entity_t swig_types[51]
+#define SWIGTYPE_p_f_p_ecs_world_t_sandbox_properties_handle_t__void swig_types[52]
+#define SWIGTYPE_p_f_p_ecs_world_t_uint32_t_uint32_t__void swig_types[53]
+#define SWIGTYPE_p_f_p_ecs_world_t_uint32_t_uint32_t_uint32_t_uint32_t__void swig_types[54]
+#define SWIGTYPE_p_float swig_types[55]
+#define SWIGTYPE_p_int32_t swig_types[56]
+#define SWIGTYPE_p_int64_t swig_types[57]
+#define SWIGTYPE_p_p_char swig_types[58]
+#define SWIGTYPE_p_p_p_char swig_types[59]
+#define SWIGTYPE_p_p_uint8_t swig_types[60]
+#define SWIGTYPE_p_sandbox_application_api_t swig_types[61]
+#define SWIGTYPE_p_sandbox_configuration_api_t swig_types[62]
+#define SWIGTYPE_p_sandbox_file_handle_t swig_types[63]
+#define SWIGTYPE_p_sandbox_filesystem_api_t swig_types[64]
+#define SWIGTYPE_p_sandbox_logs_api_t swig_types[65]
+#define SWIGTYPE_p_sandbox_properties_handle_t swig_types[66]
+#define SWIGTYPE_p_sandbox_runtime_api_t swig_types[67]
+#define SWIGTYPE_p_size_t swig_types[68]
+#define SWIGTYPE_p_spectre_2D_transform_component_t swig_types[69]
+#define SWIGTYPE_p_spectre_component_t swig_types[70]
+#define SWIGTYPE_p_spectre_components_api_t swig_types[71]
+#define SWIGTYPE_p_spectre_disable_rendering_t swig_types[72]
+#define SWIGTYPE_p_spectre_input_state_t swig_types[73]
+#define SWIGTYPE_p_spectre_prefab_flag_t swig_types[74]
+#define SWIGTYPE_p_spectre_prefabs_api_t swig_types[75]
+#define SWIGTYPE_p_spectre_renderable_t swig_types[76]
+#define SWIGTYPE_p_spectre_renderer_api_t swig_types[77]
+#define SWIGTYPE_p_spectre_resource_component_t swig_types[78]
+#define SWIGTYPE_p_spectre_resource_loaded_flag_t swig_types[79]
+#define SWIGTYPE_p_spectre_resource_loader_component_t swig_types[80]
+#define SWIGTYPE_p_spectre_resources_api_t swig_types[81]
+#define SWIGTYPE_p_spectre_scene_t swig_types[82]
+#define SWIGTYPE_p_spectre_scenes_api_t swig_types[83]
+#define SWIGTYPE_p_spectre_script_argument_t swig_types[84]
+#define SWIGTYPE_p_spectre_script_argument_type_t swig_types[85]
+#define SWIGTYPE_p_spectre_script_t swig_types[86]
+#define SWIGTYPE_p_spectre_scripts_api_t swig_types[87]
+#define SWIGTYPE_p_spectre_serializer_api_t swig_types[88]
+#define SWIGTYPE_p_spectre_serializer_component swig_types[89]
+#define SWIGTYPE_p_spectre_serializer_relation_t swig_types[90]
+#define SWIGTYPE_p_spectre_state_t swig_types[91]
+#define SWIGTYPE_p_spectre_state_use_scene_relation_t swig_types[92]
+#define SWIGTYPE_p_spectre_use_loader_relation_t swig_types[93]
+#define SWIGTYPE_p_spectre_use_resource_relation_t swig_types[94]
+#define SWIGTYPE_p_spectre_use_script_on_create_relation_t swig_types[95]
+#define SWIGTYPE_p_spectre_use_script_on_destroy_relation_t swig_types[96]
+#define SWIGTYPE_p_spectre_use_script_on_enter_relation_t swig_types[97]
+#define SWIGTYPE_p_spectre_use_script_on_exit_relation_t swig_types[98]
+#define SWIGTYPE_p_spectre_use_script_on_render_relation_t swig_types[99]
+#define SWIGTYPE_p_spectre_use_script_on_update_relation_t swig_types[100]
+#define SWIGTYPE_p_spectre_window_api_t swig_types[101]
+#define SWIGTYPE_p_uint32_t swig_types[102]
+#define SWIGTYPE_p_uint64_t swig_types[103]
+#define SWIGTYPE_p_uint8_t swig_types[104]
+#define SWIGTYPE_p_uintptr_t swig_types[105]
+#define SWIGTYPE_p_void swig_types[106]
+static swig_type_info *swig_types[108];
+static swig_module_info swig_module = {swig_types, 107, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -7306,6 +7309,121 @@ static swig_lua_class *swig_spectre_use_resource_relation_bases[] = {0};
 static const char *swig_spectre_use_resource_relation_base_names[] = {0};
 static swig_lua_class _wrap_class_spectre_use_resource_relation = { "spectre_use_resource_relation", "spectre_use_resource_relation", &SWIGTYPE_p_spectre_use_resource_relation_t,_proxy__wrap_new_spectre_use_resource_relation, swig_delete_spectre_use_resource_relation, swig_spectre_use_resource_relation_methods, swig_spectre_use_resource_relation_attributes, &swig_spectre_use_resource_relation_Sf_SwigStatic, swig_spectre_use_resource_relation_meta, swig_spectre_use_resource_relation_bases, swig_spectre_use_resource_relation_base_names };
 
+static int _wrap_spectre_resource_flag_t_dummy_set(lua_State* L) {
+  {
+    int SWIG_arg = 0;
+    spectre_resource_loaded_flag_t *arg1 = (spectre_resource_loaded_flag_t *) 0 ;
+    char arg2 ;
+    
+    SWIG_check_num_args("spectre_resource_loaded_flag_t::dummy",2,2)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_resource_loaded_flag_t::dummy",1,"spectre_resource_loaded_flag_t *");
+    if(!SWIG_lua_isnilstring(L,2)) SWIG_fail_arg("spectre_resource_loaded_flag_t::dummy",2,"char");
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_resource_loaded_flag_t,0))){
+      SWIG_fail_ptr("spectre_resource_flag_t_dummy_set",1,SWIGTYPE_p_spectre_resource_loaded_flag_t);
+    }
+    
+    arg2 = (lua_tostring(L, 2))[0];
+    if (arg1) (arg1)->dummy = arg2;
+    
+    return SWIG_arg;
+    
+    fail: SWIGUNUSED;
+  }
+  lua_error(L);
+  return 0;
+}
+
+
+static int _wrap_spectre_resource_flag_t_dummy_get(lua_State* L) {
+  {
+    int SWIG_arg = 0;
+    spectre_resource_loaded_flag_t *arg1 = (spectre_resource_loaded_flag_t *) 0 ;
+    char result;
+    
+    SWIG_check_num_args("spectre_resource_loaded_flag_t::dummy",1,1)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_resource_loaded_flag_t::dummy",1,"spectre_resource_loaded_flag_t *");
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_resource_loaded_flag_t,0))){
+      SWIG_fail_ptr("spectre_resource_flag_t_dummy_get",1,SWIGTYPE_p_spectre_resource_loaded_flag_t);
+    }
+    
+    result = (char) ((arg1)->dummy);
+    lua_pushlstring(L, &result, 1); SWIG_arg++;
+    return SWIG_arg;
+    
+    fail: SWIGUNUSED;
+  }
+  lua_error(L);
+  return 0;
+}
+
+
+static int _wrap_new_spectre_resource_flag_t(lua_State* L) {
+  {
+    int SWIG_arg = 0;
+    spectre_resource_loaded_flag_t *result = 0 ;
+    
+    SWIG_check_num_args("spectre_resource_loaded_flag_t::spectre_resource_loaded_flag_t",0,0)
+    result = (spectre_resource_loaded_flag_t *)new spectre_resource_loaded_flag_t();
+    SWIG_NewPointerObj(L,result,SWIGTYPE_p_spectre_resource_loaded_flag_t,1); SWIG_arg++; 
+    return SWIG_arg;
+    
+    fail: SWIGUNUSED;
+  }
+  lua_error(L);
+  return 0;
+}
+
+
+static void swig_delete_spectre_resource_flag_t(void *obj) {
+spectre_resource_loaded_flag_t *arg1 = (spectre_resource_loaded_flag_t *) obj;
+delete arg1;
+}
+static int _proxy__wrap_new_spectre_resource_flag_t(lua_State *L) {
+    assert(lua_istable(L,1));
+    lua_pushcfunction(L,_wrap_new_spectre_resource_flag_t);
+    assert(!lua_isnil(L,-1));
+    lua_replace(L,1); /* replace our table with real constructor */
+    lua_call(L,lua_gettop(L)-1,1);
+    return 1;
+}
+static swig_lua_attribute swig_spectre_resource_flag_t_attributes[] = {
+    { "dummy", _wrap_spectre_resource_flag_t_dummy_get, _wrap_spectre_resource_flag_t_dummy_set },
+    {0,0,0}
+};
+static swig_lua_method swig_spectre_resource_flag_t_methods[]= {
+    {0,0}
+};
+static swig_lua_method swig_spectre_resource_flag_t_meta[] = {
+    {0,0}
+};
+
+static swig_lua_attribute swig_spectre_resource_flag_t_Sf_SwigStatic_attributes[] = {
+    {0,0,0}
+};
+static swig_lua_const_info swig_spectre_resource_flag_t_Sf_SwigStatic_constants[]= {
+    {0,0,0,0,0,0}
+};
+static swig_lua_method swig_spectre_resource_flag_t_Sf_SwigStatic_methods[]= {
+    {0,0}
+};
+static swig_lua_class* swig_spectre_resource_flag_t_Sf_SwigStatic_classes[]= {
+    0
+};
+
+static swig_lua_namespace swig_spectre_resource_flag_t_Sf_SwigStatic = {
+    "spectre_resource_flag_t",
+    swig_spectre_resource_flag_t_Sf_SwigStatic_methods,
+    swig_spectre_resource_flag_t_Sf_SwigStatic_attributes,
+    swig_spectre_resource_flag_t_Sf_SwigStatic_constants,
+    swig_spectre_resource_flag_t_Sf_SwigStatic_classes,
+    0
+};
+static swig_lua_class *swig_spectre_resource_flag_t_bases[] = {0};
+static const char *swig_spectre_resource_flag_t_base_names[] = {0};
+static swig_lua_class _wrap_class_spectre_resource_flag_t = { "spectre_resource_flag_t", "spectre_resource_flag_t", &SWIGTYPE_p_spectre_resource_loaded_flag_t,_proxy__wrap_new_spectre_resource_flag_t, swig_delete_spectre_resource_flag_t, swig_spectre_resource_flag_t_methods, swig_spectre_resource_flag_t_attributes, &swig_spectre_resource_flag_t_Sf_SwigStatic, swig_spectre_resource_flag_t_meta, swig_spectre_resource_flag_t_bases, swig_spectre_resource_flag_t_base_names };
+
 static int _wrap_spectre_resource_component_t_path_set(lua_State* L) {
   {
     int SWIG_arg = 0;
@@ -7653,18 +7771,18 @@ static swig_lua_class *swig_spectre_resource_loader_component_t_bases[] = {0};
 static const char *swig_spectre_resource_loader_component_t_base_names[] = {0};
 static swig_lua_class _wrap_class_spectre_resource_loader_component_t = { "spectre_resource_loader_component_t", "spectre_resource_loader_component_t", &SWIGTYPE_p_spectre_resource_loader_component_t,_proxy__wrap_new_spectre_resource_loader_component_t, swig_delete_spectre_resource_loader_component_t, swig_spectre_resource_loader_component_t_methods, swig_spectre_resource_loader_component_t_attributes, &swig_spectre_resource_loader_component_t_Sf_SwigStatic, swig_spectre_resource_loader_component_t_meta, swig_spectre_resource_loader_component_t_bases, swig_spectre_resource_loader_component_t_base_names };
 
-static int _wrap_spectre_scene_t_dummy_set(lua_State* L) {
+static int _wrap_spectre_disable_rendering_t_dummy_set(lua_State* L) {
   {
     int SWIG_arg = 0;
-    spectre_scene_flag_t *arg1 = (spectre_scene_flag_t *) 0 ;
+    spectre_disable_rendering_t *arg1 = (spectre_disable_rendering_t *) 0 ;
     char arg2 ;
     
-    SWIG_check_num_args("spectre_scene_flag_t::dummy",2,2)
-    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_scene_flag_t::dummy",1,"spectre_scene_flag_t *");
-    if(!SWIG_lua_isnilstring(L,2)) SWIG_fail_arg("spectre_scene_flag_t::dummy",2,"char");
+    SWIG_check_num_args("spectre_disable_rendering_t::dummy",2,2)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_disable_rendering_t::dummy",1,"spectre_disable_rendering_t *");
+    if(!SWIG_lua_isnilstring(L,2)) SWIG_fail_arg("spectre_disable_rendering_t::dummy",2,"char");
     
-    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_scene_flag_t,0))){
-      SWIG_fail_ptr("spectre_scene_t_dummy_set",1,SWIGTYPE_p_spectre_scene_flag_t);
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_disable_rendering_t,0))){
+      SWIG_fail_ptr("spectre_disable_rendering_t_dummy_set",1,SWIGTYPE_p_spectre_disable_rendering_t);
     }
     
     arg2 = (lua_tostring(L, 2))[0];
@@ -7679,17 +7797,17 @@ static int _wrap_spectre_scene_t_dummy_set(lua_State* L) {
 }
 
 
-static int _wrap_spectre_scene_t_dummy_get(lua_State* L) {
+static int _wrap_spectre_disable_rendering_t_dummy_get(lua_State* L) {
   {
     int SWIG_arg = 0;
-    spectre_scene_flag_t *arg1 = (spectre_scene_flag_t *) 0 ;
+    spectre_disable_rendering_t *arg1 = (spectre_disable_rendering_t *) 0 ;
     char result;
     
-    SWIG_check_num_args("spectre_scene_flag_t::dummy",1,1)
-    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_scene_flag_t::dummy",1,"spectre_scene_flag_t *");
+    SWIG_check_num_args("spectre_disable_rendering_t::dummy",1,1)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_disable_rendering_t::dummy",1,"spectre_disable_rendering_t *");
     
-    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_scene_flag_t,0))){
-      SWIG_fail_ptr("spectre_scene_t_dummy_get",1,SWIGTYPE_p_spectre_scene_flag_t);
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_disable_rendering_t,0))){
+      SWIG_fail_ptr("spectre_disable_rendering_t_dummy_get",1,SWIGTYPE_p_spectre_disable_rendering_t);
     }
     
     result = (char) ((arg1)->dummy);
@@ -7703,14 +7821,14 @@ static int _wrap_spectre_scene_t_dummy_get(lua_State* L) {
 }
 
 
-static int _wrap_new_spectre_scene_t(lua_State* L) {
+static int _wrap_new_spectre_disable_rendering_t(lua_State* L) {
   {
     int SWIG_arg = 0;
-    spectre_scene_flag_t *result = 0 ;
+    spectre_disable_rendering_t *result = 0 ;
     
-    SWIG_check_num_args("spectre_scene_flag_t::spectre_scene_flag_t",0,0)
-    result = (spectre_scene_flag_t *)new spectre_scene_flag_t();
-    SWIG_NewPointerObj(L,result,SWIGTYPE_p_spectre_scene_flag_t,1); SWIG_arg++; 
+    SWIG_check_num_args("spectre_disable_rendering_t::spectre_disable_rendering_t",0,0)
+    result = (spectre_disable_rendering_t *)new spectre_disable_rendering_t();
+    SWIG_NewPointerObj(L,result,SWIGTYPE_p_spectre_disable_rendering_t,1); SWIG_arg++; 
     return SWIG_arg;
     
     fail: SWIGUNUSED;
@@ -7720,66 +7838,66 @@ static int _wrap_new_spectre_scene_t(lua_State* L) {
 }
 
 
-static void swig_delete_spectre_scene_t(void *obj) {
-spectre_scene_flag_t *arg1 = (spectre_scene_flag_t *) obj;
+static void swig_delete_spectre_disable_rendering_t(void *obj) {
+spectre_disable_rendering_t *arg1 = (spectre_disable_rendering_t *) obj;
 delete arg1;
 }
-static int _proxy__wrap_new_spectre_scene_t(lua_State *L) {
+static int _proxy__wrap_new_spectre_disable_rendering_t(lua_State *L) {
     assert(lua_istable(L,1));
-    lua_pushcfunction(L,_wrap_new_spectre_scene_t);
+    lua_pushcfunction(L,_wrap_new_spectre_disable_rendering_t);
     assert(!lua_isnil(L,-1));
     lua_replace(L,1); /* replace our table with real constructor */
     lua_call(L,lua_gettop(L)-1,1);
     return 1;
 }
-static swig_lua_attribute swig_spectre_scene_t_attributes[] = {
-    { "dummy", _wrap_spectre_scene_t_dummy_get, _wrap_spectre_scene_t_dummy_set },
+static swig_lua_attribute swig_spectre_disable_rendering_t_attributes[] = {
+    { "dummy", _wrap_spectre_disable_rendering_t_dummy_get, _wrap_spectre_disable_rendering_t_dummy_set },
     {0,0,0}
 };
-static swig_lua_method swig_spectre_scene_t_methods[]= {
+static swig_lua_method swig_spectre_disable_rendering_t_methods[]= {
     {0,0}
 };
-static swig_lua_method swig_spectre_scene_t_meta[] = {
+static swig_lua_method swig_spectre_disable_rendering_t_meta[] = {
     {0,0}
 };
 
-static swig_lua_attribute swig_spectre_scene_t_Sf_SwigStatic_attributes[] = {
+static swig_lua_attribute swig_spectre_disable_rendering_t_Sf_SwigStatic_attributes[] = {
     {0,0,0}
 };
-static swig_lua_const_info swig_spectre_scene_t_Sf_SwigStatic_constants[]= {
+static swig_lua_const_info swig_spectre_disable_rendering_t_Sf_SwigStatic_constants[]= {
     {0,0,0,0,0,0}
 };
-static swig_lua_method swig_spectre_scene_t_Sf_SwigStatic_methods[]= {
+static swig_lua_method swig_spectre_disable_rendering_t_Sf_SwigStatic_methods[]= {
     {0,0}
 };
-static swig_lua_class* swig_spectre_scene_t_Sf_SwigStatic_classes[]= {
+static swig_lua_class* swig_spectre_disable_rendering_t_Sf_SwigStatic_classes[]= {
     0
 };
 
-static swig_lua_namespace swig_spectre_scene_t_Sf_SwigStatic = {
-    "spectre_scene_t",
-    swig_spectre_scene_t_Sf_SwigStatic_methods,
-    swig_spectre_scene_t_Sf_SwigStatic_attributes,
-    swig_spectre_scene_t_Sf_SwigStatic_constants,
-    swig_spectre_scene_t_Sf_SwigStatic_classes,
+static swig_lua_namespace swig_spectre_disable_rendering_t_Sf_SwigStatic = {
+    "spectre_disable_rendering_t",
+    swig_spectre_disable_rendering_t_Sf_SwigStatic_methods,
+    swig_spectre_disable_rendering_t_Sf_SwigStatic_attributes,
+    swig_spectre_disable_rendering_t_Sf_SwigStatic_constants,
+    swig_spectre_disable_rendering_t_Sf_SwigStatic_classes,
     0
 };
-static swig_lua_class *swig_spectre_scene_t_bases[] = {0};
-static const char *swig_spectre_scene_t_base_names[] = {0};
-static swig_lua_class _wrap_class_spectre_scene_t = { "spectre_scene_t", "spectre_scene_t", &SWIGTYPE_p_spectre_scene_flag_t,_proxy__wrap_new_spectre_scene_t, swig_delete_spectre_scene_t, swig_spectre_scene_t_methods, swig_spectre_scene_t_attributes, &swig_spectre_scene_t_Sf_SwigStatic, swig_spectre_scene_t_meta, swig_spectre_scene_t_bases, swig_spectre_scene_t_base_names };
+static swig_lua_class *swig_spectre_disable_rendering_t_bases[] = {0};
+static const char *swig_spectre_disable_rendering_t_base_names[] = {0};
+static swig_lua_class _wrap_class_spectre_disable_rendering_t = { "spectre_disable_rendering_t", "spectre_disable_rendering_t", &SWIGTYPE_p_spectre_disable_rendering_t,_proxy__wrap_new_spectre_disable_rendering_t, swig_delete_spectre_disable_rendering_t, swig_spectre_disable_rendering_t_methods, swig_spectre_disable_rendering_t_attributes, &swig_spectre_disable_rendering_t_Sf_SwigStatic, swig_spectre_disable_rendering_t_meta, swig_spectre_disable_rendering_t_bases, swig_spectre_disable_rendering_t_base_names };
 
 static int _wrap_spectre_state_t_dummy_set(lua_State* L) {
   {
     int SWIG_arg = 0;
-    spectre_state_flag_t *arg1 = (spectre_state_flag_t *) 0 ;
+    spectre_state_t *arg1 = (spectre_state_t *) 0 ;
     char arg2 ;
     
-    SWIG_check_num_args("spectre_state_flag_t::dummy",2,2)
-    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_state_flag_t::dummy",1,"spectre_state_flag_t *");
-    if(!SWIG_lua_isnilstring(L,2)) SWIG_fail_arg("spectre_state_flag_t::dummy",2,"char");
+    SWIG_check_num_args("spectre_state_t::dummy",2,2)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_state_t::dummy",1,"spectre_state_t *");
+    if(!SWIG_lua_isnilstring(L,2)) SWIG_fail_arg("spectre_state_t::dummy",2,"char");
     
-    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_state_flag_t,0))){
-      SWIG_fail_ptr("spectre_state_t_dummy_set",1,SWIGTYPE_p_spectre_state_flag_t);
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_state_t,0))){
+      SWIG_fail_ptr("spectre_state_t_dummy_set",1,SWIGTYPE_p_spectre_state_t);
     }
     
     arg2 = (lua_tostring(L, 2))[0];
@@ -7797,14 +7915,14 @@ static int _wrap_spectre_state_t_dummy_set(lua_State* L) {
 static int _wrap_spectre_state_t_dummy_get(lua_State* L) {
   {
     int SWIG_arg = 0;
-    spectre_state_flag_t *arg1 = (spectre_state_flag_t *) 0 ;
+    spectre_state_t *arg1 = (spectre_state_t *) 0 ;
     char result;
     
-    SWIG_check_num_args("spectre_state_flag_t::dummy",1,1)
-    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_state_flag_t::dummy",1,"spectre_state_flag_t *");
+    SWIG_check_num_args("spectre_state_t::dummy",1,1)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_state_t::dummy",1,"spectre_state_t *");
     
-    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_state_flag_t,0))){
-      SWIG_fail_ptr("spectre_state_t_dummy_get",1,SWIGTYPE_p_spectre_state_flag_t);
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_state_t,0))){
+      SWIG_fail_ptr("spectre_state_t_dummy_get",1,SWIGTYPE_p_spectre_state_t);
     }
     
     result = (char) ((arg1)->dummy);
@@ -7821,11 +7939,11 @@ static int _wrap_spectre_state_t_dummy_get(lua_State* L) {
 static int _wrap_new_spectre_state_t(lua_State* L) {
   {
     int SWIG_arg = 0;
-    spectre_state_flag_t *result = 0 ;
+    spectre_state_t *result = 0 ;
     
-    SWIG_check_num_args("spectre_state_flag_t::spectre_state_flag_t",0,0)
-    result = (spectre_state_flag_t *)new spectre_state_flag_t();
-    SWIG_NewPointerObj(L,result,SWIGTYPE_p_spectre_state_flag_t,1); SWIG_arg++; 
+    SWIG_check_num_args("spectre_state_t::spectre_state_t",0,0)
+    result = (spectre_state_t *)new spectre_state_t();
+    SWIG_NewPointerObj(L,result,SWIGTYPE_p_spectre_state_t,1); SWIG_arg++; 
     return SWIG_arg;
     
     fail: SWIGUNUSED;
@@ -7836,7 +7954,7 @@ static int _wrap_new_spectre_state_t(lua_State* L) {
 
 
 static void swig_delete_spectre_state_t(void *obj) {
-spectre_state_flag_t *arg1 = (spectre_state_flag_t *) obj;
+spectre_state_t *arg1 = (spectre_state_t *) obj;
 delete arg1;
 }
 static int _proxy__wrap_new_spectre_state_t(lua_State *L) {
@@ -7881,29 +7999,138 @@ static swig_lua_namespace swig_spectre_state_t_Sf_SwigStatic = {
 };
 static swig_lua_class *swig_spectre_state_t_bases[] = {0};
 static const char *swig_spectre_state_t_base_names[] = {0};
-static swig_lua_class _wrap_class_spectre_state_t = { "spectre_state_t", "spectre_state_t", &SWIGTYPE_p_spectre_state_flag_t,_proxy__wrap_new_spectre_state_t, swig_delete_spectre_state_t, swig_spectre_state_t_methods, swig_spectre_state_t_attributes, &swig_spectre_state_t_Sf_SwigStatic, swig_spectre_state_t_meta, swig_spectre_state_t_bases, swig_spectre_state_t_base_names };
+static swig_lua_class _wrap_class_spectre_state_t = { "spectre_state_t", "spectre_state_t", &SWIGTYPE_p_spectre_state_t,_proxy__wrap_new_spectre_state_t, swig_delete_spectre_state_t, swig_spectre_state_t_methods, swig_spectre_state_t_attributes, &swig_spectre_state_t_Sf_SwigStatic, swig_spectre_state_t_meta, swig_spectre_state_t_bases, swig_spectre_state_t_base_names };
+
+static int _wrap_spectre_scene_t_dummy_set(lua_State* L) {
+  {
+    int SWIG_arg = 0;
+    spectre_scene_t *arg1 = (spectre_scene_t *) 0 ;
+    char arg2 ;
+    
+    SWIG_check_num_args("spectre_scene_t::dummy",2,2)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_scene_t::dummy",1,"spectre_scene_t *");
+    if(!SWIG_lua_isnilstring(L,2)) SWIG_fail_arg("spectre_scene_t::dummy",2,"char");
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_scene_t,0))){
+      SWIG_fail_ptr("spectre_scene_t_dummy_set",1,SWIGTYPE_p_spectre_scene_t);
+    }
+    
+    arg2 = (lua_tostring(L, 2))[0];
+    if (arg1) (arg1)->dummy = arg2;
+    
+    return SWIG_arg;
+    
+    fail: SWIGUNUSED;
+  }
+  lua_error(L);
+  return 0;
+}
+
+
+static int _wrap_spectre_scene_t_dummy_get(lua_State* L) {
+  {
+    int SWIG_arg = 0;
+    spectre_scene_t *arg1 = (spectre_scene_t *) 0 ;
+    char result;
+    
+    SWIG_check_num_args("spectre_scene_t::dummy",1,1)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_scene_t::dummy",1,"spectre_scene_t *");
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_scene_t,0))){
+      SWIG_fail_ptr("spectre_scene_t_dummy_get",1,SWIGTYPE_p_spectre_scene_t);
+    }
+    
+    result = (char) ((arg1)->dummy);
+    lua_pushlstring(L, &result, 1); SWIG_arg++;
+    return SWIG_arg;
+    
+    fail: SWIGUNUSED;
+  }
+  lua_error(L);
+  return 0;
+}
+
+
+static int _wrap_new_spectre_scene_t(lua_State* L) {
+  {
+    int SWIG_arg = 0;
+    spectre_scene_t *result = 0 ;
+    
+    SWIG_check_num_args("spectre_scene_t::spectre_scene_t",0,0)
+    result = (spectre_scene_t *)new spectre_scene_t();
+    SWIG_NewPointerObj(L,result,SWIGTYPE_p_spectre_scene_t,1); SWIG_arg++; 
+    return SWIG_arg;
+    
+    fail: SWIGUNUSED;
+  }
+  lua_error(L);
+  return 0;
+}
+
+
+static void swig_delete_spectre_scene_t(void *obj) {
+spectre_scene_t *arg1 = (spectre_scene_t *) obj;
+delete arg1;
+}
+static int _proxy__wrap_new_spectre_scene_t(lua_State *L) {
+    assert(lua_istable(L,1));
+    lua_pushcfunction(L,_wrap_new_spectre_scene_t);
+    assert(!lua_isnil(L,-1));
+    lua_replace(L,1); /* replace our table with real constructor */
+    lua_call(L,lua_gettop(L)-1,1);
+    return 1;
+}
+static swig_lua_attribute swig_spectre_scene_t_attributes[] = {
+    { "dummy", _wrap_spectre_scene_t_dummy_get, _wrap_spectre_scene_t_dummy_set },
+    {0,0,0}
+};
+static swig_lua_method swig_spectre_scene_t_methods[]= {
+    {0,0}
+};
+static swig_lua_method swig_spectre_scene_t_meta[] = {
+    {0,0}
+};
+
+static swig_lua_attribute swig_spectre_scene_t_Sf_SwigStatic_attributes[] = {
+    {0,0,0}
+};
+static swig_lua_const_info swig_spectre_scene_t_Sf_SwigStatic_constants[]= {
+    {0,0,0,0,0,0}
+};
+static swig_lua_method swig_spectre_scene_t_Sf_SwigStatic_methods[]= {
+    {0,0}
+};
+static swig_lua_class* swig_spectre_scene_t_Sf_SwigStatic_classes[]= {
+    0
+};
+
+static swig_lua_namespace swig_spectre_scene_t_Sf_SwigStatic = {
+    "spectre_scene_t",
+    swig_spectre_scene_t_Sf_SwigStatic_methods,
+    swig_spectre_scene_t_Sf_SwigStatic_attributes,
+    swig_spectre_scene_t_Sf_SwigStatic_constants,
+    swig_spectre_scene_t_Sf_SwigStatic_classes,
+    0
+};
+static swig_lua_class *swig_spectre_scene_t_bases[] = {0};
+static const char *swig_spectre_scene_t_base_names[] = {0};
+static swig_lua_class _wrap_class_spectre_scene_t = { "spectre_scene_t", "spectre_scene_t", &SWIGTYPE_p_spectre_scene_t,_proxy__wrap_new_spectre_scene_t, swig_delete_spectre_scene_t, swig_spectre_scene_t_methods, swig_spectre_scene_t_attributes, &swig_spectre_scene_t_Sf_SwigStatic, swig_spectre_scene_t_meta, swig_spectre_scene_t_bases, swig_spectre_scene_t_base_names };
 
 static int _wrap_spectre_state_use_scene_relation_t_layer_index_set(lua_State* L) {
   {
     int SWIG_arg = 0;
-    spectre_use_scene_relation_t *arg1 = (spectre_use_scene_relation_t *) 0 ;
-    uint32_t arg2 ;
-    uint32_t *argp2 ;
+    spectre_state_use_scene_relation_t *arg1 = (spectre_state_use_scene_relation_t *) 0 ;
+    int arg2 ;
     
-    SWIG_check_num_args("spectre_use_scene_relation_t::layer_index",2,2)
-    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_use_scene_relation_t::layer_index",1,"spectre_use_scene_relation_t *");
-    if(!lua_isuserdata(L,2)) SWIG_fail_arg("spectre_use_scene_relation_t::layer_index",2,"uint32_t");
+    SWIG_check_num_args("spectre_state_use_scene_relation_t::layer_index",2,2)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_state_use_scene_relation_t::layer_index",1,"spectre_state_use_scene_relation_t *");
+    if(!lua_isnumber(L,2)) SWIG_fail_arg("spectre_state_use_scene_relation_t::layer_index",2,"int");
     
-    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_use_scene_relation_t,0))){
-      SWIG_fail_ptr("spectre_state_use_scene_relation_t_layer_index_set",1,SWIGTYPE_p_spectre_use_scene_relation_t);
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_state_use_scene_relation_t,0))){
+      SWIG_fail_ptr("spectre_state_use_scene_relation_t_layer_index_set",1,SWIGTYPE_p_spectre_state_use_scene_relation_t);
     }
     
-    
-    if (!SWIG_IsOK(SWIG_ConvertPtr(L,2,(void**)&argp2,SWIGTYPE_p_uint32_t,0))){
-      SWIG_fail_ptr("spectre_state_use_scene_relation_t_layer_index_set",2,SWIGTYPE_p_uint32_t);
-    }
-    arg2 = *argp2;
-    
+    arg2 = (int)lua_tonumber(L, 2);
     if (arg1) (arg1)->layer_index = arg2;
     
     return SWIG_arg;
@@ -7918,21 +8145,18 @@ static int _wrap_spectre_state_use_scene_relation_t_layer_index_set(lua_State* L
 static int _wrap_spectre_state_use_scene_relation_t_layer_index_get(lua_State* L) {
   {
     int SWIG_arg = 0;
-    spectre_use_scene_relation_t *arg1 = (spectre_use_scene_relation_t *) 0 ;
-    uint32_t result;
+    spectre_state_use_scene_relation_t *arg1 = (spectre_state_use_scene_relation_t *) 0 ;
+    int result;
     
-    SWIG_check_num_args("spectre_use_scene_relation_t::layer_index",1,1)
-    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_use_scene_relation_t::layer_index",1,"spectre_use_scene_relation_t *");
+    SWIG_check_num_args("spectre_state_use_scene_relation_t::layer_index",1,1)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_state_use_scene_relation_t::layer_index",1,"spectre_state_use_scene_relation_t *");
     
-    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_use_scene_relation_t,0))){
-      SWIG_fail_ptr("spectre_state_use_scene_relation_t_layer_index_get",1,SWIGTYPE_p_spectre_use_scene_relation_t);
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_state_use_scene_relation_t,0))){
+      SWIG_fail_ptr("spectre_state_use_scene_relation_t_layer_index_get",1,SWIGTYPE_p_spectre_state_use_scene_relation_t);
     }
     
-    result =  ((arg1)->layer_index);
-    {
-      uint32_t * resultptr = new uint32_t(result);
-      SWIG_NewPointerObj(L,(void *) resultptr,SWIGTYPE_p_uint32_t,1); SWIG_arg++;
-    }
+    result = (int) ((arg1)->layer_index);
+    lua_pushnumber(L, (lua_Number) result); SWIG_arg++;
     return SWIG_arg;
     
     fail: SWIGUNUSED;
@@ -7945,11 +8169,11 @@ static int _wrap_spectre_state_use_scene_relation_t_layer_index_get(lua_State* L
 static int _wrap_new_spectre_state_use_scene_relation_t(lua_State* L) {
   {
     int SWIG_arg = 0;
-    spectre_use_scene_relation_t *result = 0 ;
+    spectre_state_use_scene_relation_t *result = 0 ;
     
-    SWIG_check_num_args("spectre_use_scene_relation_t::spectre_use_scene_relation_t",0,0)
-    result = (spectre_use_scene_relation_t *)new spectre_use_scene_relation_t();
-    SWIG_NewPointerObj(L,result,SWIGTYPE_p_spectre_use_scene_relation_t,1); SWIG_arg++; 
+    SWIG_check_num_args("spectre_state_use_scene_relation_t::spectre_state_use_scene_relation_t",0,0)
+    result = (spectre_state_use_scene_relation_t *)new spectre_state_use_scene_relation_t();
+    SWIG_NewPointerObj(L,result,SWIGTYPE_p_spectre_state_use_scene_relation_t,1); SWIG_arg++; 
     return SWIG_arg;
     
     fail: SWIGUNUSED;
@@ -7960,7 +8184,7 @@ static int _wrap_new_spectre_state_use_scene_relation_t(lua_State* L) {
 
 
 static void swig_delete_spectre_state_use_scene_relation_t(void *obj) {
-spectre_use_scene_relation_t *arg1 = (spectre_use_scene_relation_t *) obj;
+spectre_state_use_scene_relation_t *arg1 = (spectre_state_use_scene_relation_t *) obj;
 delete arg1;
 }
 static int _proxy__wrap_new_spectre_state_use_scene_relation_t(lua_State *L) {
@@ -8005,7 +8229,7 @@ static swig_lua_namespace swig_spectre_state_use_scene_relation_t_Sf_SwigStatic 
 };
 static swig_lua_class *swig_spectre_state_use_scene_relation_t_bases[] = {0};
 static const char *swig_spectre_state_use_scene_relation_t_base_names[] = {0};
-static swig_lua_class _wrap_class_spectre_state_use_scene_relation_t = { "spectre_state_use_scene_relation_t", "spectre_state_use_scene_relation_t", &SWIGTYPE_p_spectre_use_scene_relation_t,_proxy__wrap_new_spectre_state_use_scene_relation_t, swig_delete_spectre_state_use_scene_relation_t, swig_spectre_state_use_scene_relation_t_methods, swig_spectre_state_use_scene_relation_t_attributes, &swig_spectre_state_use_scene_relation_t_Sf_SwigStatic, swig_spectre_state_use_scene_relation_t_meta, swig_spectre_state_use_scene_relation_t_bases, swig_spectre_state_use_scene_relation_t_base_names };
+static swig_lua_class _wrap_class_spectre_state_use_scene_relation_t = { "spectre_state_use_scene_relation_t", "spectre_state_use_scene_relation_t", &SWIGTYPE_p_spectre_state_use_scene_relation_t,_proxy__wrap_new_spectre_state_use_scene_relation_t, swig_delete_spectre_state_use_scene_relation_t, swig_spectre_state_use_scene_relation_t_methods, swig_spectre_state_use_scene_relation_t_attributes, &swig_spectre_state_use_scene_relation_t_Sf_SwigStatic, swig_spectre_state_use_scene_relation_t_meta, swig_spectre_state_use_scene_relation_t_bases, swig_spectre_state_use_scene_relation_t_base_names };
 
 static int _wrap_spectre_renderable_t_dummy_set(lua_State* L) {
   {
@@ -12929,6 +13153,60 @@ static int _wrap_spectre_resources_api_t_free_resource_get(lua_State* L) {
 }
 
 
+static int _wrap_spectre_resources_api_t_get_resource_set(lua_State* L) {
+  {
+    int SWIG_arg = 0;
+    spectre_resources_api_t *arg1 = (spectre_resources_api_t *) 0 ;
+    void *(*arg2)(ecs_world_t *,ecs_entity_t) = (void *(*)(ecs_world_t *,ecs_entity_t)) 0 ;
+    
+    SWIG_check_num_args("spectre_resources_api_t::get_resource",2,2)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_resources_api_t::get_resource",1,"spectre_resources_api_t *");
+    if(!SWIG_isptrtype(L,2)) SWIG_fail_arg("spectre_resources_api_t::get_resource",2,"void *(*)(ecs_world_t *,ecs_entity_t)");
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_resources_api_t,0))){
+      SWIG_fail_ptr("spectre_resources_api_t_get_resource_set",1,SWIGTYPE_p_spectre_resources_api_t);
+    }
+    
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,2,(void**)&arg2,SWIGTYPE_p_f_p_ecs_world_t_ecs_entity_t__p_void,0))){
+      SWIG_fail_ptr("spectre_resources_api_t_get_resource_set",2,SWIGTYPE_p_f_p_ecs_world_t_ecs_entity_t__p_void);
+    }
+    
+    if (arg1) (arg1)->get_resource = arg2;
+    
+    return SWIG_arg;
+    
+    fail: SWIGUNUSED;
+  }
+  lua_error(L);
+  return 0;
+}
+
+
+static int _wrap_spectre_resources_api_t_get_resource_get(lua_State* L) {
+  {
+    int SWIG_arg = 0;
+    spectre_resources_api_t *arg1 = (spectre_resources_api_t *) 0 ;
+    void *(*result)(ecs_world_t *,ecs_entity_t) = 0 ;
+    
+    SWIG_check_num_args("spectre_resources_api_t::get_resource",1,1)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_resources_api_t::get_resource",1,"spectre_resources_api_t *");
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_resources_api_t,0))){
+      SWIG_fail_ptr("spectre_resources_api_t_get_resource_get",1,SWIGTYPE_p_spectre_resources_api_t);
+    }
+    
+    result = (void *(*)(ecs_world_t *,ecs_entity_t)) ((arg1)->get_resource);
+    SWIG_NewPointerObj(L,result,SWIGTYPE_p_f_p_ecs_world_t_ecs_entity_t__p_void,0); SWIG_arg++; 
+    return SWIG_arg;
+    
+    fail: SWIGUNUSED;
+  }
+  lua_error(L);
+  return 0;
+}
+
+
 static int _wrap_new_spectre_resources_api_t(lua_State* L) {
   {
     int SWIG_arg = 0;
@@ -12971,6 +13249,7 @@ static swig_lua_attribute swig_spectre_resources_api_t_attributes[] = {
     { "is_resource_loaded", _wrap_spectre_resources_api_t_is_resource_loaded_get, _wrap_spectre_resources_api_t_is_resource_loaded_set },
     { "load_resource", _wrap_spectre_resources_api_t_load_resource_get, _wrap_spectre_resources_api_t_load_resource_set },
     { "free_resource", _wrap_spectre_resources_api_t_free_resource_get, _wrap_spectre_resources_api_t_free_resource_set },
+    { "get_resource", _wrap_spectre_resources_api_t_get_resource_get, _wrap_spectre_resources_api_t_get_resource_set },
     {0,0,0}
 };
 static swig_lua_method swig_spectre_resources_api_t_methods[]= {
@@ -13379,6 +13658,39 @@ static int _wrap_spectre_resources_free_resource(lua_State* L) {
     
     spectre_resources_free_resource(arg1,SWIG_STD_MOVE(arg2));
     
+    return SWIG_arg;
+    
+    fail: SWIGUNUSED;
+  }
+  lua_error(L);
+  return 0;
+}
+
+
+static int _wrap_spectre_resources_get_resource(lua_State* L) {
+  {
+    int SWIG_arg = 0;
+    ecs_world_t *arg1 = (ecs_world_t *) 0 ;
+    ecs_entity_t arg2 ;
+    ecs_entity_t *argp2 ;
+    void *result = 0 ;
+    
+    SWIG_check_num_args("spectre_resources_get_resource",2,2)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_resources_get_resource",1,"ecs_world_t *");
+    if(!lua_isuserdata(L,2)) SWIG_fail_arg("spectre_resources_get_resource",2,"ecs_entity_t");
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_ecs_world_t,0))){
+      SWIG_fail_ptr("spectre_resources_get_resource",1,SWIGTYPE_p_ecs_world_t);
+    }
+    
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,2,(void**)&argp2,SWIGTYPE_p_ecs_entity_t,0))){
+      SWIG_fail_ptr("spectre_resources_get_resource",2,SWIGTYPE_p_ecs_entity_t);
+    }
+    arg2 = *argp2;
+    
+    result = (void *)spectre_resources_get_resource(arg1,SWIG_STD_MOVE(arg2));
+    SWIG_NewPointerObj(L,result,SWIGTYPE_p_void,0); SWIG_arg++; 
     return SWIG_arg;
     
     fail: SWIGUNUSED;
@@ -15096,6 +15408,114 @@ static int _wrap_spectre_scripts_api_t_execute_script_get(lua_State* L) {
 }
 
 
+static int _wrap_spectre_scripts_api_t_serialize_scripts_set(lua_State* L) {
+  {
+    int SWIG_arg = 0;
+    spectre_scripts_api_t *arg1 = (spectre_scripts_api_t *) 0 ;
+    sandbox_properties_handle_t (*arg2)(ecs_world_t *,ecs_entity_t) = (sandbox_properties_handle_t (*)(ecs_world_t *,ecs_entity_t)) 0 ;
+    
+    SWIG_check_num_args("spectre_scripts_api_t::serialize_scripts",2,2)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_scripts_api_t::serialize_scripts",1,"spectre_scripts_api_t *");
+    if(!SWIG_isptrtype(L,2)) SWIG_fail_arg("spectre_scripts_api_t::serialize_scripts",2,"sandbox_properties_handle_t (*)(ecs_world_t *,ecs_entity_t)");
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_scripts_api_t,0))){
+      SWIG_fail_ptr("spectre_scripts_api_t_serialize_scripts_set",1,SWIGTYPE_p_spectre_scripts_api_t);
+    }
+    
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,2,(void**)&arg2,SWIGTYPE_p_f_p_ecs_world_t_ecs_entity_t__sandbox_properties_handle_t,0))){
+      SWIG_fail_ptr("spectre_scripts_api_t_serialize_scripts_set",2,SWIGTYPE_p_f_p_ecs_world_t_ecs_entity_t__sandbox_properties_handle_t);
+    }
+    
+    if (arg1) (arg1)->serialize_scripts = arg2;
+    
+    return SWIG_arg;
+    
+    fail: SWIGUNUSED;
+  }
+  lua_error(L);
+  return 0;
+}
+
+
+static int _wrap_spectre_scripts_api_t_serialize_scripts_get(lua_State* L) {
+  {
+    int SWIG_arg = 0;
+    spectre_scripts_api_t *arg1 = (spectre_scripts_api_t *) 0 ;
+    sandbox_properties_handle_t (*result)(ecs_world_t *,ecs_entity_t) = 0 ;
+    
+    SWIG_check_num_args("spectre_scripts_api_t::serialize_scripts",1,1)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_scripts_api_t::serialize_scripts",1,"spectre_scripts_api_t *");
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_scripts_api_t,0))){
+      SWIG_fail_ptr("spectre_scripts_api_t_serialize_scripts_get",1,SWIGTYPE_p_spectre_scripts_api_t);
+    }
+    
+    result = (sandbox_properties_handle_t (*)(ecs_world_t *,ecs_entity_t)) ((arg1)->serialize_scripts);
+    SWIG_NewPointerObj(L,result,SWIGTYPE_p_f_p_ecs_world_t_ecs_entity_t__sandbox_properties_handle_t,0); SWIG_arg++; 
+    return SWIG_arg;
+    
+    fail: SWIGUNUSED;
+  }
+  lua_error(L);
+  return 0;
+}
+
+
+static int _wrap_spectre_scripts_api_t_deserialize_scripts_set(lua_State* L) {
+  {
+    int SWIG_arg = 0;
+    spectre_scripts_api_t *arg1 = (spectre_scripts_api_t *) 0 ;
+    ecs_entity_t (*arg2)(ecs_world_t *,sandbox_properties_handle_t) = (ecs_entity_t (*)(ecs_world_t *,sandbox_properties_handle_t)) 0 ;
+    
+    SWIG_check_num_args("spectre_scripts_api_t::deserialize_scripts",2,2)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_scripts_api_t::deserialize_scripts",1,"spectre_scripts_api_t *");
+    if(!SWIG_isptrtype(L,2)) SWIG_fail_arg("spectre_scripts_api_t::deserialize_scripts",2,"ecs_entity_t (*)(ecs_world_t *,sandbox_properties_handle_t)");
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_scripts_api_t,0))){
+      SWIG_fail_ptr("spectre_scripts_api_t_deserialize_scripts_set",1,SWIGTYPE_p_spectre_scripts_api_t);
+    }
+    
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,2,(void**)&arg2,SWIGTYPE_p_f_p_ecs_world_t_sandbox_properties_handle_t__ecs_entity_t,0))){
+      SWIG_fail_ptr("spectre_scripts_api_t_deserialize_scripts_set",2,SWIGTYPE_p_f_p_ecs_world_t_sandbox_properties_handle_t__ecs_entity_t);
+    }
+    
+    if (arg1) (arg1)->deserialize_scripts = arg2;
+    
+    return SWIG_arg;
+    
+    fail: SWIGUNUSED;
+  }
+  lua_error(L);
+  return 0;
+}
+
+
+static int _wrap_spectre_scripts_api_t_deserialize_scripts_get(lua_State* L) {
+  {
+    int SWIG_arg = 0;
+    spectre_scripts_api_t *arg1 = (spectre_scripts_api_t *) 0 ;
+    ecs_entity_t (*result)(ecs_world_t *,sandbox_properties_handle_t) = 0 ;
+    
+    SWIG_check_num_args("spectre_scripts_api_t::deserialize_scripts",1,1)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_scripts_api_t::deserialize_scripts",1,"spectre_scripts_api_t *");
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_spectre_scripts_api_t,0))){
+      SWIG_fail_ptr("spectre_scripts_api_t_deserialize_scripts_get",1,SWIGTYPE_p_spectre_scripts_api_t);
+    }
+    
+    result = (ecs_entity_t (*)(ecs_world_t *,sandbox_properties_handle_t)) ((arg1)->deserialize_scripts);
+    SWIG_NewPointerObj(L,result,SWIGTYPE_p_f_p_ecs_world_t_sandbox_properties_handle_t__ecs_entity_t,0); SWIG_arg++; 
+    return SWIG_arg;
+    
+    fail: SWIGUNUSED;
+  }
+  lua_error(L);
+  return 0;
+}
+
+
 static int _wrap_new_spectre_scripts_api_t(lua_State* L) {
   {
     int SWIG_arg = 0;
@@ -15131,6 +15551,8 @@ static swig_lua_attribute swig_spectre_scripts_api_t_attributes[] = {
     { "find_script", _wrap_spectre_scripts_api_t_find_script_get, _wrap_spectre_scripts_api_t_find_script_set },
     { "include_code", _wrap_spectre_scripts_api_t_include_code_get, _wrap_spectre_scripts_api_t_include_code_set },
     { "execute_script", _wrap_spectre_scripts_api_t_execute_script_get, _wrap_spectre_scripts_api_t_execute_script_set },
+    { "serialize_scripts", _wrap_spectre_scripts_api_t_serialize_scripts_get, _wrap_spectre_scripts_api_t_serialize_scripts_set },
+    { "deserialize_scripts", _wrap_spectre_scripts_api_t_deserialize_scripts_get, _wrap_spectre_scripts_api_t_deserialize_scripts_set },
     {0,0,0}
 };
 static swig_lua_method swig_spectre_scripts_api_t_methods[]= {
@@ -15320,6 +15742,78 @@ static int _wrap_spectre_scripts_execute_script(lua_State* L) {
     arg4 = (size_t)lua_tonumber(L, 4);
     spectre_scripts_execute_script(arg1,(char const *)arg2,arg3,SWIG_STD_MOVE(arg4));
     
+    return SWIG_arg;
+    
+    fail: SWIGUNUSED;
+  }
+  lua_error(L);
+  return 0;
+}
+
+
+static int _wrap_spectre_scripts_serialize_scripts(lua_State* L) {
+  {
+    int SWIG_arg = 0;
+    ecs_world_t *arg1 = (ecs_world_t *) 0 ;
+    ecs_entity_t arg2 ;
+    ecs_entity_t *argp2 ;
+    sandbox_properties_handle_t result;
+    
+    SWIG_check_num_args("spectre_scripts_serialize_scripts",2,2)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_scripts_serialize_scripts",1,"ecs_world_t *");
+    if(!lua_isuserdata(L,2)) SWIG_fail_arg("spectre_scripts_serialize_scripts",2,"ecs_entity_t");
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_ecs_world_t,0))){
+      SWIG_fail_ptr("spectre_scripts_serialize_scripts",1,SWIGTYPE_p_ecs_world_t);
+    }
+    
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,2,(void**)&argp2,SWIGTYPE_p_ecs_entity_t,0))){
+      SWIG_fail_ptr("spectre_scripts_serialize_scripts",2,SWIGTYPE_p_ecs_entity_t);
+    }
+    arg2 = *argp2;
+    
+    result = spectre_scripts_serialize_scripts(arg1,SWIG_STD_MOVE(arg2));
+    {
+      sandbox_properties_handle_t * resultptr = new sandbox_properties_handle_t(result);
+      SWIG_NewPointerObj(L,(void *) resultptr,SWIGTYPE_p_sandbox_properties_handle_t,1); SWIG_arg++;
+    }
+    return SWIG_arg;
+    
+    fail: SWIGUNUSED;
+  }
+  lua_error(L);
+  return 0;
+}
+
+
+static int _wrap_spectre_scripts_deserialize_scripts(lua_State* L) {
+  {
+    int SWIG_arg = 0;
+    ecs_world_t *arg1 = (ecs_world_t *) 0 ;
+    sandbox_properties_handle_t arg2 ;
+    sandbox_properties_handle_t *argp2 ;
+    ecs_entity_t result;
+    
+    SWIG_check_num_args("spectre_scripts_deserialize_scripts",2,2)
+    if(!SWIG_isptrtype(L,1)) SWIG_fail_arg("spectre_scripts_deserialize_scripts",1,"ecs_world_t *");
+    if(!lua_isuserdata(L,2)) SWIG_fail_arg("spectre_scripts_deserialize_scripts",2,"sandbox_properties_handle_t");
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,1,(void**)&arg1,SWIGTYPE_p_ecs_world_t,0))){
+      SWIG_fail_ptr("spectre_scripts_deserialize_scripts",1,SWIGTYPE_p_ecs_world_t);
+    }
+    
+    
+    if (!SWIG_IsOK(SWIG_ConvertPtr(L,2,(void**)&argp2,SWIGTYPE_p_sandbox_properties_handle_t,0))){
+      SWIG_fail_ptr("spectre_scripts_deserialize_scripts",2,SWIGTYPE_p_sandbox_properties_handle_t);
+    }
+    arg2 = *argp2;
+    
+    result = spectre_scripts_deserialize_scripts(arg1,SWIG_STD_MOVE(arg2));
+    {
+      ecs_entity_t * resultptr = new ecs_entity_t(result);
+      SWIG_NewPointerObj(L,(void *) resultptr,SWIGTYPE_p_ecs_entity_t,1); SWIG_arg++;
+    }
     return SWIG_arg;
     
     fail: SWIGUNUSED;
@@ -19930,6 +20424,7 @@ static swig_lua_method swig_SwigModule_methods[]= {
     { "spectre_resources_is_resource_loaded", _wrap_spectre_resources_is_resource_loaded},
     { "spectre_resources_load_resource", _wrap_spectre_resources_load_resource},
     { "spectre_resources_free_resource", _wrap_spectre_resources_free_resource},
+    { "spectre_resources_get_resource", _wrap_spectre_resources_get_resource},
     { "spectre_scenes_serialize_state", _wrap_spectre_scenes_serialize_state},
     { "spectre_scenes_deserialize_state", _wrap_spectre_scenes_deserialize_state},
     { "spectre_scenes_serialize_scene", _wrap_spectre_scenes_serialize_scene},
@@ -19951,6 +20446,8 @@ static swig_lua_method swig_SwigModule_methods[]= {
     { "spectre_scripts_find_script", _wrap_spectre_scripts_find_script},
     { "spectre_scripts_include_code", _wrap_spectre_scripts_include_code},
     { "spectre_scripts_execute_script", _wrap_spectre_scripts_execute_script},
+    { "spectre_scripts_serialize_scripts", _wrap_spectre_scripts_serialize_scripts},
+    { "spectre_scripts_deserialize_scripts", _wrap_spectre_scripts_deserialize_scripts},
     { "spectre_serializer_register_serializer", _wrap_spectre_serializer_register_serializer},
     { "spectre_serializer_has_serializer", _wrap_spectre_serializer_has_serializer},
     { "spectre_serializer_is_serializer", _wrap_spectre_serializer_is_serializer},
@@ -20018,10 +20515,12 @@ static swig_lua_class* swig_SwigModule_classes[]= {
 &_wrap_class_spectre_serializer_relation_t,
 &_wrap_class_spectre_resource_loader_relation,
 &_wrap_class_spectre_use_resource_relation,
+&_wrap_class_spectre_resource_flag_t,
 &_wrap_class_spectre_resource_component_t,
 &_wrap_class_spectre_resource_loader_component_t,
-&_wrap_class_spectre_scene_t,
+&_wrap_class_spectre_disable_rendering_t,
 &_wrap_class_spectre_state_t,
+&_wrap_class_spectre_scene_t,
 &_wrap_class_spectre_state_use_scene_relation_t,
 &_wrap_class_spectre_renderable_t,
 &_wrap_class_spectre_2D_transform_component_t,
@@ -20079,6 +20578,7 @@ static swig_type_info _swigt__p_f_p_ecs_world_t__void = {"_p_f_p_ecs_world_t__vo
 static swig_type_info _swigt__p_f_p_ecs_world_t_bool__void = {"_p_f_p_ecs_world_t_bool__void", "void (*)(ecs_world_t *,bool)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p_ecs_world_t_ecs_entity_t__bool = {"_p_f_p_ecs_world_t_ecs_entity_t__bool", "bool (*)(ecs_world_t *,ecs_entity_t)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p_ecs_world_t_ecs_entity_t__ecs_entity_t = {"_p_f_p_ecs_world_t_ecs_entity_t__ecs_entity_t", "ecs_entity_t (*)(ecs_world_t *,ecs_entity_t)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p_ecs_world_t_ecs_entity_t__p_void = {"_p_f_p_ecs_world_t_ecs_entity_t__p_void", "void *(*)(ecs_world_t *,ecs_entity_t)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p_ecs_world_t_ecs_entity_t__sandbox_properties_handle_t = {"_p_f_p_ecs_world_t_ecs_entity_t__sandbox_properties_handle_t", "sandbox_properties_handle_t (*)(ecs_world_t *,ecs_entity_t)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p_ecs_world_t_ecs_entity_t__void = {"_p_f_p_ecs_world_t_ecs_entity_t__void", "void (*)(ecs_world_t *,ecs_entity_t)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p_ecs_world_t_ecs_entity_t_ecs_entity_t__sandbox_properties_handle_t = {"_p_f_p_ecs_world_t_ecs_entity_t_ecs_entity_t__sandbox_properties_handle_t", "sandbox_properties_handle_t (*)(ecs_world_t *,ecs_entity_t,ecs_entity_t)", 0, 0, (void*)0, 0};
@@ -20134,15 +20634,17 @@ static swig_type_info _swigt__p_size_t = {"_p_size_t", "size_t *", 0, 0, (void*)
 static swig_type_info _swigt__p_spectre_2D_transform_component_t = {"_p_spectre_2D_transform_component_t", "spectre_2D_transform_component_t *", 0, 0, (void*)&_wrap_class_spectre_2D_transform_component_t, 0};
 static swig_type_info _swigt__p_spectre_component_t = {"_p_spectre_component_t", "spectre_component_serializer_t *|spectre_component_t *", 0, 0, (void*)&_wrap_class_spectre_component_serializer_t, 0};
 static swig_type_info _swigt__p_spectre_components_api_t = {"_p_spectre_components_api_t", "spectre_components_api_t *", 0, 0, (void*)&_wrap_class_spectre_components_api_t, 0};
+static swig_type_info _swigt__p_spectre_disable_rendering_t = {"_p_spectre_disable_rendering_t", "spectre_disable_rendering_t *", 0, 0, (void*)&_wrap_class_spectre_disable_rendering_t, 0};
 static swig_type_info _swigt__p_spectre_input_state_t = {"_p_spectre_input_state_t", "spectre_input_state_t *", 0, 0, (void*)&_wrap_class_spectre_input_state_t, 0};
 static swig_type_info _swigt__p_spectre_prefab_flag_t = {"_p_spectre_prefab_flag_t", "spectre_prefab_flag_t *", 0, 0, (void*)&_wrap_class_spectre_prefab_flag_t, 0};
 static swig_type_info _swigt__p_spectre_prefabs_api_t = {"_p_spectre_prefabs_api_t", "spectre_prefabs_api_t *", 0, 0, (void*)&_wrap_class_spectre_prefabs_api_t, 0};
 static swig_type_info _swigt__p_spectre_renderable_t = {"_p_spectre_renderable_t", "spectre_renderable_t *", 0, 0, (void*)&_wrap_class_spectre_renderable_t, 0};
 static swig_type_info _swigt__p_spectre_renderer_api_t = {"_p_spectre_renderer_api_t", "spectre_renderer_api_t *", 0, 0, (void*)&_wrap_class_spectre_renderer_api_t, 0};
 static swig_type_info _swigt__p_spectre_resource_component_t = {"_p_spectre_resource_component_t", "spectre_resource_component_t *", 0, 0, (void*)&_wrap_class_spectre_resource_component_t, 0};
+static swig_type_info _swigt__p_spectre_resource_loaded_flag_t = {"_p_spectre_resource_loaded_flag_t", "spectre_resource_flag_t *|spectre_resource_loaded_flag_t *", 0, 0, (void*)&_wrap_class_spectre_resource_flag_t, 0};
 static swig_type_info _swigt__p_spectre_resource_loader_component_t = {"_p_spectre_resource_loader_component_t", "spectre_resource_loader_component_t *", 0, 0, (void*)&_wrap_class_spectre_resource_loader_component_t, 0};
 static swig_type_info _swigt__p_spectre_resources_api_t = {"_p_spectre_resources_api_t", "spectre_resources_api_t *", 0, 0, (void*)&_wrap_class_spectre_resources_api_t, 0};
-static swig_type_info _swigt__p_spectre_scene_flag_t = {"_p_spectre_scene_flag_t", "spectre_scene_t *|spectre_scene_flag_t *", 0, 0, (void*)&_wrap_class_spectre_scene_t, 0};
+static swig_type_info _swigt__p_spectre_scene_t = {"_p_spectre_scene_t", "spectre_scene_t *", 0, 0, (void*)&_wrap_class_spectre_scene_t, 0};
 static swig_type_info _swigt__p_spectre_scenes_api_t = {"_p_spectre_scenes_api_t", "spectre_scenes_api_t *", 0, 0, (void*)&_wrap_class_spectre_scenes_api_t, 0};
 static swig_type_info _swigt__p_spectre_script_argument_t = {"_p_spectre_script_argument_t", "spectre_script_argument_t *", 0, 0, (void*)&_wrap_class_spectre_script_argument_t, 0};
 static swig_type_info _swigt__p_spectre_script_argument_type_t = {"_p_spectre_script_argument_type_t", "spectre_script_argument_type_t *|enum spectre_script_argument_type_t *", 0, 0, (void*)0, 0};
@@ -20151,10 +20653,10 @@ static swig_type_info _swigt__p_spectre_scripts_api_t = {"_p_spectre_scripts_api
 static swig_type_info _swigt__p_spectre_serializer_api_t = {"_p_spectre_serializer_api_t", "spectre_serializer_api_t *", 0, 0, (void*)&_wrap_class_spectre_serializer_api_t, 0};
 static swig_type_info _swigt__p_spectre_serializer_component = {"_p_spectre_serializer_component", "spectre_serializer_component *", 0, 0, (void*)&_wrap_class_spectre_serializer_component, 0};
 static swig_type_info _swigt__p_spectre_serializer_relation_t = {"_p_spectre_serializer_relation_t", "spectre_serializer_relation_t *", 0, 0, (void*)&_wrap_class_spectre_serializer_relation_t, 0};
-static swig_type_info _swigt__p_spectre_state_flag_t = {"_p_spectre_state_flag_t", "spectre_state_t *|spectre_state_flag_t *", 0, 0, (void*)&_wrap_class_spectre_state_t, 0};
+static swig_type_info _swigt__p_spectre_state_t = {"_p_spectre_state_t", "spectre_state_t *", 0, 0, (void*)&_wrap_class_spectre_state_t, 0};
+static swig_type_info _swigt__p_spectre_state_use_scene_relation_t = {"_p_spectre_state_use_scene_relation_t", "spectre_state_use_scene_relation_t *", 0, 0, (void*)&_wrap_class_spectre_state_use_scene_relation_t, 0};
 static swig_type_info _swigt__p_spectre_use_loader_relation_t = {"_p_spectre_use_loader_relation_t", "spectre_resource_loader_relation *|spectre_use_loader_relation_t *", 0, 0, (void*)&_wrap_class_spectre_resource_loader_relation, 0};
 static swig_type_info _swigt__p_spectre_use_resource_relation_t = {"_p_spectre_use_resource_relation_t", "spectre_use_resource_relation *|spectre_use_resource_relation_t *", 0, 0, (void*)&_wrap_class_spectre_use_resource_relation, 0};
-static swig_type_info _swigt__p_spectre_use_scene_relation_t = {"_p_spectre_use_scene_relation_t", "spectre_state_use_scene_relation_t *|spectre_use_scene_relation_t *", 0, 0, (void*)&_wrap_class_spectre_state_use_scene_relation_t, 0};
 static swig_type_info _swigt__p_spectre_use_script_on_create_relation_t = {"_p_spectre_use_script_on_create_relation_t", "spectre_use_script_on_create_relation_t *", 0, 0, (void*)&_wrap_class_spectre_use_script_on_create_relation_t, 0};
 static swig_type_info _swigt__p_spectre_use_script_on_destroy_relation_t = {"_p_spectre_use_script_on_destroy_relation_t", "spectre_use_script_on_destroy_relation_t *", 0, 0, (void*)&_wrap_class_spectre_use_script_on_destroy_relation_t, 0};
 static swig_type_info _swigt__p_spectre_use_script_on_enter_relation_t = {"_p_spectre_use_script_on_enter_relation_t", "spectre_use_script_on_enter_relation_t *", 0, 0, (void*)&_wrap_class_spectre_use_script_on_enter_relation_t, 0};
@@ -20185,6 +20687,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_f_p_ecs_world_t_bool__void,
   &_swigt__p_f_p_ecs_world_t_ecs_entity_t__bool,
   &_swigt__p_f_p_ecs_world_t_ecs_entity_t__ecs_entity_t,
+  &_swigt__p_f_p_ecs_world_t_ecs_entity_t__p_void,
   &_swigt__p_f_p_ecs_world_t_ecs_entity_t__sandbox_properties_handle_t,
   &_swigt__p_f_p_ecs_world_t_ecs_entity_t__void,
   &_swigt__p_f_p_ecs_world_t_ecs_entity_t_ecs_entity_t__sandbox_properties_handle_t,
@@ -20240,15 +20743,17 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_spectre_2D_transform_component_t,
   &_swigt__p_spectre_component_t,
   &_swigt__p_spectre_components_api_t,
+  &_swigt__p_spectre_disable_rendering_t,
   &_swigt__p_spectre_input_state_t,
   &_swigt__p_spectre_prefab_flag_t,
   &_swigt__p_spectre_prefabs_api_t,
   &_swigt__p_spectre_renderable_t,
   &_swigt__p_spectre_renderer_api_t,
   &_swigt__p_spectre_resource_component_t,
+  &_swigt__p_spectre_resource_loaded_flag_t,
   &_swigt__p_spectre_resource_loader_component_t,
   &_swigt__p_spectre_resources_api_t,
-  &_swigt__p_spectre_scene_flag_t,
+  &_swigt__p_spectre_scene_t,
   &_swigt__p_spectre_scenes_api_t,
   &_swigt__p_spectre_script_argument_t,
   &_swigt__p_spectre_script_argument_type_t,
@@ -20257,10 +20762,10 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_spectre_serializer_api_t,
   &_swigt__p_spectre_serializer_component,
   &_swigt__p_spectre_serializer_relation_t,
-  &_swigt__p_spectre_state_flag_t,
+  &_swigt__p_spectre_state_t,
+  &_swigt__p_spectre_state_use_scene_relation_t,
   &_swigt__p_spectre_use_loader_relation_t,
   &_swigt__p_spectre_use_resource_relation_t,
-  &_swigt__p_spectre_use_scene_relation_t,
   &_swigt__p_spectre_use_script_on_create_relation_t,
   &_swigt__p_spectre_use_script_on_destroy_relation_t,
   &_swigt__p_spectre_use_script_on_enter_relation_t,
@@ -20291,6 +20796,7 @@ static swig_cast_info _swigc__p_f_p_ecs_world_t__void[] = {  {&_swigt__p_f_p_ecs
 static swig_cast_info _swigc__p_f_p_ecs_world_t_bool__void[] = {  {&_swigt__p_f_p_ecs_world_t_bool__void, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p_ecs_world_t_ecs_entity_t__bool[] = {  {&_swigt__p_f_p_ecs_world_t_ecs_entity_t__bool, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p_ecs_world_t_ecs_entity_t__ecs_entity_t[] = {  {&_swigt__p_f_p_ecs_world_t_ecs_entity_t__ecs_entity_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p_ecs_world_t_ecs_entity_t__p_void[] = {  {&_swigt__p_f_p_ecs_world_t_ecs_entity_t__p_void, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p_ecs_world_t_ecs_entity_t__sandbox_properties_handle_t[] = {  {&_swigt__p_f_p_ecs_world_t_ecs_entity_t__sandbox_properties_handle_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p_ecs_world_t_ecs_entity_t__void[] = {  {&_swigt__p_f_p_ecs_world_t_ecs_entity_t__void, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p_ecs_world_t_ecs_entity_t_ecs_entity_t__sandbox_properties_handle_t[] = {  {&_swigt__p_f_p_ecs_world_t_ecs_entity_t_ecs_entity_t__sandbox_properties_handle_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -20346,15 +20852,17 @@ static swig_cast_info _swigc__p_size_t[] = {  {&_swigt__p_size_t, 0, 0, 0},{0, 0
 static swig_cast_info _swigc__p_spectre_2D_transform_component_t[] = {  {&_swigt__p_spectre_2D_transform_component_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_component_t[] = {  {&_swigt__p_spectre_component_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_components_api_t[] = {  {&_swigt__p_spectre_components_api_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_spectre_disable_rendering_t[] = {  {&_swigt__p_spectre_disable_rendering_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_input_state_t[] = {  {&_swigt__p_spectre_input_state_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_prefab_flag_t[] = {  {&_swigt__p_spectre_prefab_flag_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_prefabs_api_t[] = {  {&_swigt__p_spectre_prefabs_api_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_renderable_t[] = {  {&_swigt__p_spectre_renderable_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_renderer_api_t[] = {  {&_swigt__p_spectre_renderer_api_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_resource_component_t[] = {  {&_swigt__p_spectre_resource_component_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_spectre_resource_loaded_flag_t[] = {  {&_swigt__p_spectre_resource_loaded_flag_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_resource_loader_component_t[] = {  {&_swigt__p_spectre_resource_loader_component_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_resources_api_t[] = {  {&_swigt__p_spectre_resources_api_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_spectre_scene_flag_t[] = {  {&_swigt__p_spectre_scene_flag_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_spectre_scene_t[] = {  {&_swigt__p_spectre_scene_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_scenes_api_t[] = {  {&_swigt__p_spectre_scenes_api_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_script_argument_t[] = {  {&_swigt__p_spectre_script_argument_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_script_argument_type_t[] = {  {&_swigt__p_spectre_script_argument_type_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -20363,10 +20871,10 @@ static swig_cast_info _swigc__p_spectre_scripts_api_t[] = {  {&_swigt__p_spectre
 static swig_cast_info _swigc__p_spectre_serializer_api_t[] = {  {&_swigt__p_spectre_serializer_api_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_serializer_component[] = {  {&_swigt__p_spectre_serializer_component, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_serializer_relation_t[] = {  {&_swigt__p_spectre_serializer_relation_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_spectre_state_flag_t[] = {  {&_swigt__p_spectre_state_flag_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_spectre_state_t[] = {  {&_swigt__p_spectre_state_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_spectre_state_use_scene_relation_t[] = {  {&_swigt__p_spectre_state_use_scene_relation_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_use_loader_relation_t[] = {  {&_swigt__p_spectre_use_loader_relation_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_use_resource_relation_t[] = {  {&_swigt__p_spectre_use_resource_relation_t, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_spectre_use_scene_relation_t[] = {  {&_swigt__p_spectre_use_scene_relation_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_use_script_on_create_relation_t[] = {  {&_swigt__p_spectre_use_script_on_create_relation_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_use_script_on_destroy_relation_t[] = {  {&_swigt__p_spectre_use_script_on_destroy_relation_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_spectre_use_script_on_enter_relation_t[] = {  {&_swigt__p_spectre_use_script_on_enter_relation_t, 0, 0, 0},{0, 0, 0, 0}};
@@ -20397,6 +20905,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_f_p_ecs_world_t_bool__void,
   _swigc__p_f_p_ecs_world_t_ecs_entity_t__bool,
   _swigc__p_f_p_ecs_world_t_ecs_entity_t__ecs_entity_t,
+  _swigc__p_f_p_ecs_world_t_ecs_entity_t__p_void,
   _swigc__p_f_p_ecs_world_t_ecs_entity_t__sandbox_properties_handle_t,
   _swigc__p_f_p_ecs_world_t_ecs_entity_t__void,
   _swigc__p_f_p_ecs_world_t_ecs_entity_t_ecs_entity_t__sandbox_properties_handle_t,
@@ -20452,15 +20961,17 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_spectre_2D_transform_component_t,
   _swigc__p_spectre_component_t,
   _swigc__p_spectre_components_api_t,
+  _swigc__p_spectre_disable_rendering_t,
   _swigc__p_spectre_input_state_t,
   _swigc__p_spectre_prefab_flag_t,
   _swigc__p_spectre_prefabs_api_t,
   _swigc__p_spectre_renderable_t,
   _swigc__p_spectre_renderer_api_t,
   _swigc__p_spectre_resource_component_t,
+  _swigc__p_spectre_resource_loaded_flag_t,
   _swigc__p_spectre_resource_loader_component_t,
   _swigc__p_spectre_resources_api_t,
-  _swigc__p_spectre_scene_flag_t,
+  _swigc__p_spectre_scene_t,
   _swigc__p_spectre_scenes_api_t,
   _swigc__p_spectre_script_argument_t,
   _swigc__p_spectre_script_argument_type_t,
@@ -20469,10 +20980,10 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_spectre_serializer_api_t,
   _swigc__p_spectre_serializer_component,
   _swigc__p_spectre_serializer_relation_t,
-  _swigc__p_spectre_state_flag_t,
+  _swigc__p_spectre_state_t,
+  _swigc__p_spectre_state_use_scene_relation_t,
   _swigc__p_spectre_use_loader_relation_t,
   _swigc__p_spectre_use_resource_relation_t,
-  _swigc__p_spectre_use_scene_relation_t,
   _swigc__p_spectre_use_script_on_create_relation_t,
   _swigc__p_spectre_use_script_on_destroy_relation_t,
   _swigc__p_spectre_use_script_on_enter_relation_t,

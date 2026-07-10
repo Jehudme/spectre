@@ -47,12 +47,74 @@ static void scripts_execute_script(ecs_world_t* world, const char* function_name
     }
 }
 
+static sandbox_properties_handle_t scripts_serialize_scripts(ecs_world_t* world, ecs_entity_t entity) {
+    if (!world || !entity) return {0};
+    flecs::world fw(world);
+    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    if (!module) return {0};
+    sandbox::properties props = module->serialize_scripts(fw.entity(entity));
+    sandbox_properties_handle_t handle = props.get_raw();
+    props.release();
+    return handle;
+}
+
+static ecs_entity_t scripts_deserialize_scripts(ecs_world_t* world, sandbox_properties_handle_t props_handle) {
+    if (!world) return 0;
+    flecs::world fw(world);
+    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    if (!module) return 0;
+    sandbox::properties props(props_handle, false);
+    return module->deserialize_scripts(std::move(props)).id();
+}
+
+static void scripts_execute_on_create(ecs_world_t* world, ecs_entity_t entity) {
+    if (!world || !entity) return;
+    flecs::world fw(world);
+    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    if (module) module->execute_on_create(fw.entity(entity));
+}
+
+static void scripts_execute_on_destroy(ecs_world_t* world, ecs_entity_t entity) {
+    if (!world || !entity) return;
+    flecs::world fw(world);
+    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    if (module) module->execute_on_destroy(fw.entity(entity));
+}
+
+static void scripts_execute_on_update(ecs_world_t* world, ecs_entity_t entity) {
+    if (!world || !entity) return;
+    flecs::world fw(world);
+    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    if (module) module->execute_on_update(fw.entity(entity));
+}
+
+static void scripts_execute_on_enter(ecs_world_t* world, ecs_entity_t entity) {
+    if (!world || !entity) return;
+    flecs::world fw(world);
+    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    if (module) module->execute_on_enter(fw.entity(entity));
+}
+
+static void scripts_execute_on_exit(ecs_world_t* world, ecs_entity_t entity) {
+    if (!world || !entity) return;
+    flecs::world fw(world);
+    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    if (module) module->execute_on_exit(fw.entity(entity));
+}
+
 static spectre_scripts_api_t api = {
     scripts_has_script,
     scripts_is_script,
     scripts_find_script,
     scripts_include_code,
-    scripts_execute_script
+    scripts_execute_script,
+    scripts_serialize_scripts,
+    scripts_deserialize_scripts,
+    scripts_execute_on_create,
+    scripts_execute_on_destroy,
+    scripts_execute_on_update,
+    scripts_execute_on_enter,
+    scripts_execute_on_exit
 };
 
 SANDBOX_DEFINE_SERVICE(spectre_scripts_service_t, spectre_scripts_api_t, &api)
@@ -72,4 +134,25 @@ void spectre_scripts_include_code(ecs_world_t* world, const char* path) {
 void spectre_scripts_execute_script(ecs_world_t* world, const char* function_name, spectre_script_argument_t* args, size_t arg_count) {
     scripts_execute_script(world, function_name, args, arg_count);
 }
+sandbox_properties_handle_t spectre_scripts_serialize_scripts(ecs_world_t* world, ecs_entity_t entity) {
+    return scripts_serialize_scripts(world, entity);
+}
+ecs_entity_t spectre_scripts_deserialize_scripts(ecs_world_t* world, sandbox_properties_handle_t props_handle) {
+    return scripts_deserialize_scripts(world, props_handle);
+}
 
+void spectre_scripts_execute_on_create(ecs_world_t* world, ecs_entity_t entity) {
+    scripts_execute_on_create(world, entity);
+}
+void spectre_scripts_execute_on_destroy(ecs_world_t* world, ecs_entity_t entity) {
+    scripts_execute_on_destroy(world, entity);
+}
+void spectre_scripts_execute_on_update(ecs_world_t* world, ecs_entity_t entity) {
+    scripts_execute_on_update(world, entity);
+}
+void spectre_scripts_execute_on_enter(ecs_world_t* world, ecs_entity_t entity) {
+    scripts_execute_on_enter(world, entity);
+}
+void spectre_scripts_execute_on_exit(ecs_world_t* world, ecs_entity_t entity) {
+    scripts_execute_on_exit(world, entity);
+}

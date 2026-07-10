@@ -28,6 +28,7 @@ typedef struct spectre_serializer_relation_t {
 // --- resources ---
 typedef struct spectre_use_loader_relation_t { char dummy; } spectre_resource_loader_relation;
 typedef struct spectre_use_resource_relation_t { char dummy; } spectre_use_resource_relation;
+typedef struct spectre_resource_loaded_flag_t { char dummy; } spectre_resource_flag_t;
 
 typedef struct spectre_resource_component_t {
     const char* path;
@@ -40,17 +41,23 @@ typedef struct spectre_resource_loader_component_t {
 } spectre_resource_loader_component_t;
 
 // --- scenes ---
-typedef struct spectre_scene_flag_t {
+typedef struct spectre_disable_rendering_t {
     char dummy;
-} spectre_scene_t;
+} spectre_disable_rendering_t;
 
-typedef struct spectre_state_flag_t {
-    char dummy;
-} spectre_state_t;
+typedef struct spectre_state_t { char dummy; } spectre_state_t;
+typedef struct spectre_scene_t { char dummy; } spectre_scene_t;
+typedef struct spectre_state_use_scene_relation_t { int layer_index; } spectre_state_use_scene_relation_t;
 
-typedef struct spectre_use_scene_relation_t {
-    uint32_t layer_index;
-} spectre_state_use_scene_relation_t;
+typedef void (*spectre_recursive_callback_t)(ecs_world_t* world, ecs_entity_t entity, void* payload);
+
+struct spectre_scene_context_t {
+    flecs::entity scene_entity;
+};
+
+struct spectre_state_context_t {
+    flecs::entity state_entity;
+};
 
 // --- renderer ---
 typedef struct spectre_renderable_t {
@@ -74,7 +81,8 @@ typedef enum spectre_script_argument_type_t {
     SPECTRE_SCRIPT_ARGUMENT_TYPE_INTEGER,
     SPECTRE_SCRIPT_ARGUMENT_TYPE_STRING,
     SPECTRE_SCRIPT_ARGUMENT_TYPE_TABLE,
-    SPECTRE_SCRIPT_ARGUMENT_TYPE_USERDATA
+    SPECTRE_SCRIPT_ARGUMENT_TYPE_USERDATA,
+    SPECTRE_SCRIPT_ARGUMENT_TYPE_ENTITY
 } spectre_script_argument_type_t;
 
 typedef struct spectre_script_argument_t {
@@ -86,6 +94,7 @@ typedef struct spectre_script_argument_t {
         const char* string_value;
         void*       table_pointer;
         void*       userdata_pointer;
+        const char* entity;
     } value;
 } spectre_script_argument_t;
 

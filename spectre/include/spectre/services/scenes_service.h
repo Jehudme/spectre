@@ -26,6 +26,7 @@ typedef struct spectre_scenes_api_t {
     ecs_query_t* (*find_current_scenes)(ecs_world_t* world);
     void (*push_state)(ecs_world_t* world, ecs_entity_t state);
     void (*pop_state)(ecs_world_t* world);
+    void (*execute_recursive)(ecs_world_t* world, ecs_entity_t entity, spectre_recursive_callback_t callback, void* payload);
 } spectre_scenes_api_t;
 
 SANDBOX_DECLARE_SERVICE(spectre_scenes_service_t, spectre_scenes_api_t, {
@@ -55,6 +56,7 @@ SANDBOX_API ecs_entity_t spectre_scenes_find_current_state(ecs_world_t* world);
 SANDBOX_API ecs_query_t* spectre_scenes_find_current_scenes(ecs_world_t* world);
 SANDBOX_API void spectre_scenes_push_state(ecs_world_t* world, ecs_entity_t state);
 SANDBOX_API void spectre_scenes_pop_state(ecs_world_t* world);
+SANDBOX_API void spectre_scenes_execute_recursive(ecs_world_t* world, ecs_entity_t entity, spectre_recursive_callback_t callback, void* payload);
 
 #ifdef __cplusplus
 }

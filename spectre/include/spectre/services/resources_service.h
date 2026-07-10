@@ -22,6 +22,7 @@ typedef struct spectre_resources_api_t {
     bool (*is_resource_loaded)(ecs_world_t* world, ecs_entity_t resource);
     void (*load_resource)(ecs_world_t* world, ecs_entity_t resourceEntity);
     void (*free_resource)(ecs_world_t* world, ecs_entity_t resourceEntity);
+    void* (*get_resource)(ecs_world_t* world, ecs_entity_t resourceEntity);
 } spectre_resources_api_t;
 
 SANDBOX_DECLARE_SERVICE(spectre_resources_service_t, spectre_resources_api_t, {
@@ -47,6 +48,7 @@ SANDBOX_API ecs_entity_t spectre_resources_find_resource(ecs_world_t* world, con
 SANDBOX_API bool spectre_resources_is_resource_loaded(ecs_world_t* world, ecs_entity_t resource);
 SANDBOX_API void spectre_resources_load_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
 SANDBOX_API void spectre_resources_free_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
+SANDBOX_API void* spectre_resources_get_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
 
 #ifdef __cplusplus
 }

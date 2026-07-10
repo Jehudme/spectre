@@ -36,6 +36,8 @@ namespace spectre::modules {
     static void push_state(const flecs::world& entity_world, ecs_entity_t state);
 
     static void pop_state(const flecs::world& entity_world);
+
+    static void execute_recursive(const flecs::world& entity_world, ecs_entity_t entity, spectre_recursive_callback_t callback, void* payload);
     };
 }
 #endif

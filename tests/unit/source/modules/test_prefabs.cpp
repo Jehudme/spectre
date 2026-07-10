@@ -197,8 +197,10 @@ end
         // At this point on_create_test should have been called and logged via lua print (which isn't caught by the test, but we can verify relation existence)
         bool has_on_create = false;
         int index = 0;
-        while (flecs::entity s_ent = instance.target<spectre_use_script_on_create_relation_t>(index++)) {
-            const auto* rel_ptr = instance.try_get<spectre_use_script_on_create_relation_t>(s_ent);
+        flecs::entity scripts_child = instance.lookup("scripts");
+        REQUIRE(scripts_child.is_valid());
+        while (flecs::entity s_ent = scripts_child.target<spectre_use_script_on_create_relation_t>(index++)) {
+            const auto* rel_ptr = scripts_child.try_get<spectre_use_script_on_create_relation_t>(s_ent);
             if (!rel_ptr) continue;
             const auto& rel = *rel_ptr;
             has_on_create = true;

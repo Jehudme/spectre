@@ -1,6 +1,7 @@
 #include <catch2/catch_all.hpp>
 #include <flecs.h>
 #include "modules/scripts/scripts_module.h"
+#include "modules/serializer/serializer_module.h"
 #include "spectre/components.h"
 #include <fstream>
 #include <filesystem>
@@ -9,6 +10,7 @@ using namespace spectre::modules;
 
 TEST_CASE("Scripts Module: Initialization and Parsing", "[scripts module test]") {
     flecs::world world;
+    world.import<spectre::modules::serializer_module>();
     world.import<script_module_t>();
 
     auto* scripts_mod = &world.get_mut<script_module_t>();
@@ -93,6 +95,59 @@ end
         wrong_count_args[0].value.number_value = 10.5;
 
         scripts_mod->execute_script("add_to_sum", wrong_count_args);
+
+        REQUIRE(true);
+
+        std::filesystem::remove(temp_file);
+    }
+
+    SECTION("Lifecycle Execution with Context Token Resolution") {
+        std::string lua_code = R"(
+--- @param entity
+--- @param entity
+--- @param entity
+function check_tokens(self_ent, scene_ent, state_ent)
+    print("LUA_TEST_OUTPUT: check_tokens executed. self=" .. tostring(self_ent) .. ", scene=" .. tostring(scene_ent) .. ", state=" .. tostring(state_ent))
+end
+        )";
+
+        std::string temp_file = "temp_test_tokens.lua";
+        std::ofstream out(temp_file);
+        out << lua_code;
+        out.close();
+
+        scripts_mod->include_code(temp_file);
+
+        flecs::entity script_ent = scripts_mod->find_script("check_tokens");
+        REQUIRE(script_ent.is_valid());
+
+        flecs::entity state_entity = world.entity("MyState");
+        state_entity.set<spectre_state_context_t>({state_entity});
+
+        flecs::entity scene_entity = world.entity("MyScene");
+        scene_entity.child_of(state_entity);
+        scene_entity.set<spectre_scene_context_t>({scene_entity});
+
+        flecs::entity target_entity = world.entity("MyTarget");
+        target_entity.child_of(scene_entity);
+
+        flecs::entity scripts_child = target_entity.lookup("scripts");
+        if (!scripts_child.is_valid()) scripts_child = world.entity("scripts").child_of(target_entity);
+
+        spectre_use_script_on_update_relation_t rel;
+        rel.argument_count = 3;
+        rel.arguments = new spectre_script_argument_t[3];
+        rel.arguments[0].type = SPECTRE_SCRIPT_ARGUMENT_TYPE_ENTITY;
+        rel.arguments[0].value.entity = "%self%";
+        rel.arguments[1].type = SPECTRE_SCRIPT_ARGUMENT_TYPE_ENTITY;
+        rel.arguments[1].value.entity = "%scene%";
+        rel.arguments[2].type = SPECTRE_SCRIPT_ARGUMENT_TYPE_ENTITY;
+        rel.arguments[2].value.entity = "%state%";
+
+        scripts_child.set<spectre_use_script_on_update_relation_t>(script_ent, rel);
+
+        // Execute
+        scripts_mod->execute_on_update(target_entity);
 
         REQUIRE(true);
 

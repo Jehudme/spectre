@@ -25,6 +25,9 @@ namespace spectre::modules {
         script_module_t(script_module_t&&) = delete;
         script_module_t& operator=(script_module_t&&) = delete;
 
+        sandbox::properties serialize_scripts(flecs::entity entity);
+        flecs::entity deserialize_scripts(sandbox::properties props);
+
         bool has_script(std::string_view function_name, const std::vector<script_argument_type_t>& args) const;
         bool is_script(flecs::entity entity) const;
         flecs::entity find_script(std::string_view function_name);
@@ -32,9 +35,16 @@ namespace spectre::modules {
         void include_code(std::string_view path);
         void execute_script(std::string_view function_name, script_arguments_t& args);
 
+        void execute_on_create(flecs::entity entity);
+        void execute_on_destroy(flecs::entity entity);
+        void execute_on_update(flecs::entity entity);
+        void execute_on_enter(flecs::entity entity);
+        void execute_on_exit(flecs::entity entity);
+
     private:
         scripts_t parse_code(std::string_view code);
         void register_scripts(const scripts_t& scripts);
+        void execute_script_with_target(flecs::entity target, flecs::entity script_ent, spectre_script_argument_t* args, size_t arg_count);
 
     private:
         flecs::world m_world;

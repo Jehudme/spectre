@@ -1,6 +1,9 @@
 #pragma once
 #include <flecs.h>
+#include <stack>
+
 #include "sandbox/sdk/properties.hpp"
+#include "spectre/components.h"
 
 namespace spectre::modules {
     class scenes_module_t {
@@ -37,10 +40,20 @@ namespace spectre::modules {
         void push_state(flecs::entity state);
         void pop_state();
 
+        void execute_recursive(flecs::entity entity, spectre_recursive_callback_t callback, void* payload);
+
     private:
+        flecs::entity create_state(std::string_view name);
+        flecs::entity create_scene(std::string_view name);
+
         flecs::world m_world;
-        flecs::entity m_scenes_module;
+        flecs::entity m_states_root;
+        flecs::entity m_scenes_root;
         flecs::entity m_scene_serializer;
         flecs::entity m_state_serializer;
+        flecs::entity m_script_args_serializer;
+        flecs::entity m_entity_serializer;
+
+        std::stack<flecs::entity> m_state_stack;
     };
 }

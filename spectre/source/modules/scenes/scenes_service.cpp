@@ -466,6 +466,18 @@ void spectre_scenes_pop_state(ecs_world_t* world) {
     
 }
 
+void spectre_scenes_execute_recursive(ecs_world_t* world, ecs_entity_t entity, spectre_recursive_callback_t callback, void* payload) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
+#else
+    const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
+#endif
+    if (service && service->api && service->api->execute_recursive) {
+        service->api->execute_recursive(world, entity, callback, payload);
+    }
+}
+
 // --- SDK Implementations ---
 namespace spectre::modules {
 sandbox_properties_handle_t scenes::serialize_state(const flecs::world& entity_world, ecs_entity_t state) {
@@ -527,4 +539,8 @@ void scenes::push_state(const flecs::world& entity_world, ecs_entity_t state) {
 
 void scenes::pop_state(const flecs::world& entity_world) {
             spectre_scenes_pop_state(entity_world.c_ptr());}
+
+void scenes::execute_recursive(const flecs::world& entity_world, ecs_entity_t entity, spectre_recursive_callback_t callback, void* payload) {
+    spectre_scenes_execute_recursive(entity_world.c_ptr(), entity, callback, payload);
+}
 }

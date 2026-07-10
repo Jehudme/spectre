@@ -21,11 +21,12 @@ namespace spectre::modules {
         resource_module_t(resource_module_t&&) = delete;
         resource_module_t& operator=(resource_module_t&&) = delete;
 
-        flecs::entity deserialize_resource(sandbox::properties props);
-        sandbox::properties serialize_resource(flecs::entity resourceEntity);
 
         void register_resource_loader(std::string_view type, ResourceLoader loader);
-        void register_resource(sandbox::properties props);
+        void register_resource(const sandbox::properties& props);
+
+        flecs::entity deserialize_resource(const sandbox::properties& props);
+        sandbox::properties serialize_resource(flecs::entity entity);
 
         bool has_resource_loader(std::string_view type) const;
         bool has_resource(std::string_view name) const;
@@ -38,11 +39,14 @@ namespace spectre::modules {
 
         void load_resource(flecs::entity resourceEntity);
         void free_resource(flecs::entity resourceEntity);
+        void* get_resource(flecs::entity resourceEntity);
+
 
     private:
         flecs::world m_world;
-        flecs::entity m_resource_module;
-        flecs::entity m_resource_serializer;
+        flecs::entity m_resources_root;
+        flecs::entity m_resource_prefab;
+        flecs::entity m_resources_serializer;
     };
 
 } // namespace spectre::module
