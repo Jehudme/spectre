@@ -15,10 +15,10 @@ namespace spectre::modules {
         window_module_t(window_module_t&&) = delete;
         window_module_t& operator=(window_module_t&&) = delete;
 
-        flecs::entity deserialize_window(sandbox::properties props);
+        flecs::entity deserialize_window(const sandbox::properties& props);
         sandbox::properties serialize_window(flecs::entity window);
 
-        void register_window(sandbox::properties props);
+        void register_window(const sandbox::properties& props);
 
         bool should_close() const;
         void set_should_close(bool close);
@@ -76,6 +76,8 @@ namespace spectre::modules {
         float get_mouse_delta_x() const;
         float get_mouse_delta_y() const;
 
+        void apply_window_change();
+
     private:
         void begin_input_frame();
         void set_key_down(int keycode);
@@ -84,7 +86,7 @@ namespace spectre::modules {
         void set_mouse_delta(float dx, float dy);
 
     private:
-        flecs::entity m_window_module;
+        flecs::entity m_window_entity;
         flecs::world m_world;
     };
 }

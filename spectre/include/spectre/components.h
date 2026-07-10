@@ -123,6 +123,31 @@ typedef struct spectre_input_state_t {
     float mouse_delta[2];
 } spectre_input_state_t;
 
+typedef struct spectre_window_component_t {
+    uint32_t width;
+    uint32_t height;
+    int32_t position_x;
+    int32_t position_y;
+    uint32_t min_width;
+    uint32_t min_height;
+    uint32_t max_width;
+    uint32_t max_height;
+    const char* title;
+    bool vsync;
+    bool fullscreen;
+    bool borderless;
+    bool resizable;
+    bool always_on_top;
+    bool minimized;
+    bool maximized;
+    bool visible;
+    bool focused;
+    bool hovered;
+    bool cursor_visible;
+    bool cursor_locked;
+    void* native_handle;
+} spectre_window_component_t;
+
 // --- Components ---
 typedef struct spectre_component_t { char dummy; } spectre_component_serializer_t;
 

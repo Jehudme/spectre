@@ -124,7 +124,22 @@ namespace spectre::modules {
     }
 
     sandbox::properties resource_module_t::serialize_resource(flecs::entity entity) {
-        return sandbox::properties(); // TODO if needed
+        sandbox::properties props;
+        
+        if (!entity.is_valid() || !entity.has<Resource>()) {
+            return props;
+        }
+
+        const auto* res = entity.try_get<Resource>();
+        if (res && res->path) {
+            props.set("path", std::string(res->path));
+        }
+
+        entity.each<spectre_use_loader_relation_t>([&](flecs::entity loader) {
+            props.set("type", std::string(loader.name()));
+        });
+
+        return props;
     }
 
     bool resource_module_t::has_resource_loader(std::string_view type) const {
