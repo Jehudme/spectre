@@ -15,22 +15,22 @@ TEST_CASE("Scripts Module: Initialization and Parsing", "[scripts module test]")
 
     SECTION("Parse and register Lua functions from file") {
         std::string lua_code = R"(
-            function on_update(dt, entity_id)
-                print("Updating entity " .. entity_id .. " with dt " .. dt)
-            end
+--- @param number
+--- @param number
+function on_update(dt, entity_id)
+    print("Updating entity " .. entity_id .. " with dt " .. dt)
+end
 
-            function on_init()
-                print("Init called!")
-            end
+function on_init()
+    print("Init called!")
+end
         )";
 
-        // Write to temporary file
         std::string temp_file = "temp_test_script.lua";
         std::ofstream out(temp_file);
         out << lua_code;
         out.close();
 
-        // Include the code, which parses and runs it
         scripts_mod->include_code(temp_file);
 
         REQUIRE(scripts_mod->has_script("on_update", {}));
@@ -46,24 +46,20 @@ TEST_CASE("Scripts Module: Initialization and Parsing", "[scripts module test]")
         REQUIRE(script_comp->argument_count == 2);
         REQUIRE(std::string(script_comp->arguments_name[0]) == "dt");
         REQUIRE(std::string(script_comp->arguments_name[1]) == "entity_id");
+        REQUIRE(script_comp->argument_types[0] == SPECTRE_SCRIPT_ARGUMENT_TYPE_NUMBER);
+        REQUIRE(script_comp->argument_types[1] == SPECTRE_SCRIPT_ARGUMENT_TYPE_NUMBER);
 
-        // Clean up temp file
         std::filesystem::remove(temp_file);
     }
 
     SECTION("Execute Lua function with arguments") {
         std::string lua_code = R"(
-            global_sum = 0
-            function add_to_sum(a, b)
-                global_sum = global_sum + a + b
-                print("LUA_TEST_OUTPUT: add_to_sum executed successfully! a=" .. tostring(a) .. ", b=" .. tostring(b) .. ", sum=" .. tostring(global_sum))
-                if spectre_api and spectre_api.sandbox_logs_info then
-                    spectre_api.sandbox_logs_info(nil, "Testing sandbox logs info from Lua!")
-                    spectre_api.sandbox_logs_trace(nil, "Testing sandbox logs trace from Lua!")
-                else
-                    print("LUA_TEST_OUTPUT: 'spectre_api.sandbox_logs_info' module not available.")
-                end
-            end
+--- @param number
+--- @param number
+function add_to_sum(a, b)
+    local global_sum = a + b
+    print("LUA_TEST_OUTPUT: add_to_sum executed successfully! a=" .. tostring(a) .. ", b=" .. tostring(b) .. ", sum=" .. tostring(global_sum))
+end
         )";
 
         std::string temp_file = "temp_test_execute.lua";
@@ -81,6 +77,22 @@ TEST_CASE("Scripts Module: Initialization and Parsing", "[scripts module test]")
         args[1].value.number_value = 5.0;
 
         scripts_mod->execute_script("add_to_sum", args);
+
+        // Test with wrong arguments (should fail and log error, but we just verify it doesn't crash)
+        script_arguments_t wrong_args(2);
+        wrong_args[0].type = SPECTRE_SCRIPT_ARGUMENT_TYPE_STRING;
+        wrong_args[0].value.string_value = "hello";
+        wrong_args[1].type = SPECTRE_SCRIPT_ARGUMENT_TYPE_NUMBER;
+        wrong_args[1].value.number_value = 5.0;
+
+        scripts_mod->execute_script("add_to_sum", wrong_args);
+        
+        // Test with wrong argument count
+        script_arguments_t wrong_count_args(1);
+        wrong_count_args[0].type = SPECTRE_SCRIPT_ARGUMENT_TYPE_NUMBER;
+        wrong_count_args[0].value.number_value = 10.5;
+
+        scripts_mod->execute_script("add_to_sum", wrong_count_args);
 
         REQUIRE(true);
 

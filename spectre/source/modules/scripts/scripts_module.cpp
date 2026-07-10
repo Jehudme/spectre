@@ -50,50 +50,91 @@ namespace spectre::modules {
     scripts_t script_module_t::parse_code(std::string_view code) {
         scripts_t scripts;
         std::string code_str(code);
+        std::istringstream stream(code_str);
+        std::string line;
+
+        std::vector<spectre_script_argument_type_t> pending_types;
         
-        // Simple regex to extract function names and arguments.
-        // e.g. function update(dt, entity)
-        std::regex func_regex(R"(function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(([^)]*)\))");
-        auto words_begin = std::sregex_iterator(code_str.begin(), code_str.end(), func_regex);
-        auto words_end = std::sregex_iterator();
+        while (std::getline(stream, line)) {
+            // Trim leading/trailing whitespace
+            line.erase(0, line.find_first_not_of(" \t\r\n"));
+            if (line.empty()) continue;
+            line.erase(line.find_last_not_of(" \t\r\n") + 1);
 
-        for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
-            std::smatch match = *i;
-            std::string func_name = match[1].str();
-            std::string args_str = match[2].str();
-
-            m_string_pool.push_back(func_name);
-            const char* c_func_name = m_string_pool.back().c_str();
-
-            std::vector<std::string> args;
-            std::regex arg_regex(R"([a-zA-Z_][a-zA-Z0-9_]*)");
-            auto args_begin = std::sregex_iterator(args_str.begin(), args_str.end(), arg_regex);
-            auto args_end = std::sregex_iterator();
-            for (std::sregex_iterator j = args_begin; j != args_end; ++j) {
-                args.push_back((*j).str());
+            // Check for --- @param <type>
+            std::regex param_regex(R"(^---\s*@param\s+([a-zA-Z_][a-zA-Z0-9_]*))");
+            std::smatch param_match;
+            if (std::regex_search(line, param_match, param_regex)) {
+                std::string type_str = param_match[1].str();
+                spectre_script_argument_type_t type = SPECTRE_SCRIPT_ARGUMENT_TYPE_NIL;
+                
+                if (type_str == "nil") type = SPECTRE_SCRIPT_ARGUMENT_TYPE_NIL;
+                else if (type_str == "boolean") type = SPECTRE_SCRIPT_ARGUMENT_TYPE_BOOLEAN;
+                else if (type_str == "number") type = SPECTRE_SCRIPT_ARGUMENT_TYPE_NUMBER;
+                else if (type_str == "integer") type = SPECTRE_SCRIPT_ARGUMENT_TYPE_INTEGER;
+                else if (type_str == "string") type = SPECTRE_SCRIPT_ARGUMENT_TYPE_STRING;
+                else if (type_str == "table") type = SPECTRE_SCRIPT_ARGUMENT_TYPE_TABLE;
+                else if (type_str == "userdata") type = SPECTRE_SCRIPT_ARGUMENT_TYPE_USERDATA;
+                else {
+                    sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Unknown parameter type '{}' in Lua script.", type_str);
+                    type = SPECTRE_SCRIPT_ARGUMENT_TYPE_NIL;
+                }
+                pending_types.push_back(type);
+                continue;
             }
 
-            size_t arg_count = args.size();
-            
-            std::vector<const char*> local_ptrs;
-            std::vector<spectre_script_argument_type_t> local_types;
-            
-            for (const auto& arg : args) {
-                m_string_pool.push_back(arg);
-                local_ptrs.push_back(m_string_pool.back().c_str());
-                local_types.push_back(SPECTRE_SCRIPT_ARGUMENT_TYPE_NIL);
+            // Check for function <name>(<args>)
+            std::regex func_regex(R"(^function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(([^)]*)\))");
+            std::smatch func_match;
+            if (std::regex_search(line, func_match, func_regex)) {
+                std::string func_name = func_match[1].str();
+                std::string args_str = func_match[2].str();
+
+                std::vector<std::string> args;
+                std::regex arg_regex(R"([a-zA-Z_][a-zA-Z0-9_]*)");
+                auto args_begin = std::sregex_iterator(args_str.begin(), args_str.end(), arg_regex);
+                auto args_end = std::sregex_iterator();
+                for (std::sregex_iterator j = args_begin; j != args_end; ++j) {
+                    args.push_back((*j).str());
+                }
+
+                size_t arg_count = args.size();
+
+                if (pending_types.size() != arg_count) {
+                    sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Parser Error: Function '{}' expects {} parameters based on arguments, but {} @param types were provided.", func_name, arg_count, pending_types.size());
+                    pending_types.clear();
+                    continue;
+                }
+
+                m_string_pool.push_back(func_name);
+                const char* c_func_name = m_string_pool.back().c_str();
+
+                std::vector<const char*> local_ptrs;
+                std::vector<spectre_script_argument_type_t> local_types = pending_types;
+
+                for (const auto& arg : args) {
+                    m_string_pool.push_back(arg);
+                    local_ptrs.push_back(m_string_pool.back().c_str());
+                }
+
+                m_ptr_pool.push_back(std::move(local_ptrs));
+                m_type_pool.push_back(std::move(local_types));
+
+                spectre_script_t script{};
+                script.function_name = c_func_name;
+                script.argument_count = arg_count;
+                script.arguments_name = arg_count > 0 ? m_ptr_pool.back().data() : nullptr;
+                script.argument_types = arg_count > 0 ? m_type_pool.back().data() : nullptr;
+
+                scripts.push_back(script);
+
+                // Reset for next function
+                pending_types.clear();
+            } else {
+                if (line.find("--") != 0) {
+                    pending_types.clear();
+                }
             }
-
-            m_ptr_pool.push_back(std::move(local_ptrs));
-            m_type_pool.push_back(std::move(local_types));
-
-            spectre_script_t script{};
-            script.function_name = c_func_name;
-            script.argument_count = arg_count;
-            script.arguments_name = arg_count > 0 ? m_ptr_pool.back().data() : nullptr;
-            script.argument_types = arg_count > 0 ? m_type_pool.back().data() : nullptr;
-
-            scripts.push_back(script);
         }
         return scripts;
     }
@@ -158,6 +199,21 @@ namespace spectre::modules {
         if (!has_script(function_name, {})) {
             sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Cannot execute unknown script: {}", function_name);
             return;
+        }
+        
+        flecs::entity script_ent = find_script(function_name);
+        const auto* script_comp = script_ent.try_get<spectre_script_t>();
+
+        if (script_comp->argument_count != args.size()) {
+            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Script '{}' expects {} arguments, but {} were provided.", function_name, script_comp->argument_count, args.size());
+            return;
+        }
+
+        for (size_t i = 0; i < args.size(); ++i) {
+            if (args[i].type != script_comp->argument_types[i]) {
+                sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Script '{}' argument {} type mismatch. Expected {}, got {}.", function_name, i, (int)script_comp->argument_types[i], (int)args[i].type);
+                return;
+            }
         }
 
         lua_getglobal(m_lua, std::string(function_name).c_str());
