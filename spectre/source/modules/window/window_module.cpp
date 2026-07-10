@@ -23,7 +23,7 @@ namespace spectre::modules {
 
     static ecs_entity_t deserialize_window_cb(ecs_world_t* world, sandbox_properties_handle_t props_handle) {
         flecs::world w(world);
-        auto* mod = const_cast<window_module_t*>(&w.get_mut<window_module_t>());
+        auto* mod = const_cast<window_module_t*>(w.try_get_mut<window_module_t>());
         if (mod) {
             sandbox::properties props(props_handle, false);
             return mod->deserialize_window(props).id();
@@ -33,7 +33,7 @@ namespace spectre::modules {
 
     static sandbox_properties_handle_t serialize_window_cb(ecs_world_t* world, ecs_entity_t entity) {
         flecs::world w(world);
-        auto* mod = const_cast<window_module_t*>(&w.get_mut<window_module_t>());
+        auto* mod = const_cast<window_module_t*>(w.try_get_mut<window_module_t>());
         if (mod) {
             sandbox::properties props = mod->serialize_window(flecs::entity(w, entity));
             sandbox_properties_handle_t handle = props.get_raw();
@@ -187,7 +187,7 @@ namespace spectre::modules {
 
     void window_module_t::set_size(uint32_t width, uint32_t height) {
         if (!m_window_entity.is_valid()) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (comp) {
             comp->width = width;
             comp->height = height;
@@ -197,7 +197,7 @@ namespace spectre::modules {
 
     void window_module_t::set_position(int32_t x, int32_t y) {
         if (!m_window_entity.is_valid()) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (comp) {
             comp->position_x = x;
             comp->position_y = y;
@@ -207,7 +207,7 @@ namespace spectre::modules {
 
     void window_module_t::set_size_limits(uint32_t min_width, uint32_t min_height, uint32_t max_width, uint32_t max_height) {
         if (!m_window_entity.is_valid()) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (comp) {
             comp->min_width = min_width;
             comp->min_height = min_height;
@@ -255,7 +255,7 @@ namespace spectre::modules {
 
     void window_module_t::set_title(const char* title) {
         if (!m_window_entity.is_valid() || !title) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (comp) {
             char* title_copy = new char[strlen(title) + 1];
             strcpy(title_copy, title);
@@ -266,7 +266,7 @@ namespace spectre::modules {
 
     void window_module_t::set_vsync(bool enabled) {
         if (!m_window_entity.is_valid()) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (comp) {
             comp->vsync = enabled;
             if (IsWindowReady()) {
@@ -278,7 +278,7 @@ namespace spectre::modules {
 
     void window_module_t::set_fullscreen(bool fullscreen) {
         if (!m_window_entity.is_valid()) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (comp) {
             comp->fullscreen = fullscreen;
             if (IsWindowReady()) {
@@ -290,7 +290,7 @@ namespace spectre::modules {
 
     void window_module_t::set_borderless(bool borderless) {
         if (!m_window_entity.is_valid()) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (comp) {
             comp->borderless = borderless;
             if (IsWindowReady()) {
@@ -302,7 +302,7 @@ namespace spectre::modules {
 
     void window_module_t::set_resizable(bool resizable) {
         if (!m_window_entity.is_valid()) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (comp) {
             comp->resizable = resizable;
             if (IsWindowReady()) {
@@ -314,7 +314,7 @@ namespace spectre::modules {
 
     void window_module_t::set_always_on_top(bool always_on_top) {
         if (!m_window_entity.is_valid()) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (comp) {
             comp->always_on_top = always_on_top;
             if (IsWindowReady()) {
@@ -356,7 +356,7 @@ namespace spectre::modules {
 
     void window_module_t::minimize() {
         if (!m_window_entity.is_valid()) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (comp) {
             comp->minimized = true;
             if (IsWindowReady()) MinimizeWindow();
@@ -365,7 +365,7 @@ namespace spectre::modules {
 
     void window_module_t::maximize() {
         if (!m_window_entity.is_valid()) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (comp) {
             comp->maximized = true;
             if (IsWindowReady()) MaximizeWindow();
@@ -374,7 +374,7 @@ namespace spectre::modules {
 
     void window_module_t::restore() {
         if (!m_window_entity.is_valid()) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (comp) {
             comp->minimized = false;
             comp->maximized = false;
@@ -384,7 +384,7 @@ namespace spectre::modules {
 
     void window_module_t::show() {
         if (!m_window_entity.is_valid()) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (comp) {
             comp->visible = true;
             if (IsWindowReady()) ClearWindowState(FLAG_WINDOW_HIDDEN);
@@ -393,7 +393,7 @@ namespace spectre::modules {
 
     void window_module_t::hide() {
         if (!m_window_entity.is_valid()) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (comp) {
             comp->visible = false;
             if (IsWindowReady()) SetWindowState(FLAG_WINDOW_HIDDEN);
@@ -436,7 +436,7 @@ namespace spectre::modules {
 
     void window_module_t::set_cursor_visible(bool visible) {
         if (!m_window_entity.is_valid()) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (comp) {
             comp->cursor_visible = visible;
             if (IsWindowReady()) {
@@ -447,7 +447,7 @@ namespace spectre::modules {
 
     void window_module_t::set_cursor_locked(bool locked) {
         if (!m_window_entity.is_valid()) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (comp) {
             comp->cursor_locked = locked;
             if (IsWindowReady()) {
@@ -511,7 +511,7 @@ namespace spectre::modules {
 
     void window_module_t::apply_window_change() {
         if (!m_window_entity.is_valid() || !IsWindowReady()) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (!comp) return;
 
         // Apply all settings from component to raylib window instance
@@ -535,7 +535,7 @@ namespace spectre::modules {
 
     void window_module_t::begin_input_frame() {
         if (!m_window_entity.is_valid() || !IsWindowReady()) return;
-        auto* comp = &m_window_entity.get_mut<spectre_window_component_t>();
+        auto* comp = m_window_entity.try_get_mut<spectre_window_component_t>();
         if (!comp) return;
         
         // Update states that can be changed externally by the user or OS

@@ -20,7 +20,7 @@ namespace spectre::modules {
 
     static ecs_entity_t deserialize_resource_cb(ecs_world_t* world, sandbox_properties_handle_t props_handle) {
         flecs::world w(world);
-        auto* mod = const_cast<resource_module_t*>(&w.get_mut<resource_module_t>());
+        auto* mod = const_cast<resource_module_t*>(w.try_get_mut<resource_module_t>());
         if (mod) {
             sandbox::properties props(props_handle, false);
             return mod->deserialize_resource(props).id();
@@ -30,7 +30,7 @@ namespace spectre::modules {
 
     static sandbox_properties_handle_t serialize_resource_cb(ecs_world_t* world, ecs_entity_t entity) {
         flecs::world w(world);
-        auto* mod = const_cast<resource_module_t*>(&w.get_mut<resource_module_t>());
+        auto* mod = const_cast<resource_module_t*>(w.try_get_mut<resource_module_t>());
         if (mod) {
             sandbox::properties props = mod->serialize_resource(flecs::entity(w, entity));
             sandbox_properties_handle_t handle = props.get_raw();
@@ -46,7 +46,7 @@ namespace spectre::modules {
         
         m_world.entity("::resources::loaders");
 
-        auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
         if (serializer_mod) {
             spectre_serializer_component ser_comp;
             ser_comp.deserialize = deserialize_resource_cb;
@@ -71,7 +71,7 @@ namespace spectre::modules {
     void resource_module_t::register_resource(const sandbox::properties& props) {
         if (!props.is_valid()) return;
         
-        auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
         if (!serializer_mod || !m_resources_serializer.is_valid()) {
             ::sandbox::modules::logs::error(m_world, "Serializer module or resources serializer not available");
             return;
@@ -199,7 +199,7 @@ namespace spectre::modules {
             return;
         }
         
-        Resource* res = &resourceEntity.get_mut<Resource>();
+        Resource* res = resourceEntity.try_get_mut<Resource>();
         if (res) {
             loader->load_fn(m_world.c_ptr(), res);
             resourceEntity.add<spectre_resource_flag_t>();
@@ -216,7 +216,7 @@ namespace spectre::modules {
         const ResourceLoader* loader = &loader_ent.get<ResourceLoader>();
         if (!loader || !loader->free_fn) return;
         
-        Resource* res = &resourceEntity.get_mut<Resource>();
+        Resource* res = resourceEntity.try_get_mut<Resource>();
         if (res) {
             loader->free_fn(m_world.c_ptr(), res);
             resourceEntity.remove<spectre_resource_flag_t>();

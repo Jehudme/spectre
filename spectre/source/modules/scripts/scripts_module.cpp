@@ -44,7 +44,7 @@ namespace spectre::modules {
         luaopen_spectre_api(m_lua);
         lua_setglobal(m_lua, "spectre_api");
         
-        auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
         if (serializer_mod) {
             spectre_serializer_component ser_comp;
             ser_comp.deserialize = deserialize_script_args_cb;
@@ -59,7 +59,7 @@ namespace spectre::modules {
     
     static ecs_entity_t deserialize_script_args_cb(ecs_world_t* world, sandbox_properties_handle_t props_handle) {
         flecs::world w(world);
-        auto* scripts_mod = const_cast<script_module_t*>(&w.get_mut<script_module_t>());
+        auto* scripts_mod = const_cast<script_module_t*>(w.try_get_mut<script_module_t>());
         if (scripts_mod) {
             sandbox::properties props(props_handle, false);
             return scripts_mod->deserialize_scripts(std::move(props)).id();
@@ -150,7 +150,7 @@ namespace spectre::modules {
 
     static sandbox_properties_handle_t serialize_script_args_cb(ecs_world_t* world, ecs_entity_t entity) {
         flecs::world w(world);
-        auto* scripts_mod = const_cast<script_module_t*>(&w.get_mut<script_module_t>());
+        auto* scripts_mod = const_cast<script_module_t*>(w.try_get_mut<script_module_t>());
         if (scripts_mod) {
             sandbox::properties props = scripts_mod->serialize_scripts(flecs::entity(w, entity));
             sandbox_properties_handle_t handle = props.get_raw();

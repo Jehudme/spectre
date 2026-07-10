@@ -49,7 +49,7 @@ namespace spectre::modules {
             return sandbox::properties({0}, false);
         }
 
-        auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
         if (!serializer_mod) {
             sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Serializer module is not available in components_module serialize.");
             return sandbox::properties({0}, false);
@@ -96,7 +96,7 @@ namespace spectre::modules {
             return flecs::entity::null();
         }
 
-        auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
         if (!serializer_mod) {
             sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Serializer module is not available.");
             return flecs::entity::null();
@@ -133,7 +133,7 @@ namespace spectre::modules {
             return;
         }
 
-        auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
         if (!serializer_mod) {
             sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Serializer module is not available.");
             return;

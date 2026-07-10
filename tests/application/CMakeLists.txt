@@ -11,10 +11,10 @@ target_compile_definitions(spectre_test_application PRIVATE
 
 target_link_libraries(spectre_test_application
     PRIVATE
+        sandbox::library
+        -Wl,--whole-archive
         spectre::plugin_static
         sandbox::plugins_static
-        sandbox::library
-        -Wl,--whole-archive 
         $<TARGET_FILE:flecs_static> 
         -Wl,--no-whole-archive
 )

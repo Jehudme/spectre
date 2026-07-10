@@ -29,7 +29,6 @@ set(SOURCES
 
 # Headers
 set(HEADERS
-    include/spectre/components.h
         source/pch.h
     source/modules/prefabs/prefabs_module.h
     source/modules/renderer/renderer_module.h

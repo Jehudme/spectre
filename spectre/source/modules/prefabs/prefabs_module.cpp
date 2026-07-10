@@ -27,7 +27,7 @@ namespace spectre::modules {
 
     static ecs_entity_t deserialize_entity_cb(ecs_world_t* world, sandbox_properties_handle_t props_handle) {
         flecs::world w(world);
-        auto* mod = const_cast<prefabs_module_t*>(&w.get_mut<prefabs_module_t>());
+        auto* mod = const_cast<prefabs_module_t*>(w.try_get_mut<prefabs_module_t>());
         if (mod) {
             sandbox::properties props(props_handle, false);
             return mod->deserialize_entity(std::move(props)).id();
@@ -37,7 +37,7 @@ namespace spectre::modules {
 
     static sandbox_properties_handle_t serialize_entity_cb(ecs_world_t* world, ecs_entity_t entity) {
         flecs::world w(world);
-        auto* mod = const_cast<prefabs_module_t*>(&w.get_mut<prefabs_module_t>());
+        auto* mod = const_cast<prefabs_module_t*>(w.try_get_mut<prefabs_module_t>());
         if (mod) {
             sandbox::properties props = mod->serialize_entity(flecs::entity(w, entity));
             sandbox_properties_handle_t handle = props.get_raw();
@@ -54,7 +54,7 @@ namespace spectre::modules {
         m_prefabs_root = m_world.entity("::prefabs");
         m_entity_prefab = m_world.prefab("::prefabs::prefab");
 
-        auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
         if (serializer_mod) {
             spectre_serializer_component ser_comp;
             ser_comp.deserialize = deserialize_entity_cb;
@@ -107,7 +107,7 @@ namespace spectre::modules {
             result.set_array<std::string>("prefabs", prefabs);
         }
 
-        auto* components_mod = const_cast<components_module_t*>(&m_world.get_mut<components_module_t>());
+        auto* components_mod = const_cast<components_module_t*>(m_world.try_get_mut<components_module_t>());
         if (components_mod) {
             sandbox::properties comps = components_mod->serialize_component(entity);
             if (comps.is_valid()) {
@@ -117,7 +117,7 @@ namespace spectre::modules {
 
         
         if (m_script_args_serializer.is_valid()) {
-            auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+            auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
             if (serializer_mod) {
                 // Find the child that represents scripts
                 flecs::entity scripts_child = entity.lookup("scripts");
@@ -182,7 +182,7 @@ namespace spectre::modules {
         }
 
         if (props.has("components")) {
-            auto* components_mod = const_cast<components_module_t*>(&m_world.get_mut<components_module_t>());
+            auto* components_mod = const_cast<components_module_t*>(m_world.try_get_mut<components_module_t>());
             if (components_mod) {
                 std::vector<std::string> comp_keys = props.keys("components");
                 sandbox::properties components_node = props.sub("components");
@@ -212,7 +212,7 @@ namespace spectre::modules {
 
         
         if (props.has("scripts") && m_script_args_serializer.is_valid()) {
-            auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+            auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
             if (serializer_mod) {
                 sandbox::properties scripts_node = props.sub("scripts");
                 flecs::entity temp_scripts_ent = serializer_mod->deserialize_entity(m_script_args_serializer, scripts_node);

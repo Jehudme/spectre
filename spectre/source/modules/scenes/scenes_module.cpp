@@ -64,7 +64,7 @@ namespace spectre::modules {
         m_states_root = m_world.entity("::states");
         m_scenes_root = m_world.entity("::scenes");
 
-        auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
         if (serializer_mod) {
             spectre_serializer_component state_ser;
             state_ser.serialize = serialize_state_cb;
@@ -119,7 +119,7 @@ namespace spectre::modules {
         // Serialize scripts
         flecs::entity scripts_child = state.lookup("scripts");
         if (scripts_child.is_valid() && m_script_args_serializer.is_valid()) {
-            auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+            auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
             if (serializer_mod) {
                 sandbox::properties scripts_node = serializer_mod->serialize_entity(m_script_args_serializer, scripts_child);
                 if (scripts_node.is_valid()) {
@@ -161,7 +161,7 @@ namespace spectre::modules {
         state.add<spectre_state_t>();
         
         if (props.has("scripts") && m_script_args_serializer.is_valid()) {
-            auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+            auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
             if (serializer_mod) {
                 sandbox::properties scripts_node = props.sub("scripts");
                 flecs::entity temp_scripts_ent = serializer_mod->deserialize_entity(m_script_args_serializer, scripts_node);
@@ -201,7 +201,7 @@ namespace spectre::modules {
         // Serialize scripts
         flecs::entity scripts_child = scene.lookup("scripts");
         if (scripts_child.is_valid() && m_script_args_serializer.is_valid()) {
-            auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+            auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
             if (serializer_mod) {
                 sandbox::properties scripts_node = serializer_mod->serialize_entity(m_script_args_serializer, scripts_child);
                 if (scripts_node.is_valid()) {
@@ -212,7 +212,7 @@ namespace spectre::modules {
 
         // Serialize hierarchies
         if (m_entity_serializer.is_valid()) {
-            auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+            auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
             if (serializer_mod) {
                 sandbox::properties hierarchies_arr;
                 int child_idx = 0;
@@ -250,7 +250,7 @@ namespace spectre::modules {
         scene.add<spectre_scene_t>();
 
         if (props.has("scripts") && m_script_args_serializer.is_valid()) {
-            auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+            auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
             if (serializer_mod) {
                 sandbox::properties scripts_node = props.sub("scripts");
                 flecs::entity temp_scripts_ent = serializer_mod->deserialize_entity(m_script_args_serializer, scripts_node);
@@ -263,7 +263,7 @@ namespace spectre::modules {
         }
 
         if (props.has("hierarchies") && m_entity_serializer.is_valid()) {
-            auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+            auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
             if (serializer_mod) {
                 std::vector<std::string> keys = props.keys("hierarchies");
                 sandbox::properties hierarchies_node = props.sub("hierarchies");
