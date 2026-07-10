@@ -30,7 +30,8 @@ namespace spectre::modules {
     private:
         flecs::world m_world;
         flecs::entity m_prefabs_root;
-        flecs::entity m_entity_prefab; // prefab that all entity created by this module share, usefull for is_prefab function
-        flecs::entity m_entity_serializer; // store the entity serializer so that you do not need to keep retrieve it from serializer moddule
+        flecs::entity m_entity_prefab;
+        flecs::entity m_entity_serializer;
+        flecs::entity m_script_args_serializer;
     };
 }

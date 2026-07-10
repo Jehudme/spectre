@@ -7,6 +7,8 @@
 #include "sandbox/sdk/logs.hpp"
 #include "../components/components_module.h"
 #include "../serializer/serializer_module.h"
+#include "../scripts/scripts_module.h"
+
 
 namespace spectre::modules {
 
@@ -23,10 +25,35 @@ namespace spectre::modules {
     })
 
     prefabs_module_t::prefabs_module_t(flecs::world& world) : m_world(world) {
+        // make an argument serializer using the serializer module but in the  script module. but you can fetch and store this serializer in m_script_args_serializer and use it in the deserialize_entity function to deserialize scripts props.
         sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "Initializing prefabs module...");
         
         m_prefabs_root = m_world.entity("::prefabs");
         m_entity_prefab = m_world.prefab("::prefabs::prefab");
+
+        auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+        if (serializer_mod) {
+            m_script_args_serializer = serializer_mod->find_serializer("scripts");
+        }
+        
+        // Register observer for entity destruction to run on_destroy scripts
+        m_world.observer<spectre_use_script_on_destroy_relation_t>()
+            .event(flecs::OnRemove)
+            .each([](flecs::iter& it, size_t i, spectre_use_script_on_destroy_relation_t& rel) {
+                flecs::entity entity = it.entity(i);
+                flecs::id id = it.event_id();
+                flecs::entity script_ent = id.second();
+                
+                auto* scripts_mod = const_cast<script_module_t*>(&it.world().get_mut<script_module_t>());
+                if (scripts_mod && script_ent.is_valid()) {
+                    std::vector<spectre_script_argument_t> args;
+                    if (rel.argument_count > 0 && rel.arguments) {
+                        args.assign(rel.arguments, rel.arguments + rel.argument_count);
+                    }
+                    scripts_mod->execute_script(script_ent.name().c_str(), args);
+                }
+            });
+
 
         sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "Prefabs module initialized successfully.");
     }
@@ -34,6 +61,7 @@ namespace spectre::modules {
     prefabs_module_t::~prefabs_module_t() = default;
 
     sandbox::properties prefabs_module_t::serialize_entity(flecs::entity entity) {
+        // should also be able to serialize scripting like in reverse of his deserialization
         sandbox::properties result;
         if (!entity.is_valid()) {
             sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Cannot serialize invalid entity.");
@@ -62,6 +90,17 @@ namespace spectre::modules {
             }
         }
 
+        
+        if (m_script_args_serializer.is_valid()) {
+            auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+            if (serializer_mod) {
+                sandbox::properties scripts_props = serializer_mod->serialize_entity(m_script_args_serializer, entity);
+                if (scripts_props.is_valid()) {
+                    result.merge("scripts", scripts_props);
+                }
+            }
+        }
+
         sandbox::properties children_props;
         bool has_children = false;
         entity.children([&](flecs::entity child) {
@@ -81,6 +120,10 @@ namespace spectre::modules {
     }
 
     flecs::entity prefabs_module_t::deserialize_entity(sandbox::properties props) {
+        // i want you to use the argument serializer to deserialize ex:
+        // scripts : { "on_create(or on_exit, or on_enter or... the relation are define component.h)": [{ "function": "...", "arguments": {...}}, ... (they can be many function to be executed on enter)]}
+        // and store the function name and the argument on the proper script relation in you can find components.h, you can use these same connection to serialize the entity with the correct script and arguments
+        // when calling one of the on create_entity function it automaticaly run all of the on_create script, and when the entity is destroyed it will run all of the on_delete scripts.
         if (!props.is_valid()) return flecs::entity::null();
         
         flecs::entity entity = m_world.entity();
@@ -94,7 +137,6 @@ namespace spectre::modules {
                 entity.set_name(name.c_str());
             }
         }
-        
         return deserialize_entity_target(entity, std::move(props));
     }
 
@@ -139,6 +181,27 @@ namespace spectre::modules {
                             temp_comp_ent.destruct();
                         }
                     }
+                }
+            }
+        }
+
+        
+        if (props.has("scripts") && m_script_args_serializer.is_valid()) {
+            auto* serializer_mod = const_cast<serializer_module*>(&m_world.get_mut<serializer_module>());
+            if (serializer_mod) {
+                sandbox::properties scripts_node = props.sub("scripts");
+                flecs::entity temp_scripts_ent = serializer_mod->deserialize_entity(m_script_args_serializer, scripts_node);
+                if (temp_scripts_ent.is_valid()) {
+                    temp_scripts_ent.each([&](flecs::id id) {
+                        if (id.is_wildcard()) return;
+                        const void* ptr = ecs_get_id(m_world.c_ptr(), temp_scripts_ent.id(), id);
+                        if (ptr) {
+                            const ecs_type_info_t* ti = ecs_get_type_info(m_world.c_ptr(), id);
+                            size_t size = ti ? ti->size : 0;
+                            ecs_set_id(m_world.c_ptr(), entity.id(), id, size, ptr);
+                        }
+                    });
+                    temp_scripts_ent.destruct();
                 }
             }
         }
@@ -193,19 +256,51 @@ namespace spectre::modules {
         return m_prefabs_root.lookup(std::string(name).c_str());
     }
 
+    
+    static void run_on_create_scripts(flecs::entity entity, flecs::world& world) {
+        if (!entity.is_valid()) return;
+        
+        // Run on_create for children first
+        entity.children([&](flecs::entity child) {
+            run_on_create_scripts(child, world);
+        });
+
+        auto* scripts_mod = const_cast<script_module_t*>(&world.get_mut<script_module_t>());
+        if (scripts_mod) {
+            int index = 0;
+            while (flecs::entity script_ent = entity.target<spectre_use_script_on_create_relation_t>(index++)) {
+                const auto* rel_ptr = entity.try_get<spectre_use_script_on_create_relation_t>(script_ent);
+                if (!rel_ptr) continue;
+                const auto& rel = *rel_ptr;
+                
+                std::vector<spectre_script_argument_t> args;
+                if (rel.argument_count > 0 && rel.arguments) {
+                    args.assign(rel.arguments, rel.arguments + rel.argument_count);
+                }
+                scripts_mod->execute_script(script_ent.name().c_str(), args);
+            }
+        }
+    }
+
     flecs::entity prefabs_module_t::create_entity(sandbox::properties props) {
-        return deserialize_entity(std::move(props));
+        flecs::entity e = deserialize_entity(std::move(props));
+        run_on_create_scripts(e, m_world);
+        return e;
     }
 
     flecs::entity prefabs_module_t::create_entity(flecs::entity prefab) {
         if (!prefab.is_valid()) return flecs::entity::null();
-        return m_world.entity().is_a(prefab);
+        flecs::entity e = m_world.entity().is_a(prefab);
+        run_on_create_scripts(e, m_world);
+        return e;
     }
 
     flecs::entity prefabs_module_t::create_entity(std::string_view name) {
         flecs::entity prefab = find_prefab(name);
         if (!prefab.is_valid()) return flecs::entity::null();
-        return m_world.entity().is_a(prefab);
+        flecs::entity e = m_world.entity().is_a(prefab);
+        run_on_create_scripts(e, m_world);
+        return e;
     }
 
 }
