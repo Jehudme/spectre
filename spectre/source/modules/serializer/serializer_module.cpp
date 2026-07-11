@@ -5,6 +5,7 @@
 
 #include "sandbox/sdk/logs.hpp"
 #include "spectre/services/serializer_service.h"
+#include "spectre/sdk/components.hpp"
 
 namespace spectre::modules {
 
@@ -20,17 +21,25 @@ namespace spectre::modules {
         .requirement_count = 0
     })
 
+    // Component Registration Callbacks
+    static ecs_entity_t register_serializer_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_serializer_component>().id(); }
+
     serializer_module::serializer_module(flecs::world& world) : m_world(world) {
+        sandbox::modules::logs::trace(m_world, "[Serializer Module] Initializing...");
+
+        spectre_serializer_component empty_serializer = {nullptr, nullptr};
+        spectre::modules::components::register_component(m_world, "spectre_serializer_component", register_serializer_comp, empty_serializer);
+
         m_serializer = m_world.entity("::serializers");
         
         m_serializable_prefab = m_world.prefab("::serializers::prefab")
             .set<serializer_t>({});
             
-        sandbox::modules::logs::trace(m_world, "Serializer module initialized.");
+        sandbox::modules::logs::trace(m_world, "[Serializer Module] Initialized successfully.");
     }
     
     serializer_module::~serializer_module() {
-        sandbox::modules::logs::trace(m_world, "Serializer module destroyed.");
+        sandbox::modules::logs::trace(m_world, "[Serializer Module] Destroyed.");
     }
 
     void serializer_module::register_serializer(std::string_view serializer_type, const serializer_t& serializer_component) {

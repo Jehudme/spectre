@@ -1,17 +1,18 @@
 #include "prefabs_module.h"
 #include "spectre/services/prefabs_service.h"
+#include "spectre/sdk/serializer.hpp"
+#include "spectre/sdk/scripts.hpp"
+#include "spectre/sdk/components.hpp"
+#include "sandbox/sdk/logs.hpp"
+#include "../components/components_module.h"
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include "spectre/sdk/scripts.hpp"
-#include "sandbox/sdk/logs.hpp"
-#include "../components/components_module.h"
-#include "../serializer/serializer_module.h"
-#include "../scripts/scripts_module.h"
-
-
 namespace spectre::modules {
+
+    static ecs_entity_t deserialize_entity_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle);
+    static sandbox_properties_handle_t serialize_entity_cb(ecs_world_t* world, ecs_entity_t entity_id);
 
     SANDBOX_DECLARE_MODULE(prefabs_module_t, {
         .name = "prefabs",
@@ -25,50 +26,25 @@ namespace spectre::modules {
         .requirement_count = 0
     })
 
-    static ecs_entity_t deserialize_entity_cb(ecs_world_t* world, sandbox_properties_handle_t props_handle) {
-        flecs::world w(world); //use full variable name (always)
-        auto* mod = const_cast<prefabs_module_t*>(w.try_get_mut<prefabs_module_t>()); // always use api or sdk
-        if (mod) {
-            sandbox::properties props(props_handle, false);
-            return mod->deserialize_entity(std::move(props)).id();
-        }
-        return 0;
-    }
-
-    static sandbox_properties_handle_t serialize_entity_cb(ecs_world_t* world, ecs_entity_t entity) {
-        flecs::world w(world);
-        auto* mod = const_cast<prefabs_module_t*>(w.try_get_mut<prefabs_module_t>());
-        if (mod) { // since the service should be expected
-            sandbox::properties props = mod->serialize_entity(flecs::entity(w, entity));
-            sandbox_properties_handle_t handle = props.get_raw();
-            props.release();
-            return handle;
-        }
-        return {0};
-    }
-
     prefabs_module_t::prefabs_module_t(flecs::world& world) : m_world(world) {
-        sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "Initializing prefabs module...");
+        sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Prefabs Module] Initializing...");
         
         m_prefabs_root = m_world.entity("::prefabs");
         m_entity_prefab = m_world.prefab("::prefabs::prefab");
 
-        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>()); // never use the direct module, use the sdk to run function
-        if (serializer_mod) {
-            spectre_serializer_component ser_comp;
-            ser_comp.deserialize = deserialize_entity_cb;
-            ser_comp.serialize = serialize_entity_cb;
-            serializer_mod->register_serializer("entity", ser_comp);
-            
-            m_script_args_serializer = serializer_mod->find_serializer("scripts");
-            m_entity_serializer = serializer_mod->find_serializer("entity");
-        }
+        spectre_serializer_component entity_serializer = {};
+        entity_serializer.deserialize = deserialize_entity_cb;
+        entity_serializer.serialize = serialize_entity_cb;
+        spectre::modules::serializer::register_serializer(m_world, "entity", &entity_serializer);
+        
+        m_script_args_serializer = m_world.entity(spectre::modules::serializer::find_serializer(m_world, "scripts"));
+        m_entity_serializer = m_world.entity(spectre::modules::serializer::find_serializer(m_world, "entity"));
         
         // Register observer for entity destruction to run on_destroy scripts
         m_world.observer<spectre_use_script_on_destroy_relation_t>()
             .event(flecs::OnRemove)
-            .each([](flecs::iter& it, size_t i, spectre_use_script_on_destroy_relation_t& rel) {
-                flecs::entity entity = it.entity(i);
+            .each([](flecs::iter& iterator, size_t index, spectre_use_script_on_destroy_relation_t& relation) {
+                flecs::entity entity = iterator.entity(index);
                 flecs::entity target = entity.parent();
                 if (!target.is_valid() || target.name() != "scripts") target = entity;
                 else target = target.parent();
@@ -78,169 +54,185 @@ namespace spectre::modules {
                 }
             });
 
-
-        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "Prefabs module initialized successfully.");
+        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Prefabs Module] Initialized successfully.");
     }
     
     prefabs_module_t::~prefabs_module_t() = default;
 
-    sandbox::properties prefabs_module_t::serialize_entity(flecs::entity entity) {
-        sandbox::properties result;
-        if (!entity.is_valid()) {
-            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Cannot serialize invalid entity.");
-            return result;
+    static ecs_entity_t deserialize_entity_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle) {
+        if (!world) return 0;
+        flecs::world flecs_world(world);
+        auto* module_instance = flecs_world.try_get_mut<prefabs_module_t>();
+        if (module_instance) {
+            sandbox::properties parsed_properties(properties_handle, false);
+            return module_instance->deserialize_entity(std::move(parsed_properties)).id();
+        }
+        return 0;
+    }
+
+    static sandbox_properties_handle_t serialize_entity_cb(ecs_world_t* world, ecs_entity_t entity_id) {
+        if (!world || !entity_id) return {0};
+        flecs::world flecs_world(world);
+        auto* module_instance = flecs_world.try_get_mut<prefabs_module_t>();
+        if (module_instance) {
+            sandbox::properties serialized_properties = module_instance->serialize_entity(flecs_world.entity(entity_id));
+            sandbox_properties_handle_t raw_handle = serialized_properties.get_raw();
+            serialized_properties.release();
+            return raw_handle;
+        }
+        return {0};
+    }
+
+    sandbox::properties prefabs_module_t::serialize_entity(flecs::entity entity_to_serialize) {
+        sandbox::properties result_properties;
+        if (!entity_to_serialize.is_valid()) {
+            sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world), "[Prefabs Module] Cannot serialize invalid entity.");
+            return result_properties;
         }
 
-        if (entity.name().c_str()) {
-            result.set<std::string>("name", entity.name().c_str());
+        if (entity_to_serialize.name().c_str()) {
+            result_properties.set<std::string>("name", entity_to_serialize.name().c_str());
         }
 
-        std::vector<std::string> prefabs;
-        entity.each(flecs::IsA, [&](flecs::entity prefab) {
+        std::vector<std::string> prefabs_list;
+        entity_to_serialize.each(flecs::IsA, [&](flecs::entity prefab) {
             if (prefab.is_valid() && prefab.name().c_str()) {
-                prefabs.push_back(prefab.name().c_str());
+                prefabs_list.push_back(prefab.name().c_str());
             }
         });
-        if (!prefabs.empty()) {
-            result.set_array<std::string>("prefabs", prefabs);
+        if (!prefabs_list.empty()) {
+            result_properties.set_array<std::string>("prefabs", prefabs_list);
         }
 
-        auto* components_mod = const_cast<components_module_t*>(m_world.try_get_mut<components_module_t>());
-        if (components_mod) {
-            sandbox::properties comps = components_mod->serialize_component(entity);
-            if (comps.is_valid()) {
-                result.merge("components", comps);
+        auto* components_module = const_cast<components_module_t*>(m_world.try_get_mut<components_module_t>());
+        if (components_module) {
+            sandbox::properties components_properties = components_module->serialize_component(entity_to_serialize);
+            if (components_properties.is_valid()) {
+                result_properties.merge("components", components_properties);
             }
         }
-
         
-        if (m_script_args_serializer.is_valid()) {
-            auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
-            if (serializer_mod) {
-                // Find the child that represents scripts
-                flecs::entity scripts_child = entity.lookup("scripts");
-                if (scripts_child.is_valid()) {
-                    sandbox::properties scripts_props = serializer_mod->serialize_entity(m_script_args_serializer, scripts_child);
-                    if (scripts_props.is_valid()) {
-                        result.merge("scripts", scripts_props);
-                    }
+        if (m_script_args_serializer.id() != 0) {
+            flecs::entity scripts_child = entity_to_serialize.lookup("scripts");
+            if (scripts_child.is_valid()) {
+                sandbox_properties_handle_t scripts_handle = spectre::modules::serializer::serialize_entity(m_world, m_script_args_serializer.id(), scripts_child.id());
+                sandbox::properties scripts_properties(scripts_handle, false);
+                if (scripts_properties.is_valid()) {
+                    result_properties.merge("scripts", scripts_properties);
                 }
             }
         }
 
-        sandbox::properties children_props;
+        sandbox::properties children_properties;
         bool has_children = false;
-        entity.children([&](flecs::entity child) {
-            sandbox::properties child_props = serialize_entity(child);
-            if (child_props.is_valid()) {
+        entity_to_serialize.children([&](flecs::entity child) {
+            sandbox::properties child_properties = serialize_entity(child);
+            if (child_properties.is_valid()) {
                 std::string child_key = child.name().c_str() ? child.name().c_str() : std::to_string(child.id());
-                children_props.merge(child_key, child_props);
+                children_properties.merge(child_key, child_properties);
                 has_children = true;
             }
         });
         
         if (has_children) {
-            result.merge("children", children_props);
+            result_properties.merge("children", children_properties);
         }
 
-        return result;
+        return result_properties;
     }
 
-    flecs::entity prefabs_module_t::deserialize_entity(sandbox::properties props) {
-        if (!props.is_valid()) return flecs::entity::null();
+    flecs::entity prefabs_module_t::deserialize_entity(sandbox::properties properties) {
+        if (!properties.is_valid()) return flecs::entity::null();
         
-        flecs::entity entity = m_world.entity();
+        flecs::entity new_entity = m_world.entity();
         
-        std::string name;
-        if (props.get<std::string>("name", name)) {
-            flecs::entity existing = m_world.lookup(name.c_str());
-            if (existing.is_valid()) {
-                entity = existing;
+        std::string entity_name;
+        if (properties.get<std::string>("name", entity_name)) {
+            flecs::entity existing_entity = m_world.lookup(entity_name.c_str());
+            if (existing_entity.is_valid()) {
+                new_entity = existing_entity;
             } else {
-                entity.set_name(name.c_str());
+                new_entity.set_name(entity_name.c_str());
             }
         }
-        return deserialize_entity_target(entity, std::move(props));
+        return deserialize_entity_target(new_entity, std::move(properties));
     }
 
-    flecs::entity prefabs_module_t::deserialize_entity_target(flecs::entity entity, sandbox::properties props) {
-        if (!props.is_valid() || !entity.is_valid()) return entity;
+    flecs::entity prefabs_module_t::deserialize_entity_target(flecs::entity target_entity, sandbox::properties properties) {
+        if (!properties.is_valid() || !target_entity.is_valid()) return target_entity;
 
-        std::vector<std::string> prefabs;
-        if (props.get_array<std::string>("prefabs", prefabs)) {
-            for (const auto& p_name : prefabs) {
-                flecs::entity prefab = find_prefab(p_name);
+        std::vector<std::string> prefabs_list;
+        if (properties.get_array<std::string>("prefabs", prefabs_list)) {
+            for (const auto& prefab_name : prefabs_list) {
+                flecs::entity prefab = find_prefab(prefab_name);
                 if (!prefab.is_valid()) {
-                    prefab = m_world.prefab(p_name.c_str())
+                    prefab = m_world.prefab(prefab_name.c_str())
                                     .child_of(m_prefabs_root)
                                     .is_a(m_entity_prefab);
                 }
-                entity.is_a(prefab);
+                target_entity.is_a(prefab);
             }
         }
 
-        if (props.has("components")) {
-            auto* components_mod = const_cast<components_module_t*>(m_world.try_get_mut<components_module_t>());
-            if (components_mod) {
-                std::vector<std::string> comp_keys = props.keys("components");
-                sandbox::properties components_node = props.sub("components");
-                for (const auto& comp_name : comp_keys) {
-                    sandbox::properties comp_props = components_node.sub(comp_name);
-                    if (comp_props.is_valid()) {
-                        flecs::entity temp_comp_ent = components_mod->deserialize_component(comp_name, std::move(comp_props));
-                        if (temp_comp_ent.is_valid()) {
-                            // Copy all components from temp_comp_ent to entity
-                            temp_comp_ent.each([&](flecs::id id) {
-                                if (id.is_wildcard()) return;
-                                const void* ptr = ecs_get_id(m_world.c_ptr(), temp_comp_ent.id(), id);
-                                if (ptr) {
-                                    const ecs_type_info_t* ti = ecs_get_type_info(m_world.c_ptr(), id);
-                                    size_t size = ti ? ti->size : 0;
-                                    ecs_set_id(m_world.c_ptr(), entity.id(), id, size, ptr);
+        if (properties.has("components")) {
+            auto* components_module = const_cast<components_module_t*>(m_world.try_get_mut<components_module_t>());
+            if (components_module) {
+                std::vector<std::string> component_keys = properties.keys("components");
+                sandbox::properties components_node = properties.sub("components");
+                for (const auto& component_name : component_keys) {
+                    sandbox::properties component_properties = components_node.sub(component_name);
+                    if (component_properties.is_valid()) {
+                        flecs::entity temporary_component_entity = components_module->deserialize_component(component_name, std::move(component_properties));
+                        if (temporary_component_entity.is_valid()) {
+                            temporary_component_entity.each([&](flecs::id component_id) {
+                                if (component_id.is_wildcard()) return;
+                                const void* pointer = ecs_get_id(m_world.c_ptr(), temporary_component_entity.id(), component_id);
+                                if (pointer) {
+                                    const ecs_type_info_t* type_info = ecs_get_type_info(m_world.c_ptr(), component_id);
+                                    size_t size = type_info ? type_info->size : 0;
+                                    ecs_set_id(m_world.c_ptr(), target_entity.id(), component_id, size, pointer);
                                 } else {
-                                    entity.add(id);
+                                    target_entity.add(component_id);
                                 }
                             });
-                            temp_comp_ent.destruct();
+                            temporary_component_entity.destruct();
                         }
                     }
                 }
             }
         }
-
         
-        if (props.has("scripts") && m_script_args_serializer.is_valid()) {
-            auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
-            if (serializer_mod) {
-                sandbox::properties scripts_node = props.sub("scripts");
-                flecs::entity temp_scripts_ent = serializer_mod->deserialize_entity(m_script_args_serializer, scripts_node);
-                if (temp_scripts_ent.is_valid()) {
-                    temp_scripts_ent.child_of(entity);
-                    temp_scripts_ent.set_name("scripts");
-                }
+        if (properties.has("scripts") && m_script_args_serializer.id() != 0) {
+            sandbox::properties scripts_node = properties.sub("scripts");
+            sandbox_properties_handle_t handle = scripts_node.get_raw();
+            ecs_entity_t raw_scripts_entity = spectre::modules::serializer::deserialize_entity(m_world, m_script_args_serializer.id(), handle);
+            if (raw_scripts_entity != 0) {
+                flecs::entity temporary_scripts_entity = m_world.entity(raw_scripts_entity);
+                temporary_scripts_entity.child_of(target_entity);
+                temporary_scripts_entity.set_name("scripts");
             }
         }
 
-        if (props.has("children")) {
-            std::vector<std::string> child_keys = props.keys("children");
-            sandbox::properties children_node = props.sub("children");
+        if (properties.has("children")) {
+            std::vector<std::string> child_keys = properties.keys("children");
+            sandbox::properties children_node = properties.sub("children");
             for (const auto& child_key : child_keys) {
-                sandbox::properties child_props = children_node.sub(child_key);
-                if (child_props.is_valid()) {
-                    flecs::entity child_ent = deserialize_entity(std::move(child_props));
-                    if (child_ent.is_valid()) {
-                        child_ent.child_of(entity);
+                sandbox::properties child_properties = children_node.sub(child_key);
+                if (child_properties.is_valid()) {
+                    flecs::entity child_entity = deserialize_entity(std::move(child_properties));
+                    if (child_entity.is_valid()) {
+                        child_entity.child_of(target_entity);
                     }
                 }
             }
         }
 
-        return entity;
+        return target_entity;
     }
 
-    void prefabs_module_t::register_prefab(std::string_view name, sandbox::properties props) {
+    void prefabs_module_t::register_prefab(std::string_view name, sandbox::properties properties) {
         if (name.empty()) {
-            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Cannot register prefab with empty name.");
+            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Prefabs Module] Cannot register prefab with empty name.");
             return;
         }
 
@@ -251,8 +243,8 @@ namespace spectre::modules {
                             .is_a(m_entity_prefab);
         }
 
-        if (props.is_valid()) {
-            deserialize_entity_target(prefab, std::move(props));
+        if (properties.is_valid()) {
+            deserialize_entity_target(prefab, std::move(properties));
         }
     }
 
@@ -262,46 +254,45 @@ namespace spectre::modules {
         return is_prefab(prefab);
     }
 
-    bool prefabs_module_t::is_prefab(flecs::entity entity) const {
-        return entity.is_valid() && entity.has(flecs::IsA, m_entity_prefab);
+    bool prefabs_module_t::is_prefab(flecs::entity entity_to_check) const {
+        return entity_to_check.is_valid() && entity_to_check.has(flecs::IsA, m_entity_prefab);
     }
 
     flecs::entity prefabs_module_t::find_prefab(std::string_view name) {
         if (name.empty()) return flecs::entity::null();
         return m_prefabs_root.lookup(std::string(name).c_str());
     }
-
     
-    static void run_on_create_scripts(flecs::entity entity, flecs::world& world) {
-        if (!entity.is_valid()) return;
+    static void run_on_create_scripts(flecs::entity target_entity, flecs::world& world) {
+        if (!target_entity.is_valid()) return;
         
         // Run on_create for children first
-        entity.children([&](flecs::entity child) {
+        target_entity.children([&](flecs::entity child) {
             run_on_create_scripts(child, world);
         });
 
-        ::spectre::sdk::scripts::execute_on_create(entity);
+        ::spectre::sdk::scripts::execute_on_create(target_entity);
     }
 
-    flecs::entity prefabs_module_t::create_entity(sandbox::properties props) {
-        flecs::entity e = deserialize_entity(std::move(props));
-        run_on_create_scripts(e, m_world);
-        return e;
+    flecs::entity prefabs_module_t::create_entity(sandbox::properties properties) {
+        flecs::entity created_entity = deserialize_entity(std::move(properties));
+        run_on_create_scripts(created_entity, m_world);
+        return created_entity;
     }
 
     flecs::entity prefabs_module_t::create_entity(flecs::entity prefab) {
         if (!prefab.is_valid()) return flecs::entity::null();
-        flecs::entity e = m_world.entity().is_a(prefab);
-        run_on_create_scripts(e, m_world);
-        return e;
+        flecs::entity created_entity = m_world.entity().is_a(prefab);
+        run_on_create_scripts(created_entity, m_world);
+        return created_entity;
     }
 
     flecs::entity prefabs_module_t::create_entity(std::string_view name) {
         flecs::entity prefab = find_prefab(name);
         if (!prefab.is_valid()) return flecs::entity::null();
-        flecs::entity e = m_world.entity().is_a(prefab);
-        run_on_create_scripts(e, m_world);
-        return e;
+        flecs::entity created_entity = m_world.entity().is_a(prefab);
+        run_on_create_scripts(created_entity, m_world);
+        return created_entity;
     }
 
 }

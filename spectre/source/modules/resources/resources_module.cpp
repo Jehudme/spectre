@@ -1,10 +1,20 @@
 #include "resources_module.h"
 #include "spectre/services/resources_service.h"
-#include <iostream>
+#include "spectre/sdk/serializer.hpp"
+#include "spectre/sdk/components.hpp"
 #include "sandbox/sdk/logs.hpp"
-#include "../serializer/serializer_module.h"
+#include <iostream>
 
 namespace spectre::modules {
+
+    static ecs_entity_t deserialize_resource_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle);
+    static sandbox_properties_handle_t serialize_resource_cb(ecs_world_t* world, ecs_entity_t entity_id);
+
+    // Component Registration Callbacks
+    static ecs_entity_t register_resource_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_resource_component_t>().id(); }
+    static ecs_entity_t register_resource_loader_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_resource_loader_component_t>().id(); }
+    static ecs_entity_t register_use_loader_rel(ecs_world_t* world) { return flecs::world(world).component<spectre_use_loader_relation_t>().id(); }
+    static ecs_entity_t register_resource_flag(ecs_world_t* world) { return flecs::world(world).component<spectre_resource_flag_t>().id(); }
 
     SANDBOX_DECLARE_MODULE(resource_module_t, {
         .name = "resources",
@@ -18,218 +28,229 @@ namespace spectre::modules {
         .requirement_count = 0
     })
 
-    static ecs_entity_t deserialize_resource_cb(ecs_world_t* world, sandbox_properties_handle_t props_handle) {
-        flecs::world w(world);
-        auto* mod = const_cast<resource_module_t*>(w.try_get_mut<resource_module_t>());
-        if (mod) {
-            sandbox::properties props(props_handle, false);
-            return mod->deserialize_resource(props).id();
-        }
-        return 0;
-    }
-
-    static sandbox_properties_handle_t serialize_resource_cb(ecs_world_t* world, ecs_entity_t entity) {
-        flecs::world w(world);
-        auto* mod = const_cast<resource_module_t*>(w.try_get_mut<resource_module_t>());
-        if (mod) {
-            sandbox::properties props = mod->serialize_resource(flecs::entity(w, entity));
-            sandbox_properties_handle_t handle = props.get_raw();
-            props.release();
-            return handle;
-        }
-        return {0};
-    }
-
     resource_module_t::resource_module_t(flecs::world& world) : m_world(world) {
-        m_resources_root = m_world.entity("::resources");
-        m_resource_prefab = m_world.prefab("::resources::prefab").add<Resource>();
-        
-        m_world.entity("::resources::loaders");
+        sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Resources Module] Initializing...");
 
-        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
-        if (serializer_mod) {
-            spectre_serializer_component ser_comp;
-            ser_comp.deserialize = deserialize_resource_cb;
-            ser_comp.serialize = serialize_resource_cb;
-            serializer_mod->register_serializer("resources", ser_comp);
-            m_resources_serializer = serializer_mod->find_serializer("resources");
-        }
+        // Register components and relations
+        spectre_serializer_component empty_serializer = {nullptr, nullptr};
+        spectre::modules::components::register_component(m_world, "spectre_resource_component_t", register_resource_comp, empty_serializer);
+        spectre::modules::components::register_component(m_world, "spectre_resource_loader_component_t", register_resource_loader_comp, empty_serializer);
+        spectre::modules::components::register_component(m_world, "spectre_use_loader_relation_t", register_use_loader_rel, empty_serializer);
+        spectre::modules::components::register_component(m_world, "spectre_resource_flag_t", register_resource_flag, empty_serializer);
+
+        // Create roots
+        m_resources_root = m_world.entity("::resources");
+        m_loaders_root = m_world.entity("::resources::loaders");
+        m_resource_prefab = m_world.prefab("::resources::prefab").add<Resource>();
+
+        // Register serializer
+        spectre_serializer_component resource_serializer = {};
+        resource_serializer.deserialize = deserialize_resource_cb;
+        resource_serializer.serialize = serialize_resource_cb;
+        spectre::modules::serializer::register_serializer(m_world, "resources", &resource_serializer);
+        
+        m_resources_serializer = m_world.entity(spectre::modules::serializer::find_serializer(m_world, "resources"));
+
+        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Resources Module] Initialized successfully.");
     }
     
     resource_module_t::~resource_module_t() = default;
 
-    void resource_module_t::register_resource_loader(std::string_view type, ResourceLoader loader) {
-        if (type.empty()) return;
-        std::string path = "::resources::loaders::" + std::string(type);
-        flecs::entity loader_ent = m_world.entity(path.c_str());
-        if (loader_ent.has<ResourceLoader>()) {
-            ::sandbox::modules::logs::warn(m_world, "Resource loader for type '{}' is being overridden.", type);
+    static ecs_entity_t deserialize_resource_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle) {
+        if (!world) return 0;
+        flecs::world flecs_world(world);
+        auto* module_instance = flecs_world.try_get_mut<resource_module_t>();
+        if (module_instance) {
+            sandbox::properties parsed_properties(properties_handle, false);
+            return module_instance->deserialize_resource(parsed_properties).id();
         }
-        loader_ent.set<ResourceLoader>(loader);
+        return 0;
     }
 
-    void resource_module_t::register_resource(const sandbox::properties& props) {
-        if (!props.is_valid()) return;
+    static sandbox_properties_handle_t serialize_resource_cb(ecs_world_t* world, ecs_entity_t entity_id) {
+        if (!world || !entity_id) return {0};
+        flecs::world flecs_world(world);
+        auto* module_instance = flecs_world.try_get_mut<resource_module_t>();
+        if (module_instance) {
+            sandbox::properties serialized_properties = module_instance->serialize_resource(flecs_world.entity(entity_id));
+            sandbox_properties_handle_t raw_handle = serialized_properties.get_raw();
+            serialized_properties.release();
+            return raw_handle;
+        }
+        return {0};
+    }
+
+    void resource_module_t::register_resource_loader(std::string_view type, ResourceLoader loader) {
+        if (type.empty()) return;
+        flecs::entity loader_entity = m_loaders_root.lookup(std::string(type).c_str());
+        if (!loader_entity.is_valid()) {
+            loader_entity = m_world.entity(std::string(type).c_str()).child_of(m_loaders_root);
+        }
+        if (loader_entity.has<ResourceLoader>()) {
+            sandbox::modules::logs::warn(m_world, "[Resources Module] Resource loader for type '{}' is being overridden.", type);
+        }
+        loader_entity.set<ResourceLoader>(loader);
+    }
+
+    void resource_module_t::register_resource(const sandbox::properties& properties) {
+        if (!properties.is_valid()) return;
         
-        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
-        if (!serializer_mod || !m_resources_serializer.is_valid()) {
-            ::sandbox::modules::logs::error(m_world, "Serializer module or resources serializer not available");
+        if (!m_resources_serializer.is_valid()) {
+            sandbox::modules::logs::error(m_world, "[Resources Module] Resources serializer not available.");
             return;
         }
 
-        std::vector<std::string> keys = props.keys("");
+        std::vector<std::string> keys = properties.keys("");
         for (const auto& key : keys) {
-            sandbox::properties res_node = props.sub(key);
-            if (!res_node.is_valid()) continue;
+            sandbox::properties resource_node = properties.sub(key);
+            if (!resource_node.is_valid()) continue;
             
-            flecs::entity res_ent = serializer_mod->deserialize_entity(m_resources_serializer, res_node);
-            if (res_ent.is_valid()) {
-                res_ent.set_name(key.c_str());
-                res_ent.child_of(m_resources_root);
+            sandbox_properties_handle_t handle = resource_node.get_raw();
+            ecs_entity_t raw_resource_entity = spectre::modules::serializer::deserialize_entity(m_world, m_resources_serializer.id(), handle);
+            if (raw_resource_entity != 0) {
+                flecs::entity resource_entity = m_world.entity(raw_resource_entity);
+                resource_entity.set_name(key.c_str());
+                resource_entity.child_of(m_resources_root);
             }
         }
     }
 
-    flecs::entity resource_module_t::deserialize_resource(const sandbox::properties& props) {
-        if (!props.is_valid()) return flecs::entity::null();
+    flecs::entity resource_module_t::deserialize_resource(const sandbox::properties& properties) {
+        if (!properties.is_valid()) return flecs::entity::null();
         std::string type;
-        if (!props.get<std::string>("type", type) && !props.get<std::string>("types", type)) {
-            ::sandbox::modules::logs::error(m_world, "Resource missing 'type'");
+        if (!properties.get<std::string>("type", type) && !properties.get<std::string>("types", type)) {
+            sandbox::modules::logs::error(m_world, "[Resources Module] Resource missing 'type'.");
             return flecs::entity::null();
         }
         std::string path;
-        if (!props.get<std::string>("path", path)) {
-            ::sandbox::modules::logs::error(m_world, "Resource missing 'path'");
+        if (!properties.get<std::string>("path", path)) {
+            sandbox::modules::logs::error(m_world, "[Resources Module] Resource missing 'path'.");
             return flecs::entity::null();
         }
         
-        flecs::entity loader_ent = find_resource_loader(type);
-        if (!loader_ent.is_valid()) {
-            ::sandbox::modules::logs::error(m_world, "Resource loader not found for type '{}'", type);
+        flecs::entity loader_entity = find_resource_loader(type);
+        if (!loader_entity.is_valid()) {
+            sandbox::modules::logs::error(m_world, "[Resources Module] Resource loader not found for type '{}'.", type);
             return flecs::entity::null();
         }
         
-        flecs::entity res_ent = m_world.entity()
+        flecs::entity resource_entity = m_world.entity()
             .is_a(m_resource_prefab)
-            .add<spectre_use_loader_relation_t>(loader_ent);
+            .add<spectre_use_loader_relation_t>(loader_entity);
             
-        Resource res_comp;
+        Resource resource_component;
         char* path_copy = new char[path.size() + 1];
         std::copy(path.begin(), path.end(), path_copy);
         path_copy[path.size()] = '\0';
-        res_comp.path = path_copy;
-        res_comp.instance = nullptr;
-        res_ent.set<Resource>(res_comp);
-        return res_ent;
+        resource_component.path = path_copy;
+        resource_component.instance = nullptr;
+        resource_entity.set<Resource>(resource_component);
+        return resource_entity;
     }
 
-    sandbox::properties resource_module_t::serialize_resource(flecs::entity entity) {
-        sandbox::properties props;
+    sandbox::properties resource_module_t::serialize_resource(flecs::entity entity_to_serialize) {
+        sandbox::properties result_properties;
         
-        if (!entity.is_valid() || !entity.has<Resource>()) {
-            return props;
+        if (!entity_to_serialize.is_valid() || !entity_to_serialize.has<Resource>()) {
+            return result_properties;
         }
 
-        const auto* res = entity.try_get<Resource>();
-        if (res && res->path) {
-            props.set("path", std::string(res->path));
+        const auto* resource_component = entity_to_serialize.try_get<Resource>();
+        if (resource_component && resource_component->path) {
+            result_properties.set("path", std::string(resource_component->path));
         }
 
-        entity.each<spectre_use_loader_relation_t>([&](flecs::entity loader) {
-            props.set("type", std::string(loader.name()));
+        entity_to_serialize.each<spectre_use_loader_relation_t>([&](flecs::entity loader) {
+            result_properties.set("type", std::string(loader.name()));
         });
 
-        return props;
+        return result_properties;
     }
 
     bool resource_module_t::has_resource_loader(std::string_view type) const {
         if (type.empty()) return false;
-        std::string path = "::resources::loaders::" + std::string(type);
-        flecs::entity loader_ent = m_world.lookup(path.c_str());
-        return loader_ent.is_valid() && loader_ent.has<ResourceLoader>();
+        flecs::entity loader_entity = m_loaders_root.lookup(std::string(type).c_str());
+        return loader_entity.is_valid() && loader_entity.has<ResourceLoader>();
     }
 
     bool resource_module_t::has_resource(std::string_view name) const {
         if (name.empty()) return false;
-        std::string path = "::resources::" + std::string(name); // i really dont like that just create the resource root in the constructor and use it to store and get with minimal string manipulation
-        flecs::entity res_ent = m_world.lookup(path.c_str());
-        return is_resource(res_ent);
+        flecs::entity resource_entity = m_resources_root.lookup(std::string(name).c_str());
+        return is_resource(resource_entity);
     }
 
-    bool resource_module_t::is_resource(flecs::entity entity) const {
-        return entity.is_valid() && entity.has(flecs::IsA, m_resource_prefab);
+    bool resource_module_t::is_resource(flecs::entity entity_to_check) const {
+        return entity_to_check.is_valid() && entity_to_check.has(flecs::IsA, m_resource_prefab);
     }
 
     flecs::entity resource_module_t::find_resource_loader(std::string_view type) {
         if (type.empty()) return flecs::entity::null();
-        std::string path = "::resources::loaders::" + std::string(type); // also just create the loader root in the constructor and use to store and get with minimal string manipulation
-        flecs::entity loader_ent = m_world.lookup(path.c_str());
-        if (loader_ent.is_valid() && loader_ent.has<ResourceLoader>()) {
-            return loader_ent;
+        flecs::entity loader_entity = m_loaders_root.lookup(std::string(type).c_str());
+        if (loader_entity.is_valid() && loader_entity.has<ResourceLoader>()) {
+            return loader_entity;
         }
         return flecs::entity::null();
     }
 
     flecs::entity resource_module_t::find_resource(std::string_view name) {
         if (name.empty()) return flecs::entity::null();
-        std::string path = "::resources::" + std::string(name); // same here, fixe everywhere
-        flecs::entity res_ent = m_world.lookup(path.c_str());
-        if (is_resource(res_ent)) return res_ent;
+        flecs::entity resource_entity = m_resources_root.lookup(std::string(name).c_str());
+        if (is_resource(resource_entity)) return resource_entity;
         return flecs::entity::null();
     }
 
-    bool resource_module_t::is_resource_loaded(flecs::entity resource) const {
-        if (!is_resource(resource)) return false;
-        return resource.has<spectre_resource_flag_t>();
+    bool resource_module_t::is_resource_loaded(flecs::entity resource_entity) const {
+        if (!is_resource(resource_entity)) return false;
+        return resource_entity.has<spectre_resource_flag_t>();
     }
 
-    void resource_module_t::load_resource(flecs::entity resourceEntity) {
-        if (!is_resource(resourceEntity)) return;
-        if (is_resource_loaded(resourceEntity)) return;
+    void resource_module_t::load_resource(flecs::entity resource_entity) {
+        if (!is_resource(resource_entity)) return;
+        if (is_resource_loaded(resource_entity)) return;
         
-        flecs::entity loader_ent = resourceEntity.target<spectre_use_loader_relation_t>();
-        if (!loader_ent.is_valid()) {
-            ::sandbox::modules::logs::error(m_world, "Resource {} has no loader relation", resourceEntity.name().c_str());
+        flecs::entity loader_entity = resource_entity.target<spectre_use_loader_relation_t>();
+        if (!loader_entity.is_valid()) {
+            sandbox::modules::logs::error(m_world, "[Resources Module] Resource '{}' has no loader relation.", resource_entity.name().c_str());
             return;
         }
         
-        const ResourceLoader* loader = &loader_ent.get<ResourceLoader>();
+        const ResourceLoader* loader = &loader_entity.get<ResourceLoader>();
         if (!loader || !loader->load_fn) {
-            ::sandbox::modules::logs::error(m_world, "Loader for resource {} is invalid", resourceEntity.name().c_str());
+            sandbox::modules::logs::error(m_world, "[Resources Module] Loader for resource '{}' is invalid.", resource_entity.name().c_str());
             return;
         }
         
-        Resource* res = resourceEntity.try_get_mut<Resource>();
-        if (res) {
-            loader->load_fn(m_world.c_ptr(), res);
-            resourceEntity.add<spectre_resource_flag_t>();
+        Resource* resource_component = resource_entity.try_get_mut<Resource>();
+        if (resource_component) {
+            loader->load_fn(m_world.c_ptr(), resource_component);
+            resource_entity.add<spectre_resource_flag_t>();
         }
     }
 
-    void resource_module_t::free_resource(flecs::entity resourceEntity) {
-        if (!is_resource(resourceEntity)) return;
-        if (!is_resource_loaded(resourceEntity)) return;
+    void resource_module_t::free_resource(flecs::entity resource_entity) {
+        if (!is_resource(resource_entity)) return;
+        if (!is_resource_loaded(resource_entity)) return;
         
-        flecs::entity loader_ent = resourceEntity.target<spectre_use_loader_relation_t>();
-        if (!loader_ent.is_valid()) return;
+        flecs::entity loader_entity = resource_entity.target<spectre_use_loader_relation_t>();
+        if (!loader_entity.is_valid()) return;
         
-        const ResourceLoader* loader = &loader_ent.get<ResourceLoader>();
+        const ResourceLoader* loader = &loader_entity.get<ResourceLoader>();
         if (!loader || !loader->free_fn) return;
         
-        Resource* res = resourceEntity.try_get_mut<Resource>();
-        if (res) {
-            loader->free_fn(m_world.c_ptr(), res);
-            resourceEntity.remove<spectre_resource_flag_t>();
+        Resource* resource_component = resource_entity.try_get_mut<Resource>();
+        if (resource_component) {
+            loader->free_fn(m_world.c_ptr(), resource_component);
+            resource_entity.remove<spectre_resource_flag_t>();
         }
     }
 
-    void* resource_module_t::get_resource(flecs::entity resourceEntity) {
-        if (!is_resource(resourceEntity)) return nullptr;
-        if (!is_resource_loaded(resourceEntity)) {
-            load_resource(resourceEntity);
+    void* resource_module_t::get_resource(flecs::entity resource_entity) {
+        if (!is_resource(resource_entity)) return nullptr;
+        if (!is_resource_loaded(resource_entity)) {
+            load_resource(resource_entity);
         }
-        const Resource* res = &resourceEntity.get<Resource>();
-        if (res) return res->instance;
+        const Resource* resource_component = &resource_entity.get<Resource>();
+        if (resource_component) return resource_component->instance;
         return nullptr;
     }
 }

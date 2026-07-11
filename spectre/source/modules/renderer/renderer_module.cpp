@@ -1,8 +1,9 @@
 #include "renderer_module.h"
 #include "spectre/services/renderer_service.h"
 #include "spectre/components/renderer_component.h"
-#include "spectre/services/scenes_service.h"
-#include "spectre/components/scenes_component.h"
+#include "spectre/sdk/scenes.hpp"
+#include "spectre/sdk/components.hpp"
+#include "spectre/sdk/serializer.hpp"
 #include "sandbox/sdk/logs.hpp"
 #include <iostream>
 #include <vector>
@@ -22,61 +23,82 @@ namespace spectre::modules {
         .requirement_count = 0
     })
 
-    static ecs_entity_t deserialize_renderer_cb(ecs_world_t* world, sandbox_properties_handle_t props_handle) {
-        flecs::world w(world);
-        auto* mod = const_cast<renderer_module_t*>(w.try_get_mut<renderer_module_t>());
-        if (mod) {
-            sandbox::properties props(props_handle, false);
-            return mod->deserialize_renderer(props).id();
+    static ecs_entity_t deserialize_renderer_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle) {
+        flecs::world flecs_world(world);
+        auto* module_instance = const_cast<renderer_module_t*>(flecs_world.try_get_mut<renderer_module_t>());
+        if (module_instance) {
+            sandbox::properties parsed_properties(properties_handle, false);
+            return module_instance->deserialize_renderer(parsed_properties).id();
         }
         return 0;
     }
 
-    static sandbox_properties_handle_t serialize_renderer_cb(ecs_world_t* world, ecs_entity_t entity) {
-        flecs::world w(world);
-        auto* mod = const_cast<renderer_module_t*>(w.try_get_mut<renderer_module_t>());
-        if (mod) {
-            sandbox::properties props = mod->serialize_renderer(flecs::entity(w, entity));
-            sandbox_properties_handle_t handle = props.get_raw();
-            props.release();
-            return handle;
+    static sandbox_properties_handle_t serialize_renderer_cb(ecs_world_t* world, ecs_entity_t entity_id) {
+        flecs::world flecs_world(world);
+        auto* module_instance = const_cast<renderer_module_t*>(flecs_world.try_get_mut<renderer_module_t>());
+        if (module_instance) {
+            sandbox::properties serialized_properties = module_instance->serialize_renderer(flecs::entity(flecs_world, entity_id));
+            sandbox_properties_handle_t raw_handle = serialized_properties.get_raw();
+            serialized_properties.release();
+            return raw_handle;
         }
         return {0};
     }
+    
+    // Component Registration Callbacks
+    static ecs_entity_t register_renderable_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_renderable_t>().id(); }
+    static ecs_entity_t register_rectangle_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_rectange_renderable_t>().id(); }
+    static ecs_entity_t register_polygon_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_polygone_renderable_t>().id(); }
+    static ecs_entity_t register_custom_polygon_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_custom_polygone_renderable_t>().id(); }
+    static ecs_entity_t register_line_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_ligne_renderable_t>().id(); }
 
     struct spectre_renderer_update_marker_t { char dummy; };
 
     renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
-        spectre_serializer_component ser = {};
-        ser.deserialize = deserialize_renderer_cb;
-        ser.serialize = serialize_renderer_cb;
-        m_renderer_serializer = m_world.entity("::spectre::serializers::renderer")// use the sdk function to find the rendere
-            .set<spectre_serializer_component>(ser);
+        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Renderer Module] Initializing...");
+
+        spectre_serializer_component serializer_callbacks = {};
+        serializer_callbacks.deserialize = deserialize_renderer_cb;
+        serializer_callbacks.serialize = serialize_renderer_cb;
+        
+        spectre::modules::serializer::register_serializer(m_world, "renderer", &serializer_callbacks);
 
         m_renderer = m_world.entity("::renderer")
             .add<spectre_renderer_update_marker_t>();
 
-        flecs::entity on_renderer = m_world.entity("on_renderer").add(flecs::Phase).depends_on(flecs::OnUpdate);
+        // Register Renderer Components via SDK
+        spectre_serializer_component empty_serializer = {nullptr, nullptr};
+        spectre::modules::components::register_component(m_world, "spectre_renderable_t", register_renderable_comp, empty_serializer);
+        spectre::modules::components::register_component(m_world, "spectre_rectange_renderable_t", register_rectangle_comp, empty_serializer);
+        spectre::modules::components::register_component(m_world, "spectre_polygone_renderable_t", register_polygon_comp, empty_serializer);
+        spectre::modules::components::register_component(m_world, "spectre_custom_polygone_renderable_t", register_custom_polygon_comp, empty_serializer);
+        spectre::modules::components::register_component(m_world, "spectre_ligne_renderable_t", register_line_comp, empty_serializer);
+
+        flecs::entity on_renderer_phase = m_world.entity("on_renderer").add(flecs::Phase).depends_on(flecs::OnUpdate);
 
         m_world.system<spectre_renderer_update_marker_t>("RendererSystem")
-            .kind(on_renderer)
-            .each([this](flecs::entity e, spectre_renderer_update_marker_t&) {
+            .kind(on_renderer_phase)
+            .each([this](flecs::entity entity, spectre_renderer_update_marker_t&) {
                 this->render_frame();
             });
+            
+        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Renderer Module] Initialized successfully.");
     }
     
     renderer_module_t::~renderer_module_t() = default;
 
-    flecs::entity renderer_module_t::deserialize_renderer(const sandbox::properties& props) {
+    flecs::entity renderer_module_t::deserialize_renderer(const sandbox::properties& properties) {
+        sandbox::modules::logs::debug(const_cast<flecs::world&>(m_world), "[Renderer Module] Deserializing renderer entity.");
         return m_world.entity();
     }
 
-    sandbox::properties renderer_module_t::serialize_renderer(flecs::entity renderer) {
+    sandbox::properties renderer_module_t::serialize_renderer(flecs::entity renderer_entity) {
+        sandbox::modules::logs::debug(const_cast<flecs::world&>(m_world), "[Renderer Module] Serializing renderer entity '{}'.", renderer_entity.name().c_str() ? renderer_entity.name().c_str() : "unknown");
         return sandbox::properties{};
     }
 
-    void renderer_module_t::register_renderer(const sandbox::properties& props) {
-        m_renderer = deserialize_renderer(props);
+    void renderer_module_t::register_renderer(const sandbox::properties& properties) {
+        m_renderer = deserialize_renderer(properties);
     }
 
     bool renderer_module_t::is_renderer() const {
@@ -84,74 +106,65 @@ namespace spectre::modules {
     }
 
     void renderer_module_t::render_frame() {
-        flecs::entity current_state;
-        auto* scenes_service = SANDBOX_GET_SERVICE(m_world, spectre_scenes_service_t);
-        if (scenes_service && scenes_service->api && scenes_service->api->find_current_state) {
-            ecs_entity_t state_id = scenes_service->api->find_current_state(m_world.c_ptr());
-            if (state_id != 0) {
-                current_state = m_world.entity(state_id);
-            }
-        }
+        ecs_entity_t current_state_id = spectre::modules::scenes::find_current_state(m_world);
+        flecs::entity current_state = m_world.entity(current_state_id);
 
         if (!current_state.is_valid()) {
-            sandbox::modules::logs::debug(m_world, "No valid current state, rendering all.");
-            auto q = m_world.query<spectre_renderable_t>();
-            q.each([this](flecs::entity e, spectre_renderable_t& r) {
-                this->render(e);
+            sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world), "[Renderer Module] No valid current state found, falling back to rendering all renderables.");
+            auto renderable_query = m_world.query<spectre_renderable_t>();
+            renderable_query.each([this](flecs::entity entity, spectre_renderable_t& renderable) {
+                this->render(entity);
             });
             return;
         }
-
-        sandbox::modules::logs::debug(m_world, "Current state is '{}'", current_state.name().c_str() ? current_state.name().c_str() : "unknown");
 
         struct RenderableEntity {
             flecs::entity entity;
             int layer;
         };
-        std::vector<RenderableEntity> to_render;
+        std::vector<RenderableEntity> entities_to_render;
         
-        auto q = m_world.query<spectre_renderable_t>();
-        q.each([&](flecs::entity e, spectre_renderable_t&) {
-            flecs::entity parent = e.target(flecs::ChildOf);
-            int layer = 0;
-            bool found_scene = false;
-            while (parent.is_valid() && parent.id() != 0) {
-                if (parent.has<spectre_state_use_scene_relation_t>() && parent.target(flecs::ChildOf) == current_state) {
-                    layer = parent.get<spectre_state_use_scene_relation_t>().layer_index;
-                    found_scene = true;
+        auto renderable_query = m_world.query<spectre_renderable_t>();
+        renderable_query.each([&](flecs::entity entity, spectre_renderable_t&) {
+            flecs::entity parent_entity = entity.target(flecs::ChildOf);
+            int layer_index = 0;
+            bool found_scene_ancestor = false;
+            
+            while (parent_entity.is_valid() && parent_entity.id() != 0) {
+                if (parent_entity.has<spectre_state_use_scene_relation_t>() && parent_entity.target(flecs::ChildOf) == current_state) {
+                    layer_index = parent_entity.get<spectre_state_use_scene_relation_t>().layer_index;
+                    found_scene_ancestor = true;
                     break;
                 }
-                parent = parent.target(flecs::ChildOf);
+                parent_entity = parent_entity.target(flecs::ChildOf);
             }
             
-            if (found_scene) {
-                to_render.push_back({e, layer});
+            if (found_scene_ancestor) {
+                entities_to_render.push_back({entity, layer_index});
             }
         });
 
-        std::sort(to_render.begin(), to_render.end(), [](const RenderableEntity& a, const RenderableEntity& b) {
-            return a.layer < b.layer;
+        std::sort(entities_to_render.begin(), entities_to_render.end(), [](const RenderableEntity& entity_a, const RenderableEntity& entity_b) {
+            return entity_a.layer < entity_b.layer;
         });
 
-        for (const auto& re : to_render) {
-            this->render(re.entity);
+        for (const auto& renderable_entity : entities_to_render) {
+            this->render(renderable_entity.entity);
         }
     }
 
-    void renderer_module_t::render(flecs::entity entity) {
-        sandbox::modules::logs::debug(m_world, "Rendering entity '{}'", entity.name().c_str() ? entity.name().c_str() : "unknown");
-
-        if (entity.has<spectre_rectange_renderable_t>()) {
-            sandbox::modules::logs::debug(m_world, "  - Drawing Rectangle");
+    void renderer_module_t::render(flecs::entity entity_to_render) {
+        if (entity_to_render.has<spectre_rectange_renderable_t>()) {
+            sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Renderer Module] Drawing Rectangle for entity '{}'", entity_to_render.name().c_str() ? entity_to_render.name().c_str() : "unknown");
         }
-        if (entity.has<spectre_polygone_renderable_t>()) {
-            sandbox::modules::logs::debug(m_world, "  - Drawing Polygon");
+        if (entity_to_render.has<spectre_polygone_renderable_t>()) {
+            sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Renderer Module] Drawing Polygon for entity '{}'", entity_to_render.name().c_str() ? entity_to_render.name().c_str() : "unknown");
         }
-        if (entity.has<spectre_custom_polygone_renderable_t>()) {
-            sandbox::modules::logs::debug(m_world, "  - Drawing Custom Polygon");
+        if (entity_to_render.has<spectre_custom_polygone_renderable_t>()) {
+            sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Renderer Module] Drawing Custom Polygon for entity '{}'", entity_to_render.name().c_str() ? entity_to_render.name().c_str() : "unknown");
         }
-        if (entity.has<spectre_ligne_renderable_t>()) {
-            sandbox::modules::logs::debug(m_world, "  - Drawing Line");
+        if (entity_to_render.has<spectre_ligne_renderable_t>()) {
+            sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Renderer Module] Drawing Line for entity '{}'", entity_to_render.name().c_str() ? entity_to_render.name().c_str() : "unknown");
         }
     }
 

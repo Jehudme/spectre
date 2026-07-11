@@ -1,7 +1,8 @@
 #include "scripts_module.h"
 #include "spectre/services/scripts_service.h"
 #include "sandbox/sdk/logs.hpp"
-#include "../serializer/serializer_module.h"
+#include "spectre/sdk/serializer.hpp"
+#include "spectre/sdk/components.hpp"
 #include <lua.hpp>
 #include <regex>
 #include <iostream>
@@ -14,9 +15,17 @@ extern "C" {
 
 namespace spectre::modules {
 
-    static ecs_entity_t deserialize_script_args_cb(ecs_world_t* world, sandbox_properties_handle_t props_handle);
-    static sandbox_properties_handle_t serialize_script_args_cb(ecs_world_t* world, ecs_entity_t entity);
+    static ecs_entity_t deserialize_script_args_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle);
+    static sandbox_properties_handle_t serialize_script_args_cb(ecs_world_t* world, ecs_entity_t entity_id);
 
+    // Component Registration Callbacks
+    static ecs_entity_t register_script_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_script_t>().id(); }
+    static ecs_entity_t register_on_create_rel(ecs_world_t* world) { return flecs::world(world).component<spectre_use_script_on_create_relation_t>().id(); }
+    static ecs_entity_t register_on_destroy_rel(ecs_world_t* world) { return flecs::world(world).component<spectre_use_script_on_destroy_relation_t>().id(); }
+    static ecs_entity_t register_on_update_rel(ecs_world_t* world) { return flecs::world(world).component<spectre_use_script_on_update_relation_t>().id(); }
+    static ecs_entity_t register_on_render_rel(ecs_world_t* world) { return flecs::world(world).component<spectre_use_script_on_render_relation_t>().id(); }
+    static ecs_entity_t register_on_enter_rel(ecs_world_t* world) { return flecs::world(world).component<spectre_use_script_on_enter_relation_t>().id(); }
+    static ecs_entity_t register_on_exit_rel(ecs_world_t* world) { return flecs::world(world).component<spectre_use_script_on_exit_relation_t>().id(); }
 
     SANDBOX_DECLARE_MODULE(script_module_t, {
         .name = "scripts",
@@ -31,96 +40,104 @@ namespace spectre::modules {
     })
 
     script_module_t::script_module_t(flecs::world& world) : m_world(world) {
-        sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "Initializing scripts module...");
+        sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Scripts Module] Initializing...");
 
         m_scripts_root = m_world.entity("::scripts");
         m_script_prefab = m_world.prefab("::scripts::prefab");
 
         m_lua = luaL_newstate();
         luaL_openlibs(m_lua);
-        
 
         // Initialize SWIG bindings
         luaopen_spectre_api(m_lua);
         lua_setglobal(m_lua, "spectre_api");
         
-        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
-        if (serializer_mod) {
-            spectre_serializer_component ser_comp;
-            ser_comp.deserialize = deserialize_script_args_cb;
-            ser_comp.serialize = serialize_script_args_cb;
-            serializer_mod->register_serializer("scripts", ser_comp);
-        }
+        // Register Components
+        spectre_serializer_component empty_serializer = {nullptr, nullptr};
+        spectre::modules::components::register_component(m_world, "spectre_script_t", register_script_comp, empty_serializer);
+        spectre::modules::components::register_component(m_world, "spectre_use_script_on_create_relation_t", register_on_create_rel, empty_serializer);
+        spectre::modules::components::register_component(m_world, "spectre_use_script_on_destroy_relation_t", register_on_destroy_rel, empty_serializer);
+        spectre::modules::components::register_component(m_world, "spectre_use_script_on_update_relation_t", register_on_update_rel, empty_serializer);
+        spectre::modules::components::register_component(m_world, "spectre_use_script_on_render_relation_t", register_on_render_rel, empty_serializer);
+        spectre::modules::components::register_component(m_world, "spectre_use_script_on_enter_relation_t", register_on_enter_rel, empty_serializer);
+        spectre::modules::components::register_component(m_world, "spectre_use_script_on_exit_relation_t", register_on_exit_rel, empty_serializer);
 
+        spectre_serializer_component script_serializer = {};
+        script_serializer.deserialize = deserialize_script_args_cb;
+        script_serializer.serialize = serialize_script_args_cb;
+        spectre::modules::serializer::register_serializer(m_world, "scripts", &script_serializer);
 
-        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "Scripts module initialized successfully.");
+        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scripts Module] Initialized successfully.");
     }
-
     
-    static ecs_entity_t deserialize_script_args_cb(ecs_world_t* world, sandbox_properties_handle_t props_handle) {
-        flecs::world w(world);
-        auto* scripts_mod = const_cast<script_module_t*>(w.try_get_mut<script_module_t>());
-        if (scripts_mod) {
-            sandbox::properties props(props_handle, false);
-            return scripts_mod->deserialize_scripts(std::move(props)).id();
+    static ecs_entity_t deserialize_script_args_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle) {
+        if (!world) return 0;
+        flecs::world flecs_world(world);
+        auto* module_instance = flecs_world.try_get_mut<script_module_t>();
+        if (module_instance) {
+            sandbox::properties parsed_properties(properties_handle, false);
+            return module_instance->deserialize_scripts(std::move(parsed_properties)).id();
         }
         return 0;
     }
 
-    flecs::entity script_module_t::deserialize_scripts(sandbox::properties props) {
-        if (!props.is_valid()) return flecs::entity::null();
-        flecs::entity temp = m_world.entity();
+    flecs::entity script_module_t::deserialize_scripts(sandbox::properties properties) {
+        if (!properties.is_valid()) return flecs::entity::null();
+        flecs::entity temporary_entity = m_world.entity();
 
-        auto deserialize_relation = [&](const char* rel_name, auto relation_type) {
-            if (!props.has(rel_name)) return;
-            sandbox::properties rel_props = props.sub(rel_name);
-            std::vector<std::string> indices = rel_props.keys("");
-            for (const auto& idx : indices) {
-                sandbox::properties item = rel_props.sub(idx);
-                std::string func_name;
-                if (!item.get<std::string>("function", func_name)) continue;
+        auto deserialize_relation = [&](const char* relation_name, auto relation_type) {
+            if (!properties.has(relation_name)) return;
+            sandbox::properties relation_properties = properties.sub(relation_name);
+            std::vector<std::string> item_indices = relation_properties.keys("");
+            for (const auto& index_str : item_indices) {
+                sandbox::properties script_item = relation_properties.sub(index_str);
+                std::string function_name;
+                if (!script_item.get<std::string>("function", function_name)) continue;
 
                 flecs::entity scripts_root = m_world.lookup("::scripts");
                 if (!scripts_root.is_valid()) continue;
-                flecs::entity script_ent = scripts_root.lookup(func_name.c_str());
-                if (!script_ent.is_valid()) continue;
+                flecs::entity script_entity = scripts_root.lookup(function_name.c_str());
+                if (!script_entity.is_valid()) {
+                    sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world), "[Scripts Module] Script '{}' not found when deserializing relation '{}'.", function_name, relation_name);
+                    continue;
+                }
                 
-                const spectre_script_t* script = script_ent.try_get<spectre_script_t>();
-                if (!script) continue;
+                const spectre_script_t* script_component = script_entity.try_get<spectre_script_t>();
+                if (!script_component) continue;
 
-                size_t arg_count = script->argument_count;
-                spectre_script_argument_t* args = nullptr;
-                if (arg_count > 0) {
-                    args = new spectre_script_argument_t[arg_count];
-                    sandbox::properties args_props = item.sub("arguments");
-                    for (size_t i = 0; i < arg_count; ++i) {
-                        const char* arg_name = script->arguments_name[i];
-                        spectre_script_argument_type_t arg_type = script->argument_types[i];
-                        args[i].type = arg_type;
+                size_t argument_count = script_component->argument_count;
+                spectre_script_argument_t* script_arguments = nullptr;
+                if (argument_count > 0) {
+                    script_arguments = new spectre_script_argument_t[argument_count];
+                    sandbox::properties arguments_properties = script_item.sub("arguments");
+                    for (size_t index = 0; index < argument_count; ++index) {
+                        const char* argument_name = script_component->arguments_name[index];
+                        spectre_script_argument_type_t argument_type = script_component->argument_types[index];
+                        script_arguments[index].type = argument_type;
                         
-                        switch (arg_type) {
+                        switch (argument_type) {
                             case SPECTRE_SCRIPT_ARGUMENT_TYPE_NUMBER: {
-                                double val = 0.0;
-                                args_props.get<double>(arg_name, val);
-                                args[i].value.number_value = val;
+                                double number_value = 0.0;
+                                arguments_properties.get<double>(argument_name, number_value);
+                                script_arguments[index].value.number_value = number_value;
                                 break;
                             }
                             case SPECTRE_SCRIPT_ARGUMENT_TYPE_INTEGER: {
-                                long long val = 0;
-                                args_props.get<long long>(arg_name, val);
-                                args[i].value.integer_value = val;
+                                long long integer_value = 0;
+                                arguments_properties.get<long long>(argument_name, integer_value);
+                                script_arguments[index].value.integer_value = integer_value;
                                 break;
                             }
                             case SPECTRE_SCRIPT_ARGUMENT_TYPE_BOOLEAN: {
-                                bool val = false;
-                                args_props.get<bool>(arg_name, val);
-                                args[i].value.boolean_value = val;
+                                bool boolean_value = false;
+                                arguments_properties.get<bool>(argument_name, boolean_value);
+                                script_arguments[index].value.boolean_value = boolean_value;
                                 break;
                             }
                             case SPECTRE_SCRIPT_ARGUMENT_TYPE_STRING: {
-                                std::string val;
-                                args_props.get<std::string>(arg_name, val);
-                                args[i].value.string_value = strdup(val.c_str());
+                                std::string string_value;
+                                arguments_properties.get<std::string>(argument_name, string_value);
+                                script_arguments[index].value.string_value = strdup(string_value.c_str());
                                 break;
                             }
                             default:
@@ -129,12 +146,12 @@ namespace spectre::modules {
                     }
                 }
 
-                using RelType = decltype(relation_type);
-                RelType rel_data;
-                rel_data.arguments = args;
-                rel_data.argument_count = arg_count;
+                using RelationType = decltype(relation_type);
+                RelationType relation_data;
+                relation_data.arguments = script_arguments;
+                relation_data.argument_count = argument_count;
                 
-                temp.set<RelType>(script_ent, rel_data);
+                temporary_entity.set<RelationType>(script_entity, relation_data);
             }
         };
 
@@ -145,55 +162,56 @@ namespace spectre::modules {
         deserialize_relation("on_enter", spectre_use_script_on_enter_relation_t{});
         deserialize_relation("on_exit", spectre_use_script_on_exit_relation_t{});
 
-        return temp;
+        return temporary_entity;
     }
 
-    static sandbox_properties_handle_t serialize_script_args_cb(ecs_world_t* world, ecs_entity_t entity) {
-        flecs::world w(world);
-        auto* scripts_mod = const_cast<script_module_t*>(w.try_get_mut<script_module_t>());
-        if (scripts_mod) {
-            sandbox::properties props = scripts_mod->serialize_scripts(flecs::entity(w, entity));
-            sandbox_properties_handle_t handle = props.get_raw();
-            props.release();
-            return handle;
+    static sandbox_properties_handle_t serialize_script_args_cb(ecs_world_t* world, ecs_entity_t entity_id) {
+        if (!world || !entity_id) return {0};
+        flecs::world flecs_world(world);
+        auto* module_instance = flecs_world.try_get_mut<script_module_t>();
+        if (module_instance) {
+            sandbox::properties serialized_properties = module_instance->serialize_scripts(flecs_world.entity(entity_id));
+            sandbox_properties_handle_t raw_handle = serialized_properties.get_raw();
+            serialized_properties.release();
+            return raw_handle;
         }
         return {0};
     }
 
-    sandbox::properties script_module_t::serialize_scripts(flecs::entity e) {
-        sandbox::properties props;
+    sandbox::properties script_module_t::serialize_scripts(flecs::entity entity_to_serialize) {
+        sandbox::properties serialized_properties;
 
-        auto serialize_relation = [&](const char* rel_name, auto relation_type) {
-            using RelType = decltype(relation_type);
-            std::vector<sandbox::properties> items;
+        auto serialize_relation = [&](const char* relation_name, auto relation_type) {
+            using RelationType = decltype(relation_type);
+            std::vector<sandbox::properties> relation_items;
 
-            e.each<RelType>([&](flecs::entity script_ent) {
-                const RelType* rel_data_ptr = e.try_get<RelType>(script_ent);
-                if (!rel_data_ptr) return;
-                const RelType& rel_data = *rel_data_ptr;
+            entity_to_serialize.each<RelationType>([&](flecs::entity script_entity) {
+                const RelationType* relation_data_pointer = entity_to_serialize.try_get<RelationType>(script_entity);
+                if (!relation_data_pointer) return;
+                const RelationType& relation_data = *relation_data_pointer;
                 
-                sandbox::properties item;
-                item.set<std::string>("function", script_ent.name().c_str());
+                sandbox::properties item_properties;
+                item_properties.set<std::string>("function", script_entity.name().c_str());
                 
-                sandbox::properties args_props;
-                const spectre_script_t* script = script_ent.try_get<spectre_script_t>();
-                if (script && rel_data.arguments && rel_data.argument_count > 0) {
-                    for (size_t i = 0; i < rel_data.argument_count && i < script->argument_count; ++i) {
-                        const char* arg_name = script->arguments_name[i];
-                        spectre_script_argument_type_t arg_type = script->argument_types[i];
-                        switch(arg_type) {
+                sandbox::properties arguments_properties;
+                const spectre_script_t* script_component = script_entity.try_get<spectre_script_t>();
+                if (script_component && relation_data.arguments && relation_data.argument_count > 0) {
+                    for (size_t index = 0; index < relation_data.argument_count && index < script_component->argument_count; ++index) {
+                        const char* argument_name = script_component->arguments_name[index];
+                        spectre_script_argument_type_t argument_type = script_component->argument_types[index];
+                        switch(argument_type) {
                             case SPECTRE_SCRIPT_ARGUMENT_TYPE_NUMBER:
-                                args_props.set<double>(arg_name, rel_data.arguments[i].value.number_value);
+                                arguments_properties.set<double>(argument_name, relation_data.arguments[index].value.number_value);
                                 break;
                             case SPECTRE_SCRIPT_ARGUMENT_TYPE_INTEGER:
-                                args_props.set<long long>(arg_name, rel_data.arguments[i].value.integer_value);
+                                arguments_properties.set<long long>(argument_name, relation_data.arguments[index].value.integer_value);
                                 break;
                             case SPECTRE_SCRIPT_ARGUMENT_TYPE_BOOLEAN:
-                                args_props.set<bool>(arg_name, rel_data.arguments[i].value.boolean_value);
+                                arguments_properties.set<bool>(argument_name, relation_data.arguments[index].value.boolean_value);
                                 break;
                             case SPECTRE_SCRIPT_ARGUMENT_TYPE_STRING:
-                                if (rel_data.arguments[i].value.string_value) {
-                                    args_props.set<std::string>(arg_name, rel_data.arguments[i].value.string_value);
+                                if (relation_data.arguments[index].value.string_value) {
+                                    arguments_properties.set<std::string>(argument_name, relation_data.arguments[index].value.string_value);
                                 }
                                 break;
                             default:
@@ -201,20 +219,20 @@ namespace spectre::modules {
                         }
                     }
                 }
-                if (args_props.is_valid()) {
-                    item.merge("arguments", args_props);
-                    args_props.release();
+                if (arguments_properties.is_valid()) {
+                    item_properties.merge("arguments", arguments_properties);
+                    arguments_properties.release();
                 }
-                items.push_back(std::move(item));
+                relation_items.push_back(std::move(item_properties));
             });
 
-            if (!items.empty()) {
-                sandbox::properties arr_props;
-                for (size_t i = 0; i < items.size(); ++i) {
-                    arr_props.merge(std::to_string(i), items[i]);
+            if (!relation_items.empty()) {
+                sandbox::properties array_properties;
+                for (size_t index = 0; index < relation_items.size(); ++index) {
+                    array_properties.merge(std::to_string(index), relation_items[index]);
                 }
-                props.merge(rel_name, arr_props);
-                arr_props.release();
+                serialized_properties.merge(relation_name, array_properties);
+                array_properties.release();
             }
         };
 
@@ -225,7 +243,7 @@ namespace spectre::modules {
         serialize_relation("on_enter", spectre_use_script_on_enter_relation_t{});
         serialize_relation("on_exit", spectre_use_script_on_exit_relation_t{});
 
-        return props;
+        return serialized_properties;
     }
 
 
@@ -235,13 +253,13 @@ namespace spectre::modules {
         }
     }
 
-    scripts_t script_module_t::parse_code(std::string_view code) {
-        scripts_t scripts;
-        std::string code_str(code);
-        std::istringstream stream(code_str);
+    scripts_t script_module_t::parse_code(std::string_view source_code) {
+        scripts_t parsed_scripts;
+        std::string source_code_string(source_code);
+        std::istringstream stream(source_code_string);
         std::string line;
 
-        std::vector<spectre_script_argument_type_t> pending_types;
+        std::vector<spectre_script_argument_type_t> pending_argument_types;
         
         while (std::getline(stream, line)) {
             // Trim leading/trailing whitespace
@@ -253,106 +271,105 @@ namespace spectre::modules {
             std::regex param_regex(R"(^---\s*@param\s+([a-zA-Z_][a-zA-Z0-9_]*))");
             std::smatch param_match;
             if (std::regex_search(line, param_match, param_regex)) {
-                std::string type_str = param_match[1].str();
-                spectre_script_argument_type_t type = SPECTRE_SCRIPT_ARGUMENT_TYPE_NIL;
+                std::string type_string = param_match[1].str();
+                spectre_script_argument_type_t argument_type = SPECTRE_SCRIPT_ARGUMENT_TYPE_NIL;
                 
-                if (type_str == "nil") type = SPECTRE_SCRIPT_ARGUMENT_TYPE_NIL;
-                else if (type_str == "boolean") type = SPECTRE_SCRIPT_ARGUMENT_TYPE_BOOLEAN;
-                else if (type_str == "number") type = SPECTRE_SCRIPT_ARGUMENT_TYPE_NUMBER;
-                else if (type_str == "integer") type = SPECTRE_SCRIPT_ARGUMENT_TYPE_INTEGER;
-                else if (type_str == "string") type = SPECTRE_SCRIPT_ARGUMENT_TYPE_STRING;
-                else if (type_str == "table") type = SPECTRE_SCRIPT_ARGUMENT_TYPE_TABLE;
-                else if (type_str == "userdata") type = SPECTRE_SCRIPT_ARGUMENT_TYPE_USERDATA;
+                if (type_string == "nil") argument_type = SPECTRE_SCRIPT_ARGUMENT_TYPE_NIL;
+                else if (type_string == "boolean") argument_type = SPECTRE_SCRIPT_ARGUMENT_TYPE_BOOLEAN;
+                else if (type_string == "number") argument_type = SPECTRE_SCRIPT_ARGUMENT_TYPE_NUMBER;
+                else if (type_string == "integer") argument_type = SPECTRE_SCRIPT_ARGUMENT_TYPE_INTEGER;
+                else if (type_string == "string") argument_type = SPECTRE_SCRIPT_ARGUMENT_TYPE_STRING;
+                else if (type_string == "table") argument_type = SPECTRE_SCRIPT_ARGUMENT_TYPE_TABLE;
+                else if (type_string == "userdata") argument_type = SPECTRE_SCRIPT_ARGUMENT_TYPE_USERDATA;
+                else if (type_string == "entity") argument_type = SPECTRE_SCRIPT_ARGUMENT_TYPE_ENTITY;
                 else {
-                    sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Unknown parameter type '{}' in Lua script.", type_str);
-                    type = SPECTRE_SCRIPT_ARGUMENT_TYPE_NIL;
+                    sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world), "[Scripts Module] Unknown parameter type '{}' in Lua script.", type_string);
+                    argument_type = SPECTRE_SCRIPT_ARGUMENT_TYPE_NIL;
                 }
-                pending_types.push_back(type);
+                pending_argument_types.push_back(argument_type);
                 continue;
             }
 
             // Check for function <name>(<args>)
-            std::regex func_regex(R"(^function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(([^)]*)\))");
-            std::smatch func_match;
-            if (std::regex_search(line, func_match, func_regex)) {
-                std::string func_name = func_match[1].str();
-                std::string args_str = func_match[2].str();
+            std::regex function_regex(R"(^function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(([^)]*)\))");
+            std::smatch function_match;
+            if (std::regex_search(line, function_match, function_regex)) {
+                std::string function_name = function_match[1].str();
+                std::string arguments_string = function_match[2].str();
 
-                std::vector<std::string> args;
-                std::regex arg_regex(R"([a-zA-Z_][a-zA-Z0-9_]*)");
-                auto args_begin = std::sregex_iterator(args_str.begin(), args_str.end(), arg_regex);
-                auto args_end = std::sregex_iterator();
-                for (std::sregex_iterator j = args_begin; j != args_end; ++j) {
-                    args.push_back((*j).str());
+                std::vector<std::string> argument_names;
+                std::regex argument_regex(R"([a-zA-Z_][a-zA-Z0-9_]*)");
+                auto arguments_begin = std::sregex_iterator(arguments_string.begin(), arguments_string.end(), argument_regex);
+                auto arguments_end = std::sregex_iterator();
+                for (std::sregex_iterator iterator = arguments_begin; iterator != arguments_end; ++iterator) {
+                    argument_names.push_back((*iterator).str());
                 }
 
-                size_t arg_count = args.size();
+                size_t argument_count = argument_names.size();
 
-                if (pending_types.size() != arg_count) {
-                    sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Parser Error: Function '{}' expects {} parameters based on arguments, but {} @param types were provided.", func_name, arg_count, pending_types.size());
-                    pending_types.clear();
+                if (pending_argument_types.size() != argument_count) {
+                    sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Scripts Module] Parser Error: Function '{}' expects {} parameters based on arguments, but {} @param types were provided.", function_name, argument_count, pending_argument_types.size());
+                    pending_argument_types.clear();
                     continue;
                 }
 
-                m_string_pool.push_back(func_name);
-                const char* c_func_name = m_string_pool.back().c_str();
+                m_string_pool.push_back(function_name);
+                const char* c_function_name = m_string_pool.back().c_str();
 
-                std::vector<const char*> local_ptrs;
-                std::vector<spectre_script_argument_type_t> local_types = pending_types;
+                std::vector<const char*> local_pointers;
+                std::vector<spectre_script_argument_type_t> local_types = pending_argument_types;
 
-                for (const auto& arg : args) {
-                    m_string_pool.push_back(arg);
-                    local_ptrs.push_back(m_string_pool.back().c_str());
+                for (const auto& argument_name : argument_names) {
+                    m_string_pool.push_back(argument_name);
+                    local_pointers.push_back(m_string_pool.back().c_str());
                 }
 
-                m_ptr_pool.push_back(std::move(local_ptrs));
+                m_ptr_pool.push_back(std::move(local_pointers));
                 m_type_pool.push_back(std::move(local_types));
 
                 spectre_script_t script{};
-                script.function_name = c_func_name;
-                script.argument_count = arg_count;
-                script.arguments_name = arg_count > 0 ? m_ptr_pool.back().data() : nullptr;
-                script.argument_types = arg_count > 0 ? m_type_pool.back().data() : nullptr;
+                script.function_name = c_function_name;
+                script.argument_count = argument_count;
+                script.arguments_name = argument_count > 0 ? m_ptr_pool.back().data() : nullptr;
+                script.argument_types = argument_count > 0 ? m_type_pool.back().data() : nullptr;
 
-                scripts.push_back(script);
+                parsed_scripts.push_back(script);
 
                 // Reset for next function
-                pending_types.clear();
+                pending_argument_types.clear();
             } else {
                 if (line.find("--") != 0) {
-                    pending_types.clear();
+                    pending_argument_types.clear();
                 }
             }
         }
-        return scripts;
+        return parsed_scripts;
     }
 
     void script_module_t::register_scripts(const scripts_t& scripts) {
         for (const auto& script : scripts) {
             std::string full_path = std::string("::scripts::") + script.function_name;
             if (!has_script(script.function_name, {})) {
-                flecs::entity script_ent = m_world.entity(full_path.c_str())
+                flecs::entity script_entity = m_world.entity(full_path.c_str())
                                                   .is_a(m_script_prefab)
                                                   .set<spectre_script_t>(script);
             } else {
-                flecs::entity script_ent = find_script(script.function_name);
-                script_ent.set<spectre_script_t>(script);
+                flecs::entity script_entity = find_script(script.function_name);
+                script_entity.set<spectre_script_t>(script);
             }
         }
     }
 
-
-
-    bool script_module_t::has_script(std::string_view function_name, const std::vector<script_argument_type_t>& args) const {
+    bool script_module_t::has_script(std::string_view function_name, const std::vector<script_argument_type_t>& arguments) const {
         if (function_name.empty()) return false;
-        flecs::entity script_ent = m_scripts_root.lookup(std::string(function_name).c_str());
-        if (!is_script(script_ent)) return false;
+        flecs::entity script_entity = m_scripts_root.lookup(std::string(function_name).c_str());
+        if (!is_script(script_entity)) return false;
         
         return true;
     }
 
-    bool script_module_t::is_script(flecs::entity entity) const {
-        return entity.is_valid() && entity.has(flecs::IsA, m_script_prefab);
+    bool script_module_t::is_script(flecs::entity entity_to_check) const {
+        return entity_to_check.is_valid() && entity_to_check.has(flecs::IsA, m_script_prefab);
     }
 
     flecs::entity script_module_t::find_script(std::string_view function_name) {
@@ -360,48 +377,48 @@ namespace spectre::modules {
         return m_scripts_root.lookup(std::string(function_name).c_str());
     }
 
-    void script_module_t::include_code(std::string_view path) {
-        std::string path_str(path);
-        std::ifstream file(path_str);
-        if (!file.is_open()) {
-            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Failed to open script: {}", path);
+    void script_module_t::include_code(std::string_view file_path) {
+        std::string path_string(file_path);
+        std::ifstream file_stream(path_string);
+        if (!file_stream.is_open()) {
+            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Scripts Module] Failed to open script: {}", file_path);
             return;
         }
         std::stringstream buffer;
-        buffer << file.rdbuf();
-        std::string code = buffer.str();
+        buffer << file_stream.rdbuf();
+        std::string source_code = buffer.str();
 
         // Parse and register scripts
-        scripts_t parsed_scripts = parse_code(code);
+        scripts_t parsed_scripts = parse_code(source_code);
         register_scripts(parsed_scripts);
 
         // Execute code
-        if (luaL_dostring(m_lua, code.c_str()) != LUA_OK) {
-            const char* err = lua_tostring(m_lua, -1);
-            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Lua Error: {}", err);
+        if (luaL_dostring(m_lua, source_code.c_str()) != LUA_OK) {
+            const char* error_message = lua_tostring(m_lua, -1);
+            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Scripts Module] Lua Error: {}", error_message);
             lua_pop(m_lua, 1);
         } else {
-            sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "Successfully included script: {}", path);
+            sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scripts Module] Successfully included script: {}", file_path);
         }
     }
 
-    void script_module_t::execute_script(std::string_view function_name, script_arguments_t& args) {
+    void script_module_t::execute_script(std::string_view function_name, script_arguments_t& arguments) {
         if (!has_script(function_name, {})) {
-            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Cannot execute unknown script: {}", function_name);
+            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Scripts Module] Cannot execute unknown script: {}", function_name);
             return;
         }
         
-        flecs::entity script_ent = find_script(function_name);
-        const auto* script_comp = script_ent.try_get<spectre_script_t>();
+        flecs::entity script_entity = find_script(function_name);
+        const auto* script_component = script_entity.try_get<spectre_script_t>();
 
-        if (script_comp->argument_count != args.size()) {
-            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Script '{}' expects {} arguments, but {} were provided.", function_name, script_comp->argument_count, args.size());
+        if (script_component->argument_count != arguments.size()) {
+            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Scripts Module] Script '{}' expects {} arguments, but {} were provided.", function_name, script_component->argument_count, arguments.size());
             return;
         }
 
-        for (size_t i = 0; i < args.size(); ++i) {
-            if (args[i].type != script_comp->argument_types[i]) {
-                sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Script '{}' argument {} type mismatch. Expected {}, got {}.", function_name, i, (int)script_comp->argument_types[i], (int)args[i].type);
+        for (size_t index = 0; index < arguments.size(); ++index) {
+            if (arguments[index].type != script_component->argument_types[index]) {
+                sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Scripts Module] Script '{}' argument {} type mismatch. Expected {}, got {}.", function_name, index, (int)script_component->argument_types[index], (int)arguments[index].type);
                 return;
             }
         }
@@ -409,30 +426,30 @@ namespace spectre::modules {
         lua_getglobal(m_lua, std::string(function_name).c_str());
         if (!lua_isfunction(m_lua, -1)) {
             lua_pop(m_lua, 1);
-            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Lua global {} is not a function.", function_name);
+            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Scripts Module] Lua global '{}' is not a function.", function_name);
             return;
         }
 
-        for (const auto& arg : args) {
-            switch (arg.type) {
+        for (const auto& argument : arguments) {
+            switch (argument.type) {
                 case SPECTRE_SCRIPT_ARGUMENT_TYPE_NIL:
                     lua_pushnil(m_lua);
                     break;
                 case SPECTRE_SCRIPT_ARGUMENT_TYPE_BOOLEAN:
-                    lua_pushboolean(m_lua, arg.value.boolean_value);
+                    lua_pushboolean(m_lua, argument.value.boolean_value);
                     break;
                 case SPECTRE_SCRIPT_ARGUMENT_TYPE_NUMBER:
-                    lua_pushnumber(m_lua, arg.value.number_value);
+                    lua_pushnumber(m_lua, argument.value.number_value);
                     break;
                 case SPECTRE_SCRIPT_ARGUMENT_TYPE_INTEGER:
-                    lua_pushinteger(m_lua, arg.value.integer_value);
+                    lua_pushinteger(m_lua, argument.value.integer_value);
                     break;
                 case SPECTRE_SCRIPT_ARGUMENT_TYPE_STRING:
-                    lua_pushstring(m_lua, arg.value.string_value);
+                    lua_pushstring(m_lua, argument.value.string_value);
                     break;
                 case SPECTRE_SCRIPT_ARGUMENT_TYPE_TABLE:
                 case SPECTRE_SCRIPT_ARGUMENT_TYPE_USERDATA:
-                    lua_pushlightuserdata(m_lua, arg.value.userdata_pointer);
+                    lua_pushlightuserdata(m_lua, argument.value.userdata_pointer);
                     break;
                 default:
                     lua_pushnil(m_lua);
@@ -440,54 +457,54 @@ namespace spectre::modules {
             }
         }
 
-        if (lua_pcall(m_lua, args.size(), 0, 0) != LUA_OK) {
-            const char* err = lua_tostring(m_lua, -1);
-            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Error executing {}: {}", function_name, err);
+        if (lua_pcall(m_lua, arguments.size(), 0, 0) != LUA_OK) {
+            const char* error_message = lua_tostring(m_lua, -1);
+            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Scripts Module] Error executing '{}': {}", function_name, error_message);
             lua_pop(m_lua, 1);
         }
     }
 
     namespace {
-        flecs::entity resolve_entity_arg(flecs::entity target, const char* entity_str) {
-            if (!entity_str) return flecs::entity::null();
-            std::string s(entity_str);
-            if (s == "%self%") {
-                return target;
-            } else if (s == "%scene%") {
-                flecs::entity current = target;
-                while (current.is_valid() && current.id() != 0) {
-                    if (current.has<spectre_scene_context_t>()) {
-                        return current.try_get<spectre_scene_context_t>()->scene_entity;
+        flecs::entity resolve_entity_argument(flecs::entity target_entity, const char* entity_string) {
+            if (!entity_string) return flecs::entity::null();
+            std::string entity_str(entity_string);
+            if (entity_str == "%self%") {
+                return target_entity;
+            } else if (entity_str == "%scene%") {
+                flecs::entity current_entity = target_entity;
+                while (current_entity.is_valid() && current_entity.id() != 0) {
+                    if (current_entity.has<spectre_scene_context_t>()) {
+                        return current_entity.try_get<spectre_scene_context_t>()->scene_entity;
                     }
-                    current = current.parent();
+                    current_entity = current_entity.parent();
                 }
-            } else if (s == "%state%") {
-                flecs::entity current = target;
-                while (current.is_valid() && current.id() != 0) {
-                    if (current.has<spectre_state_context_t>()) {
-                        return current.try_get<spectre_state_context_t>()->state_entity;
+            } else if (entity_str == "%state%") {
+                flecs::entity current_entity = target_entity;
+                while (current_entity.is_valid() && current_entity.id() != 0) {
+                    if (current_entity.has<spectre_state_context_t>()) {
+                        return current_entity.try_get<spectre_state_context_t>()->state_entity;
                     }
-                    current = current.parent();
+                    current_entity = current_entity.parent();
                 }
             }
             return flecs::entity::null();
         }
     }
 
-    void script_module_t::execute_script_with_target(flecs::entity target, flecs::entity script_ent, spectre_script_argument_t* args, size_t arg_count) {
-        if (!script_ent.is_valid() || !script_ent.has<spectre_script_t>()) return;
+    void script_module_t::execute_script_with_target(flecs::entity target_entity, flecs::entity script_entity, spectre_script_argument_t* script_arguments, size_t argument_count) {
+        if (!script_entity.is_valid() || !script_entity.has<spectre_script_t>()) return;
         
-        const auto* script_comp = script_ent.try_get<spectre_script_t>();
-        std::string function_name = script_comp->function_name;
+        const auto* script_component = script_entity.try_get<spectre_script_t>();
+        std::string function_name = script_component->function_name;
 
-        if (script_comp->argument_count != arg_count) {
-            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Script '{}' expects {} arguments, but {} were provided.", function_name, script_comp->argument_count, arg_count);
+        if (script_component->argument_count != argument_count) {
+            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Scripts Module] Script '{}' expects {} arguments, but {} were provided.", function_name, script_component->argument_count, argument_count);
             return;
         }
 
-        for (size_t i = 0; i < arg_count; ++i) {
-            if (args[i].type != script_comp->argument_types[i]) {
-                sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Script '{}' argument {} type mismatch. Expected {}, got {}.", function_name, i, (int)script_comp->argument_types[i], (int)args[i].type);
+        for (size_t index = 0; index < argument_count; ++index) {
+            if (script_arguments[index].type != script_component->argument_types[index]) {
+                sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Scripts Module] Script '{}' argument {} type mismatch. Expected {}, got {}.", function_name, index, (int)script_component->argument_types[index], (int)script_arguments[index].type);
                 return;
             }
         }
@@ -495,35 +512,35 @@ namespace spectre::modules {
         lua_getglobal(m_lua, function_name.c_str());
         if (!lua_isfunction(m_lua, -1)) {
             lua_pop(m_lua, 1);
-            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Lua global {} is not a function.", function_name);
+            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Scripts Module] Lua global '{}' is not a function.", function_name);
             return;
         }
 
-        for (size_t i = 0; i < arg_count; ++i) {
-            const auto& arg = args[i];
-            switch (arg.type) {
+        for (size_t index = 0; index < argument_count; ++index) {
+            const auto& argument = script_arguments[index];
+            switch (argument.type) {
                 case SPECTRE_SCRIPT_ARGUMENT_TYPE_NIL:
                     lua_pushnil(m_lua);
                     break;
                 case SPECTRE_SCRIPT_ARGUMENT_TYPE_BOOLEAN:
-                    lua_pushboolean(m_lua, arg.value.boolean_value);
+                    lua_pushboolean(m_lua, argument.value.boolean_value);
                     break;
                 case SPECTRE_SCRIPT_ARGUMENT_TYPE_NUMBER:
-                    lua_pushnumber(m_lua, arg.value.number_value);
+                    lua_pushnumber(m_lua, argument.value.number_value);
                     break;
                 case SPECTRE_SCRIPT_ARGUMENT_TYPE_INTEGER:
-                    lua_pushinteger(m_lua, arg.value.integer_value);
+                    lua_pushinteger(m_lua, argument.value.integer_value);
                     break;
                 case SPECTRE_SCRIPT_ARGUMENT_TYPE_STRING:
-                    lua_pushstring(m_lua, arg.value.string_value);
+                    lua_pushstring(m_lua, argument.value.string_value);
                     break;
                 case SPECTRE_SCRIPT_ARGUMENT_TYPE_TABLE:
                 case SPECTRE_SCRIPT_ARGUMENT_TYPE_USERDATA:
-                    lua_pushlightuserdata(m_lua, arg.value.userdata_pointer);
+                    lua_pushlightuserdata(m_lua, argument.value.userdata_pointer);
                     break;
                 case SPECTRE_SCRIPT_ARGUMENT_TYPE_ENTITY: {
-                    flecs::entity resolved = resolve_entity_arg(target, arg.value.entity);
-                    lua_pushinteger(m_lua, resolved.id());
+                    flecs::entity resolved_entity = resolve_entity_argument(target_entity, argument.value.entity);
+                    lua_pushinteger(m_lua, resolved_entity.id());
                     break;
                 }
                 default:
@@ -532,60 +549,60 @@ namespace spectre::modules {
             }
         }
 
-        if (lua_pcall(m_lua, arg_count, 0, 0) != LUA_OK) {
-            const char* err = lua_tostring(m_lua, -1);
-            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Error executing {}: {}", function_name, err);
+        if (lua_pcall(m_lua, argument_count, 0, 0) != LUA_OK) {
+            const char* error_message = lua_tostring(m_lua, -1);
+            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Scripts Module] Error executing '{}': {}", function_name, error_message);
             lua_pop(m_lua, 1);
         }
     }
 
-    void script_module_t::execute_on_create(flecs::entity entity) {
-        if (!entity.is_valid()) return;
-        flecs::entity scripts_ent = entity.lookup("scripts");
-        if (!scripts_ent.is_valid()) scripts_ent = entity;
-        scripts_ent.each<spectre_use_script_on_create_relation_t>([&](flecs::entity script_ent) {
-            const auto* rel = scripts_ent.try_get<spectre_use_script_on_create_relation_t>(script_ent);
-            if (rel) execute_script_with_target(entity, script_ent, rel->arguments, rel->argument_count);
+    void script_module_t::execute_on_create(flecs::entity target_entity) {
+        if (!target_entity.is_valid()) return;
+        flecs::entity scripts_entity = target_entity.lookup("scripts");
+        if (!scripts_entity.is_valid()) scripts_entity = target_entity;
+        scripts_entity.each<spectre_use_script_on_create_relation_t>([&](flecs::entity script_entity) {
+            const auto* relation = scripts_entity.try_get<spectre_use_script_on_create_relation_t>(script_entity);
+            if (relation) execute_script_with_target(target_entity, script_entity, relation->arguments, relation->argument_count);
         });
     }
 
-    void script_module_t::execute_on_destroy(flecs::entity entity) {
-        if (!entity.is_valid()) return;
-        flecs::entity scripts_ent = entity.lookup("scripts");
-        if (!scripts_ent.is_valid()) scripts_ent = entity;
-        scripts_ent.each<spectre_use_script_on_destroy_relation_t>([&](flecs::entity script_ent) {
-            const auto* rel = scripts_ent.try_get<spectre_use_script_on_destroy_relation_t>(script_ent);
-            if (rel) execute_script_with_target(entity, script_ent, rel->arguments, rel->argument_count);
+    void script_module_t::execute_on_destroy(flecs::entity target_entity) {
+        if (!target_entity.is_valid()) return;
+        flecs::entity scripts_entity = target_entity.lookup("scripts");
+        if (!scripts_entity.is_valid()) scripts_entity = target_entity;
+        scripts_entity.each<spectre_use_script_on_destroy_relation_t>([&](flecs::entity script_entity) {
+            const auto* relation = scripts_entity.try_get<spectre_use_script_on_destroy_relation_t>(script_entity);
+            if (relation) execute_script_with_target(target_entity, script_entity, relation->arguments, relation->argument_count);
         });
     }
 
-    void script_module_t::execute_on_update(flecs::entity entity) {
-        if (!entity.is_valid()) return;
-        flecs::entity scripts_ent = entity.lookup("scripts");
-        if (!scripts_ent.is_valid()) scripts_ent = entity;
-        scripts_ent.each<spectre_use_script_on_update_relation_t>([&](flecs::entity script_ent) {
-            const auto* rel = scripts_ent.try_get<spectre_use_script_on_update_relation_t>(script_ent);
-            if (rel) execute_script_with_target(entity, script_ent, rel->arguments, rel->argument_count);
+    void script_module_t::execute_on_update(flecs::entity target_entity) {
+        if (!target_entity.is_valid()) return;
+        flecs::entity scripts_entity = target_entity.lookup("scripts");
+        if (!scripts_entity.is_valid()) scripts_entity = target_entity;
+        scripts_entity.each<spectre_use_script_on_update_relation_t>([&](flecs::entity script_entity) {
+            const auto* relation = scripts_entity.try_get<spectre_use_script_on_update_relation_t>(script_entity);
+            if (relation) execute_script_with_target(target_entity, script_entity, relation->arguments, relation->argument_count);
         });
     }
 
-    void script_module_t::execute_on_enter(flecs::entity entity) {
-        if (!entity.is_valid()) return;
-        flecs::entity scripts_ent = entity.lookup("scripts");
-        if (!scripts_ent.is_valid()) scripts_ent = entity;
-        scripts_ent.each<spectre_use_script_on_enter_relation_t>([&](flecs::entity script_ent) {
-            const auto* rel = scripts_ent.try_get<spectre_use_script_on_enter_relation_t>(script_ent);
-            if (rel) execute_script_with_target(entity, script_ent, rel->arguments, rel->argument_count);
+    void script_module_t::execute_on_enter(flecs::entity target_entity) {
+        if (!target_entity.is_valid()) return;
+        flecs::entity scripts_entity = target_entity.lookup("scripts");
+        if (!scripts_entity.is_valid()) scripts_entity = target_entity;
+        scripts_entity.each<spectre_use_script_on_enter_relation_t>([&](flecs::entity script_entity) {
+            const auto* relation = scripts_entity.try_get<spectre_use_script_on_enter_relation_t>(script_entity);
+            if (relation) execute_script_with_target(target_entity, script_entity, relation->arguments, relation->argument_count);
         });
     }
 
-    void script_module_t::execute_on_exit(flecs::entity entity) {
-        if (!entity.is_valid()) return;
-        flecs::entity scripts_ent = entity.lookup("scripts");
-        if (!scripts_ent.is_valid()) scripts_ent = entity;
-        scripts_ent.each<spectre_use_script_on_exit_relation_t>([&](flecs::entity script_ent) {
-            const auto* rel = scripts_ent.try_get<spectre_use_script_on_exit_relation_t>(script_ent);
-            if (rel) execute_script_with_target(entity, script_ent, rel->arguments, rel->argument_count);
+    void script_module_t::execute_on_exit(flecs::entity target_entity) {
+        if (!target_entity.is_valid()) return;
+        flecs::entity scripts_entity = target_entity.lookup("scripts");
+        if (!scripts_entity.is_valid()) scripts_entity = target_entity;
+        scripts_entity.each<spectre_use_script_on_exit_relation_t>([&](flecs::entity script_entity) {
+            const auto* relation = scripts_entity.try_get<spectre_use_script_on_exit_relation_t>(script_entity);
+            if (relation) execute_script_with_target(target_entity, script_entity, relation->arguments, relation->argument_count);
         });
     }
 }
