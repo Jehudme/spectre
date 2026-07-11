@@ -11,6 +11,7 @@ namespace spectre::modules {
     components_module_t::components_module_t(flecs::world& world) : m_world(world) {
         sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "Initializing components module...");
 
+        // use more user friendly name
         m_world.component<spectre_prefab_flag_t>("spectre_prefab_flag_t");
         m_world.component<spectre_serializer_component>("spectre_serializer_component");
         m_world.component<spectre_serializer_relation_t>("spectre_serializer_relation_t");
@@ -54,7 +55,7 @@ namespace spectre::modules {
             return sandbox::properties({0}, false);
         }
 
-        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
+        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>()); // alway use the sdk function never go at it directly
         if (!serializer_mod) {
             sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Serializer module is not available in components_module serialize.");
             return sandbox::properties({0}, false);

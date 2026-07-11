@@ -45,6 +45,7 @@ namespace spectre::modules {
     private:
         flecs::world m_world;
         flecs::entity m_resources_root;
+        flecs::entity m_loaders_root;
         flecs::entity m_resource_prefab;
         flecs::entity m_resources_serializer;
     };

@@ -151,7 +151,7 @@ namespace spectre::modules {
 
     bool resource_module_t::has_resource(std::string_view name) const {
         if (name.empty()) return false;
-        std::string path = "::resources::" + std::string(name);
+        std::string path = "::resources::" + std::string(name); // i really dont like that just create the resource root in the constructor and use it to store and get with minimal string manipulation
         flecs::entity res_ent = m_world.lookup(path.c_str());
         return is_resource(res_ent);
     }
@@ -162,7 +162,7 @@ namespace spectre::modules {
 
     flecs::entity resource_module_t::find_resource_loader(std::string_view type) {
         if (type.empty()) return flecs::entity::null();
-        std::string path = "::resources::loaders::" + std::string(type);
+        std::string path = "::resources::loaders::" + std::string(type); // also just create the loader root in the constructor and use to store and get with minimal string manipulation
         flecs::entity loader_ent = m_world.lookup(path.c_str());
         if (loader_ent.is_valid() && loader_ent.has<ResourceLoader>()) {
             return loader_ent;
@@ -172,7 +172,7 @@ namespace spectre::modules {
 
     flecs::entity resource_module_t::find_resource(std::string_view name) {
         if (name.empty()) return flecs::entity::null();
-        std::string path = "::resources::" + std::string(name);
+        std::string path = "::resources::" + std::string(name); // same here, fixe everywhere
         flecs::entity res_ent = m_world.lookup(path.c_str());
         if (is_resource(res_ent)) return res_ent;
         return flecs::entity::null();

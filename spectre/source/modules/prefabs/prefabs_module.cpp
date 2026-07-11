@@ -26,8 +26,8 @@ namespace spectre::modules {
     })
 
     static ecs_entity_t deserialize_entity_cb(ecs_world_t* world, sandbox_properties_handle_t props_handle) {
-        flecs::world w(world);
-        auto* mod = const_cast<prefabs_module_t*>(w.try_get_mut<prefabs_module_t>());
+        flecs::world w(world); //use full variable name (always)
+        auto* mod = const_cast<prefabs_module_t*>(w.try_get_mut<prefabs_module_t>()); // always use api or sdk
         if (mod) {
             sandbox::properties props(props_handle, false);
             return mod->deserialize_entity(std::move(props)).id();
@@ -38,7 +38,7 @@ namespace spectre::modules {
     static sandbox_properties_handle_t serialize_entity_cb(ecs_world_t* world, ecs_entity_t entity) {
         flecs::world w(world);
         auto* mod = const_cast<prefabs_module_t*>(w.try_get_mut<prefabs_module_t>());
-        if (mod) {
+        if (mod) { // since the service should be expected
             sandbox::properties props = mod->serialize_entity(flecs::entity(w, entity));
             sandbox_properties_handle_t handle = props.get_raw();
             props.release();
@@ -48,13 +48,12 @@ namespace spectre::modules {
     }
 
     prefabs_module_t::prefabs_module_t(flecs::world& world) : m_world(world) {
-        // make an argument serializer using the serializer module but in the  script module. but you can fetch and store this serializer in m_script_args_serializer and use it in the deserialize_entity function to deserialize scripts props.
         sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "Initializing prefabs module...");
         
         m_prefabs_root = m_world.entity("::prefabs");
         m_entity_prefab = m_world.prefab("::prefabs::prefab");
 
-        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
+        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>()); // never use the direct module, use the sdk to run function
         if (serializer_mod) {
             spectre_serializer_component ser_comp;
             ser_comp.deserialize = deserialize_entity_cb;
@@ -86,7 +85,6 @@ namespace spectre::modules {
     prefabs_module_t::~prefabs_module_t() = default;
 
     sandbox::properties prefabs_module_t::serialize_entity(flecs::entity entity) {
-        // should also be able to serialize scripting like in reverse of his deserialization
         sandbox::properties result;
         if (!entity.is_valid()) {
             sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "Cannot serialize invalid entity.");

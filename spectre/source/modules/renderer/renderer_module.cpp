@@ -50,10 +50,10 @@ namespace spectre::modules {
         spectre_serializer_component ser = {};
         ser.deserialize = deserialize_renderer_cb;
         ser.serialize = serialize_renderer_cb;
-        m_renderer_serializer = m_world.entity("::spectre::serializers::renderer")
+        m_renderer_serializer = m_world.entity("::spectre::serializers::renderer")// use the sdk function to find the rendere
             .set<spectre_serializer_component>(ser);
 
-        m_renderer = m_world.entity("::spectre::modules::renderer")
+        m_renderer = m_world.entity("::renderer")
             .add<spectre_renderer_update_marker_t>();
 
         flecs::entity on_renderer = m_world.entity("on_renderer").add(flecs::Phase).depends_on(flecs::OnUpdate);

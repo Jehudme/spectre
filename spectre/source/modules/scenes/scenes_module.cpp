@@ -64,7 +64,7 @@ namespace spectre::modules {
         m_states_root = m_world.entity("::states");
         m_scenes_root = m_world.entity("::scenes");
 
-        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>());
+        auto* serializer_mod = const_cast<serializer_module*>(m_world.try_get_mut<serializer_module>()); // again use sdk alway use sdk no dirreclt call
         if (serializer_mod) {
             spectre_serializer_component state_ser;
             state_ser.serialize = serialize_state_cb;
