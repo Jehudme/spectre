@@ -9,6 +9,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "spectre/sdk/scripts.hpp"
+
 extern "C" {
     int luaopen_spectre_api(lua_State* L);
 }
@@ -19,6 +21,7 @@ namespace spectre::modules {
     static sandbox_properties_handle_t serialize_script_args_cb(ecs_world_t* world, ecs_entity_t entity_id);
 
     // Component Registration Callbacks
+    // TODO: Also register member
     static ecs_entity_t register_script_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_script_t>().id(); }
     static ecs_entity_t register_on_create_rel(ecs_world_t* world) { return flecs::world(world).component<spectre_use_script_on_create_relation_t>().id(); }
     static ecs_entity_t register_on_destroy_rel(ecs_world_t* world) { return flecs::world(world).component<spectre_use_script_on_destroy_relation_t>().id(); }
@@ -54,6 +57,7 @@ namespace spectre::modules {
         
         // Register Components
         spectre_serializer_component empty_serializer = {nullptr, nullptr};
+        // TODO: Make the serializers when possible
         spectre::modules::components::register_component(m_world, "spectre_script_t", register_script_comp, empty_serializer);
         spectre::modules::components::register_component(m_world, "spectre_use_script_on_create_relation_t", register_on_create_rel, empty_serializer);
         spectre::modules::components::register_component(m_world, "spectre_use_script_on_destroy_relation_t", register_on_destroy_rel, empty_serializer);
@@ -71,13 +75,7 @@ namespace spectre::modules {
     }
     
     static ecs_entity_t deserialize_script_args_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle) {
-        if (!world) return 0;
-        flecs::world flecs_world(world);
-        auto* module_instance = flecs_world.try_get_mut<script_module_t>();
-        if (module_instance) {
-            sandbox::properties parsed_properties(properties_handle, false);
-            return module_instance->deserialize_scripts(std::move(parsed_properties)).id();
-        }
+        spectre::modules::scripts::deserialize_scripts(flecs::world(world), sandbox::properties(properties_handle, false));
         return 0;
     }
 

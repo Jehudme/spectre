@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+#include "spectre/sdk/prefabs.hpp"
+
 namespace spectre::modules {
 
     static ecs_entity_t deserialize_entity_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle);
@@ -27,14 +29,15 @@ namespace spectre::modules {
     })
 
     prefabs_module_t::prefabs_module_t(flecs::world& world) : m_world(world) {
-        sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Prefabs Module] Initializing...");
+        sandbox::modules::logs::trace(m_world, "[Prefabs Module] Initializing...");
         
         m_prefabs_root = m_world.entity("::prefabs");
         m_entity_prefab = m_world.prefab("::prefabs::prefab");
 
-        spectre_serializer_component entity_serializer = {};
-        entity_serializer.deserialize = deserialize_entity_cb;
-        entity_serializer.serialize = serialize_entity_cb;
+        spectre_serializer_component entity_serializer = {
+            .deserialize = deserialize_entity_cb,
+            .serialize = serialize_entity_cb,
+        };
         spectre::modules::serializer::register_serializer(m_world, "entity", &entity_serializer);
         
         m_script_args_serializer = m_world.entity(spectre::modules::serializer::find_serializer(m_world, "scripts"));
@@ -50,43 +53,27 @@ namespace spectre::modules {
                 else target = target.parent();
                 
                 if (target.is_valid()) {
-                    ::spectre::sdk::scripts::execute_on_destroy(target);
+                    ::spectre::modules::scripts::execute_on_destroy(target);
                 }
             });
 
-        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Prefabs Module] Initialized successfully.");
+        sandbox::modules::logs::info(m_world, "[Prefabs Module] Initialized successfully.");
     }
     
     prefabs_module_t::~prefabs_module_t() = default;
 
     static ecs_entity_t deserialize_entity_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle) {
-        if (!world) return 0;
-        flecs::world flecs_world(world);
-        auto* module_instance = flecs_world.try_get_mut<prefabs_module_t>();
-        if (module_instance) {
-            sandbox::properties parsed_properties(properties_handle, false);
-            return module_instance->deserialize_entity(std::move(parsed_properties)).id();
-        }
-        return 0;
+        return spectre::modules::prefabs::deserialize_entity(flecs::world(world), properties_handle);
     }
 
     static sandbox_properties_handle_t serialize_entity_cb(ecs_world_t* world, ecs_entity_t entity_id) {
-        if (!world || !entity_id) return {0};
-        flecs::world flecs_world(world);
-        auto* module_instance = flecs_world.try_get_mut<prefabs_module_t>();
-        if (module_instance) {
-            sandbox::properties serialized_properties = module_instance->serialize_entity(flecs_world.entity(entity_id));
-            sandbox_properties_handle_t raw_handle = serialized_properties.get_raw();
-            serialized_properties.release();
-            return raw_handle;
-        }
-        return {0};
+        return spectre::modules::prefabs::serialize_entity(flecs::world(world), entity_id);   
     }
 
     sandbox::properties prefabs_module_t::serialize_entity(flecs::entity entity_to_serialize) {
         sandbox::properties result_properties;
         if (!entity_to_serialize.is_valid()) {
-            sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world), "[Prefabs Module] Cannot serialize invalid entity.");
+            sandbox::modules::logs::warn(m_world, "[Prefabs Module] Cannot serialize invalid entity.");
             return result_properties;
         }
 
@@ -104,12 +91,9 @@ namespace spectre::modules {
             result_properties.set_array<std::string>("prefabs", prefabs_list);
         }
 
-        auto* components_module = const_cast<components_module_t*>(m_world.try_get_mut<components_module_t>());
-        if (components_module) {
-            sandbox::properties components_properties = components_module->serialize_component(entity_to_serialize);
-            if (components_properties.is_valid()) {
-                result_properties.merge("components", components_properties);
-            }
+        sandbox::properties components_properties = spectre::modules::components::serialize_component(m_world, entity_to_serialize);
+        if (components_properties.is_valid()) {
+            result_properties.merge("components", components_properties);
         }
         
         if (m_script_args_serializer.id() != 0) {
@@ -175,28 +159,25 @@ namespace spectre::modules {
         }
 
         if (properties.has("components")) {
-            auto* components_module = const_cast<components_module_t*>(m_world.try_get_mut<components_module_t>());
-            if (components_module) {
-                std::vector<std::string> component_keys = properties.keys("components");
-                sandbox::properties components_node = properties.sub("components");
-                for (const auto& component_name : component_keys) {
-                    sandbox::properties component_properties = components_node.sub(component_name);
-                    if (component_properties.is_valid()) {
-                        flecs::entity temporary_component_entity = components_module->deserialize_component(component_name, std::move(component_properties));
-                        if (temporary_component_entity.is_valid()) {
-                            temporary_component_entity.each([&](flecs::id component_id) {
-                                if (component_id.is_wildcard()) return;
-                                const void* pointer = ecs_get_id(m_world.c_ptr(), temporary_component_entity.id(), component_id);
-                                if (pointer) {
-                                    const ecs_type_info_t* type_info = ecs_get_type_info(m_world.c_ptr(), component_id);
-                                    size_t size = type_info ? type_info->size : 0;
-                                    ecs_set_id(m_world.c_ptr(), target_entity.id(), component_id, size, pointer);
-                                } else {
-                                    target_entity.add(component_id);
-                                }
-                            });
-                            temporary_component_entity.destruct();
-                        }
+            std::vector<std::string> component_keys = properties.keys("components");
+            sandbox::properties components_node = properties.sub("components");
+            for (const auto& component_name : component_keys) {
+                sandbox::properties component_properties = components_node.sub(component_name);
+                if (component_properties.is_valid()) {
+                    flecs::entity temporary_component_entity = spectre::modules::components::deserialize_component(m_world, component_name, std::move(component_properties));
+                    if (temporary_component_entity.is_valid()) {
+                        temporary_component_entity.each([&](flecs::id component_id) {
+                            if (component_id.is_wildcard()) return;
+                            const void* pointer = ecs_get_id(m_world.c_ptr(), temporary_component_entity.id(), component_id);
+                            if (pointer) {
+                                const ecs_type_info_t* type_info = ecs_get_type_info(m_world.c_ptr(), component_id);
+                                size_t size = type_info ? type_info->size : 0;
+                                ecs_set_id(m_world.c_ptr(), target_entity.id(), component_id, size, pointer);
+                            } else {
+                                target_entity.add(component_id);
+                            }
+                        });
+                        temporary_component_entity.destruct();
                     }
                 }
             }
@@ -232,7 +213,7 @@ namespace spectre::modules {
 
     void prefabs_module_t::register_prefab(std::string_view name, sandbox::properties properties) {
         if (name.empty()) {
-            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Prefabs Module] Cannot register prefab with empty name.");
+            sandbox::modules::logs::error(m_world, "[Prefabs Module] Cannot register prefab with empty name.");
             return;
         }
 
@@ -271,7 +252,7 @@ namespace spectre::modules {
             run_on_create_scripts(child, world);
         });
 
-        ::spectre::sdk::scripts::execute_on_create(target_entity);
+        spectre::modules::scripts::execute_on_create(target_entity);
     }
 
     flecs::entity prefabs_module_t::create_entity(sandbox::properties properties) {

@@ -5,7 +5,7 @@
 #include "spectre/services/scripts_service.h"
 #include "spectre/spectre.h"
 
-namespace spectre::sdk {
+namespace spectre::modules {
 
     class scripts {
     public:

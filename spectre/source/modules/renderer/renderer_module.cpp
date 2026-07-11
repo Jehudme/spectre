@@ -9,6 +9,8 @@
 #include <vector>
 #include <algorithm>
 
+#include "spectre/sdk/renderer.hpp"
+
 namespace spectre::modules {
 
     SANDBOX_DECLARE_MODULE(renderer_module_t, {
@@ -24,28 +26,15 @@ namespace spectre::modules {
     })
 
     static ecs_entity_t deserialize_renderer_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle) {
-        flecs::world flecs_world(world);
-        auto* module_instance = const_cast<renderer_module_t*>(flecs_world.try_get_mut<renderer_module_t>());
-        if (module_instance) {
-            sandbox::properties parsed_properties(properties_handle, false);
-            return module_instance->deserialize_renderer(parsed_properties).id();
-        }
-        return 0;
+        return spectre::modules::renderer::deserialize_renderer(flecs::world(world), properties_handle);
     }
 
     static sandbox_properties_handle_t serialize_renderer_cb(ecs_world_t* world, ecs_entity_t entity_id) {
-        flecs::world flecs_world(world);
-        auto* module_instance = const_cast<renderer_module_t*>(flecs_world.try_get_mut<renderer_module_t>());
-        if (module_instance) {
-            sandbox::properties serialized_properties = module_instance->serialize_renderer(flecs::entity(flecs_world, entity_id));
-            sandbox_properties_handle_t raw_handle = serialized_properties.get_raw();
-            serialized_properties.release();
-            return raw_handle;
-        }
-        return {0};
+        return spectre::modules::renderer::serialize_renderer(flecs::world(world), entity_id);
     }
     
     // Component Registration Callbacks
+    // TODO: register components member
     static ecs_entity_t register_renderable_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_renderable_t>().id(); }
     static ecs_entity_t register_rectangle_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_rectange_renderable_t>().id(); }
     static ecs_entity_t register_polygon_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_polygone_renderable_t>().id(); }
@@ -55,7 +44,7 @@ namespace spectre::modules {
     struct spectre_renderer_update_marker_t { char dummy; };
 
     renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
-        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Renderer Module] Initializing...");
+        sandbox::modules::logs::trace(m_world, "[Renderer Module] Initializing...");
 
         spectre_serializer_component serializer_callbacks = {};
         serializer_callbacks.deserialize = deserialize_renderer_cb;
@@ -67,6 +56,7 @@ namespace spectre::modules {
             .add<spectre_renderer_update_marker_t>();
 
         // Register Renderer Components via SDK
+        // TODO: create serializers for these components
         spectre_serializer_component empty_serializer = {nullptr, nullptr};
         spectre::modules::components::register_component(m_world, "spectre_renderable_t", register_renderable_comp, empty_serializer);
         spectre::modules::components::register_component(m_world, "spectre_rectange_renderable_t", register_rectangle_comp, empty_serializer);
@@ -82,7 +72,7 @@ namespace spectre::modules {
                 this->render_frame();
             });
             
-        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Renderer Module] Initialized successfully.");
+        sandbox::modules::logs::info(m_world, "[Renderer Module] Initialized successfully.");
     }
     
     renderer_module_t::~renderer_module_t() = default;
@@ -110,7 +100,7 @@ namespace spectre::modules {
         flecs::entity current_state = m_world.entity(current_state_id);
 
         if (!current_state.is_valid()) {
-            sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world), "[Renderer Module] No valid current state found, falling back to rendering all renderables.");
+            sandbox::modules::logs::warn(m_world, "[Renderer Module] No valid current state found, falling back to rendering all renderables.");
             auto renderable_query = m_world.query<spectre_renderable_t>();
             renderable_query.each([this](flecs::entity entity, spectre_renderable_t& renderable) {
                 this->render(entity);
@@ -118,11 +108,11 @@ namespace spectre::modules {
             return;
         }
 
-        struct RenderableEntity {
+        struct renderable_entity_t {
             flecs::entity entity;
             int layer;
         };
-        std::vector<RenderableEntity> entities_to_render;
+        std::vector<renderable_entity_t> entities_to_render;
         
         auto renderable_query = m_world.query<spectre_renderable_t>();
         renderable_query.each([&](flecs::entity entity, spectre_renderable_t&) {
@@ -144,7 +134,7 @@ namespace spectre::modules {
             }
         });
 
-        std::sort(entities_to_render.begin(), entities_to_render.end(), [](const RenderableEntity& entity_a, const RenderableEntity& entity_b) {
+        std::sort(entities_to_render.begin(), entities_to_render.end(), [](const renderable_entity_t& entity_a, const renderable_entity_t& entity_b) {
             return entity_a.layer < entity_b.layer;
         });
 
@@ -153,6 +143,7 @@ namespace spectre::modules {
         }
     }
 
+    // TODO: Make the code to use raylib to render these
     void renderer_module_t::render(flecs::entity entity_to_render) {
         if (entity_to_render.has<spectre_rectange_renderable_t>()) {
             sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Renderer Module] Drawing Rectangle for entity '{}'", entity_to_render.name().c_str() ? entity_to_render.name().c_str() : "unknown");
