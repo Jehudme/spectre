@@ -21,39 +21,59 @@ SANDBOX_DEFINE_SERVICE(spectre_components_service_t, spectre_components_api_t, &
 static sandbox_properties_handle_t components_serialize_component(ecs_world_t* world, ecs_entity_t entity) {
     if (!world) return {0};
     flecs::world flecs_world(world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::components_module_t>();
-    if (module) return module->serialize_component(flecs_world.entity(entity)).get_raw();
+    flecs::entity module_ent = flecs_world.lookup("spectre::modules::components_module_t");
+    if (module_ent.is_valid()) {
+        auto* module = flecs_world.lookup("spectre::modules::components_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::components_module_t>() : nullptr;
+        if (module) {
+            sandbox::properties props = module->serialize_component(flecs_world.entity(entity));
+            sandbox_properties_handle_t raw = props.get_raw();
+            props.release();
+            return raw;
+        }
+    }
     return {0};
 }
 
 static ecs_entity_t components_deserialize_component(ecs_world_t* world, const char* type, sandbox_properties_handle_t props) {
     if (!world || !type) return 0;
     flecs::world flecs_world(world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::components_module_t>();
-    if (module) return module->deserialize_component(type, sandbox::properties(props)).id();
+    flecs::entity module_ent = flecs_world.lookup("spectre::modules::components_module_t");
+    if (module_ent.is_valid()) {
+        auto* module = flecs_world.lookup("spectre::modules::components_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::components_module_t>() : nullptr;
+        if (module) return module->deserialize_component(type, sandbox::properties(props, false)).id();
+    }
     return 0;
 }
 
 static void components_register_component(ecs_world_t* world, const char* type, spectre_component_registration_fn_t registration, spectre_serializer_component serializer) {
     if (!world || !type) return;
     flecs::world flecs_world(world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::components_module_t>();
-    if (module) module->register_component(type, registration, serializer);
+    flecs::entity module_ent = flecs_world.lookup("spectre::modules::components_module_t");
+    if (module_ent.is_valid()) {
+        auto* module = flecs_world.lookup("spectre::modules::components_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::components_module_t>() : nullptr;
+        if (module) module->register_component(type, registration, serializer);
+    }
 }
 
 static bool components_has_component(ecs_world_t* world, const char* type) {
     if (!world || !type) return false;
     flecs::world flecs_world(world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::components_module_t>();
-    if (module) return module->has_component(type);
+    flecs::entity module_ent = flecs_world.lookup("spectre::modules::components_module_t");
+    if (module_ent.is_valid()) {
+        auto* module = flecs_world.lookup("spectre::modules::components_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::components_module_t>() : nullptr;
+        if (module) return module->has_component(type);
+    }
     return false;
 }
 
 static bool components_is_component(ecs_world_t* world, ecs_entity_t entity) {
     if (!world) return false;
     flecs::world flecs_world(world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::components_module_t>();
-    if (module) return module->is_component(flecs_world.entity(entity));
+    flecs::entity module_ent = flecs_world.lookup("spectre::modules::components_module_t");
+    if (module_ent.is_valid()) {
+        auto* module = flecs_world.lookup("spectre::modules::components_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::components_module_t>() : nullptr;
+        if (module) return module->is_component(flecs_world.entity(entity));
+    }
     return false;
 }
 
@@ -68,7 +88,7 @@ sandbox_properties_handle_t spectre_components_serialize_component(ecs_world_t* 
     if (service && service->api && service->api->serialize_component) {
         return service->api->serialize_component(world, entity);
     }
-    sandbox_properties_handle_t invalid = {0}; return invalid;
+    return components_serialize_component(world, entity);
 }
 
 ecs_entity_t spectre_components_deserialize_component(ecs_world_t* world, const char* type, sandbox_properties_handle_t props) {
@@ -81,7 +101,7 @@ ecs_entity_t spectre_components_deserialize_component(ecs_world_t* world, const 
     if (service && service->api && service->api->deserialize_component) {
         return service->api->deserialize_component(world, type, props);
     }
-    return 0;
+    return components_deserialize_component(world, type, props);
 }
 
 void spectre_components_register_component(ecs_world_t* world, const char* type, spectre_component_registration_fn_t registration, spectre_serializer_component serializer) {
@@ -93,7 +113,9 @@ void spectre_components_register_component(ecs_world_t* world, const char* type,
 #endif
     if (service && service->api && service->api->register_component) {
         service->api->register_component(world, type, registration, serializer);
+        return;
     }
+    components_register_component(world, type, registration, serializer);
 }
 
 bool spectre_components_has_component(ecs_world_t* world, const char* type) {
@@ -106,7 +128,7 @@ bool spectre_components_has_component(ecs_world_t* world, const char* type) {
     if (service && service->api && service->api->has_component) {
         return service->api->has_component(world, type);
     }
-    return false;
+    return components_has_component(world, type);
 }
 
 bool spectre_components_is_component(ecs_world_t* world, ecs_entity_t entity) {
@@ -119,7 +141,7 @@ bool spectre_components_is_component(ecs_world_t* world, ecs_entity_t entity) {
     if (service && service->api && service->api->is_component) {
         return service->api->is_component(world, entity);
     }
-    return false;
+    return components_is_component(world, entity);
 }
 
 // --- SDK Implementations ---

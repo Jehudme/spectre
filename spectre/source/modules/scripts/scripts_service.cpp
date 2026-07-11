@@ -7,7 +7,7 @@
 static bool scripts_has_script(ecs_world_t* world, const char* function_name, const spectre_script_argument_type_t* arg_types, size_t arg_count) {
     if (!world || !function_name) return false;
     flecs::world fw(world);
-    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    auto* module = fw.lookup("spectre::modules::script_module_t").is_valid() ? fw.try_get_mut<spectre::modules::script_module_t>() : nullptr;
     if (!module) return false;
     
     std::vector<spectre_script_argument_type_t> types(arg_types, arg_types + arg_count);
@@ -17,7 +17,7 @@ static bool scripts_has_script(ecs_world_t* world, const char* function_name, co
 static bool scripts_is_script(ecs_world_t* world, ecs_entity_t entity) {
     if (!world || !entity) return false;
     flecs::world fw(world);
-    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    auto* module = fw.lookup("spectre::modules::script_module_t").is_valid() ? fw.try_get_mut<spectre::modules::script_module_t>() : nullptr;
     if (!module) return false;
     return module->is_script(fw.entity(entity));
 }
@@ -25,7 +25,7 @@ static bool scripts_is_script(ecs_world_t* world, ecs_entity_t entity) {
 static ecs_entity_t scripts_find_script(ecs_world_t* world, const char* function_name) {
     if (!world || !function_name) return 0;
     flecs::world fw(world);
-    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    auto* module = fw.lookup("spectre::modules::script_module_t").is_valid() ? fw.try_get_mut<spectre::modules::script_module_t>() : nullptr;
     if (!module) return 0;
     return module->find_script(function_name).id();
 }
@@ -33,14 +33,14 @@ static ecs_entity_t scripts_find_script(ecs_world_t* world, const char* function
 static void scripts_include_code(ecs_world_t* world, const char* path) {
     if (!world || !path) return;
     flecs::world fw(world);
-    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    auto* module = fw.lookup("spectre::modules::script_module_t").is_valid() ? fw.try_get_mut<spectre::modules::script_module_t>() : nullptr;
     if (module) module->include_code(path);
 }
 
 static void scripts_execute_script(ecs_world_t* world, const char* function_name, spectre_script_argument_t* args, size_t arg_count) {
     if (!world || !function_name) return;
     flecs::world fw(world);
-    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    auto* module = fw.lookup("spectre::modules::script_module_t").is_valid() ? fw.try_get_mut<spectre::modules::script_module_t>() : nullptr;
     if (module) {
         spectre::modules::script_arguments_t v_args(args, args + arg_count);
         module->execute_script(function_name, v_args);
@@ -50,7 +50,7 @@ static void scripts_execute_script(ecs_world_t* world, const char* function_name
 static sandbox_properties_handle_t scripts_serialize_scripts(ecs_world_t* world, ecs_entity_t entity) {
     if (!world || !entity) return {0};
     flecs::world fw(world);
-    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    auto* module = fw.lookup("spectre::modules::script_module_t").is_valid() ? fw.try_get_mut<spectre::modules::script_module_t>() : nullptr;
     if (!module) return {0};
     sandbox::properties props = module->serialize_scripts(fw.entity(entity));
     sandbox_properties_handle_t handle = props.get_raw();
@@ -61,7 +61,7 @@ static sandbox_properties_handle_t scripts_serialize_scripts(ecs_world_t* world,
 static ecs_entity_t scripts_deserialize_scripts(ecs_world_t* world, sandbox_properties_handle_t props_handle) {
     if (!world) return 0;
     flecs::world fw(world);
-    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    auto* module = fw.lookup("spectre::modules::script_module_t").is_valid() ? fw.try_get_mut<spectre::modules::script_module_t>() : nullptr;
     if (!module) return 0;
     sandbox::properties props(props_handle, false);
     return module->deserialize_scripts(std::move(props)).id();
@@ -70,35 +70,35 @@ static ecs_entity_t scripts_deserialize_scripts(ecs_world_t* world, sandbox_prop
 static void scripts_execute_on_create(ecs_world_t* world, ecs_entity_t entity) {
     if (!world || !entity) return;
     flecs::world fw(world);
-    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    auto* module = fw.lookup("spectre::modules::script_module_t").is_valid() ? fw.try_get_mut<spectre::modules::script_module_t>() : nullptr;
     if (module) module->execute_on_create(fw.entity(entity));
 }
 
 static void scripts_execute_on_destroy(ecs_world_t* world, ecs_entity_t entity) {
     if (!world || !entity) return;
     flecs::world fw(world);
-    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    auto* module = fw.lookup("spectre::modules::script_module_t").is_valid() ? fw.try_get_mut<spectre::modules::script_module_t>() : nullptr;
     if (module) module->execute_on_destroy(fw.entity(entity));
 }
 
 static void scripts_execute_on_update(ecs_world_t* world, ecs_entity_t entity) {
     if (!world || !entity) return;
     flecs::world fw(world);
-    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    auto* module = fw.lookup("spectre::modules::script_module_t").is_valid() ? fw.try_get_mut<spectre::modules::script_module_t>() : nullptr;
     if (module) module->execute_on_update(fw.entity(entity));
 }
 
 static void scripts_execute_on_enter(ecs_world_t* world, ecs_entity_t entity) {
     if (!world || !entity) return;
     flecs::world fw(world);
-    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    auto* module = fw.lookup("spectre::modules::script_module_t").is_valid() ? fw.try_get_mut<spectre::modules::script_module_t>() : nullptr;
     if (module) module->execute_on_enter(fw.entity(entity));
 }
 
 static void scripts_execute_on_exit(ecs_world_t* world, ecs_entity_t entity) {
     if (!world || !entity) return;
     flecs::world fw(world);
-    auto* module = fw.try_get_mut<spectre::modules::script_module_t>();
+    auto* module = fw.lookup("spectre::modules::script_module_t").is_valid() ? fw.try_get_mut<spectre::modules::script_module_t>() : nullptr;
     if (module) module->execute_on_exit(fw.entity(entity));
 }
 

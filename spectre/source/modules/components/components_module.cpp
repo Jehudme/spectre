@@ -9,14 +9,8 @@
 
 namespace spectre::modules {
 
-    // Component Registration Callbacks
-    static ecs_entity_t register_component_serializer_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_component_serializer_t>().id(); }
-
     components_module_t::components_module_t(flecs::world& world) : m_world(world) {
         sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Components Module] Initializing...");
-
-        spectre_serializer_component empty_serializer = {nullptr, nullptr};
-        spectre::modules::components::register_component(m_world, "spectre_component_serializer_t", register_component_serializer_comp, empty_serializer);
 
         m_components_root = m_world.entity("::components");
         
@@ -40,20 +34,31 @@ namespace spectre::modules {
         entity_to_serialize.each([&](flecs::id component_id) {
             if (component_id.is_entity()) {
                 flecs::entity component_entity = component_id.entity();
+                std::cout << "[Components Module Debug] Checking component: " << (component_entity.name().c_str() ? component_entity.name().c_str() : "unnamed") << std::endl;
+                
                 if (is_component(component_entity)) {
                     std::string component_name = component_entity.name().c_str();
                     ecs_entity_t serializer_entity = spectre::modules::serializer::find_serializer(m_world, component_name.c_str());
+                    
+                    std::cout << "[Components Module Debug] Component is registered. Serializer: " << serializer_entity << std::endl;
                     
                     if (serializer_entity != 0) {
                         sandbox_properties_handle_t properties_handle = spectre::modules::serializer::serialize_entity(m_world, serializer_entity, entity_to_serialize.id());
                         sandbox::properties component_properties(properties_handle, true);
                         if (component_properties.is_valid()) {
+                            std::cout << "[Components Module Debug] Successfully serialized component." << std::endl;
                             serialized_properties.merge(component_name, component_properties);
                             has_any_components = true;
+                        } else {
+                            std::cout << "[Components Module Debug] serialize_entity returned invalid properties." << std::endl;
+                            sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world), "[Components Module] serialize_entity returned invalid properties for '{}'", component_name);
                         }
                     } else {
-                        sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world), "[Components Module] No serializer found for component type '{}' while serializing entity '{}'.", component_name, entity_to_serialize.name().c_str());
+                        sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world), "[Components Module] No serializer found for component type '{}' while serializing entity '{}'.", component_name, entity_to_serialize.name().c_str() ? entity_to_serialize.name().c_str() : "unnamed");
                     }
+                } else {
+                    std::cout << "[Components Module Debug] Component is NOT registered via components_module." << std::endl;
+                    sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Components Module] Component '{}' is not registered as a module component.", component_entity.name().c_str() ? component_entity.name().c_str() : "unnamed");
                 }
             }
         });

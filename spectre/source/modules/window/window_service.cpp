@@ -105,30 +105,35 @@ SANDBOX_DEFINE_SERVICE(spectre_window_service_t, spectre_window_api_t, &g_window
 static ecs_entity_t window_deserialize_window(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
     if (!entity_world) return 0;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
-    if (module) return module->deserialize_window(sandbox::properties(props)).id();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
+    if (module) return module->deserialize_window(sandbox::properties(props, false)).id();
     return 0;
 }
 
 static sandbox_properties_handle_t window_serialize_window(ecs_world_t* entity_world, ecs_entity_t window) {
     if (!entity_world) return {0};
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
-    if (module) return module->serialize_window(flecs_world.entity(window)).get_raw();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
+    if (module) {
+        sandbox::properties props = module->serialize_window(flecs_world.entity(window));
+        sandbox_properties_handle_t raw = props.get_raw();
+        props.release();
+        return raw;
+    }
     return {0};
 }
 
 static void window_register_window(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
-    if (module) module->register_window(sandbox::properties(props));
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
+    if (module) module->register_window(sandbox::properties(props, false));
 }
 
 static bool window_should_close(ecs_world_t* entity_world) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->should_close();
     return false;
 }
@@ -136,35 +141,35 @@ static bool window_should_close(ecs_world_t* entity_world) {
 static void window_set_should_close(ecs_world_t* entity_world, bool close) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->set_should_close(close);
 }
 
 static void window_set_size(ecs_world_t* entity_world, uint32_t width, uint32_t height) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->set_size(width, height);
 }
 
 static void window_set_position(ecs_world_t* entity_world, int32_t x, int32_t y) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->set_position(x, y);
 }
 
 static void window_set_size_limits(ecs_world_t* entity_world, uint32_t min_w, uint32_t min_h, uint32_t max_w, uint32_t max_h) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->set_size_limits(min_w, min_h, max_w, max_h);
 }
 
 static uint32_t window_get_width(ecs_world_t* entity_world) {
     if (!entity_world) return 0;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->get_width();
     return 0;
 }
@@ -172,7 +177,7 @@ static uint32_t window_get_width(ecs_world_t* entity_world) {
 static uint32_t window_get_height(ecs_world_t* entity_world) {
     if (!entity_world) return 0;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->get_height();
     return 0;
 }
@@ -180,7 +185,7 @@ static uint32_t window_get_height(ecs_world_t* entity_world) {
 static float window_get_aspect_ratio(ecs_world_t* entity_world) {
     if (!entity_world) return 0.0f;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->get_aspect_ratio();
     return 0.0f;
 }
@@ -188,7 +193,7 @@ static float window_get_aspect_ratio(ecs_world_t* entity_world) {
 static int32_t window_get_position_x(ecs_world_t* entity_world) {
     if (!entity_world) return 0;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->get_position_x();
     return 0;
 }
@@ -196,7 +201,7 @@ static int32_t window_get_position_x(ecs_world_t* entity_world) {
 static int32_t window_get_position_y(ecs_world_t* entity_world) {
     if (!entity_world) return 0;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->get_position_y();
     return 0;
 }
@@ -204,49 +209,49 @@ static int32_t window_get_position_y(ecs_world_t* entity_world) {
 static void window_set_title(ecs_world_t* entity_world, const char* title) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->set_title(title);
 }
 
 static void window_set_vsync(ecs_world_t* entity_world, bool enabled) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->set_vsync(enabled);
 }
 
 static void window_set_fullscreen(ecs_world_t* entity_world, bool fullscreen) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->set_fullscreen(fullscreen);
 }
 
 static void window_set_borderless(ecs_world_t* entity_world, bool borderless) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->set_borderless(borderless);
 }
 
 static void window_set_resizable(ecs_world_t* entity_world, bool resizable) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->set_resizable(resizable);
 }
 
 static void window_set_always_on_top(ecs_world_t* entity_world, bool always_on_top) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->set_always_on_top(always_on_top);
 }
 
 static const char* window_get_title(ecs_world_t* entity_world) {
     if (!entity_world) return nullptr;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->get_title();
     return nullptr;
 }
@@ -254,7 +259,7 @@ static const char* window_get_title(ecs_world_t* entity_world) {
 static bool window_is_vsync(ecs_world_t* entity_world) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->is_vsync();
     return false;
 }
@@ -262,7 +267,7 @@ static bool window_is_vsync(ecs_world_t* entity_world) {
 static bool window_is_fullscreen(ecs_world_t* entity_world) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->is_fullscreen();
     return false;
 }
@@ -270,7 +275,7 @@ static bool window_is_fullscreen(ecs_world_t* entity_world) {
 static bool window_is_borderless(ecs_world_t* entity_world) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->is_borderless();
     return false;
 }
@@ -278,7 +283,7 @@ static bool window_is_borderless(ecs_world_t* entity_world) {
 static bool window_is_resizable(ecs_world_t* entity_world) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->is_resizable();
     return false;
 }
@@ -286,49 +291,49 @@ static bool window_is_resizable(ecs_world_t* entity_world) {
 static void window_minimize(ecs_world_t* entity_world) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->minimize();
 }
 
 static void window_maximize(ecs_world_t* entity_world) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->maximize();
 }
 
 static void window_restore(ecs_world_t* entity_world) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->restore();
 }
 
 static void window_show(ecs_world_t* entity_world) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->show();
 }
 
 static void window_hide(ecs_world_t* entity_world) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->hide();
 }
 
 static void window_request_attention(ecs_world_t* entity_world) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->request_attention();
 }
 
 static bool window_is_minimized(ecs_world_t* entity_world) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->is_minimized();
     return false;
 }
@@ -336,7 +341,7 @@ static bool window_is_minimized(ecs_world_t* entity_world) {
 static bool window_is_maximized(ecs_world_t* entity_world) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->is_maximized();
     return false;
 }
@@ -344,7 +349,7 @@ static bool window_is_maximized(ecs_world_t* entity_world) {
 static bool window_is_visible(ecs_world_t* entity_world) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->is_visible();
     return false;
 }
@@ -352,7 +357,7 @@ static bool window_is_visible(ecs_world_t* entity_world) {
 static bool window_is_focused(ecs_world_t* entity_world) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->is_focused();
     return false;
 }
@@ -360,7 +365,7 @@ static bool window_is_focused(ecs_world_t* entity_world) {
 static bool window_is_hovered(ecs_world_t* entity_world) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->is_hovered();
     return false;
 }
@@ -368,21 +373,21 @@ static bool window_is_hovered(ecs_world_t* entity_world) {
 static void window_set_cursor_visible(ecs_world_t* entity_world, bool visible) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->set_cursor_visible(visible);
 }
 
 static void window_set_cursor_locked(ecs_world_t* entity_world, bool locked) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) module->set_cursor_locked(locked);
 }
 
 static bool window_is_cursor_visible(ecs_world_t* entity_world) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->is_cursor_visible();
     return false;
 }
@@ -390,7 +395,7 @@ static bool window_is_cursor_visible(ecs_world_t* entity_world) {
 static bool window_is_cursor_locked(ecs_world_t* entity_world) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->is_cursor_locked();
     return false;
 }
@@ -398,7 +403,7 @@ static bool window_is_cursor_locked(ecs_world_t* entity_world) {
 static void* window_get_native_handle(ecs_world_t* entity_world) {
     if (!entity_world) return nullptr;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->get_native_handle();
     return nullptr;
 }
@@ -406,7 +411,7 @@ static void* window_get_native_handle(ecs_world_t* entity_world) {
 static bool window_is_key_down(ecs_world_t* entity_world, int keycode) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->is_key_down(keycode);
     return false;
 }
@@ -414,7 +419,7 @@ static bool window_is_key_down(ecs_world_t* entity_world, int keycode) {
 static bool window_is_key_pressed(ecs_world_t* entity_world, int keycode) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->is_key_pressed(keycode);
     return false;
 }
@@ -422,7 +427,7 @@ static bool window_is_key_pressed(ecs_world_t* entity_world, int keycode) {
 static bool window_is_key_released(ecs_world_t* entity_world, int keycode) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->is_key_released(keycode);
     return false;
 }
@@ -430,7 +435,7 @@ static bool window_is_key_released(ecs_world_t* entity_world, int keycode) {
 static float window_get_mouse_x(ecs_world_t* entity_world) {
     if (!entity_world) return 0.0f;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->get_mouse_x();
     return 0.0f;
 }
@@ -438,7 +443,7 @@ static float window_get_mouse_x(ecs_world_t* entity_world) {
 static float window_get_mouse_y(ecs_world_t* entity_world) {
     if (!entity_world) return 0.0f;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->get_mouse_y();
     return 0.0f;
 }
@@ -446,7 +451,7 @@ static float window_get_mouse_y(ecs_world_t* entity_world) {
 static float window_get_mouse_delta_x(ecs_world_t* entity_world) {
     if (!entity_world) return 0.0f;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->get_mouse_delta_x();
     return 0.0f;
 }
@@ -454,7 +459,7 @@ static float window_get_mouse_delta_x(ecs_world_t* entity_world) {
 static float window_get_mouse_delta_y(ecs_world_t* entity_world) {
     if (!entity_world) return 0.0f;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::window_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
     if (module) return module->get_mouse_delta_y();
     return 0.0f;
 }
@@ -465,18 +470,12 @@ ecs_entity_t spectre_window_deserialize_window(ecs_world_t* world, sandbox_prope
     flecs::world flecs_world(world);
     const spectre_window_service_t* service = flecs_world.try_get<spectre_window_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_window_service_t* service = flecs_world.try_get<spectre_window_service_t>();
-#else
     const spectre_window_service_t* service = (const spectre_window_service_t*)ecs_singleton_get(world, spectre_window_service_t);
-#endif
 #endif
     if (service && service->api && service->api->deserialize_window) {
         return service->api->deserialize_window(world, props);
-        
     }
-    return (ecs_entity_t){0};
+    return window_deserialize_window(world, props);
 }
 
 sandbox_properties_handle_t spectre_window_serialize_window(ecs_world_t* world, ecs_entity_t window) {
@@ -484,18 +483,12 @@ sandbox_properties_handle_t spectre_window_serialize_window(ecs_world_t* world, 
     flecs::world flecs_world(world);
     const spectre_window_service_t* service = flecs_world.try_get<spectre_window_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_window_service_t* service = flecs_world.try_get<spectre_window_service_t>();
-#else
     const spectre_window_service_t* service = (const spectre_window_service_t*)ecs_singleton_get(world, spectre_window_service_t);
-#endif
 #endif
     if (service && service->api && service->api->serialize_window) {
         return service->api->serialize_window(world, window);
-        
     }
-    sandbox_properties_handle_t invalid = {0}; return invalid;
+    return window_serialize_window(world, window);
 }
 
 void spectre_window_register_window(ecs_world_t* world, sandbox_properties_handle_t props) {
@@ -503,18 +496,13 @@ void spectre_window_register_window(ecs_world_t* world, sandbox_properties_handl
     flecs::world flecs_world(world);
     const spectre_window_service_t* service = flecs_world.try_get<spectre_window_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_window_service_t* service = flecs_world.try_get<spectre_window_service_t>();
-#else
     const spectre_window_service_t* service = (const spectre_window_service_t*)ecs_singleton_get(world, spectre_window_service_t);
-#endif
 #endif
     if (service && service->api && service->api->register_window) {
         service->api->register_window(world, props);
         return;
     }
-    
+    window_register_window(world, props);
 }
 
 bool spectre_window_should_close(ecs_world_t* world) {

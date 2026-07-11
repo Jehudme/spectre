@@ -9,8 +9,8 @@ using namespace spectre::modules;
 
 TEST_CASE("Components Module: Registration and Queries", "[components module test]") {
     flecs::world world;
-    world.import<spectre::modules::serializer_module>();
     world.import<spectre::modules::components_module_t>();
+    world.import<spectre::modules::serializer_module>();
 
     auto* comp_mod = &world.get_mut<spectre::modules::components_module_t>();
     REQUIRE(comp_mod != nullptr);

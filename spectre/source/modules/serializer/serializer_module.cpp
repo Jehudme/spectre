@@ -53,10 +53,9 @@ namespace spectre::modules {
             return;
         }
 
-        flecs::entity serializer_entity = m_world.entity()
+        flecs::entity serializer_entity = m_world.entity(std::string(serializer_type).c_str())
                                                 .child_of(m_serializer)
                                                 .is_a(m_serializable_prefab)
-                                                .set_name(std::string(serializer_type).c_str())
                                                 .set<serializer_t>(serializer_component);
 
         sandbox::modules::logs::info(m_world, "Registered serializer for type: '{}'.", serializer_type);

@@ -43,53 +43,63 @@ SANDBOX_DEFINE_SERVICE(spectre_scenes_service_t, spectre_scenes_api_t, &g_scenes
 static sandbox_properties_handle_t scenes_serialize_state(ecs_world_t* entity_world, ecs_entity_t state) {
     if (!entity_world) return {0};
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::scenes_module_t>();
-    if (module) return module->serialize_state(flecs_world.entity(state)).get_raw();
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
+    if (module) {
+        sandbox::properties props = module->serialize_state(flecs_world.entity(state));
+        sandbox_properties_handle_t raw = props.get_raw();
+        props.release();
+        return raw;
+    }
     return {0};
 }
 
 static ecs_entity_t scenes_deserialize_state(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
     if (!entity_world) return 0;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::scenes_module_t>();
-    if (module) return module->deserialize_state(sandbox::properties(props)).id();
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
+    if (module) return module->deserialize_state(sandbox::properties(props, false)).id();
     return 0;
 }
 
 static sandbox_properties_handle_t scenes_serialize_scene(ecs_world_t* entity_world, ecs_entity_t scene) {
     if (!entity_world) return {0};
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::scenes_module_t>();
-    if (module) return module->serialize_scene(flecs_world.entity(scene)).get_raw();
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
+    if (module) {
+        sandbox::properties props = module->serialize_scene(flecs_world.entity(scene));
+        sandbox_properties_handle_t raw = props.get_raw();
+        props.release();
+        return raw;
+    }
     return {0};
 }
 
 static ecs_entity_t scenes_deserialize_scene(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
     if (!entity_world) return 0;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::scenes_module_t>();
-    if (module) return module->deserialize_scene(sandbox::properties(props)).id();
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
+    if (module) return module->deserialize_scene(sandbox::properties(props, false)).id();
     return 0;
 }
 
 static void scenes_register_state(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::scenes_module_t>();
-    if (module) module->register_state(sandbox::properties(props));
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
+    if (module) module->register_state(sandbox::properties(props, false));
 }
 
 static void scenes_register_scene(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::scenes_module_t>();
-    if (module) module->register_scene(sandbox::properties(props));
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
+    if (module) module->register_scene(sandbox::properties(props, false));
 }
 
 static ecs_entity_t scenes_find_state(ecs_world_t* entity_world, const char* name) {
     if (!entity_world) return 0;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::scenes_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
     if (module) return module->find_state(name).id();
     return 0;
 }
@@ -97,7 +107,7 @@ static ecs_entity_t scenes_find_state(ecs_world_t* entity_world, const char* nam
 static ecs_entity_t scenes_find_scene(ecs_world_t* entity_world, const char* name) {
     if (!entity_world) return 0;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::scenes_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
     if (module) return module->find_scene(name).id();
     return 0;
 }
@@ -105,7 +115,7 @@ static ecs_entity_t scenes_find_scene(ecs_world_t* entity_world, const char* nam
 static bool scenes_has_state(ecs_world_t* entity_world, const char* name) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::scenes_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
     if (module) return module->has_state(name);
     return false;
 }
@@ -113,7 +123,7 @@ static bool scenes_has_state(ecs_world_t* entity_world, const char* name) {
 static bool scenes_has_scene(ecs_world_t* entity_world, const char* name) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::scenes_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
     if (module) return module->has_scene(name);
     return false;
 }
@@ -121,7 +131,7 @@ static bool scenes_has_scene(ecs_world_t* entity_world, const char* name) {
 static bool scenes_is_state(ecs_world_t* entity_world, ecs_entity_t entity) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::scenes_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
     if (module) return module->is_state(flecs_world.entity(entity));
     return false;
 }
@@ -129,7 +139,7 @@ static bool scenes_is_state(ecs_world_t* entity_world, ecs_entity_t entity) {
 static bool scenes_is_scene(ecs_world_t* entity_world, ecs_entity_t entity) {
     if (!entity_world) return false;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::scenes_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
     if (module) return module->is_scene(flecs_world.entity(entity));
     return false;
 }
@@ -137,7 +147,7 @@ static bool scenes_is_scene(ecs_world_t* entity_world, ecs_entity_t entity) {
 static ecs_entity_t scenes_find_current_state(ecs_world_t* entity_world) {
     if (!entity_world) return 0;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::scenes_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
     if (module) return module->find_current_state().id();
     return 0;
 }
@@ -150,14 +160,14 @@ static ecs_query_t* scenes_find_current_scenes(ecs_world_t* entity_world) {
 static void scenes_push_state(ecs_world_t* entity_world, ecs_entity_t state) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::scenes_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
     if (module) module->push_state(flecs_world.entity(state));
 }
 
 static void scenes_pop_state(ecs_world_t* entity_world) {
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
-    auto* module = flecs_world.try_get_mut<spectre::modules::scenes_module_t>();
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
     if (module) module->pop_state();
 }
 
@@ -167,18 +177,12 @@ sandbox_properties_handle_t spectre_scenes_serialize_state(ecs_world_t* world, e
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
-#else
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
-#endif
 #endif
     if (service && service->api && service->api->serialize_state) {
         return service->api->serialize_state(world, state);
-        
     }
-    sandbox_properties_handle_t invalid = {0}; return invalid;
+    return scenes_serialize_state(world, state);
 }
 
 ecs_entity_t spectre_scenes_deserialize_state(ecs_world_t* world, sandbox_properties_handle_t props) {
@@ -186,18 +190,12 @@ ecs_entity_t spectre_scenes_deserialize_state(ecs_world_t* world, sandbox_proper
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
-#else
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
-#endif
 #endif
     if (service && service->api && service->api->deserialize_state) {
         return service->api->deserialize_state(world, props);
-        
     }
-    return (ecs_entity_t){0};
+    return scenes_deserialize_state(world, props);
 }
 
 sandbox_properties_handle_t spectre_scenes_serialize_scene(ecs_world_t* world, ecs_entity_t scene) {
@@ -205,18 +203,12 @@ sandbox_properties_handle_t spectre_scenes_serialize_scene(ecs_world_t* world, e
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
-#else
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
-#endif
 #endif
     if (service && service->api && service->api->serialize_scene) {
         return service->api->serialize_scene(world, scene);
-        
     }
-    sandbox_properties_handle_t invalid = {0}; return invalid;
+    return scenes_serialize_scene(world, scene);
 }
 
 ecs_entity_t spectre_scenes_deserialize_scene(ecs_world_t* world, sandbox_properties_handle_t props) {
@@ -224,18 +216,12 @@ ecs_entity_t spectre_scenes_deserialize_scene(ecs_world_t* world, sandbox_proper
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
-#else
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
-#endif
 #endif
     if (service && service->api && service->api->deserialize_scene) {
         return service->api->deserialize_scene(world, props);
-        
     }
-    return (ecs_entity_t){0};
+    return scenes_deserialize_scene(world, props);
 }
 
 void spectre_scenes_register_state(ecs_world_t* world, sandbox_properties_handle_t props) {
@@ -243,18 +229,13 @@ void spectre_scenes_register_state(ecs_world_t* world, sandbox_properties_handle
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
-#else
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
-#endif
 #endif
     if (service && service->api && service->api->register_state) {
         service->api->register_state(world, props);
         return;
     }
-    
+    scenes_register_state(world, props);
 }
 
 void spectre_scenes_register_scene(ecs_world_t* world, sandbox_properties_handle_t props) {
@@ -262,18 +243,13 @@ void spectre_scenes_register_scene(ecs_world_t* world, sandbox_properties_handle
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
-#else
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
-#endif
 #endif
     if (service && service->api && service->api->register_scene) {
         service->api->register_scene(world, props);
         return;
     }
-    
+    scenes_register_scene(world, props);
 }
 
 ecs_entity_t spectre_scenes_find_state(ecs_world_t* world, const char* name) {
@@ -281,18 +257,12 @@ ecs_entity_t spectre_scenes_find_state(ecs_world_t* world, const char* name) {
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
-#else
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
-#endif
 #endif
     if (service && service->api && service->api->find_state) {
         return service->api->find_state(world, name);
-        
     }
-    return (ecs_entity_t){0};
+    return scenes_find_state(world, name);
 }
 
 ecs_entity_t spectre_scenes_find_scene(ecs_world_t* world, const char* name) {
@@ -300,18 +270,12 @@ ecs_entity_t spectre_scenes_find_scene(ecs_world_t* world, const char* name) {
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
-#else
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
-#endif
 #endif
     if (service && service->api && service->api->find_scene) {
         return service->api->find_scene(world, name);
-        
     }
-    return (ecs_entity_t){0};
+    return scenes_find_scene(world, name);
 }
 
 bool spectre_scenes_has_state(ecs_world_t* world, const char* name) {
@@ -319,18 +283,12 @@ bool spectre_scenes_has_state(ecs_world_t* world, const char* name) {
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
-#else
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
-#endif
 #endif
     if (service && service->api && service->api->has_state) {
         return service->api->has_state(world, name);
-        
     }
-    return false;
+    return scenes_has_state(world, name);
 }
 
 bool spectre_scenes_has_scene(ecs_world_t* world, const char* name) {
@@ -338,18 +296,12 @@ bool spectre_scenes_has_scene(ecs_world_t* world, const char* name) {
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
-#else
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
-#endif
 #endif
     if (service && service->api && service->api->has_scene) {
         return service->api->has_scene(world, name);
-        
     }
-    return false;
+    return scenes_has_scene(world, name);
 }
 
 bool spectre_scenes_is_state(ecs_world_t* world, ecs_entity_t entity) {
@@ -357,18 +309,12 @@ bool spectre_scenes_is_state(ecs_world_t* world, ecs_entity_t entity) {
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
-#else
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
-#endif
 #endif
     if (service && service->api && service->api->is_state) {
         return service->api->is_state(world, entity);
-        
     }
-    return false;
+    return scenes_is_state(world, entity);
 }
 
 bool spectre_scenes_is_scene(ecs_world_t* world, ecs_entity_t entity) {
@@ -376,18 +322,12 @@ bool spectre_scenes_is_scene(ecs_world_t* world, ecs_entity_t entity) {
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
-#else
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
-#endif
 #endif
     if (service && service->api && service->api->is_scene) {
         return service->api->is_scene(world, entity);
-        
     }
-    return false;
+    return scenes_is_scene(world, entity);
 }
 
 ecs_entity_t spectre_scenes_find_current_state(ecs_world_t* world) {
@@ -395,18 +335,12 @@ ecs_entity_t spectre_scenes_find_current_state(ecs_world_t* world) {
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
-#else
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
-#endif
 #endif
     if (service && service->api && service->api->find_current_state) {
         return service->api->find_current_state(world);
-        
     }
-    return (ecs_entity_t){0};
+    return scenes_find_current_state(world);
 }
 
 ecs_query_t* spectre_scenes_find_current_scenes(ecs_world_t* world) {
@@ -414,18 +348,12 @@ ecs_query_t* spectre_scenes_find_current_scenes(ecs_world_t* world) {
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
-#else
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
-#endif
 #endif
     if (service && service->api && service->api->find_current_scenes) {
         return service->api->find_current_scenes(world);
-        
     }
-    return NULL;
+    return scenes_find_current_scenes(world);
 }
 
 void spectre_scenes_push_state(ecs_world_t* world, ecs_entity_t state) {
@@ -433,18 +361,13 @@ void spectre_scenes_push_state(ecs_world_t* world, ecs_entity_t state) {
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
-#else
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
-#endif
 #endif
     if (service && service->api && service->api->push_state) {
         service->api->push_state(world, state);
         return;
     }
-    
+    scenes_push_state(world, state);
 }
 
 void spectre_scenes_pop_state(ecs_world_t* world) {
@@ -452,18 +375,13 @@ void spectre_scenes_pop_state(ecs_world_t* world) {
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
 #else
-#ifdef __cplusplus
-    flecs::world flecs_world(world);
-    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
-#else
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
-#endif
 #endif
     if (service && service->api && service->api->pop_state) {
         service->api->pop_state(world);
         return;
     }
-    
+    scenes_pop_state(world);
 }
 
 void spectre_scenes_execute_recursive(ecs_world_t* world, ecs_entity_t entity, spectre_recursive_callback_t callback, void* payload) {
