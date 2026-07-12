@@ -53,6 +53,8 @@ namespace spectre::modules {
         m_world.entity(flecs::OnUpdate).depends_on<spectre_on_event_phase_t>();
 
         struct window_update_marker_t { char dummy; };
+        // TODO: Do not make an dummy window real window, and it should be initiatiated in the register_window function
+        // TODO: Also implement input feature by polling input event from the window and update the input state, update all function so that everything work correctly
         m_world.entity("window_input_dummy").add<window_update_marker_t>();
 
         m_world.system<window_update_marker_t>("Window Input Event")

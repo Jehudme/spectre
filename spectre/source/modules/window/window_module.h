@@ -3,8 +3,11 @@
 
 #include <flecs.h>
 #include "sandbox/sdk/properties.hpp"
+#include "spectre/components/window_component.h"
 
 namespace spectre::modules {
+    using input_state_t = spectre_input_state_t;
+
     class window_module_t {
     public:
         window_module_t(flecs::world& world);
@@ -86,6 +89,7 @@ namespace spectre::modules {
         void set_mouse_delta(float dx, float dy);
 
     private:
+        input_state_t m_input_state;
         flecs::entity m_window_entity;
         flecs::world m_world;
     };

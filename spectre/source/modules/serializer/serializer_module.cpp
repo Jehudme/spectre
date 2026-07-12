@@ -35,7 +35,7 @@ namespace spectre::modules {
         m_serializable_prefab = m_world.prefab("::serializers::prefab")
             .set<serializer_t>({});
             
-        sandbox::modules::logs::trace(m_world, "[Serializer Module] Initialized successfully.");
+        sandbox::modules::logs::info(m_world, "[Serializer Module] Initialized successfully.");
     }
     
     serializer_module::~serializer_module() {

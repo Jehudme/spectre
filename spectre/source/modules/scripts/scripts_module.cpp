@@ -75,8 +75,7 @@ namespace spectre::modules {
     }
     
     static ecs_entity_t deserialize_script_args_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle) {
-        spectre::modules::scripts::deserialize_scripts(flecs::world(world), sandbox::properties(properties_handle, false));
-        return 0;
+        return spectre_scripts_deserialize_scripts(world, properties_handle);
     }
 
     flecs::entity script_module_t::deserialize_scripts(sandbox::properties properties) {
@@ -164,16 +163,7 @@ namespace spectre::modules {
     }
 
     static sandbox_properties_handle_t serialize_script_args_cb(ecs_world_t* world, ecs_entity_t entity_id) {
-        if (!world || !entity_id) return {0};
-        flecs::world flecs_world(world);
-        auto* module_instance = flecs_world.try_get_mut<script_module_t>();
-        if (module_instance) {
-            sandbox::properties serialized_properties = module_instance->serialize_scripts(flecs_world.entity(entity_id));
-            sandbox_properties_handle_t raw_handle = serialized_properties.get_raw();
-            serialized_properties.release();
-            return raw_handle;
-        }
-        return {0};
+        return spectre_scripts_serialize_scripts(world, entity_id);
     }
 
     sandbox::properties script_module_t::serialize_scripts(flecs::entity entity_to_serialize) {
