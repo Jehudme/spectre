@@ -27,14 +27,30 @@ namespace spectre::modules {
     }
 
     // Component Registration Callbacks
-    // TODO: Also register the member
-    static ecs_entity_t register_scene_component(ecs_world_t* world) { return flecs::world(world).component<spectre_scene_t>().id(); }
-    static ecs_entity_t register_state_component(ecs_world_t* world) { return flecs::world(world).component<spectre_state_t>().id(); }
-    static ecs_entity_t register_state_use_scene_relation_component(ecs_world_t* world) { return flecs::world(world).component<spectre_state_use_scene_relation_t>().id(); }
+    // Component Registration Callbacks
+    static ecs_entity_t register_scene_component(ecs_world_t* world) { 
+        return flecs::world(world).component<spectre_scene_t>()
+            .member<char>("dummy").id(); 
+    }
+    static ecs_entity_t register_state_component(ecs_world_t* world) { 
+        return flecs::world(world).component<spectre_state_t>()
+            .member<char>("dummy").id(); 
+    }
+    static ecs_entity_t register_state_use_scene_relation_component(ecs_world_t* world) { 
+        return flecs::world(world).component<spectre_state_use_scene_relation_t>()
+            .member<int>("layer_index").id(); 
+    }
 
-    static ecs_entity_t register_state_context_component(ecs_world_t* world) { return flecs::world(world).component<spectre_state_context_t>().id(); }
-    static ecs_entity_t register_scene_context_component(ecs_world_t* world) { return flecs::world(world).component<spectre_scene_context_t>().id(); }
-    static ecs_entity_t register_disable_rendering_component(ecs_world_t* world) { return flecs::world(world).component<spectre_disable_rendering_t>().id(); }
+    static ecs_entity_t register_state_context_component(ecs_world_t* world) { 
+        return flecs::world(world).component<spectre_state_context_t>().id(); // holds flecs::entity, reflection is tricky 
+    }
+    static ecs_entity_t register_scene_context_component(ecs_world_t* world) { 
+        return flecs::world(world).component<spectre_scene_context_t>().id(); 
+    }
+    static ecs_entity_t register_disable_rendering_component(ecs_world_t* world) { 
+        return flecs::world(world).component<spectre_disable_rendering_t>()
+            .member<char>("dummy").id(); 
+    }
 
     SANDBOX_DECLARE_MODULE(scenes_module_t, {
         .name = "scenes",
@@ -55,7 +71,6 @@ namespace spectre::modules {
         m_scenes_root = m_world.entity("::scenes");
 
         // Register components
-        // TODO: Make the serializers for these components
         spectre_serializer_component empty_serializer = {nullptr, nullptr};
         spectre::modules::components::register_component(m_world, "spectre_scene_t", register_scene_component, empty_serializer);
         spectre::modules::components::register_component(m_world, "spectre_state_t", register_state_component, empty_serializer);

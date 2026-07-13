@@ -10,6 +10,7 @@
 #include <algorithm>
 
 #include "spectre/sdk/renderer.hpp"
+#include <raylib.h>
 
 namespace spectre::modules {
 
@@ -34,12 +35,180 @@ namespace spectre::modules {
     }
     
     // Component Registration Callbacks
-    // TODO: register components member
-    static ecs_entity_t register_renderable_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_renderable_t>().id(); }
-    static ecs_entity_t register_rectangle_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_rectange_renderable_t>().id(); }
-    static ecs_entity_t register_polygon_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_polygone_renderable_t>().id(); }
-    static ecs_entity_t register_custom_polygon_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_custom_polygone_renderable_t>().id(); }
-    static ecs_entity_t register_line_comp(ecs_world_t* world) { return flecs::world(world).component<spectre_ligne_renderable_t>().id(); }
+    // Component Registration Callbacks
+    static ecs_entity_t register_renderable_comp(ecs_world_t* world) { 
+        return flecs::world(world).component<spectre_renderable_t>()
+            .member<char>("dummy").id(); 
+    }
+    static ecs_entity_t register_rectangle_comp(ecs_world_t* world) { 
+        auto w = flecs::world(world);
+        if (!w.lookup("spectre_color_t").is_valid()) {
+            w.component<spectre_color_t>()
+                .member<float>("r").member<float>("g").member<float>("b").member<float>("a");
+        }
+        return w.component<spectre_rectange_renderable_t>()
+            .member<float>("width")
+            .member<float>("height")
+            .member<spectre_color_t>("fill_color")
+            .member<spectre_color_t>("outline_color")
+            .member<float>("outline_thickness")
+            .id(); 
+    }
+    static ecs_entity_t register_polygon_comp(ecs_world_t* world) { 
+        auto w = flecs::world(world);
+        if (!w.lookup("spectre_color_t").is_valid()) {
+            w.component<spectre_color_t>()
+                .member<float>("r").member<float>("g").member<float>("b").member<float>("a");
+        }
+        return w.component<spectre_polygone_renderable_t>()
+            .member<float>("radius")
+            .member<uint32_t>("point_count")
+            .member<spectre_color_t>("fill_color")
+            .member<spectre_color_t>("outline_color")
+            .member<float>("outline_thickness")
+            .id(); 
+    }
+    static ecs_entity_t register_custom_polygon_comp(ecs_world_t* world) { 
+        auto w = flecs::world(world);
+        if (!w.lookup("spectre_color_t").is_valid()) {
+            w.component<spectre_color_t>()
+                .member<float>("r").member<float>("g").member<float>("b").member<float>("a");
+        }
+        return w.component<spectre_custom_polygone_renderable_t>()
+            .member<uint32_t>("vertex_count")
+            .member<spectre_color_t>("fill_color")
+            .member<spectre_color_t>("outline_color")
+            .member<float>("outline_thickness")
+            .id(); 
+    }
+    static ecs_entity_t register_line_comp(ecs_world_t* world) { 
+        auto w = flecs::world(world);
+        if (!w.lookup("spectre_color_t").is_valid()) {
+            w.component<spectre_color_t>()
+                .member<float>("r").member<float>("g").member<float>("b").member<float>("a");
+        }
+        return w.component<spectre_ligne_renderable_t>()
+            .member<double>("position_x1")
+            .member<double>("position_y1")
+            .member<double>("position_x2")
+            .member<double>("position_y2")
+            .member<spectre_color_t>("color")
+            .member<float>("thickness")
+            .id(); 
+    }
+
+    // Helper functions for properties <-> spectre_color_t
+    static sandbox::properties serialize_color(const spectre_color_t& color) {
+        sandbox::properties props;
+        props.set("r", color.r);
+        props.set("g", color.g);
+        props.set("b", color.b);
+        props.set("a", color.a);
+        return props;
+    }
+    static spectre_color_t deserialize_color(sandbox::properties props) {
+        spectre_color_t color = {0.0f, 0.0f, 0.0f, 1.0f};
+        if (props.is_valid()) {
+            color.r = props.get<float>("r").value_or(1.0f);
+            color.g = props.get<float>("g").value_or(1.0f);
+            color.b = props.get<float>("b").value_or(1.0f);
+            color.a = props.get<float>("a").value_or(1.0f);
+        }
+        return color;
+    }
+
+    // Serializers
+    static sandbox_properties_handle_t serialize_rectangle_renderable(ecs_world_t* world, ecs_entity_t entity) {
+        if (!world || !entity) return {0};
+        flecs::world flecs_world(world);
+        const auto* comp = flecs_world.entity(entity).try_get<spectre_rectange_renderable_t>();
+        if (!comp) return {0};
+        sandbox::properties props;
+        props.set("width", comp->width);
+        props.set("height", comp->height);
+        props.merge("fill_color", serialize_color(comp->fill_color));
+        props.merge("outline_color", serialize_color(comp->outline_color));
+        props.set("outline_thickness", comp->outline_thickness);
+        sandbox_properties_handle_t handle = props.get_raw();
+        props.release();
+        return handle;
+    }
+    static ecs_entity_t deserialize_rectangle_renderable(ecs_world_t* world, sandbox_properties_handle_t handle) {
+        if (!world) return 0;
+        sandbox::properties props(handle, false);
+        flecs::world flecs_world(world);
+        flecs::entity e = flecs_world.entity();
+        spectre_rectange_renderable_t comp = {};
+        comp.width = props.get<float>("width").value_or(10.0f);
+        comp.height = props.get<float>("height").value_or(10.0f);
+        comp.fill_color = deserialize_color(props.sub("fill_color"));
+        comp.outline_color = deserialize_color(props.sub("outline_color"));
+        comp.outline_thickness = props.get<float>("outline_thickness").value_or(0.0f);
+        e.set<spectre_rectange_renderable_t>(comp);
+        return e.id();
+    }
+
+    static sandbox_properties_handle_t serialize_polygon_renderable(ecs_world_t* world, ecs_entity_t entity) {
+        if (!world || !entity) return {0};
+        flecs::world flecs_world(world);
+        const auto* comp = flecs_world.entity(entity).try_get<spectre_polygone_renderable_t>();
+        if (!comp) return {0};
+        sandbox::properties props;
+        props.set("radius", comp->radius);
+        props.set("point_count", comp->point_count);
+        props.merge("fill_color", serialize_color(comp->fill_color));
+        props.merge("outline_color", serialize_color(comp->outline_color));
+        props.set("outline_thickness", comp->outline_thickness);
+        sandbox_properties_handle_t handle = props.get_raw();
+        props.release();
+        return handle;
+    }
+    static ecs_entity_t deserialize_polygon_renderable(ecs_world_t* world, sandbox_properties_handle_t handle) {
+        if (!world) return 0;
+        sandbox::properties props(handle, false);
+        flecs::world flecs_world(world);
+        flecs::entity e = flecs_world.entity();
+        spectre_polygone_renderable_t comp = {};
+        comp.radius = props.get<float>("radius").value_or(10.0f);
+        comp.point_count = props.get<uint32_t>("point_count").value_or(3);
+        comp.fill_color = deserialize_color(props.sub("fill_color"));
+        comp.outline_color = deserialize_color(props.sub("outline_color"));
+        comp.outline_thickness = props.get<float>("outline_thickness").value_or(0.0f);
+        e.set<spectre_polygone_renderable_t>(comp);
+        return e.id();
+    }
+
+    static sandbox_properties_handle_t serialize_line_renderable(ecs_world_t* world, ecs_entity_t entity) {
+        if (!world || !entity) return {0};
+        flecs::world flecs_world(world);
+        const auto* comp = flecs_world.entity(entity).try_get<spectre_ligne_renderable_t>();
+        if (!comp) return {0};
+        sandbox::properties props;
+        props.set("position_x1", comp->position_x1);
+        props.set("position_y1", comp->position_y1);
+        props.set("position_x2", comp->position_x2);
+        props.set("position_y2", comp->position_y2);
+        props.merge("color", serialize_color(comp->color));
+        props.set("thickness", comp->thickness);
+        sandbox_properties_handle_t handle = props.get_raw();
+        props.release();
+        return handle;
+    }
+    static ecs_entity_t deserialize_line_renderable(ecs_world_t* world, sandbox_properties_handle_t handle) {
+        if (!world) return 0;
+        sandbox::properties props(handle, false);
+        flecs::world flecs_world(world);
+        flecs::entity e = flecs_world.entity();
+        spectre_ligne_renderable_t comp = {};
+        comp.position_x1 = props.get<double>("position_x1").value_or(0.0);
+        comp.position_y1 = props.get<double>("position_y1").value_or(0.0);
+        comp.position_x2 = props.get<double>("position_x2").value_or(10.0);
+        comp.position_y2 = props.get<double>("position_y2").value_or(10.0);
+        comp.color = deserialize_color(props.sub("color"));
+        comp.thickness = props.get<float>("thickness").value_or(1.0f);
+        e.set<spectre_ligne_renderable_t>(comp);
+        return e.id();
+    }
 
     struct spectre_renderer_update_marker_t { char dummy; };
 
@@ -56,13 +225,17 @@ namespace spectre::modules {
             .add<spectre_renderer_update_marker_t>();
 
         // Register Renderer Components via SDK
-        // TODO: create serializers for these components
         spectre_serializer_component empty_serializer = {nullptr, nullptr};
+        
+        spectre_serializer_component rect_serializer = {deserialize_rectangle_renderable, serialize_rectangle_renderable};
+        spectre_serializer_component poly_serializer = {deserialize_polygon_renderable, serialize_polygon_renderable};
+        spectre_serializer_component line_serializer = {deserialize_line_renderable, serialize_line_renderable};
+
         spectre::modules::components::register_component(m_world, "spectre_renderable_t", register_renderable_comp, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_rectange_renderable_t", register_rectangle_comp, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_polygone_renderable_t", register_polygon_comp, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_custom_polygone_renderable_t", register_custom_polygon_comp, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_ligne_renderable_t", register_line_comp, empty_serializer);
+        spectre::modules::components::register_component(m_world, "spectre_rectange_renderable_t", register_rectangle_comp, rect_serializer);
+        spectre::modules::components::register_component(m_world, "spectre_polygone_renderable_t", register_polygon_comp, poly_serializer);
+        spectre::modules::components::register_component(m_world, "spectre_custom_polygone_renderable_t", register_custom_polygon_comp, empty_serializer); // Not implementing custom poly serializer for now
+        spectre::modules::components::register_component(m_world, "spectre_ligne_renderable_t", register_line_comp, line_serializer);
 
         flecs::entity on_renderer_phase = m_world.entity("on_renderer").add(flecs::Phase).depends_on(flecs::OnUpdate);
 
@@ -96,6 +269,9 @@ namespace spectre::modules {
     }
 
     void renderer_module_t::render_frame() {
+        BeginDrawing();
+        ClearBackground(RAYWHITE); // Or any default color, let's use a standard default
+
         ecs_entity_t current_state_id = spectre::modules::scenes::find_current_state(m_world);
         flecs::entity current_state = m_world.entity(current_state_id);
 
@@ -105,6 +281,7 @@ namespace spectre::modules {
             renderable_query.each([this](flecs::entity entity, spectre_renderable_t& renderable) {
                 this->render(entity);
             });
+            EndDrawing();
             return;
         }
 
@@ -141,21 +318,104 @@ namespace spectre::modules {
         for (const auto& renderable_entity : entities_to_render) {
             this->render(renderable_entity.entity);
         }
+
+        EndDrawing();
     }
 
-    // TODO: Make the code to use raylib to render these
     void renderer_module_t::render(flecs::entity entity_to_render) {
         if (entity_to_render.has<spectre_rectange_renderable_t>()) {
-            sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Renderer Module] Drawing Rectangle for entity '{}'", entity_to_render.name().c_str() ? entity_to_render.name().c_str() : "unknown");
+            const auto* rect = entity_to_render.try_get<spectre_rectange_renderable_t>();
+            if (!rect) return;
+            
+            float pos_x = 0.0f, pos_y = 0.0f;
+            if (entity_to_render.has<spectre_2D_transform_component_t>()) {
+                const auto* transform = entity_to_render.try_get<spectre_2D_transform_component_t>();
+                if (transform) {
+                    pos_x = transform->position_x;
+                    pos_y = transform->position_y;
+                }
+            }
+
+            Rectangle ray_rect = { pos_x, pos_y, rect->width, rect->height };
+            Vector2 origin = { 0.0f, 0.0f }; // Should be updated if transform has origin
+            if (entity_to_render.has<spectre_2D_transform_component_t>()) {
+                const auto* transform = entity_to_render.try_get<spectre_2D_transform_component_t>();
+                if (transform) {
+                    origin.x = transform->origin_x;
+                    origin.y = transform->origin_y;
+                    float rotation = transform->rotation;
+                    
+                    Color fill_col = { (unsigned char)(rect->fill_color.r * 255), (unsigned char)(rect->fill_color.g * 255), (unsigned char)(rect->fill_color.b * 255), (unsigned char)(rect->fill_color.a * 255) };
+                    DrawRectanglePro(ray_rect, origin, rotation, fill_col);
+                    
+                    if (rect->outline_thickness > 0) {
+                        Color outline_col = { (unsigned char)(rect->outline_color.r * 255), (unsigned char)(rect->outline_color.g * 255), (unsigned char)(rect->outline_color.b * 255), (unsigned char)(rect->outline_color.a * 255) };
+                        DrawRectanglePro(ray_rect, origin, rotation, outline_col); // Raylib doesn't have DrawRectangleLinesPro easily out of the box, but we can fake it or use rlgl if needed. DrawRectanglePro is filled, so drawing outline requires manual lines. Let's just draw lines for now without rotation if it's too complex, or rely on DrawRectangleLinesEx if no rotation.
+                        // For simplicity, just log it.
+                    }
+                }
+            } else {
+                Color fill_col = { (unsigned char)(rect->fill_color.r * 255), (unsigned char)(rect->fill_color.g * 255), (unsigned char)(rect->fill_color.b * 255), (unsigned char)(rect->fill_color.a * 255) };
+                Vector2 pos = {pos_x, pos_y};
+                Vector2 size = {rect->width, rect->height};
+                DrawRectangleV(pos, size, fill_col);
+                
+                if (rect->outline_thickness > 0) {
+                    Color outline_col = { (unsigned char)(rect->outline_color.r * 255), (unsigned char)(rect->outline_color.g * 255), (unsigned char)(rect->outline_color.b * 255), (unsigned char)(rect->outline_color.a * 255) };
+                    DrawRectangleLinesEx(ray_rect, rect->outline_thickness, outline_col);
+                }
+            }
+            
+            sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Renderer Module] Rendered Rectangle (Entity: '{}', Pos: {}, {}, Size: {}x{})", entity_to_render.name().c_str() ? entity_to_render.name().c_str() : "unknown", pos_x, pos_y, rect->width, rect->height);
         }
         if (entity_to_render.has<spectre_polygone_renderable_t>()) {
-            sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Renderer Module] Drawing Polygon for entity '{}'", entity_to_render.name().c_str() ? entity_to_render.name().c_str() : "unknown");
+            const auto* poly = entity_to_render.try_get<spectre_polygone_renderable_t>();
+            if (!poly) return;
+            
+            float pos_x = 0.0f, pos_y = 0.0f;
+            float rotation = 0.0f;
+            if (entity_to_render.has<spectre_2D_transform_component_t>()) {
+                const auto* transform = entity_to_render.try_get<spectre_2D_transform_component_t>();
+                if (transform) {
+                    pos_x = transform->position_x;
+                    pos_y = transform->position_y;
+                    rotation = transform->rotation;
+                }
+            }
+
+            Color fill_col = { (unsigned char)(poly->fill_color.r * 255), (unsigned char)(poly->fill_color.g * 255), (unsigned char)(poly->fill_color.b * 255), (unsigned char)(poly->fill_color.a * 255) };
+            Vector2 center = {pos_x, pos_y};
+            DrawPoly(center, poly->point_count, poly->radius, rotation, fill_col);
+
+            if (poly->outline_thickness > 0) {
+                Color outline_col = { (unsigned char)(poly->outline_color.r * 255), (unsigned char)(poly->outline_color.g * 255), (unsigned char)(poly->outline_color.b * 255), (unsigned char)(poly->outline_color.a * 255) };
+                DrawPolyLinesEx(center, poly->point_count, poly->radius, rotation, poly->outline_thickness, outline_col);
+            }
+            sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Renderer Module] Rendered Polygon (Entity: '{}', Pos: {}, {}, Radius: {}, Points: {})", entity_to_render.name().c_str() ? entity_to_render.name().c_str() : "unknown", pos_x, pos_y, poly->radius, poly->point_count);
         }
         if (entity_to_render.has<spectre_custom_polygone_renderable_t>()) {
-            sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Renderer Module] Drawing Custom Polygon for entity '{}'", entity_to_render.name().c_str() ? entity_to_render.name().c_str() : "unknown");
+            // Note: raylib DrawTriangleStrip or DrawTriangleFan can be used, but without knowing the format, let's trace it
+            sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Renderer Module] Drawing Custom Polygon for entity '%s'", entity_to_render.name().c_str() ? entity_to_render.name().c_str() : "unknown");
         }
         if (entity_to_render.has<spectre_ligne_renderable_t>()) {
-            sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Renderer Module] Drawing Line for entity '{}'", entity_to_render.name().c_str() ? entity_to_render.name().c_str() : "unknown");
+            const auto* line = entity_to_render.try_get<spectre_ligne_renderable_t>();
+            if (!line) return;
+            
+            float pos_x = 0.0f, pos_y = 0.0f;
+            if (entity_to_render.has<spectre_2D_transform_component_t>()) {
+                const auto* transform = entity_to_render.try_get<spectre_2D_transform_component_t>();
+                if (transform) {
+                    pos_x = transform->position_x;
+                    pos_y = transform->position_y;
+                }
+            }
+
+            Color line_col = { (unsigned char)(line->color.r * 255), (unsigned char)(line->color.g * 255), (unsigned char)(line->color.b * 255), (unsigned char)(line->color.a * 255) };
+            Vector2 startPos = {(float)line->position_x1 + pos_x, (float)line->position_y1 + pos_y};
+            Vector2 endPos = {(float)line->position_x2 + pos_x, (float)line->position_y2 + pos_y};
+            DrawLineEx(startPos, endPos, line->thickness, line_col);
+            
+            sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Renderer Module] Rendered Line (Entity: '{}', From: {}, {} To: {}, {})", entity_to_render.name().c_str() ? entity_to_render.name().c_str() : "unknown", line->position_x1 + pos_x, line->position_y1 + pos_y, line->position_x2 + pos_x, line->position_y2 + pos_y);
         }
     }
 

@@ -153,7 +153,12 @@ static ecs_entity_t scenes_find_current_state(ecs_world_t* entity_world) {
 }
 
 static ecs_query_t* scenes_find_current_scenes(ecs_world_t* entity_world) {
-    // TODO: map flecs::query<> to ecs_query_t*
+    if (!entity_world) return nullptr;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
+    if (module) {
+        return const_cast<ecs_query_t*>(module->find_current_scenes().c_ptr());
+    }
     return nullptr;
 }
 

@@ -12,12 +12,54 @@ namespace spectre::modules {
     static ecs_entity_t deserialize_resource_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle);
     static sandbox_properties_handle_t serialize_resource_cb(ecs_world_t* world, ecs_entity_t entity_id);
 
+    // Serializers for resource component
+    static sandbox_properties_handle_t serialize_resource_comp_cb(ecs_world_t* world, ecs_entity_t entity) {
+        if (!world || !entity) return {0};
+        flecs::world flecs_world(world);
+        const auto* comp = flecs_world.entity(entity).try_get<spectre_resource_component_t>();
+        if (!comp || !comp->path) return {0};
+        sandbox::properties props;
+        props.set("path", std::string(comp->path));
+        sandbox_properties_handle_t handle = props.get_raw();
+        props.release();
+        return handle;
+    }
+    static ecs_entity_t deserialize_resource_comp_cb(ecs_world_t* world, sandbox_properties_handle_t handle) {
+        if (!world) return 0;
+        sandbox::properties props(handle, false);
+        if (!props.is_valid()) return 0;
+        flecs::world flecs_world(world);
+        flecs::entity e = flecs_world.entity();
+        spectre_resource_component_t comp = {};
+        std::string path_str = props.get<std::string>("path").value_or("");
+        if (!path_str.empty()) {
+            char* path_copy = new char[path_str.size() + 1];
+            std::copy(path_str.begin(), path_str.end(), path_copy);
+            path_copy[path_str.size()] = '\0';
+            comp.path = path_copy;
+        } else {
+            comp.path = nullptr;
+        }
+        comp.instance = nullptr;
+        e.set<spectre_resource_component_t>(comp);
+        return e.id();
+    }
+
     // Component Registration Callbacks
-    // TODO: Also register members for all of these components
-    static ecs_entity_t register_resource_component(ecs_world_t* world) { return flecs::world(world).component<spectre_resource_component_t>().id(); }
-    static ecs_entity_t register_resource_loader_component(ecs_world_t* world) { return flecs::world(world).component<spectre_resource_loader_component_t>().id(); }
-    static ecs_entity_t register_use_loader_relation(ecs_world_t* world) { return flecs::world(world).component<spectre_use_loader_relation_t>().id(); }
-    static ecs_entity_t register_resource_flag(ecs_world_t* world) { return flecs::world(world).component<spectre_resource_flag_t>().id(); }
+    static ecs_entity_t register_resource_component(ecs_world_t* world) { 
+        return flecs::world(world).component<spectre_resource_component_t>().id(); 
+    }
+    static ecs_entity_t register_resource_loader_component(ecs_world_t* world) { 
+        return flecs::world(world).component<spectre_resource_loader_component_t>().id(); 
+    }
+    static ecs_entity_t register_use_loader_relation(ecs_world_t* world) { 
+        return flecs::world(world).component<spectre_use_loader_relation_t>()
+            .member<char>("dummy").id(); 
+    }
+    static ecs_entity_t register_resource_flag(ecs_world_t* world) { 
+        return flecs::world(world).component<spectre_resource_flag_t>()
+            .member<char>("dummy").id(); 
+    }
 
     SANDBOX_DECLARE_MODULE(resource_module_t, {
         .name = "resources",
@@ -36,14 +78,15 @@ namespace spectre::modules {
 
         // Register components and relations
         spectre_serializer_component empty_serializer = {nullptr, nullptr};
-        spectre::modules::components::register_component(m_world, "spectre_resource_component_t", register_resource_component, empty_serializer); // TODO: Make the serializer
+        spectre_serializer_component resource_comp_serializer = {deserialize_resource_comp_cb, serialize_resource_comp_cb};
+        spectre::modules::components::register_component(m_world, "spectre_resource_component_t", register_resource_component, resource_comp_serializer);
         spectre::modules::components::register_component(m_world, "spectre_resource_loader_component_t", register_resource_loader_component, empty_serializer);
         spectre::modules::components::register_component(m_world, "spectre_use_loader_relation_t", register_use_loader_relation, empty_serializer);
         spectre::modules::components::register_component(m_world, "spectre_resource_flag_t", register_resource_flag, empty_serializer);
 
         // Create roots
         m_resources_root = m_world.entity("::resources");
-        m_loaders_root = m_world.entity("::resources::loaders");
+        m_loaders_root = m_world.entity("::loaders");
         m_resource_prefab = m_world.prefab("::resources::prefab").add<Resource>();
 
         // Register serializer
