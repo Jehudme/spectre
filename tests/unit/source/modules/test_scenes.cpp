@@ -1,6 +1,5 @@
 #include <catch2/catch_all.hpp>
 #include <flecs.h>
-#include "modules/components/components_module.h"
 #include "modules/serializer/serializer_module.h"
 #include "modules/prefabs/prefabs_module.h"
 #include "modules/scripts/scripts_module.h"
@@ -13,7 +12,6 @@ using namespace spectre::modules;
 TEST_CASE("Scenes Module: Serialization and Deserialization", "[modules][scenes]") {
     flecs::world world;
     
-    world.import<components_module_t>();
     world.import<serializer_module>();
     world.import<script_module_t>();
     world.import<prefabs_module_t>();

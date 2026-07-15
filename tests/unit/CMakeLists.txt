@@ -4,7 +4,6 @@ project(spectre_unit_tests LANGUAGES C CXX)
 set(SPECTRE_UNIT_TEST_SOURCES
     source/main.cpp
     source/modules/test_serializer.cpp
-    source/modules/test_components.cpp
     source/modules/test_prefabs.cpp
     source/modules/test_scripts.cpp
     source/modules/test_scenes.cpp

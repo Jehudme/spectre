@@ -7,11 +7,11 @@ namespace spectre::modules {
     public:
     static sandbox_properties_handle_t serialize_state(const flecs::world& entity_world, ecs_entity_t state);
 
-    static ecs_entity_t deserialize_state(const flecs::world& entity_world, sandbox_properties_handle_t props);
+    static void deserialize_state(const flecs::world& entity_world, ecs_entity_t target, sandbox_properties_handle_t props);
 
     static sandbox_properties_handle_t serialize_scene(const flecs::world& entity_world, ecs_entity_t scene);
 
-    static ecs_entity_t deserialize_scene(const flecs::world& entity_world, sandbox_properties_handle_t props);
+    static void deserialize_scene(const flecs::world& entity_world, ecs_entity_t target, sandbox_properties_handle_t props);
 
     static void register_state(const flecs::world& entity_world, sandbox_properties_handle_t props);
 

@@ -3,9 +3,9 @@
 #include "scenes_module.h"
 
 static sandbox_properties_handle_t scenes_serialize_state(ecs_world_t* entity_world, ecs_entity_t state);
-static ecs_entity_t                scenes_deserialize_state(ecs_world_t* entity_world, sandbox_properties_handle_t props);
+static void                scenes_deserialize_state(ecs_world_t* entity_world, ecs_entity_t target, sandbox_properties_handle_t props);
 static sandbox_properties_handle_t scenes_serialize_scene(ecs_world_t* entity_world, ecs_entity_t scene);
-static ecs_entity_t                scenes_deserialize_scene(ecs_world_t* entity_world, sandbox_properties_handle_t props);
+static void                scenes_deserialize_scene(ecs_world_t* entity_world, ecs_entity_t target, sandbox_properties_handle_t props);
 static void                         scenes_register_state(ecs_world_t* entity_world, sandbox_properties_handle_t props);
 static void                         scenes_register_scene(ecs_world_t* entity_world, sandbox_properties_handle_t props);
 static ecs_entity_t                scenes_find_state(ecs_world_t* entity_world, const char* name);
@@ -53,12 +53,11 @@ static sandbox_properties_handle_t scenes_serialize_state(ecs_world_t* entity_wo
     return {0};
 }
 
-static ecs_entity_t scenes_deserialize_state(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
-    if (!entity_world) return 0;
+static void scenes_deserialize_state(ecs_world_t* entity_world, ecs_entity_t target, sandbox_properties_handle_t props) {
+    if (!entity_world) return;
     flecs::world flecs_world(entity_world);
     auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
-    if (module) return module->deserialize_state(sandbox::properties(props, false)).id();
-    return 0;
+    if (module) module->deserialize_state(flecs_world.entity(target), sandbox::properties(props, false));
 }
 
 static sandbox_properties_handle_t scenes_serialize_scene(ecs_world_t* entity_world, ecs_entity_t scene) {
@@ -74,12 +73,11 @@ static sandbox_properties_handle_t scenes_serialize_scene(ecs_world_t* entity_wo
     return {0};
 }
 
-static ecs_entity_t scenes_deserialize_scene(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
-    if (!entity_world) return 0;
+static void scenes_deserialize_scene(ecs_world_t* entity_world, ecs_entity_t target, sandbox_properties_handle_t props) {
+    if (!entity_world) return;
     flecs::world flecs_world(entity_world);
     auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
-    if (module) return module->deserialize_scene(sandbox::properties(props, false)).id();
-    return 0;
+    if (module) module->deserialize_scene(flecs_world.entity(target), sandbox::properties(props, false));
 }
 
 static void scenes_register_state(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
@@ -190,7 +188,7 @@ sandbox_properties_handle_t spectre_scenes_serialize_state(ecs_world_t* world, e
     return scenes_serialize_state(world, state);
 }
 
-ecs_entity_t spectre_scenes_deserialize_state(ecs_world_t* world, sandbox_properties_handle_t props) {
+void spectre_scenes_deserialize_state(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
@@ -198,9 +196,10 @@ ecs_entity_t spectre_scenes_deserialize_state(ecs_world_t* world, sandbox_proper
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
 #endif
     if (service && service->api && service->api->deserialize_state) {
-        return service->api->deserialize_state(world, props);
+        service->api->deserialize_state(world, target, props);
+        return;
     }
-    return scenes_deserialize_state(world, props);
+    scenes_deserialize_state(world, target, props);
 }
 
 sandbox_properties_handle_t spectre_scenes_serialize_scene(ecs_world_t* world, ecs_entity_t scene) {
@@ -216,7 +215,7 @@ sandbox_properties_handle_t spectre_scenes_serialize_scene(ecs_world_t* world, e
     return scenes_serialize_scene(world, scene);
 }
 
-ecs_entity_t spectre_scenes_deserialize_scene(ecs_world_t* world, sandbox_properties_handle_t props) {
+void spectre_scenes_deserialize_scene(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
@@ -224,9 +223,10 @@ ecs_entity_t spectre_scenes_deserialize_scene(ecs_world_t* world, sandbox_proper
     const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_singleton_get(world, spectre_scenes_service_t);
 #endif
     if (service && service->api && service->api->deserialize_scene) {
-        return service->api->deserialize_scene(world, props);
+        service->api->deserialize_scene(world, target, props);
+        return;
     }
-    return scenes_deserialize_scene(world, props);
+    scenes_deserialize_scene(world, target, props);
 }
 
 void spectre_scenes_register_state(ecs_world_t* world, sandbox_properties_handle_t props) {
@@ -407,16 +407,16 @@ sandbox_properties_handle_t scenes::serialize_state(const flecs::world& entity_w
             return spectre_scenes_serialize_state(entity_world.c_ptr(), state);
         }
 
-ecs_entity_t scenes::deserialize_state(const flecs::world& entity_world, sandbox_properties_handle_t props) {
-            return spectre_scenes_deserialize_state(entity_world.c_ptr(), props);
+void scenes::deserialize_state(const flecs::world& entity_world, ecs_entity_t target, sandbox_properties_handle_t props) {
+            spectre_scenes_deserialize_state(entity_world.c_ptr(), target, props);
         }
 
 sandbox_properties_handle_t scenes::serialize_scene(const flecs::world& entity_world, ecs_entity_t scene) {
             return spectre_scenes_serialize_scene(entity_world.c_ptr(), scene);
         }
 
-ecs_entity_t scenes::deserialize_scene(const flecs::world& entity_world, sandbox_properties_handle_t props) {
-            return spectre_scenes_deserialize_scene(entity_world.c_ptr(), props);
+void scenes::deserialize_scene(const flecs::world& entity_world, ecs_entity_t target, sandbox_properties_handle_t props) {
+            spectre_scenes_deserialize_scene(entity_world.c_ptr(), target, props);
         }
 
 void scenes::register_state(const flecs::world& entity_world, sandbox_properties_handle_t props) {

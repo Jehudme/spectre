@@ -11,9 +11,9 @@ extern "C" {
 
 typedef struct spectre_scenes_api_t {
     sandbox_properties_handle_t (*serialize_state)(ecs_world_t* world, ecs_entity_t state);
-    ecs_entity_t (*deserialize_state)(ecs_world_t* world, sandbox_properties_handle_t props);
+    void (*deserialize_state)(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
     sandbox_properties_handle_t (*serialize_scene)(ecs_world_t* world, ecs_entity_t scene);
-    ecs_entity_t (*deserialize_scene)(ecs_world_t* world, sandbox_properties_handle_t props);
+    void (*deserialize_scene)(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
     void (*register_state)(ecs_world_t* world, sandbox_properties_handle_t props);
     void (*register_scene)(ecs_world_t* world, sandbox_properties_handle_t props);
     ecs_entity_t (*find_state)(ecs_world_t* world, const char* name);
@@ -41,9 +41,9 @@ SANDBOX_DECLARE_SERVICE(spectre_scenes_service_t, spectre_scenes_api_t, {
 
 // --- Public C API ---
 SANDBOX_API sandbox_properties_handle_t spectre_scenes_serialize_state(ecs_world_t* world, ecs_entity_t state);
-SANDBOX_API ecs_entity_t spectre_scenes_deserialize_state(ecs_world_t* world, sandbox_properties_handle_t props);
+SANDBOX_API void spectre_scenes_deserialize_state(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
 SANDBOX_API sandbox_properties_handle_t spectre_scenes_serialize_scene(ecs_world_t* world, ecs_entity_t scene);
-SANDBOX_API ecs_entity_t spectre_scenes_deserialize_scene(ecs_world_t* world, sandbox_properties_handle_t props);
+SANDBOX_API void spectre_scenes_deserialize_scene(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
 SANDBOX_API void spectre_scenes_register_state(ecs_world_t* world, sandbox_properties_handle_t props);
 SANDBOX_API void spectre_scenes_register_scene(ecs_world_t* world, sandbox_properties_handle_t props);
 SANDBOX_API ecs_entity_t spectre_scenes_find_state(ecs_world_t* world, const char* name);

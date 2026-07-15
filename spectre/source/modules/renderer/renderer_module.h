@@ -14,7 +14,7 @@ namespace spectre::modules {
         renderer_module_t(renderer_module_t&&) = delete;
         renderer_module_t& operator=(renderer_module_t&&) = delete;
 
-        flecs::entity deserialize_renderer(const sandbox::properties& props);
+        void deserialize_renderer(flecs::entity target, const sandbox::properties& props);
         sandbox::properties serialize_renderer(flecs::entity renderer);
 
         void register_renderer(const sandbox::properties& props);

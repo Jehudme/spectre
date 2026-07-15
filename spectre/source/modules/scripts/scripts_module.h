@@ -26,7 +26,7 @@ namespace spectre::modules {
         script_module_t& operator=(script_module_t&&) = delete;
 
         sandbox::properties serialize_scripts(flecs::entity entity);
-        flecs::entity deserialize_scripts(sandbox::properties props);
+        void deserialize_scripts(flecs::entity target, sandbox::properties props);
 
         bool has_script(std::string_view function_name, const std::vector<script_argument_type_t>& args) const;
         bool is_script(flecs::entity entity) const;

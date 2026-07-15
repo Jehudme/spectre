@@ -17,10 +17,10 @@ namespace spectre::modules {
         scenes_module_t& operator=(scenes_module_t&&) = delete;
 
         sandbox::properties serialize_state(flecs::entity state);
-        flecs::entity deserialize_state(sandbox::properties props);
+        void deserialize_state(flecs::entity target, sandbox::properties props);
 
         sandbox::properties serialize_scene(flecs::entity scene);
-        flecs::entity deserialize_scene(sandbox::properties props);
+        void deserialize_scene(flecs::entity target, sandbox::properties props);
 
         void register_state(sandbox::properties props);
         void register_scene(sandbox::properties props);

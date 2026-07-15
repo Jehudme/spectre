@@ -6,6 +6,8 @@
 
 using namespace spectre::modules;
 
+struct test_id_t { uint64_t id; };
+
 TEST_CASE("Serializer Module: Registration and Queries", "[serializers module test]") {
     flecs::world world;
     world.import<spectre::modules::serializer_module>();
@@ -38,7 +40,7 @@ TEST_CASE("Serializer Module: Registration and Queries", "[serializers module te
     SECTION("register_serializer correctly registers and finds serializer") {
         spectre_serializer_component valid_serializer{};
         valid_serializer.serialize = [](ecs_world_t*, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
-        valid_serializer.deserialize = [](ecs_world_t*, sandbox_properties_handle_t) -> ecs_entity_t { return 0; };
+        valid_serializer.deserialize = [](ecs_world_t*, ecs_entity_t, sandbox_properties_handle_t) { };
 
         serializer_mod->register_serializer("test_serializer", valid_serializer);
 
@@ -65,13 +67,12 @@ TEST_CASE("Serializer Module: Serialization and Deserialization", "[serializers 
         p.release(); // Relinquish ownership so it doesn't get destroyed
         return handle;
     };
-    valid_serializer.deserialize = [](ecs_world_t* w, sandbox_properties_handle_t props_handle) -> ecs_entity_t {
+    valid_serializer.deserialize = [](ecs_world_t* w, ecs_entity_t target, sandbox_properties_handle_t props_handle) {
         sandbox::properties p(props_handle, false); // Don't own it, just read
         uint64_t id = 0;
         if (p.get<uint64_t>("serialized_id", id)) {
-            return id;
+            flecs::world(w).entity(target).set<test_id_t>({id});
         }
-        return 0;
     };
 
     serializer_mod->register_serializer("valid_serializer", valid_serializer);
@@ -99,26 +100,30 @@ TEST_CASE("Serializer Module: Serialization and Deserialization", "[serializers 
         REQUIRE(id == dummy_entity.id());
     }
 
-    SECTION("deserialize_entity returns invalid entity for invalid arguments") {
+    SECTION("deserialize_entity handles invalid arguments") {
         flecs::entity invalid_entity = flecs::entity::null();
         sandbox::properties valid_props;
         valid_props.set<uint64_t>("serialized_id", dummy_entity.id());
         sandbox::properties invalid_props;
         
-        flecs::entity res1 = serializer_mod->deserialize_entity(invalid_entity, valid_props);
-        REQUIRE(res1.is_valid() == false);
+        flecs::entity target = world.entity();
+        serializer_mod->deserialize_entity(invalid_entity, target, valid_props);
+        REQUIRE(target.has<test_id_t>() == false);
         
-        flecs::entity res2 = serializer_mod->deserialize_entity(valid_serializer_entity, invalid_props);
-        REQUIRE(res2.is_valid() == false);
+        serializer_mod->deserialize_entity(valid_serializer_entity, target, invalid_props);
+        REQUIRE(target.has<test_id_t>() == false);
     }
 
     SECTION("deserialize_entity successfully deserializes an entity") {
         sandbox::properties valid_props;
         valid_props.set<uint64_t>("serialized_id", dummy_entity.id());
         
-        flecs::entity deserialized = serializer_mod->deserialize_entity(valid_serializer_entity, valid_props);
+        flecs::entity target = world.entity();
+        serializer_mod->deserialize_entity(valid_serializer_entity, target, valid_props);
         
-        REQUIRE(deserialized.is_valid() == true);
-        REQUIRE(deserialized.id() == dummy_entity.id());
+        REQUIRE(target.has<test_id_t>() == true);
+        const test_id_t* val = target.try_get<test_id_t>();
+        REQUIRE(val != nullptr);
+        REQUIRE(val->id == dummy_entity.id());
     }
 }

@@ -1,7 +1,7 @@
 #include "resources_module.h"
 #include "spectre/services/resources_service.h"
 #include "spectre/sdk/serializer.hpp"
-#include "spectre/sdk/components.hpp"
+
 #include "sandbox/sdk/logs.hpp"
 #include <iostream>
 
@@ -9,7 +9,7 @@
 
 namespace spectre::modules {
 
-    static ecs_entity_t deserialize_resource_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle);
+    static void deserialize_resource_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle);
     static sandbox_properties_handle_t serialize_resource_cb(ecs_world_t* world, ecs_entity_t entity_id);
 
     // Serializers for resource component
@@ -24,12 +24,12 @@ namespace spectre::modules {
         props.release();
         return handle;
     }
-    static ecs_entity_t deserialize_resource_comp_cb(ecs_world_t* world, sandbox_properties_handle_t handle) {
-        if (!world) return 0;
+    static void deserialize_resource_comp_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+        if (!world) return;
         sandbox::properties props(handle, false);
-        if (!props.is_valid()) return 0;
+        if (!props.is_valid()) return;
         flecs::world flecs_world(world);
-        flecs::entity e = flecs_world.entity();
+        flecs::entity e(flecs_world, entity);
         spectre_resource_component_t comp = {};
         std::string path_str = props.get<std::string>("path").value_or("");
         if (!path_str.empty()) {
@@ -42,7 +42,6 @@ namespace spectre::modules {
         }
         comp.instance = nullptr;
         e.set<spectre_resource_component_t>(comp);
-        return e.id();
     }
 
     // Component Registration Callbacks
@@ -79,10 +78,18 @@ namespace spectre::modules {
         // Register components and relations
         spectre_serializer_component empty_serializer = {nullptr, nullptr};
         spectre_serializer_component resource_comp_serializer = {deserialize_resource_comp_cb, serialize_resource_comp_cb};
-        spectre::modules::components::register_component(m_world, "spectre_resource_component_t", register_resource_component, resource_comp_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_resource_loader_component_t", register_resource_loader_component, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_use_loader_relation_t", register_use_loader_relation, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_resource_flag_t", register_resource_flag, empty_serializer);
+        
+        register_resource_component(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_resource_component_t", &resource_comp_serializer);
+        
+        register_resource_loader_component(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_resource_loader_component_t", &empty_serializer);
+        
+        register_use_loader_relation(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_use_loader_relation_t", &empty_serializer);
+        
+        register_resource_flag(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_resource_flag_t", &empty_serializer);
 
         // Create roots
         m_resources_root = m_world.entity("::resources");
@@ -102,8 +109,13 @@ namespace spectre::modules {
     
     resource_module_t::~resource_module_t() = default;
 
-    static ecs_entity_t deserialize_resource_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle) {
-        return spectre::modules::resources::deserialize_resource(flecs::world(world), properties_handle);
+    static void deserialize_resource_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle) {
+        // We bypass the SDK here since we are in the module, or just call the method if we can.
+        // Actually we can't easily get the module instance without a lookup.
+        // The SDK function spectre::modules::resources::deserialize_resource might need an update too.
+        // For now, let's assume SDK is updated or we just do lookup:
+        auto* module = flecs::world(world).try_get_mut<resource_module_t>();
+        if (module) module->deserialize_resource(flecs::world(world).entity(entity), sandbox::properties(properties_handle, false));
     }
 
     static sandbox_properties_handle_t serialize_resource_cb(ecs_world_t* world, ecs_entity_t entity_id) {
@@ -136,37 +148,34 @@ namespace spectre::modules {
             if (!resource_node.is_valid()) continue;
             
             sandbox_properties_handle_t handle = resource_node.get_raw();
-            ecs_entity_t raw_resource_entity = spectre::modules::serializer::deserialize_entity(m_world, m_resources_serializer.id(), handle);
-            if (raw_resource_entity != 0) {
-                flecs::entity resource_entity = m_world.entity(raw_resource_entity);
-                resource_entity.set_name(key.c_str());
-                resource_entity.child_of(m_resources_root);
-            }
+            flecs::entity resource_entity = m_world.entity();
+            resource_entity.set_name(key.c_str());
+            resource_entity.child_of(m_resources_root);
+            spectre::modules::serializer::deserialize_entity(m_world, m_resources_serializer.id(), resource_entity.id(), handle);
         }
     }
 
-    flecs::entity resource_module_t::deserialize_resource(const sandbox::properties& properties) {
-        if (!properties.is_valid()) return flecs::entity::null();
+    void resource_module_t::deserialize_resource(flecs::entity resource_entity, const sandbox::properties& properties) {
+        if (!properties.is_valid() || !resource_entity.is_valid()) return;
         std::string type;
         if (!properties.get<std::string>("type", type) && !properties.get<std::string>("types", type)) {
             sandbox::modules::logs::error(m_world, "[Resources Module] Resource missing 'type'.");
-            return flecs::entity::null();
+            return;
         }
         std::string path;
         if (!properties.get<std::string>("path", path)) {
             sandbox::modules::logs::error(m_world, "[Resources Module] Resource missing 'path'.");
-            return flecs::entity::null();
+            return;
         }
         
         flecs::entity loader_entity = find_resource_loader(type);
         if (!loader_entity.is_valid()) {
             sandbox::modules::logs::error(m_world, "[Resources Module] Resource loader not found for type '{}'.", type);
-            return flecs::entity::null();
+            return;
         }
         
-        flecs::entity resource_entity = m_world.entity()
-            .is_a(m_resource_prefab)
-            .add<spectre_use_loader_relation_t>(loader_entity);
+        resource_entity.is_a(m_resource_prefab)
+                       .add<spectre_use_loader_relation_t>(loader_entity);
             
         Resource resource_component;
         char* path_copy = new char[path.size() + 1];
@@ -175,7 +184,6 @@ namespace spectre::modules {
         resource_component.path = path_copy;
         resource_component.instance = nullptr;
         resource_entity.set<Resource>(resource_component);
-        return resource_entity;
     }
 
     sandbox::properties resource_module_t::serialize_resource(flecs::entity entity_to_serialize) {

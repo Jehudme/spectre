@@ -58,13 +58,13 @@ static sandbox_properties_handle_t scripts_serialize_scripts(ecs_world_t* world,
     return handle;
 }
 
-static ecs_entity_t scripts_deserialize_scripts(ecs_world_t* world, sandbox_properties_handle_t props_handle) {
-    if (!world) return 0;
+static void scripts_deserialize_scripts(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props_handle) {
+    if (!world) return;
     flecs::world fw(world);
     auto* module = fw.lookup("spectre::modules::script_module_t").is_valid() ? fw.try_get_mut<spectre::modules::script_module_t>() : nullptr;
-    if (!module) return 0;
+    if (!module) return;
     sandbox::properties props(props_handle, false);
-    return module->deserialize_scripts(std::move(props)).id();
+    module->deserialize_scripts(fw.entity(target), std::move(props));
 }
 
 static void scripts_execute_on_create(ecs_world_t* world, ecs_entity_t entity) {
@@ -137,8 +137,8 @@ void spectre_scripts_execute_script(ecs_world_t* world, const char* function_nam
 sandbox_properties_handle_t spectre_scripts_serialize_scripts(ecs_world_t* world, ecs_entity_t entity) {
     return scripts_serialize_scripts(world, entity);
 }
-ecs_entity_t spectre_scripts_deserialize_scripts(ecs_world_t* world, sandbox_properties_handle_t props_handle) {
-    return scripts_deserialize_scripts(world, props_handle);
+void spectre_scripts_deserialize_scripts(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props_handle) {
+    scripts_deserialize_scripts(world, target, props_handle);
 }
 
 void spectre_scripts_execute_on_create(ecs_world_t* world, ecs_entity_t entity) {

@@ -5,7 +5,7 @@
 namespace spectre::modules {
     class window {
     public:
-    static ecs_entity_t deserialize_window(const flecs::world& entity_world, sandbox_properties_handle_t props);
+    static void deserialize_window(const flecs::world& entity_world, ecs_entity_t target, sandbox_properties_handle_t props);
 
     static sandbox_properties_handle_t serialize_window(const flecs::world& entity_world, ecs_entity_t window);
 

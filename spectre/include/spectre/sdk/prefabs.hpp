@@ -7,7 +7,7 @@ namespace spectre::modules {
     public:
     static sandbox_properties_handle_t serialize_entity(const flecs::world& entity_world, ecs_entity_t entity);
 
-    static ecs_entity_t deserialize_entity(const flecs::world& entity_world, sandbox_properties_handle_t props);
+    static void deserialize_entity(const flecs::world& entity_world, ecs_entity_t target, sandbox_properties_handle_t props);
 
     static void register_prefab(const flecs::world& entity_world, const char* name, sandbox_properties_handle_t props);
 

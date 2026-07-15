@@ -2,7 +2,7 @@
 #include "spectre/services/window_service.h"
 #include "window_module.h"
 
-static ecs_entity_t   window_deserialize_window(ecs_world_t* entity_world, sandbox_properties_handle_t props);
+static void           window_deserialize_window(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
 static sandbox_properties_handle_t window_serialize_window(ecs_world_t* entity_world, ecs_entity_t window);
 static void           window_register_window(ecs_world_t* entity_world, sandbox_properties_handle_t props);
 static bool           window_should_close(ecs_world_t* entity_world);
@@ -102,12 +102,11 @@ spectre_window_api_t g_window_api = {
 
 SANDBOX_DEFINE_SERVICE(spectre_window_service_t, spectre_window_api_t, &g_window_api)
 
-static ecs_entity_t window_deserialize_window(ecs_world_t* entity_world, sandbox_properties_handle_t props) {
-    if (!entity_world) return 0;
-    flecs::world flecs_world(entity_world);
+static void window_deserialize_window(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props) {
+    if (!world) return;
+    flecs::world flecs_world(world);
     auto* module = flecs_world.lookup("spectre::modules::window_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::window_module_t>() : nullptr;
-    if (module) return module->deserialize_window(sandbox::properties(props, false)).id();
-    return 0;
+    if (module) module->deserialize_window(flecs_world.entity(target), sandbox::properties(props, false));
 }
 
 static sandbox_properties_handle_t window_serialize_window(ecs_world_t* entity_world, ecs_entity_t window) {
@@ -465,7 +464,7 @@ static float window_get_mouse_delta_y(ecs_world_t* entity_world) {
 }
 
 // --- Public C API Implementations ---
-ecs_entity_t spectre_window_deserialize_window(ecs_world_t* world, sandbox_properties_handle_t props) {
+void spectre_window_deserialize_window(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_window_service_t* service = flecs_world.try_get<spectre_window_service_t>();
@@ -473,9 +472,10 @@ ecs_entity_t spectre_window_deserialize_window(ecs_world_t* world, sandbox_prope
     const spectre_window_service_t* service = (const spectre_window_service_t*)ecs_singleton_get(world, spectre_window_service_t);
 #endif
     if (service && service->api && service->api->deserialize_window) {
-        return service->api->deserialize_window(world, props);
+        service->api->deserialize_window(world, target, props);
+        return;
     }
-    return window_deserialize_window(world, props);
+    window_deserialize_window(world, target, props);
 }
 
 sandbox_properties_handle_t spectre_window_serialize_window(ecs_world_t* world, ecs_entity_t window) {
@@ -1343,8 +1343,8 @@ float spectre_window_get_mouse_delta_y(ecs_world_t* world) {
 
 // --- SDK Implementations ---
 namespace spectre::modules {
-ecs_entity_t window::deserialize_window(const flecs::world& entity_world, sandbox_properties_handle_t props) {
-            return spectre_window_deserialize_window(entity_world.c_ptr(), props);
+void window::deserialize_window(const flecs::world& entity_world, ecs_entity_t target, sandbox_properties_handle_t props) {
+            spectre_window_deserialize_window(entity_world.c_ptr(), target, props);
         }
 
 sandbox_properties_handle_t window::serialize_window(const flecs::world& entity_world, ecs_entity_t window) {

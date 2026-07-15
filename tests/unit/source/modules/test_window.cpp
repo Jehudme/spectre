@@ -21,7 +21,8 @@ TEST_CASE("Window Module: Serialization and Configuration", "[window module test
         props.set("title", std::string("Test Window"));
         props.set("vsync", true);
         
-        flecs::entity window_ent = window_mod->deserialize_window(props);
+        flecs::entity window_ent = world.entity();
+        window_mod->deserialize_window(window_ent, props);
         REQUIRE(window_ent.is_valid());
         REQUIRE(window_ent.has<spectre_window_component_t>());
         
@@ -38,7 +39,8 @@ TEST_CASE("Window Module: Serialization and Configuration", "[window module test
         props.set("width", 1280u);
         props.set("height", 720u);
         
-        flecs::entity window_ent = window_mod->deserialize_window(props);
+        flecs::entity window_ent = world.entity();
+        window_mod->deserialize_window(window_ent, props);
         
         sandbox::properties serialized = window_mod->serialize_window(window_ent);
         REQUIRE(serialized.is_valid());

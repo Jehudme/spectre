@@ -1,7 +1,7 @@
 #include "window_module.h"
 #include "spectre/services/window_service.h"
 #include "spectre/sdk/serializer.hpp"
-#include "spectre/sdk/components.hpp"
+
 #include "sandbox/sdk/logs.hpp"
 #include "sandbox/sdk/runtime.hpp"
 #include <raylib.h>
@@ -11,7 +11,7 @@
 
 namespace spectre::modules {
 
-    static ecs_entity_t deserialize_window_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle);
+    static void deserialize_window_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle);
     static sandbox_properties_handle_t serialize_window_cb(ecs_world_t* world, ecs_entity_t entity_id);
 
     // Component Registration Callbacks
@@ -37,8 +37,12 @@ namespace spectre::modules {
 
         // Register components using the SDK
         spectre_serializer_component empty_serializer = {nullptr, nullptr};
-        spectre::modules::components::register_component(m_world, "spectre_window_component_t", register_window_comp, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_input_state_t", register_input_state_comp, empty_serializer);
+        
+        register_window_comp(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_window_component_t", &empty_serializer);
+        
+        register_input_state_comp(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_input_state_t", &empty_serializer);
 
         spectre_serializer_component window_serializer = {};
         window_serializer.deserialize = deserialize_window_cb;
@@ -71,15 +75,14 @@ namespace spectre::modules {
         }
     }
 
-    static ecs_entity_t deserialize_window_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle) {
-        if (!world) return 0;
+    static void deserialize_window_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle) {
+        if (!world) return;
         flecs::world flecs_world(world);
         auto* module_instance = flecs_world.try_get_mut<window_module_t>();
         if (module_instance) {
             sandbox::properties parsed_properties(properties_handle, false);
-            return module_instance->deserialize_window(parsed_properties).id();
+            module_instance->deserialize_window(flecs_world.entity(entity), parsed_properties);
         }
-        return 0;
     }
 
     static sandbox_properties_handle_t serialize_window_cb(ecs_world_t* world, ecs_entity_t entity_id) {
@@ -95,10 +98,8 @@ namespace spectre::modules {
         return {0};
     }
 
-    flecs::entity window_module_t::deserialize_window(const sandbox::properties& properties) {
-        if (!properties.is_valid()) return flecs::entity::null();
-
-        flecs::entity window_entity = m_world.entity("::window::main");
+    void window_module_t::deserialize_window(flecs::entity window_entity, const sandbox::properties& properties) {
+        if (!properties.is_valid() || !window_entity.is_valid()) return;
 
         spectre_window_component_t component = {};
         component.width = properties.get<uint32_t>("width").value_or(800);
@@ -136,8 +137,6 @@ namespace spectre::modules {
         // Also add the input state component
         spectre_input_state_t input_state = {};
         window_entity.set<spectre_input_state_t>(input_state);
-        
-        return window_entity;
     }
 
     sandbox::properties window_module_t::serialize_window(flecs::entity window_entity) {
@@ -172,7 +171,8 @@ namespace spectre::modules {
     }
 
     void window_module_t::register_window(const sandbox::properties& properties) {
-        m_window_entity = deserialize_window(properties);
+        m_window_entity = m_world.entity("::window::main");
+        deserialize_window(m_window_entity, properties);
 
         if (m_window_entity.is_valid()) {
             const auto* component = m_window_entity.try_get<spectre_window_component_t>();

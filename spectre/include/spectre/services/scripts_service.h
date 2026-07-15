@@ -14,7 +14,7 @@ typedef struct spectre_scripts_api_t {
     void (*include_code)(ecs_world_t* world, const char* path);
     void (*execute_script)(ecs_world_t* world, const char* function_name, spectre_script_argument_t* args, size_t arg_count);
     sandbox_properties_handle_t (*serialize_scripts)(ecs_world_t* world, ecs_entity_t entity);
-    ecs_entity_t (*deserialize_scripts)(ecs_world_t* world, sandbox_properties_handle_t props);
+    void (*deserialize_scripts)(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
     void (*execute_on_create)(ecs_world_t* world, ecs_entity_t entity);
     void (*execute_on_destroy)(ecs_world_t* world, ecs_entity_t entity);
     void (*execute_on_update)(ecs_world_t* world, ecs_entity_t entity);
@@ -39,7 +39,7 @@ SANDBOX_API ecs_entity_t spectre_scripts_find_script(ecs_world_t* world, const c
 SANDBOX_API void spectre_scripts_include_code(ecs_world_t* world, const char* path);
 SANDBOX_API void spectre_scripts_execute_script(ecs_world_t* world, const char* function_name, spectre_script_argument_t* args, size_t arg_count);
 SANDBOX_API sandbox_properties_handle_t spectre_scripts_serialize_scripts(ecs_world_t* world, ecs_entity_t entity);
-SANDBOX_API ecs_entity_t spectre_scripts_deserialize_scripts(ecs_world_t* world, sandbox_properties_handle_t props);
+SANDBOX_API void spectre_scripts_deserialize_scripts(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
 SANDBOX_API void spectre_scripts_execute_on_create(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API void spectre_scripts_execute_on_destroy(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API void spectre_scripts_execute_on_update(ecs_world_t* world, ecs_entity_t entity);

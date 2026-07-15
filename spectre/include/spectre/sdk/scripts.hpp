@@ -35,9 +35,8 @@ namespace spectre::modules {
             return sandbox::properties(handle, true);
         }
 
-        static flecs::entity deserialize_scripts(const flecs::world& entity_world, sandbox::properties props) {
-            ecs_entity_t id = spectre_scripts_deserialize_scripts(entity_world.c_ptr(), props.get_raw());
-            return flecs::entity(entity_world, id);
+        static void deserialize_scripts(const flecs::world& entity_world, ecs_entity_t target, sandbox_properties_handle_t props) {
+            spectre_scripts_deserialize_scripts(entity_world.c_ptr(), target, props);
         }
 
         static void execute_on_create(flecs::entity entity) {

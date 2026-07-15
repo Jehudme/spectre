@@ -1,6 +1,5 @@
 #include <catch2/catch_all.hpp>
 #include <flecs.h>
-#include "modules/components/components_module.h"
 #include "modules/serializer/serializer_module.h"
 #include "modules/prefabs/prefabs_module.h"
 #include "spectre/spectre.h"
@@ -8,6 +7,7 @@
 #include "modules/scripts/scripts_module.h"
 #include <fstream>
 #include <filesystem>
+#include <iostream>
 
 
 using namespace spectre::modules;
@@ -15,20 +15,19 @@ using namespace spectre::modules;
 // Register a fake transform component for testing components serialization
 ecs_entity_t test_transform_registration(ecs_world_t* world) {
     flecs::world fw(world);
-    return fw.component<spectre_2D_transform_component_t>("spectre_2D_transform_component_t").id();
+    auto c = fw.component<spectre_2D_transform_component_t>("spectre_2D_transform_component_t");
+    return c.id();
 }
 
 TEST_CASE("Prefabs Module: Serialization and Deserialization", "[prefabs module test]") {
     flecs::world world;
     world.import<spectre::modules::serializer_module>();
-    world.import<spectre::modules::components_module_t>();
     world.import<spectre::modules::script_module_t>();
     auto* scripts_mod = &world.get_mut<spectre::modules::script_module_t>();
     world.import<spectre::modules::prefabs_module_t>();
 
 
     auto* prefabs_mod = &world.get_mut<spectre::modules::prefabs_module_t>();
-    auto* components_mod = &world.get_mut<spectre::modules::components_module_t>();
 
     // Setup transform serializer
     spectre_serializer_component transform_serializer{};
@@ -47,7 +46,7 @@ TEST_CASE("Prefabs Module: Serialization and Deserialization", "[prefabs module 
         return handle;
     };
     
-    transform_serializer.deserialize = [](ecs_world_t* w, sandbox_properties_handle_t props_handle) -> ecs_entity_t {
+    transform_serializer.deserialize = [](ecs_world_t* w, ecs_entity_t target, sandbox_properties_handle_t props_handle) {
         flecs::world fw(w);
         sandbox::properties p(props_handle, false);
         
@@ -58,11 +57,12 @@ TEST_CASE("Prefabs Module: Serialization and Deserialization", "[prefabs module 
         transform.position_x = static_cast<float>(x);
         transform.position_y = static_cast<float>(y);
         
-        flecs::entity e = fw.entity().set<spectre_2D_transform_component_t>(transform);
-        return e.id();
+        fw.entity(target).set<spectre_2D_transform_component_t>(transform);
     };
 
-    components_mod->register_component("spectre_2D_transform_component_t", test_transform_registration, transform_serializer);
+    test_transform_registration(world.c_ptr());
+    auto* serializer_mod = &world.get_mut<spectre::modules::serializer_module>();
+    serializer_mod->register_serializer("spectre_2D_transform_component_t", transform_serializer);
 
     SECTION("register_prefab and create_entity_from_prefab") {
         sandbox::properties prefab_props;
@@ -197,10 +197,9 @@ end
         // At this point on_create_test should have been called and logged via lua print (which isn't caught by the test, but we can verify relation existence)
         bool has_on_create = false;
         int index = 0;
-        flecs::entity scripts_child = instance.lookup("scripts");
-        REQUIRE(scripts_child.is_valid());
-        while (flecs::entity s_ent = scripts_child.target<spectre_use_script_on_create_relation_t>(index++)) {
-            const auto* rel_ptr = scripts_child.try_get<spectre_use_script_on_create_relation_t>(s_ent);
+        
+        while (flecs::entity s_ent = instance.target<spectre_use_script_on_create_relation_t>(index++)) {
+            const auto* rel_ptr = instance.try_get<spectre_use_script_on_create_relation_t>(s_ent);
             if (!rel_ptr) continue;
             const auto& rel = *rel_ptr;
             has_on_create = true;

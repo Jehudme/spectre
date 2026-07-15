@@ -84,7 +84,8 @@ TEST_CASE("Resources Module: Registration and Lifecycle", "[resources]") {
         res_node.set<std::string>("type", "dummy");
         res_node.set<std::string>("path", "/path/to/second");
         
-        flecs::entity res_ent = resources_mod->deserialize_resource(res_node);
+        flecs::entity res_ent = world.entity();
+        resources_mod->deserialize_resource(res_ent, res_node);
         REQUIRE(res_ent.is_valid() == true);
         
         const auto* res_comp = &res_ent.get<spectre_resource_component_t>();

@@ -23,8 +23,7 @@ set(SOURCES
     source/modules/serializer/serializer_module.cpp
     source/modules/window/window_service.cpp
     source/modules/window/window_module.cpp
-    source/modules/components/components_module.cpp
-    source/modules/components/components_service.cpp
+
 )
 
 # Headers

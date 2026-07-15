@@ -5,7 +5,7 @@
 namespace spectre::modules {
     class resources {
     public:
-    static ecs_entity_t deserialize_resource(const flecs::world& entity_world, sandbox_properties_handle_t props);
+    static void deserialize_resource(const flecs::world& entity_world, ecs_entity_t target, sandbox_properties_handle_t props);
 
     static sandbox_properties_handle_t serialize_resource(const flecs::world& entity_world, ecs_entity_t resourceEntity);
 

@@ -15,6 +15,8 @@ namespace spectre::modules {
         prefabs_module_t& operator=(prefabs_module_t&&) = delete;
 
         sandbox::properties serialize_entity(flecs::entity entity);
+
+        // TODO: Merge deserialize_entity and deserialize_entity_target into one function that have for arguments (flecs::entity entity, sandbox::properties props);
         flecs::entity deserialize_entity(sandbox::properties props);
         flecs::entity deserialize_entity_target(flecs::entity entity, sandbox::properties props);
 

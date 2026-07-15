@@ -25,7 +25,7 @@ namespace spectre::modules {
         void register_resource_loader(std::string_view type, ResourceLoader loader);
         void register_resource(const sandbox::properties& props);
 
-        flecs::entity deserialize_resource(const sandbox::properties& props);
+        void deserialize_resource(flecs::entity resource_entity, const sandbox::properties& props);
         sandbox::properties serialize_resource(flecs::entity entity);
 
         bool has_resource_loader(std::string_view type) const;

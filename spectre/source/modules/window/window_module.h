@@ -18,8 +18,8 @@ namespace spectre::modules {
         window_module_t(window_module_t&&) = delete;
         window_module_t& operator=(window_module_t&&) = delete;
 
-        flecs::entity deserialize_window(const sandbox::properties& props);
-        sandbox::properties serialize_window(flecs::entity window);
+        sandbox::properties serialize_window(flecs::entity window_entity);
+        void deserialize_window(flecs::entity window_entity, const sandbox::properties& properties);
 
         void register_window(const sandbox::properties& props);
 

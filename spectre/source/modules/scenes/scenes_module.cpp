@@ -2,7 +2,7 @@
 #include "spectre/services/scenes_service.h"
 #include "spectre/sdk/scripts.hpp"
 #include "spectre/sdk/serializer.hpp"
-#include "spectre/sdk/components.hpp"
+
 #include "sandbox/sdk/logs.hpp"
 #include <iostream>
 
@@ -14,16 +14,16 @@ namespace spectre::modules {
         return spectre::modules::scenes::serialize_state(flecs::world(world), entity_id);
     }
 
-    static ecs_entity_t deserialize_state_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle) {
-        return spectre::modules::scenes::deserialize_state(flecs::world(world), properties_handle);
+    static void deserialize_state_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle) {
+        spectre::modules::scenes::deserialize_state(flecs::world(world), entity, properties_handle);
     }
 
     static sandbox_properties_handle_t serialize_scene_cb(ecs_world_t* world, ecs_entity_t entity_id) {
         return spectre::modules::scenes::serialize_scene(flecs::world(world), entity_id);
     }
 
-    static ecs_entity_t deserialize_scene_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle) {
-        return spectre::modules::scenes::deserialize_scene(flecs::world(world), properties_handle);
+    static void deserialize_scene_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle) {
+        spectre::modules::scenes::deserialize_scene(flecs::world(world), entity, properties_handle);
     }
 
     // Component Registration Callbacks
@@ -72,12 +72,18 @@ namespace spectre::modules {
 
         // Register components
         spectre_serializer_component empty_serializer = {nullptr, nullptr};
-        spectre::modules::components::register_component(m_world, "spectre_scene_t", register_scene_component, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_state_t", register_state_component, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_state_use_scene_relation_t", register_state_use_scene_relation_component, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_state_context_t", register_state_context_component, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_scene_context_t", register_scene_context_component, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_disable_rendering_t", register_disable_rendering_component, empty_serializer);
+        register_scene_component(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_scene_t", &empty_serializer);
+        register_state_component(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_state_t", &empty_serializer);
+        register_state_use_scene_relation_component(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_state_use_scene_relation_t", &empty_serializer);
+        register_state_context_component(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_state_context_t", &empty_serializer);
+        register_scene_context_component(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_scene_context_t", &empty_serializer);
+        register_disable_rendering_component(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_disable_rendering_t", &empty_serializer);
 
         spectre_serializer_component state_serializer = {};
         state_serializer.serialize = serialize_state_cb;
@@ -138,9 +144,8 @@ namespace spectre::modules {
         properties.set<std::string>("name", state_entity.name().c_str());
         
         // Serialize scripts
-        flecs::entity scripts_child = state_entity.lookup("scripts");
-        if (scripts_child.is_valid() && m_script_args_serializer != 0) {
-            sandbox_properties_handle_t properties_handle = spectre::modules::serializer::serialize_entity(m_world, m_script_args_serializer, scripts_child.id());
+        if (m_script_args_serializer != 0) {
+            sandbox_properties_handle_t properties_handle = spectre::modules::serializer::serialize_entity(m_world, m_script_args_serializer, state_entity.id());
             sandbox::properties scripts_node(properties_handle, true);
             if (scripts_node.is_valid()) {
                 properties.merge("scripts", scripts_node);
@@ -163,31 +168,19 @@ namespace spectre::modules {
         return properties;
     }
 
-    flecs::entity scenes_module_t::deserialize_state(sandbox::properties properties) {
-        if (!properties.is_valid()) return flecs::entity::null();
+    void scenes_module_t::deserialize_state(flecs::entity state_entity, sandbox::properties properties) {
+        if (!properties.is_valid() || !state_entity.is_valid()) return;
         
-        flecs::entity state_entity = m_world.entity();
         std::string state_name;
         if (properties.get<std::string>("name", state_name)) {
-            flecs::entity existing_state = find_state(state_name);
-            if (existing_state.is_valid()) {
-                state_entity = existing_state;
-            } else {
-                state_entity.set_name(state_name.c_str());
-            }
+            state_entity.set_name(state_name.c_str());
         }
         
         state_entity.add<spectre_state_t>();
         
         if (properties.has("scripts") && m_script_args_serializer != 0) {
             sandbox::properties scripts_node = properties.sub("scripts");
-            ecs_entity_t deserialized_id = spectre::modules::serializer::deserialize_entity(m_world, m_script_args_serializer, scripts_node.get_raw());
-            flecs::entity temp_scripts_entity = m_world.entity(deserialized_id);
-            if (temp_scripts_entity.is_valid()) {
-                temp_scripts_entity.child_of(state_entity);
-                temp_scripts_entity.set_name("scripts");
-                temp_scripts_entity.add(flecs::Prefab);
-            }
+            spectre::modules::serializer::deserialize_entity(m_world, m_script_args_serializer, state_entity.id(), scripts_node.get_raw());
         }
 
         if (properties.has("scenes")) {
@@ -207,8 +200,6 @@ namespace spectre::modules {
                 }
             }
         }
-
-        return state_entity;
     }
 
     sandbox::properties scenes_module_t::serialize_scene(flecs::entity scene_entity) {
@@ -218,9 +209,8 @@ namespace spectre::modules {
         properties.set<std::string>("name", scene_entity.name().c_str());
         
         // Serialize scripts
-        flecs::entity scripts_child = scene_entity.lookup("scripts");
-        if (scripts_child.is_valid() && m_script_args_serializer != 0) {
-            sandbox_properties_handle_t properties_handle = spectre::modules::serializer::serialize_entity(m_world, m_script_args_serializer, scripts_child.id());
+        if (m_script_args_serializer != 0) {
+            sandbox_properties_handle_t properties_handle = spectre::modules::serializer::serialize_entity(m_world, m_script_args_serializer, scene_entity.id());
             sandbox::properties scripts_node(properties_handle, true);
             if (scripts_node.is_valid()) {
                 properties.merge("scripts", scripts_node);
@@ -248,31 +238,19 @@ namespace spectre::modules {
         return properties;
     }
 
-    flecs::entity scenes_module_t::deserialize_scene(sandbox::properties properties) {
-        if (!properties.is_valid()) return flecs::entity::null();
+    void scenes_module_t::deserialize_scene(flecs::entity scene_entity, sandbox::properties properties) {
+        if (!properties.is_valid() || !scene_entity.is_valid()) return;
         
-        flecs::entity scene_entity = m_world.entity();
         std::string scene_name;
         if (properties.get<std::string>("name", scene_name)) {
-            flecs::entity existing_scene = find_scene(scene_name);
-            if (existing_scene.is_valid()) {
-                scene_entity = existing_scene;
-            } else {
-                scene_entity.set_name(scene_name.c_str());
-            }
+            scene_entity.set_name(scene_name.c_str());
         }
         
         scene_entity.add<spectre_scene_t>();
 
         if (properties.has("scripts") && m_script_args_serializer != 0) {
             sandbox::properties scripts_node = properties.sub("scripts");
-            ecs_entity_t deserialized_id = spectre::modules::serializer::deserialize_entity(m_world, m_script_args_serializer, scripts_node.get_raw());
-            flecs::entity temp_scripts_entity = m_world.entity(deserialized_id);
-            if (temp_scripts_entity.is_valid()) {
-                temp_scripts_entity.child_of(scene_entity);
-                temp_scripts_entity.set_name("scripts");
-                temp_scripts_entity.add(flecs::Prefab);
-            }
+            spectre::modules::serializer::deserialize_entity(m_world, m_script_args_serializer, scene_entity.id(), scripts_node.get_raw());
         }
 
         if (properties.has("hierarchies") && m_entity_serializer != 0) {
@@ -282,8 +260,8 @@ namespace spectre::modules {
             for (const auto& key : keys) {
                 sandbox::properties child_properties = hierarchies_node.sub(key);
                 if (child_properties.is_valid()) {
-                    ecs_entity_t deserialized_id = spectre::modules::serializer::deserialize_entity(m_world, m_entity_serializer, child_properties.get_raw());
-                    flecs::entity child_entity = m_world.entity(deserialized_id);
+                    flecs::entity child_entity = m_world.entity();
+                    spectre::modules::serializer::deserialize_entity(m_world, m_entity_serializer, child_entity.id(), child_properties.get_raw());
                     if (child_entity.is_valid()) {
                         child_entity.child_of(scene_entity);
                         child_entity.add(flecs::Prefab);
@@ -291,8 +269,6 @@ namespace spectre::modules {
                 }
             }
         }
-        
-        return scene_entity;
     }
 
     void scenes_module_t::register_state(sandbox::properties properties) {
@@ -316,7 +292,7 @@ namespace spectre::modules {
             child_entity.destruct();
         });
         
-        deserialize_state(std::move(properties));
+        deserialize_state(state_prefab, std::move(properties));
         sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scenes Module] Registered state '{}'.", state_name);
     }
 
@@ -341,7 +317,7 @@ namespace spectre::modules {
             child_entity.destruct();
         });
         
-        deserialize_scene(std::move(properties));
+        deserialize_scene(scene_prefab, std::move(properties));
         sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scenes Module] Registered scene '{}'.", scene_name);
     }
 

@@ -2,9 +2,7 @@
 #include "spectre/services/prefabs_service.h"
 #include "spectre/sdk/serializer.hpp"
 #include "spectre/sdk/scripts.hpp"
-#include "spectre/sdk/components.hpp"
 #include "sandbox/sdk/logs.hpp"
-#include "../components/components_module.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -13,7 +11,7 @@
 
 namespace spectre::modules {
 
-    static ecs_entity_t deserialize_entity_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle);
+    static void deserialize_entity_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle);
     static sandbox_properties_handle_t serialize_entity_cb(ecs_world_t* world, ecs_entity_t entity_id);
 
     SANDBOX_DECLARE_MODULE(prefabs_module_t, {
@@ -62,8 +60,8 @@ namespace spectre::modules {
     
     prefabs_module_t::~prefabs_module_t() = default;
 
-    static ecs_entity_t deserialize_entity_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle) {
-        return spectre::modules::prefabs::deserialize_entity(flecs::world(world), properties_handle);
+    static void deserialize_entity_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle) {
+        spectre::modules::prefabs::deserialize_entity(flecs::world(world), entity, properties_handle);
     }
 
     static sandbox_properties_handle_t serialize_entity_cb(ecs_world_t* world, ecs_entity_t entity_id) {
@@ -91,19 +89,32 @@ namespace spectre::modules {
             result_properties.set_array<std::string>("prefabs", prefabs_list);
         }
 
-        sandbox::properties components_properties = spectre::modules::components::serialize_component(m_world, entity_to_serialize);
+        sandbox::properties components_properties;
+        entity_to_serialize.each([&](flecs::id id) {
+            if (id.is_pair()) return;
+            flecs::entity comp_entity = id.entity();
+            if (!comp_entity.is_valid() || !comp_entity.name().c_str()) return;
+            
+            std::string s_name = comp_entity.name().c_str();
+            ecs_entity_t serializer_id = spectre::modules::serializer::find_serializer(m_world, s_name.c_str());
+            if (serializer_id != 0) {
+                sandbox_properties_handle_t props_handle = spectre::modules::serializer::serialize_entity(m_world, serializer_id, entity_to_serialize.id());
+                sandbox::properties props(props_handle, false);
+                if (props.is_valid()) {
+                    components_properties.merge(s_name, props);
+                }
+            }
+        });
+        
         if (components_properties.is_valid()) {
             result_properties.merge("components", components_properties);
         }
         
         if (m_script_args_serializer.id() != 0) {
-            flecs::entity scripts_child = entity_to_serialize.lookup("scripts");
-            if (scripts_child.is_valid()) {
-                sandbox_properties_handle_t scripts_handle = spectre::modules::serializer::serialize_entity(m_world, m_script_args_serializer.id(), scripts_child.id());
-                sandbox::properties scripts_properties(scripts_handle, false);
-                if (scripts_properties.is_valid()) {
-                    result_properties.merge("scripts", scripts_properties);
-                }
+            sandbox_properties_handle_t scripts_handle = spectre::modules::serializer::serialize_entity(m_world, m_script_args_serializer.id(), entity_to_serialize.id());
+            sandbox::properties scripts_properties(scripts_handle, false);
+            if (scripts_properties.is_valid()) {
+                result_properties.merge("scripts", scripts_properties);
             }
         }
 
@@ -125,6 +136,8 @@ namespace spectre::modules {
         return result_properties;
     }
 
+    // TODO: Use the new deserializer to inject component directly in the target entity, instead of the complexe code to merge the component into the entity
+    // TODO: Update the script module since now you can link the script to the entity directly, and not to a child entity, that mean update the
     flecs::entity prefabs_module_t::deserialize_entity(sandbox::properties properties) {
         if (!properties.is_valid()) return flecs::entity::null();
         
@@ -164,20 +177,15 @@ namespace spectre::modules {
             for (const auto& component_name : component_keys) {
                 sandbox::properties component_properties = components_node.sub(component_name);
                 if (component_properties.is_valid()) {
-                    flecs::entity temporary_component_entity = spectre::modules::components::deserialize_component(m_world, component_name, std::move(component_properties));
-                    if (temporary_component_entity.is_valid()) {
-                        temporary_component_entity.each([&](flecs::id component_id) {
-                            if (component_id.is_wildcard()) return;
-                            const void* pointer = ecs_get_id(m_world.c_ptr(), temporary_component_entity.id(), component_id);
-                            if (pointer) {
-                                const ecs_type_info_t* type_info = ecs_get_type_info(m_world.c_ptr(), component_id);
-                                size_t size = type_info ? type_info->size : 0;
-                                ecs_set_id(m_world.c_ptr(), target_entity.id(), component_id, size, pointer);
-                            } else {
-                                target_entity.add(component_id);
-                            }
-                        });
-                        temporary_component_entity.destruct();
+                    ecs_entity_t serializer_id = spectre::modules::serializer::find_serializer(m_world, component_name.c_str());
+                    if (serializer_id != 0) {
+                        spectre::modules::serializer::deserialize_entity(m_world, serializer_id, target_entity.id(), component_properties.get_raw());
+                    } else {
+                        // If no serializer, try to just add the component
+                        flecs::entity comp_entity = m_world.lookup(component_name.c_str());
+                        if (comp_entity.is_valid()) {
+                            target_entity.add(comp_entity);
+                        }
                     }
                 }
             }
@@ -186,12 +194,7 @@ namespace spectre::modules {
         if (properties.has("scripts") && m_script_args_serializer.id() != 0) {
             sandbox::properties scripts_node = properties.sub("scripts");
             sandbox_properties_handle_t handle = scripts_node.get_raw();
-            ecs_entity_t raw_scripts_entity = spectre::modules::serializer::deserialize_entity(m_world, m_script_args_serializer.id(), handle);
-            if (raw_scripts_entity != 0) {
-                flecs::entity temporary_scripts_entity = m_world.entity(raw_scripts_entity);
-                temporary_scripts_entity.child_of(target_entity);
-                temporary_scripts_entity.set_name("scripts");
-            }
+            spectre::modules::serializer::deserialize_entity(m_world, m_script_args_serializer.id(), target_entity.id(), handle);
         }
 
         if (properties.has("children")) {

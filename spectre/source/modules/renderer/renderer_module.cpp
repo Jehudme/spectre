@@ -2,7 +2,7 @@
 #include "spectre/services/renderer_service.h"
 #include "spectre/components/renderer_component.h"
 #include "spectre/sdk/scenes.hpp"
-#include "spectre/sdk/components.hpp"
+
 #include "spectre/sdk/serializer.hpp"
 #include "sandbox/sdk/logs.hpp"
 #include <iostream>
@@ -26,8 +26,8 @@ namespace spectre::modules {
         .requirement_count = 0
     })
 
-    static ecs_entity_t deserialize_renderer_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle) {
-        return spectre::modules::renderer::deserialize_renderer(flecs::world(world), properties_handle);
+    static void deserialize_renderer_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle) {
+        spectre::modules::renderer::deserialize_renderer(flecs::world(world), entity, properties_handle);
     }
 
     static sandbox_properties_handle_t serialize_renderer_cb(ecs_world_t* world, ecs_entity_t entity_id) {
@@ -133,11 +133,11 @@ namespace spectre::modules {
         props.release();
         return handle;
     }
-    static ecs_entity_t deserialize_rectangle_renderable(ecs_world_t* world, sandbox_properties_handle_t handle) {
-        if (!world) return 0;
+    static void deserialize_rectangle_renderable(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+        if (!world) return;
         sandbox::properties props(handle, false);
         flecs::world flecs_world(world);
-        flecs::entity e = flecs_world.entity();
+        flecs::entity e(flecs_world, entity);
         spectre_rectange_renderable_t comp = {};
         comp.width = props.get<float>("width").value_or(10.0f);
         comp.height = props.get<float>("height").value_or(10.0f);
@@ -145,7 +145,6 @@ namespace spectre::modules {
         comp.outline_color = deserialize_color(props.sub("outline_color"));
         comp.outline_thickness = props.get<float>("outline_thickness").value_or(0.0f);
         e.set<spectre_rectange_renderable_t>(comp);
-        return e.id();
     }
 
     static sandbox_properties_handle_t serialize_polygon_renderable(ecs_world_t* world, ecs_entity_t entity) {
@@ -163,11 +162,11 @@ namespace spectre::modules {
         props.release();
         return handle;
     }
-    static ecs_entity_t deserialize_polygon_renderable(ecs_world_t* world, sandbox_properties_handle_t handle) {
-        if (!world) return 0;
+    static void deserialize_polygon_renderable(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+        if (!world) return;
         sandbox::properties props(handle, false);
         flecs::world flecs_world(world);
-        flecs::entity e = flecs_world.entity();
+        flecs::entity e(flecs_world, entity);
         spectre_polygone_renderable_t comp = {};
         comp.radius = props.get<float>("radius").value_or(10.0f);
         comp.point_count = props.get<uint32_t>("point_count").value_or(3);
@@ -175,7 +174,6 @@ namespace spectre::modules {
         comp.outline_color = deserialize_color(props.sub("outline_color"));
         comp.outline_thickness = props.get<float>("outline_thickness").value_or(0.0f);
         e.set<spectre_polygone_renderable_t>(comp);
-        return e.id();
     }
 
     static sandbox_properties_handle_t serialize_line_renderable(ecs_world_t* world, ecs_entity_t entity) {
@@ -194,11 +192,11 @@ namespace spectre::modules {
         props.release();
         return handle;
     }
-    static ecs_entity_t deserialize_line_renderable(ecs_world_t* world, sandbox_properties_handle_t handle) {
-        if (!world) return 0;
+    static void deserialize_line_renderable(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+        if (!world) return;
         sandbox::properties props(handle, false);
         flecs::world flecs_world(world);
-        flecs::entity e = flecs_world.entity();
+        flecs::entity e(flecs_world, entity);
         spectre_ligne_renderable_t comp = {};
         comp.position_x1 = props.get<double>("position_x1").value_or(0.0);
         comp.position_y1 = props.get<double>("position_y1").value_or(0.0);
@@ -207,7 +205,6 @@ namespace spectre::modules {
         comp.color = deserialize_color(props.sub("color"));
         comp.thickness = props.get<float>("thickness").value_or(1.0f);
         e.set<spectre_ligne_renderable_t>(comp);
-        return e.id();
     }
 
     struct spectre_renderer_update_marker_t { char dummy; };
@@ -231,11 +228,20 @@ namespace spectre::modules {
         spectre_serializer_component poly_serializer = {deserialize_polygon_renderable, serialize_polygon_renderable};
         spectre_serializer_component line_serializer = {deserialize_line_renderable, serialize_line_renderable};
 
-        spectre::modules::components::register_component(m_world, "spectre_renderable_t", register_renderable_comp, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_rectange_renderable_t", register_rectangle_comp, rect_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_polygone_renderable_t", register_polygon_comp, poly_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_custom_polygone_renderable_t", register_custom_polygon_comp, empty_serializer); // Not implementing custom poly serializer for now
-        spectre::modules::components::register_component(m_world, "spectre_ligne_renderable_t", register_line_comp, line_serializer);
+        register_renderable_comp(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_renderable_t", &empty_serializer);
+        
+        register_rectangle_comp(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_rectange_renderable_t", &rect_serializer);
+        
+        register_polygon_comp(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_polygone_renderable_t", &poly_serializer);
+        
+        register_custom_polygon_comp(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_custom_polygone_renderable_t", &empty_serializer);
+        
+        register_line_comp(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_ligne_renderable_t", &line_serializer);
 
         flecs::entity on_renderer_phase = m_world.entity("on_renderer").add(flecs::Phase).depends_on(flecs::OnUpdate);
 
@@ -250,9 +256,8 @@ namespace spectre::modules {
     
     renderer_module_t::~renderer_module_t() = default;
 
-    flecs::entity renderer_module_t::deserialize_renderer(const sandbox::properties& properties) {
+    void renderer_module_t::deserialize_renderer(flecs::entity target, const sandbox::properties& properties) {
         sandbox::modules::logs::debug(const_cast<flecs::world&>(m_world), "[Renderer Module] Deserializing renderer entity.");
-        return m_world.entity();
     }
 
     sandbox::properties renderer_module_t::serialize_renderer(flecs::entity renderer_entity) {
@@ -261,7 +266,8 @@ namespace spectre::modules {
     }
 
     void renderer_module_t::register_renderer(const sandbox::properties& properties) {
-        m_renderer = deserialize_renderer(properties);
+        m_renderer = m_world.entity("::renderer").add<spectre_renderer_update_marker_t>();
+        deserialize_renderer(m_renderer, properties);
     }
 
     bool renderer_module_t::is_renderer() const {

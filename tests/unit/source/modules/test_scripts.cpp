@@ -131,9 +131,6 @@ end
         flecs::entity target_entity = world.entity("MyTarget");
         target_entity.child_of(scene_entity);
 
-        flecs::entity scripts_child = target_entity.lookup("scripts");
-        if (!scripts_child.is_valid()) scripts_child = world.entity("scripts").child_of(target_entity);
-
         spectre_use_script_on_update_relation_t rel;
         rel.argument_count = 3;
         rel.arguments = new spectre_script_argument_t[3];
@@ -144,7 +141,7 @@ end
         rel.arguments[2].type = SPECTRE_SCRIPT_ARGUMENT_TYPE_ENTITY;
         rel.arguments[2].value.entity = "%state%";
 
-        scripts_child.set<spectre_use_script_on_update_relation_t>(script_ent, rel);
+        target_entity.set<spectre_use_script_on_update_relation_t>(script_ent, rel);
 
         // Execute
         scripts_mod->execute_on_update(target_entity);

@@ -2,7 +2,7 @@
 #include "spectre/services/scripts_service.h"
 #include "sandbox/sdk/logs.hpp"
 #include "spectre/sdk/serializer.hpp"
-#include "spectre/sdk/components.hpp"
+
 #include <lua.hpp>
 #include <regex>
 #include <iostream>
@@ -17,7 +17,7 @@ extern "C" {
 
 namespace spectre::modules {
 
-    static ecs_entity_t deserialize_script_args_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle);
+    static void deserialize_script_args_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle);
     static sandbox_properties_handle_t serialize_script_args_cb(ecs_world_t* world, ecs_entity_t entity_id);
 
     // Component Registration Callbacks
@@ -74,12 +74,24 @@ namespace spectre::modules {
         
         // Register components using the SDK
         spectre_serializer_component empty_serializer = {nullptr, nullptr};
-        spectre::modules::components::register_component(m_world, "spectre_script_t", register_script_comp, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_use_script_on_create_relation_t", register_use_script_on_create_rel, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_use_script_on_destroy_relation_t", register_use_script_on_destroy_rel, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_use_script_on_update_relation_t", register_use_script_on_update_rel, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_use_script_on_enter_relation_t", register_use_script_on_enter_rel, empty_serializer);
-        spectre::modules::components::register_component(m_world, "spectre_use_script_on_exit_relation_t", register_use_script_on_exit_rel, empty_serializer);
+        
+        register_script_comp(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_script_t", &empty_serializer);
+        
+        register_use_script_on_create_rel(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_use_script_on_create_relation_t", &empty_serializer);
+        
+        register_use_script_on_destroy_rel(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_use_script_on_destroy_relation_t", &empty_serializer);
+        
+        register_use_script_on_update_rel(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_use_script_on_update_relation_t", &empty_serializer);
+        
+        register_use_script_on_enter_rel(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_use_script_on_enter_relation_t", &empty_serializer);
+        
+        register_use_script_on_exit_rel(m_world.c_ptr());
+        spectre::modules::serializer::register_serializer(m_world, "spectre_use_script_on_exit_relation_t", &empty_serializer);
 
         spectre_serializer_component script_serializer = {};
         script_serializer.deserialize = deserialize_script_args_cb;
@@ -89,13 +101,13 @@ namespace spectre::modules {
         sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scripts Module] Initialized successfully.");
     }
     
-    static ecs_entity_t deserialize_script_args_cb(ecs_world_t* world, sandbox_properties_handle_t properties_handle) {
-        return spectre_scripts_deserialize_scripts(world, properties_handle);
+    static void deserialize_script_args_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle) {
+        auto* module = flecs::world(world).try_get_mut<script_module_t>();
+        if (module) module->deserialize_scripts(flecs::world(world).entity(entity), sandbox::properties(properties_handle, false));
     }
 
-    flecs::entity script_module_t::deserialize_scripts(sandbox::properties properties) {
-        if (!properties.is_valid()) return flecs::entity::null();
-        flecs::entity temporary_entity = m_world.entity();
+    void script_module_t::deserialize_scripts(flecs::entity target_entity, sandbox::properties properties) {
+        if (!properties.is_valid() || !target_entity.is_valid()) return;
 
         auto deserialize_relation = [&](const char* relation_name, auto relation_type) {
             if (!properties.has(relation_name)) return;
@@ -106,9 +118,7 @@ namespace spectre::modules {
                 std::string function_name;
                 if (!script_item.get<std::string>("function", function_name)) continue;
 
-                flecs::entity scripts_root = m_world.lookup("::scripts");
-                if (!scripts_root.is_valid()) continue;
-                flecs::entity script_entity = scripts_root.lookup(function_name.c_str());
+                flecs::entity script_entity = m_scripts_root.lookup(function_name.c_str());
                 if (!script_entity.is_valid()) {
                     sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world), "[Scripts Module] Script '{}' not found when deserializing relation '{}'.", function_name, relation_name);
                     continue;
@@ -163,7 +173,7 @@ namespace spectre::modules {
                 relation_data.arguments = script_arguments;
                 relation_data.argument_count = argument_count;
                 
-                temporary_entity.set<RelationType>(script_entity, relation_data);
+                target_entity.set<RelationType>(script_entity, relation_data);
             }
         };
 
@@ -173,8 +183,6 @@ namespace spectre::modules {
         deserialize_relation("on_render", spectre_use_script_on_render_relation_t{});
         deserialize_relation("on_enter", spectre_use_script_on_enter_relation_t{});
         deserialize_relation("on_exit", spectre_use_script_on_exit_relation_t{});
-
-        return temporary_entity;
     }
 
     static sandbox_properties_handle_t serialize_script_args_cb(ecs_world_t* world, ecs_entity_t entity_id) {
