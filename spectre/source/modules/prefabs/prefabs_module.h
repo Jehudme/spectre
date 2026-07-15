@@ -16,9 +16,9 @@ namespace spectre::modules {
 
         sandbox::properties serialize_entity(flecs::entity entity);
 
-        // TODO: Merge deserialize_entity and deserialize_entity_target into one function that have for arguments (flecs::entity entity, sandbox::properties props);
-        flecs::entity deserialize_entity(sandbox::properties props);
-        flecs::entity deserialize_entity_target(flecs::entity entity, sandbox::properties props);
+        // We merge deserialize_entity and deserialize_entity_target functionality to directly inject components into the given entity
+        flecs::entity deserialize_entity(sandbox::properties properties);
+        flecs::entity deserialize_entity_target(flecs::entity target_entity, sandbox::properties properties);
 
         void register_prefab(std::string_view name, sandbox::properties props);
         bool has_prefab(std::string_view name) const;

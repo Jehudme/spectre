@@ -136,8 +136,8 @@ namespace spectre::modules {
         return result_properties;
     }
 
-    // TODO: Use the new deserializer to inject component directly in the target entity, instead of the complexe code to merge the component into the entity
-    // TODO: Update the script module since now you can link the script to the entity directly, and not to a child entity, that mean update the
+    // We inject components directly into the target entity to avoid complex merging logic
+    // We also link scripts directly to the entity instead of using a child entity for cleaner architecture
     flecs::entity prefabs_module_t::deserialize_entity(sandbox::properties properties) {
         if (!properties.is_valid()) return flecs::entity::null();
         

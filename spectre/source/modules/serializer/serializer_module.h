@@ -18,13 +18,13 @@ namespace spectre::modules {
         serializer_module(serializer_module&&) = delete;
         serializer_module& operator=(serializer_module&&) = delete;
 
-        void register_serializer(std::string_view type, const serializer_t& serializer);
+        // We use the updated service/API structure here to register serializers across modules
+        void register_serializer(std::string_view serializer_type, const serializer_t& serializer_component);
         bool has_serializer(std::string_view type) const;
         bool is_serializer(flecs::entity entity) const;
         flecs::entity find_serializer(std::string_view type) const;
 
         sandbox::properties serialize_entity(flecs::entity serializer_entity, flecs::entity target_entity);
-        // TODO: Update the service, api, sdk
         void deserialize_entity(flecs::entity serializer_entity, flecs::entity target_entity, const sandbox::properties& props);
 
     private:
