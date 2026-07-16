@@ -1,0 +1,31 @@
+{
+    "name": "RectanglePrefab",
+    "components": {
+        "spectre_renderable_t": {},
+        "spectre_rectange_renderable_t": {
+            "width": 150.0,
+            "height": 150.0,
+            "fill_color": {
+                "r": 255,
+                "g": 255,
+                "b": 255,
+                "a": 154
+            },
+            "outline_thickness": 5.0,
+            "outline_color": {
+                "r": 255,
+                "g": 255,
+                "b": 255,
+                "a": 255
+            }
+        },
+        "spectre_2D_transform_component_t": {
+            "position_x": 0.0,
+            "position_y": 0.0,
+            "position_z": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "rotation": 0.0
+        }
+    }
+}
