@@ -43,7 +43,7 @@ static void prefabs_deserialize_entity(ecs_world_t* entity_world, ecs_entity_t t
     if (!entity_world) return;
     flecs::world flecs_world(entity_world);
     auto* module = flecs_world.lookup("spectre::modules::prefabs_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::prefabs_module_t>() : nullptr;
-    if (module) module->deserialize_entity_target(flecs_world.entity(target), sandbox::properties(props, false));
+    if (module) module->deserialize_entity(flecs_world.entity(target), sandbox::properties(props, false));
 }
 
 static void prefabs_register_prefab(ecs_world_t* entity_world, const char* name, sandbox_properties_handle_t props) {

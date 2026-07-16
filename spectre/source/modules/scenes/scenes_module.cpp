@@ -26,8 +26,6 @@ namespace spectre::modules {
         spectre::modules::scenes::deserialize_scene(flecs::world(world), entity, properties_handle);
     }
 
-    // Component Registration Callbacks
-    // Component Registration Callbacks
     static ecs_entity_t register_scene_component(ecs_world_t* world) { 
         return flecs::world(world).component<spectre_scene_t>()
             .member<char>("dummy").id(); 

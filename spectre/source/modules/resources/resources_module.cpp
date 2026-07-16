@@ -110,10 +110,6 @@ namespace spectre::modules {
     resource_module_t::~resource_module_t() = default;
 
     static void deserialize_resource_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle) {
-        // We bypass the SDK here since we are in the module, or just call the method if we can.
-        // Actually we can't easily get the module instance without a lookup.
-        // The SDK function spectre::modules::resources::deserialize_resource might need an update too.
-        // For now, let's assume SDK is updated or we just do lookup:
         auto* module = flecs::world(world).try_get_mut<resource_module_t>();
         if (module) module->deserialize_resource(flecs::world(world).entity(entity), sandbox::properties(properties_handle, false));
     }

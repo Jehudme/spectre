@@ -186,10 +186,14 @@ end
         scripts_node.merge("on_create", on_create_arr);
         scripts_node.merge("on_destroy", on_destroy_arr);
         
-        prefab_props.merge("scripts", scripts_node);
+        sandbox::properties components_node;
+        components_node.merge("scripts", scripts_node);
+        prefab_props.merge("components", components_node);
 
         prefabs_mod->register_prefab("ScriptedPrefab", std::move(prefab_props));
         REQUIRE(prefabs_mod->has_prefab("ScriptedPrefab") == true);
+        
+        flecs::entity prefab = prefabs_mod->find_prefab("ScriptedPrefab");
         
         flecs::entity instance = prefabs_mod->create_entity("ScriptedPrefab");
         REQUIRE(instance.is_valid() == true);
@@ -201,11 +205,10 @@ end
         while (flecs::entity s_ent = instance.target<spectre_use_script_on_create_relation_t>(index++)) {
             const auto* rel_ptr = instance.try_get<spectre_use_script_on_create_relation_t>(s_ent);
             if (!rel_ptr) continue;
-            const auto& rel = *rel_ptr;
             has_on_create = true;
             REQUIRE(s_ent.name() == "on_create_test");
-            REQUIRE(rel.argument_count == 1);
-            REQUIRE(rel.arguments[0].value.number_value == Catch::Approx(42.0));
+            REQUIRE(rel_ptr->argument_count == 1);
+            REQUIRE(rel_ptr->arguments[0].value.number_value == Catch::Approx(42.0));
         }
         REQUIRE(has_on_create == true);
 

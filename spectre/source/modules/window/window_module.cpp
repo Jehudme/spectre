@@ -56,6 +56,7 @@ namespace spectre::modules {
                
         m_world.entity(flecs::OnUpdate).depends_on<spectre_on_event_phase_t>();
 
+        // TODO: move this system so that in the register function and also make it an child of the rendere entity
         m_world.system<spectre_window_component_t>("Window Input Event")
             .kind<spectre_on_event_phase_t>()
             .each([this](flecs::entity, spectre_window_component_t&) {

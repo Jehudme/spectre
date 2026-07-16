@@ -14,6 +14,7 @@ set(SOURCES
     source/modules/renderer/renderer_module.cpp
     source/modules/resources/resources_service.cpp
     source/modules/resources/resources_module.cpp
+    source/modules/runtime/runtime_module.cpp
     source/modules/scenes/scenes_service.cpp
     source/modules/scenes/scenes_module.cpp
     source/modules/scripts/scripts_service.cpp
@@ -32,6 +33,7 @@ set(HEADERS
     source/modules/prefabs/prefabs_module.h
     source/modules/renderer/renderer_module.h
     source/modules/resources/resources_module.h
+    source/modules/runtime/runtime_module.h
     source/modules/scenes/scenes_module.h
     source/modules/scripts/scripts_module.h
     source/modules/serializer/serializer_module.h

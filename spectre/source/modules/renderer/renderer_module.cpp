@@ -33,9 +33,7 @@ namespace spectre::modules {
     static sandbox_properties_handle_t serialize_renderer_cb(ecs_world_t* world, ecs_entity_t entity_id) {
         return spectre::modules::renderer::serialize_renderer(flecs::world(world), entity_id);
     }
-    
-    // Component Registration Callbacks
-    // Component Registration Callbacks
+
     static ecs_entity_t register_renderable_comp(ecs_world_t* world) { 
         return flecs::world(world).component<spectre_renderable_t>()
             .member<char>("dummy").id(); 
@@ -218,8 +216,6 @@ namespace spectre::modules {
         
         spectre::modules::serializer::register_serializer(m_world, "renderer", &serializer_callbacks);
 
-        m_renderer = m_world.entity("::renderer")
-            .add<spectre_renderer_update_marker_t>();
 
         // Register Renderer Components via SDK
         spectre_serializer_component empty_serializer = {nullptr, nullptr};
@@ -245,11 +241,7 @@ namespace spectre::modules {
 
         flecs::entity on_renderer_phase = m_world.entity("on_renderer").add(flecs::Phase).depends_on(flecs::OnUpdate);
 
-        m_world.system<spectre_renderer_update_marker_t>("RendererSystem")
-            .kind(on_renderer_phase)
-            .each([this](flecs::entity entity, spectre_renderer_update_marker_t&) {
-                this->render_frame();
-            });
+
             
         sandbox::modules::logs::info(m_world, "[Renderer Module] Initialized successfully.");
     }
@@ -267,6 +259,14 @@ namespace spectre::modules {
 
     void renderer_module_t::register_renderer(const sandbox::properties& properties) {
         m_renderer = m_world.entity("::renderer").add<spectre_renderer_update_marker_t>();
+        
+        flecs::entity on_renderer_phase = m_world.entity("on_renderer");
+        m_world.system<spectre_renderer_update_marker_t>("RendererSystem")
+            .kind(on_renderer_phase)
+            .each([this](flecs::entity entity, spectre_renderer_update_marker_t&) {
+                this->render_frame();
+            });
+
         deserialize_renderer(m_renderer, properties);
     }
 

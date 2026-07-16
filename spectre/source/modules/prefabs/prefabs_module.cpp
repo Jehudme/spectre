@@ -138,24 +138,7 @@ namespace spectre::modules {
 
     // We inject components directly into the target entity to avoid complex merging logic
     // We also link scripts directly to the entity instead of using a child entity for cleaner architecture
-    flecs::entity prefabs_module_t::deserialize_entity(sandbox::properties properties) {
-        if (!properties.is_valid()) return flecs::entity::null();
-        
-        flecs::entity new_entity = m_world.entity();
-        
-        std::string entity_name;
-        if (properties.get<std::string>("name", entity_name)) {
-            flecs::entity existing_entity = m_world.lookup(entity_name.c_str());
-            if (existing_entity.is_valid()) {
-                new_entity = existing_entity;
-            } else {
-                new_entity.set_name(entity_name.c_str());
-            }
-        }
-        return deserialize_entity_target(new_entity, std::move(properties));
-    }
-
-    flecs::entity prefabs_module_t::deserialize_entity_target(flecs::entity target_entity, sandbox::properties properties) {
+    flecs::entity prefabs_module_t::deserialize_entity(flecs::entity target_entity, sandbox::properties properties) {
         if (!properties.is_valid() || !target_entity.is_valid()) return target_entity;
 
         std::vector<std::string> prefabs_list;
@@ -190,12 +173,7 @@ namespace spectre::modules {
                 }
             }
         }
-        
-        if (properties.has("scripts") && m_script_args_serializer.id() != 0) {
-            sandbox::properties scripts_node = properties.sub("scripts");
-            sandbox_properties_handle_t handle = scripts_node.get_raw();
-            spectre::modules::serializer::deserialize_entity(m_world, m_script_args_serializer.id(), target_entity.id(), handle);
-        }
+
 
         if (properties.has("children")) {
             std::vector<std::string> child_keys = properties.keys("children");
@@ -203,7 +181,17 @@ namespace spectre::modules {
             for (const auto& child_key : child_keys) {
                 sandbox::properties child_properties = children_node.sub(child_key);
                 if (child_properties.is_valid()) {
-                    flecs::entity child_entity = deserialize_entity(std::move(child_properties));
+                    flecs::entity new_child = m_world.entity();
+                    std::string entity_name;
+                    if (child_properties.get<std::string>("name", entity_name)) {
+                        flecs::entity existing_entity = m_world.lookup(entity_name.c_str());
+                        if (existing_entity.is_valid()) {
+                            new_child = existing_entity;
+                        } else {
+                            new_child.set_name(entity_name.c_str());
+                        }
+                    }
+                    flecs::entity child_entity = deserialize_entity(new_child, std::move(child_properties));
                     if (child_entity.is_valid()) {
                         child_entity.child_of(target_entity);
                     }
@@ -228,7 +216,7 @@ namespace spectre::modules {
         }
 
         if (properties.is_valid()) {
-            deserialize_entity_target(prefab, std::move(properties));
+            deserialize_entity(prefab, std::move(properties));
         }
     }
 
@@ -259,7 +247,20 @@ namespace spectre::modules {
     }
 
     flecs::entity prefabs_module_t::create_entity(sandbox::properties properties) {
-        flecs::entity created_entity = deserialize_entity(std::move(properties));
+        if (!properties.is_valid()) return flecs::entity::null();
+        
+        flecs::entity new_entity = m_world.entity();
+        std::string entity_name;
+        if (properties.get<std::string>("name", entity_name)) {
+            flecs::entity existing_entity = m_world.lookup(entity_name.c_str());
+            if (existing_entity.is_valid()) {
+                new_entity = existing_entity;
+            } else {
+                new_entity.set_name(entity_name.c_str());
+            }
+        }
+        
+        flecs::entity created_entity = deserialize_entity(new_entity, std::move(properties));
         run_on_create_scripts(created_entity, m_world);
         return created_entity;
     }
