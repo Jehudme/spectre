@@ -2,6 +2,7 @@
 #include "spectre/services/scripts_service.h"
 #include "sandbox/sdk/logs.hpp"
 #include "spectre/sdk/serializer.hpp"
+#include <sandbox/sdk/filesystem.hpp>
 
 #include <lua.hpp>
 #include <regex>
@@ -389,15 +390,11 @@ namespace spectre::modules {
     }
 
     void script_module_t::include_code(std::string_view file_path) {
-        std::string path_string(file_path);
-        std::ifstream file_stream(path_string);
-        if (!file_stream.is_open()) {
-            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Scripts Module] Failed to open script: {}", file_path);
+        std::string source_code = sandbox::modules::filesystem::read_all_text(const_cast<flecs::world&>(m_world), file_path.data());
+        if (source_code.empty()) {
+            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Scripts Module] Failed to open/read script: {}", file_path);
             return;
         }
-        std::stringstream buffer;
-        buffer << file_stream.rdbuf();
-        std::string source_code = buffer.str();
 
         // Parse and register scripts
         scripts_t parsed_scripts = parse_code(source_code);

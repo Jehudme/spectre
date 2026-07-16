@@ -30,6 +30,14 @@ typedef struct spectre_rectange_renderable_t {
     float outline_thickness;
 } spectre_rectange_renderable_t;
 
+typedef struct spectre_circle_renderable_t {
+    float radius;
+    spectre_color_t fill_color;
+    spectre_color_t outline_color;
+    float outline_thickness;
+} spectre_circle_renderable_t;
+
+
 typedef struct spectre_polygone_renderable_t {
     float radius;
     uint32_t point_count;
