@@ -20,6 +20,7 @@ namespace spectre::modules {
 
     private:
         void main_loop(flecs::world& entity_world);
+        bool initialize(flecs::world& entity_world);
 
         std::shared_ptr<std::thread> m_thread;
         std::shared_ptr<std::mutex> m_mutex = std::make_shared<std::mutex>();

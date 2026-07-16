@@ -164,6 +164,7 @@ namespace spectre::modules {
                     if (serializer_id != 0) {
                         spectre::modules::serializer::deserialize_entity(m_world, serializer_id, target_entity.id(), component_properties.get_raw());
                     } else {
+                        sandbox::modules::logs::info(m_world, "[Prefabs Module] No serializer for component '{}', trying fallback lookup", component_name);
                         // If no serializer, try to just add the component
                         flecs::entity comp_entity = m_world.lookup(component_name.c_str());
                         if (comp_entity.is_valid()) {
@@ -217,6 +218,7 @@ namespace spectre::modules {
 
         if (properties.is_valid()) {
             deserialize_entity(prefab, std::move(properties));
+            sandbox::modules::logs::info(m_world, "[Prefabs Module] Registered prefab: '{}'", name);
         }
     }
 

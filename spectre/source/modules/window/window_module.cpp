@@ -56,17 +56,7 @@ namespace spectre::modules {
                
         m_world.entity(flecs::OnUpdate).depends_on<spectre_on_event_phase_t>();
 
-        // TODO: move this system so that in the register function and also make it an child of the rendere entity
-        m_world.system<spectre_window_component_t>("Window Input Event")
-            .kind<spectre_on_event_phase_t>()
-            .each([this](flecs::entity, spectre_window_component_t&) {
-                if (should_close()) {
-                    sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Window Module] Window requested close. Stopping runtime.");
-                    sandbox::modules::runtime::stop(m_world);
-                }
-                begin_input_frame();
-            });
-            
+
         sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Window Module] Initialized successfully.");
     }
     
@@ -206,6 +196,17 @@ namespace spectre::modules {
                 updated_component.native_handle = GetWindowHandle();
                 m_window_entity.set<spectre_window_component_t>(updated_component);
                 
+                auto sys = m_world.system<spectre_window_component_t>("Window Input Event")
+                    .kind<spectre_on_event_phase_t>()
+                    .each([this](flecs::entity, spectre_window_component_t&) {
+                        if (should_close()) {
+                            sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Window Module] Window requested close. Stopping runtime.");
+                            sandbox::modules::runtime::stop(m_world);
+                        }
+                        begin_input_frame();
+                    });
+                sys.child_of(m_window_entity);
+
                 sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Window Module] Window registered and created.");
             }
         }

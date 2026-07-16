@@ -4,7 +4,7 @@
 #include "modules/prefabs/prefabs_module.h"
 #include "spectre/spectre.h"
 #include "sandbox/sdk/properties.hpp"
-#include "modules/scripts/scripts_module.h"
+#include "../../../../spectre/source/modules/scripts/scripts_module.h"
 #include <fstream>
 #include <filesystem>
 #include <iostream>

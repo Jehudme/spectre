@@ -1,4 +1,5 @@
 #include <spectre/sdk/scenes.hpp>
+#include <sandbox/sdk/logs.hpp>
 #include "spectre/services/scenes_service.h"
 #include "scenes_module.h"
 
@@ -184,6 +185,8 @@ sandbox_properties_handle_t spectre_scenes_serialize_state(ecs_world_t* world, e
 #endif
     if (service && service->api && service->api->serialize_state) {
         return service->api->serialize_state(world, state);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Scenes Module] Service not initialized!");
     }
     return scenes_serialize_state(world, state);
 }
@@ -198,6 +201,8 @@ void spectre_scenes_deserialize_state(ecs_world_t* world, ecs_entity_t target, s
     if (service && service->api && service->api->deserialize_state) {
         service->api->deserialize_state(world, target, props);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Scenes Module] Service not initialized!");
     }
     scenes_deserialize_state(world, target, props);
 }
@@ -211,6 +216,8 @@ sandbox_properties_handle_t spectre_scenes_serialize_scene(ecs_world_t* world, e
 #endif
     if (service && service->api && service->api->serialize_scene) {
         return service->api->serialize_scene(world, scene);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Scenes Module] Service not initialized!");
     }
     return scenes_serialize_scene(world, scene);
 }
@@ -225,6 +232,8 @@ void spectre_scenes_deserialize_scene(ecs_world_t* world, ecs_entity_t target, s
     if (service && service->api && service->api->deserialize_scene) {
         service->api->deserialize_scene(world, target, props);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Scenes Module] Service not initialized!");
     }
     scenes_deserialize_scene(world, target, props);
 }
@@ -239,6 +248,8 @@ void spectre_scenes_register_state(ecs_world_t* world, sandbox_properties_handle
     if (service && service->api && service->api->register_state) {
         service->api->register_state(world, props);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Scenes Module] Service not initialized!");
     }
     scenes_register_state(world, props);
 }
@@ -253,6 +264,8 @@ void spectre_scenes_register_scene(ecs_world_t* world, sandbox_properties_handle
     if (service && service->api && service->api->register_scene) {
         service->api->register_scene(world, props);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Scenes Module] Service not initialized!");
     }
     scenes_register_scene(world, props);
 }
@@ -266,6 +279,8 @@ ecs_entity_t spectre_scenes_find_state(ecs_world_t* world, const char* name) {
 #endif
     if (service && service->api && service->api->find_state) {
         return service->api->find_state(world, name);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Scenes Module] Service not initialized!");
     }
     return scenes_find_state(world, name);
 }
@@ -279,6 +294,8 @@ ecs_entity_t spectre_scenes_find_scene(ecs_world_t* world, const char* name) {
 #endif
     if (service && service->api && service->api->find_scene) {
         return service->api->find_scene(world, name);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Scenes Module] Service not initialized!");
     }
     return scenes_find_scene(world, name);
 }
@@ -292,6 +309,8 @@ bool spectre_scenes_has_state(ecs_world_t* world, const char* name) {
 #endif
     if (service && service->api && service->api->has_state) {
         return service->api->has_state(world, name);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Scenes Module] Service not initialized!");
     }
     return scenes_has_state(world, name);
 }
@@ -305,6 +324,8 @@ bool spectre_scenes_has_scene(ecs_world_t* world, const char* name) {
 #endif
     if (service && service->api && service->api->has_scene) {
         return service->api->has_scene(world, name);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Scenes Module] Service not initialized!");
     }
     return scenes_has_scene(world, name);
 }
@@ -318,6 +339,8 @@ bool spectre_scenes_is_state(ecs_world_t* world, ecs_entity_t entity) {
 #endif
     if (service && service->api && service->api->is_state) {
         return service->api->is_state(world, entity);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Scenes Module] Service not initialized!");
     }
     return scenes_is_state(world, entity);
 }
@@ -331,6 +354,8 @@ bool spectre_scenes_is_scene(ecs_world_t* world, ecs_entity_t entity) {
 #endif
     if (service && service->api && service->api->is_scene) {
         return service->api->is_scene(world, entity);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Scenes Module] Service not initialized!");
     }
     return scenes_is_scene(world, entity);
 }
@@ -344,6 +369,8 @@ ecs_entity_t spectre_scenes_find_current_state(ecs_world_t* world) {
 #endif
     if (service && service->api && service->api->find_current_state) {
         return service->api->find_current_state(world);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Scenes Module] Service not initialized!");
     }
     return scenes_find_current_state(world);
 }
@@ -357,6 +384,8 @@ ecs_query_t* spectre_scenes_find_current_scenes(ecs_world_t* world) {
 #endif
     if (service && service->api && service->api->find_current_scenes) {
         return service->api->find_current_scenes(world);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Scenes Module] Service not initialized!");
     }
     return scenes_find_current_scenes(world);
 }
@@ -371,6 +400,8 @@ void spectre_scenes_push_state(ecs_world_t* world, ecs_entity_t state) {
     if (service && service->api && service->api->push_state) {
         service->api->push_state(world, state);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Scenes Module] Service not initialized!");
     }
     scenes_push_state(world, state);
 }
@@ -385,6 +416,8 @@ void spectre_scenes_pop_state(ecs_world_t* world) {
     if (service && service->api && service->api->pop_state) {
         service->api->pop_state(world);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Scenes Module] Service not initialized!");
     }
     scenes_pop_state(world);
 }
@@ -398,6 +431,8 @@ void spectre_scenes_execute_recursive(ecs_world_t* world, ecs_entity_t entity, s
 #endif
     if (service && service->api && service->api->execute_recursive) {
         service->api->execute_recursive(world, entity, callback, payload);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Scenes Module] Service not initialized!");
     }
 }
 

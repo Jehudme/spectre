@@ -182,20 +182,21 @@ namespace spectre::modules {
         }
 
         if (properties.has("scenes")) {
-            std::vector<std::string> scene_keys = properties.keys("scenes");
-            sandbox::properties scenes_node = properties.sub("scenes");
-            
-            for (size_t index = 0; index < scene_keys.size(); ++index) {
-                std::string scene_name;
-                if (scenes_node.get<std::string>(std::to_string(index), scene_name)) {
+            std::vector<std::string> scenes_array;
+            if (properties.get_array<std::string>("scenes", scenes_array)) {
+                for (size_t index = 0; index < scenes_array.size(); ++index) {
+                    const std::string& scene_name = scenes_array[index];
                     flecs::entity scene_prefab = find_scene(scene_name);
                     if (scene_prefab.is_valid()) {
                         flecs::entity scene_instance = m_world.prefab().is_a(scene_prefab).child_of(state_entity);
                         scene_instance.set<spectre_state_use_scene_relation_t>({static_cast<int>(index)});
+                        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scenes Module] Attached scene '{}' to state.", scene_name);
                     } else {
                         sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world), "[Scenes Module] Referenced scene '{}' not found when deserializing state.", scene_name);
                     }
                 }
+            } else {
+                sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Scenes Module] Failed to parse 'scenes' array.");
             }
         }
     }

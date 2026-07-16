@@ -1,4 +1,5 @@
 #include <spectre/sdk/prefabs.hpp>
+#include <sandbox/sdk/logs.hpp>
 #include "spectre/services/prefabs_service.h"
 #include "prefabs_module.h"
 
@@ -111,6 +112,8 @@ sandbox_properties_handle_t spectre_prefabs_serialize_entity(ecs_world_t* world,
 #endif
     if (service && service->api && service->api->serialize_entity) {
         return service->api->serialize_entity(world, entity);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Prefabs Module] Service not initialized!");
     }
     return prefabs_serialize_entity(world, entity);
 }
@@ -125,6 +128,8 @@ void spectre_prefabs_deserialize_entity(ecs_world_t* world, ecs_entity_t target,
     if (service && service->api && service->api->deserialize_entity) {
         service->api->deserialize_entity(world, target, props);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Prefabs Module] Service not initialized!");
     }
     prefabs_deserialize_entity(world, target, props);
 }
@@ -139,6 +144,8 @@ void spectre_prefabs_register_prefab(ecs_world_t* world, const char* name, sandb
     if (service && service->api && service->api->register_prefab) {
         service->api->register_prefab(world, name, props);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Prefabs Module] Service not initialized!");
     }
     prefabs_register_prefab(world, name, props);
 }
@@ -152,6 +159,8 @@ bool spectre_prefabs_has_prefab(ecs_world_t* world, const char* name) {
 #endif
     if (service && service->api && service->api->has_prefab) {
         return service->api->has_prefab(world, name);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Prefabs Module] Service not initialized!");
     }
     return prefabs_has_prefab(world, name);
 }
@@ -165,6 +174,8 @@ bool spectre_prefabs_is_prefab(ecs_world_t* world, ecs_entity_t entity) {
 #endif
     if (service && service->api && service->api->is_prefab) {
         return service->api->is_prefab(world, entity);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Prefabs Module] Service not initialized!");
     }
     return prefabs_is_prefab(world, entity);
 }
@@ -178,6 +189,8 @@ ecs_entity_t spectre_prefabs_find_prefab(ecs_world_t* world, const char* name) {
 #endif
     if (service && service->api && service->api->find_prefab) {
         return service->api->find_prefab(world, name);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Prefabs Module] Service not initialized!");
     }
     return prefabs_find_prefab(world, name);
 }
@@ -191,6 +204,8 @@ ecs_entity_t spectre_prefabs_create_entity_from_props(ecs_world_t* world, sandbo
 #endif
     if (service && service->api && service->api->create_entity_from_props) {
         return service->api->create_entity_from_props(world, props);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Prefabs Module] Service not initialized!");
     }
     return prefabs_create_entity_from_props(world, props);
 }
@@ -204,6 +219,8 @@ ecs_entity_t spectre_prefabs_create_entity_from_prefab(ecs_world_t* world, ecs_e
 #endif
     if (service && service->api && service->api->create_entity_from_prefab) {
         return service->api->create_entity_from_prefab(world, prefab);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Prefabs Module] Service not initialized!");
     }
     return prefabs_create_entity_from_prefab(world, prefab);
 }
@@ -217,6 +234,8 @@ ecs_entity_t spectre_prefabs_create_entity_from_name(ecs_world_t* world, const c
 #endif
     if (service && service->api && service->api->create_entity_from_name) {
         return service->api->create_entity_from_name(world, name);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Prefabs Module] Service not initialized!");
     }
     return prefabs_create_entity_from_name(world, name);
 }

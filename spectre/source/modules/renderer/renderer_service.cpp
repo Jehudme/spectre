@@ -1,4 +1,5 @@
 #include <spectre/sdk/renderer.hpp>
+#include <sandbox/sdk/logs.hpp>
 #include "spectre/services/renderer_service.h"
 #include "renderer_module.h"
 
@@ -62,6 +63,8 @@ void spectre_renderer_deserialize_renderer(ecs_world_t* world, ecs_entity_t targ
     if (service && service->api && service->api->deserialize_renderer) {
         service->api->deserialize_renderer(world, target, props);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Renderer Module] Service not initialized!");
     }
     renderer_deserialize_renderer(world, target, props);
 }
@@ -75,6 +78,8 @@ sandbox_properties_handle_t spectre_renderer_serialize_renderer(ecs_world_t* wor
 #endif
     if (service && service->api && service->api->serialize_renderer) {
         return service->api->serialize_renderer(world, renderer);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Renderer Module] Service not initialized!");
     }
     return renderer_serialize_renderer(world, renderer);
 }
@@ -89,6 +94,8 @@ void spectre_renderer_register_renderer(ecs_world_t* world, sandbox_properties_h
     if (service && service->api && service->api->register_renderer) {
         service->api->register_renderer(world, props);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Renderer Module] Service not initialized!");
     }
     renderer_register_renderer(world, props);
 }
@@ -102,6 +109,8 @@ bool spectre_renderer_is_renderer(ecs_world_t* world) {
 #endif
     if (service && service->api && service->api->is_renderer) {
         return service->api->is_renderer(world);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Renderer Module] Service not initialized!");
     }
     return renderer_is_renderer(world);
 }

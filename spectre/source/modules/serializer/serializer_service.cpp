@@ -1,4 +1,5 @@
 #include <spectre/sdk/serializer.hpp>
+#include <sandbox/sdk/logs.hpp>
 #include "spectre/services/serializer_service.h"
 #include "serializer_module.h"
 
@@ -100,6 +101,8 @@ void spectre_serializer_register_serializer(ecs_world_t* world, const char* type
     if (service && service->api && service->api->register_serializer) {
         service->api->register_serializer(world, type, serializer);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Serializer Module] Service not initialized!");
     }
     serializer_register_serializer(world, type, serializer);
 }
@@ -113,6 +116,8 @@ bool spectre_serializer_has_serializer(ecs_world_t* world, const char* type) {
 #endif
     if (service && service->api && service->api->has_serializer) {
         return service->api->has_serializer(world, type);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Serializer Module] Service not initialized!");
     }
     return serializer_has_serializer(world, type);
 }
@@ -126,6 +131,8 @@ bool spectre_serializer_is_serializer(ecs_world_t* world, ecs_entity_t entity) {
 #endif
     if (service && service->api && service->api->is_serializer) {
         return service->api->is_serializer(world, entity);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Serializer Module] Service not initialized!");
     }
     return serializer_is_serializer(world, entity);
 }
@@ -139,6 +146,8 @@ ecs_entity_t spectre_serializer_find_serializer(ecs_world_t* world, const char* 
 #endif
     if (service && service->api && service->api->find_serializer) {
         return service->api->find_serializer(world, type);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Serializer Module] Service not initialized!");
     }
     return serializer_find_serializer(world, type);
 }
@@ -152,6 +161,8 @@ sandbox_properties_handle_t spectre_serializer_serialize_entity(ecs_world_t* wor
 #endif
     if (service && service->api && service->api->serialize_entity) {
         return service->api->serialize_entity(world, serializer, entity);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Serializer Module] Service not initialized!");
     }
     return serializer_serialize_entity(world, serializer, entity);
 }
@@ -166,6 +177,8 @@ void spectre_serializer_deserialize_entity(ecs_world_t* world, ecs_entity_t seri
     if (service && service->api && service->api->deserialize_entity) {
         service->api->deserialize_entity(world, serializer, target, props);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Serializer Module] Service not initialized!");
     }
     serializer_deserialize_entity(world, serializer, target, props);
 }

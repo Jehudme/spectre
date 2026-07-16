@@ -207,6 +207,50 @@ namespace spectre::modules {
 
     struct spectre_renderer_update_marker_t { char dummy; };
 
+    static sandbox_properties_handle_t serialize_empty(ecs_world_t*, ecs_entity_t) { return {0}; }
+    static void deserialize_empty(ecs_world_t*, ecs_entity_t, sandbox_properties_handle_t) {}
+    
+    static sandbox_properties_handle_t serialize_renderable(ecs_world_t* world, ecs_entity_t entity) {
+        return {0}; 
+    }
+    static void deserialize_renderable(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t) {
+        if (world && entity) {
+            flecs::world flecs_world(world);
+            flecs_world.entity(entity).add<spectre_renderable_t>();
+        }
+    }
+    
+    static sandbox_properties_handle_t serialize_2D_transform_component(ecs_world_t* world, ecs_entity_t entity) {
+        if (!world || !entity) return {0};
+        flecs::world flecs_world(world);
+        const auto* comp = flecs_world.entity(entity).try_get<spectre_2D_transform_component_t>();
+        if (!comp) return {0};
+        sandbox::properties props;
+        props.set("position_x", comp->position_x);
+        props.set("position_y", comp->position_y);
+        props.set("position_z", comp->position_z);
+        props.set("scale_x", comp->scale_x);
+        props.set("scale_y", comp->scale_y);
+        props.set("rotation", comp->rotation);
+        sandbox_properties_handle_t handle = props.get_raw();
+        props.release();
+        return handle;
+    }
+    static void deserialize_2D_transform_component(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+        if (!world) return;
+        sandbox::properties props(handle, false);
+        flecs::world flecs_world(world);
+        flecs::entity e(flecs_world, entity);
+        spectre_2D_transform_component_t comp = {};
+        comp.position_x = props.get<float>("position_x").value_or(0.0f);
+        comp.position_y = props.get<float>("position_y").value_or(0.0f);
+        comp.position_z = props.get<float>("position_z").value_or(0.0f);
+        comp.scale_x = props.get<float>("scale_x").value_or(1.0f);
+        comp.scale_y = props.get<float>("scale_y").value_or(1.0f);
+        comp.rotation = props.get<float>("rotation").value_or(0.0f);
+        e.set<spectre_2D_transform_component_t>(comp);
+    }
+
     renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
         sandbox::modules::logs::trace(m_world, "[Renderer Module] Initializing...");
 
@@ -218,14 +262,16 @@ namespace spectre::modules {
 
 
         // Register Renderer Components via SDK
-        spectre_serializer_component empty_serializer = {nullptr, nullptr};
+        spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
+        spectre_serializer_component renderable_serializer = {deserialize_renderable, serialize_renderable};
         
         spectre_serializer_component rect_serializer = {deserialize_rectangle_renderable, serialize_rectangle_renderable};
         spectre_serializer_component poly_serializer = {deserialize_polygon_renderable, serialize_polygon_renderable};
         spectre_serializer_component line_serializer = {deserialize_line_renderable, serialize_line_renderable};
+        spectre_serializer_component transform_serializer = {deserialize_2D_transform_component, serialize_2D_transform_component};
 
         register_renderable_comp(m_world.c_ptr());
-        spectre::modules::serializer::register_serializer(m_world, "spectre_renderable_t", &empty_serializer);
+        spectre::modules::serializer::register_serializer(m_world, "spectre_renderable_t", &renderable_serializer);
         
         register_rectangle_comp(m_world.c_ptr());
         spectre::modules::serializer::register_serializer(m_world, "spectre_rectange_renderable_t", &rect_serializer);
@@ -238,6 +284,15 @@ namespace spectre::modules {
         
         register_line_comp(m_world.c_ptr());
         spectre::modules::serializer::register_serializer(m_world, "spectre_ligne_renderable_t", &line_serializer);
+        
+        m_world.component<spectre_2D_transform_component_t>()
+            .member<float>("position_x")
+            .member<float>("position_y")
+            .member<float>("position_z")
+            .member<float>("scale_x")
+            .member<float>("scale_y")
+            .member<float>("rotation");
+        spectre::modules::serializer::register_serializer(m_world, "spectre_2D_transform_component_t", &transform_serializer);
 
         flecs::entity on_renderer_phase = m_world.entity("on_renderer").add(flecs::Phase).depends_on(flecs::OnUpdate);
 
@@ -253,16 +308,14 @@ namespace spectre::modules {
     }
 
     sandbox::properties renderer_module_t::serialize_renderer(flecs::entity renderer_entity) {
-        sandbox::modules::logs::debug(const_cast<flecs::world&>(m_world), "[Renderer Module] Serializing renderer entity '{}'.", renderer_entity.name().c_str() ? renderer_entity.name().c_str() : "unknown");
         return sandbox::properties{};
     }
 
     void renderer_module_t::register_renderer(const sandbox::properties& properties) {
         m_renderer = m_world.entity("::renderer").add<spectre_renderer_update_marker_t>();
         
-        flecs::entity on_renderer_phase = m_world.entity("on_renderer");
         m_world.system<spectre_renderer_update_marker_t>("RendererSystem")
-            .kind(on_renderer_phase)
+            .kind(flecs::OnUpdate)
             .each([this](flecs::entity entity, spectre_renderer_update_marker_t&) {
                 this->render_frame();
             });
@@ -282,7 +335,6 @@ namespace spectre::modules {
         flecs::entity current_state = m_world.entity(current_state_id);
 
         if (!current_state.is_valid()) {
-            sandbox::modules::logs::warn(m_world, "[Renderer Module] No valid current state found, falling back to rendering all renderables.");
             auto renderable_query = m_world.query<spectre_renderable_t>();
             renderable_query.each([this](flecs::entity entity, spectre_renderable_t& renderable) {
                 this->render(entity);
@@ -324,6 +376,10 @@ namespace spectre::modules {
         for (const auto& renderable_entity : entities_to_render) {
             this->render(renderable_entity.entity);
         }
+        
+        static int frame_count = 0;
+        if (frame_count++ == 0) {
+        }
 
         EndDrawing();
     }
@@ -357,7 +413,6 @@ namespace spectre::modules {
                     if (rect->outline_thickness > 0) {
                         Color outline_col = { (unsigned char)(rect->outline_color.r * 255), (unsigned char)(rect->outline_color.g * 255), (unsigned char)(rect->outline_color.b * 255), (unsigned char)(rect->outline_color.a * 255) };
                         DrawRectanglePro(ray_rect, origin, rotation, outline_col); // Raylib doesn't have DrawRectangleLinesPro easily out of the box, but we can fake it or use rlgl if needed. DrawRectanglePro is filled, so drawing outline requires manual lines. Let's just draw lines for now without rotation if it's too complex, or rely on DrawRectangleLinesEx if no rotation.
-                        // For simplicity, just log it.
                     }
                 }
             } else {
@@ -371,8 +426,6 @@ namespace spectre::modules {
                     DrawRectangleLinesEx(ray_rect, rect->outline_thickness, outline_col);
                 }
             }
-            
-            sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Renderer Module] Rendered Rectangle (Entity: '{}', Pos: {}, {}, Size: {}x{})", entity_to_render.name().c_str() ? entity_to_render.name().c_str() : "unknown", pos_x, pos_y, rect->width, rect->height);
         }
         if (entity_to_render.has<spectre_polygone_renderable_t>()) {
             const auto* poly = entity_to_render.try_get<spectre_polygone_renderable_t>();

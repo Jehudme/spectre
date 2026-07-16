@@ -51,7 +51,7 @@ namespace spectre::modules {
         flecs::entity m_scripts_root;
         flecs::entity m_script_prefab;
         
-        lua_State* m_lua; // Lua state
+        lua_State* m_lua;
         std::deque<std::string> m_string_pool;
         std::vector<std::vector<spectre_script_argument_type_t>> m_type_pool;
         std::vector<std::vector<const char*>> m_ptr_pool;

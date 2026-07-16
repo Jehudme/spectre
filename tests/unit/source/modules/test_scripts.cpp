@@ -1,6 +1,6 @@
 #include <catch2/catch_all.hpp>
 #include <flecs.h>
-#include "modules/scripts/scripts_module.h"
+#include "../../../../spectre/source/modules/scripts/scripts_module.h"
 #include "modules/serializer/serializer_module.h"
 #include "spectre/spectre.h"
 #include <fstream>

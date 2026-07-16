@@ -1,4 +1,5 @@
 #include <spectre/sdk/window.hpp>
+#include <sandbox/sdk/logs.hpp>
 #include "spectre/services/window_service.h"
 #include "window_module.h"
 
@@ -474,6 +475,8 @@ void spectre_window_deserialize_window(ecs_world_t* world, ecs_entity_t target, 
     if (service && service->api && service->api->deserialize_window) {
         service->api->deserialize_window(world, target, props);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     window_deserialize_window(world, target, props);
 }
@@ -487,6 +490,8 @@ sandbox_properties_handle_t spectre_window_serialize_window(ecs_world_t* world, 
 #endif
     if (service && service->api && service->api->serialize_window) {
         return service->api->serialize_window(world, window);
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return window_serialize_window(world, window);
 }
@@ -501,6 +506,8 @@ void spectre_window_register_window(ecs_world_t* world, sandbox_properties_handl
     if (service && service->api && service->api->register_window) {
         service->api->register_window(world, props);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     window_register_window(world, props);
 }
@@ -520,6 +527,8 @@ bool spectre_window_should_close(ecs_world_t* world) {
     if (service && service->api && service->api->should_close) {
         return service->api->should_close(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return false;
 }
@@ -539,6 +548,8 @@ void spectre_window_set_should_close(ecs_world_t* world, bool close) {
     if (service && service->api && service->api->set_should_close) {
         service->api->set_should_close(world, close);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -558,6 +569,8 @@ void spectre_window_set_size(ecs_world_t* world, uint32_t width, uint32_t height
     if (service && service->api && service->api->set_size) {
         service->api->set_size(world, width, height);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -577,6 +590,8 @@ void spectre_window_set_position(ecs_world_t* world, int32_t x, int32_t y) {
     if (service && service->api && service->api->set_position) {
         service->api->set_position(world, x, y);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -596,6 +611,8 @@ void spectre_window_set_size_limits(ecs_world_t* world, uint32_t min_width, uint
     if (service && service->api && service->api->set_size_limits) {
         service->api->set_size_limits(world, min_width, min_height, max_width, max_height);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -615,6 +632,8 @@ uint32_t spectre_window_get_width(ecs_world_t* world) {
     if (service && service->api && service->api->get_width) {
         return service->api->get_width(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return 0;
 }
@@ -634,6 +653,8 @@ uint32_t spectre_window_get_height(ecs_world_t* world) {
     if (service && service->api && service->api->get_height) {
         return service->api->get_height(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return 0;
 }
@@ -653,6 +674,8 @@ float spectre_window_get_aspect_ratio(ecs_world_t* world) {
     if (service && service->api && service->api->get_aspect_ratio) {
         return service->api->get_aspect_ratio(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return 0;
 }
@@ -672,6 +695,8 @@ int32_t spectre_window_get_position_x(ecs_world_t* world) {
     if (service && service->api && service->api->get_position_x) {
         return service->api->get_position_x(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return 0;
 }
@@ -691,6 +716,8 @@ int32_t spectre_window_get_position_y(ecs_world_t* world) {
     if (service && service->api && service->api->get_position_y) {
         return service->api->get_position_y(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return 0;
 }
@@ -710,6 +737,8 @@ void spectre_window_set_title(ecs_world_t* world, const char* title) {
     if (service && service->api && service->api->set_title) {
         service->api->set_title(world, title);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -729,6 +758,8 @@ void spectre_window_set_vsync(ecs_world_t* world, bool enabled) {
     if (service && service->api && service->api->set_vsync) {
         service->api->set_vsync(world, enabled);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -748,6 +779,8 @@ void spectre_window_set_fullscreen(ecs_world_t* world, bool fullscreen) {
     if (service && service->api && service->api->set_fullscreen) {
         service->api->set_fullscreen(world, fullscreen);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -767,6 +800,8 @@ void spectre_window_set_borderless(ecs_world_t* world, bool borderless) {
     if (service && service->api && service->api->set_borderless) {
         service->api->set_borderless(world, borderless);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -786,6 +821,8 @@ void spectre_window_set_resizable(ecs_world_t* world, bool resizable) {
     if (service && service->api && service->api->set_resizable) {
         service->api->set_resizable(world, resizable);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -805,6 +842,8 @@ void spectre_window_set_always_on_top(ecs_world_t* world, bool always_on_top) {
     if (service && service->api && service->api->set_always_on_top) {
         service->api->set_always_on_top(world, always_on_top);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -824,6 +863,8 @@ const char* spectre_window_get_title(ecs_world_t* world) {
     if (service && service->api && service->api->get_title) {
         return service->api->get_title(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return NULL;
 }
@@ -843,6 +884,8 @@ bool spectre_window_is_vsync(ecs_world_t* world) {
     if (service && service->api && service->api->is_vsync) {
         return service->api->is_vsync(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return false;
 }
@@ -862,6 +905,8 @@ bool spectre_window_is_fullscreen(ecs_world_t* world) {
     if (service && service->api && service->api->is_fullscreen) {
         return service->api->is_fullscreen(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return false;
 }
@@ -881,6 +926,8 @@ bool spectre_window_is_borderless(ecs_world_t* world) {
     if (service && service->api && service->api->is_borderless) {
         return service->api->is_borderless(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return false;
 }
@@ -900,6 +947,8 @@ bool spectre_window_is_resizable(ecs_world_t* world) {
     if (service && service->api && service->api->is_resizable) {
         return service->api->is_resizable(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return false;
 }
@@ -919,6 +968,8 @@ void spectre_window_minimize(ecs_world_t* world) {
     if (service && service->api && service->api->minimize) {
         service->api->minimize(world);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -938,6 +989,8 @@ void spectre_window_maximize(ecs_world_t* world) {
     if (service && service->api && service->api->maximize) {
         service->api->maximize(world);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -957,6 +1010,8 @@ void spectre_window_restore(ecs_world_t* world) {
     if (service && service->api && service->api->restore) {
         service->api->restore(world);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -976,6 +1031,8 @@ void spectre_window_show(ecs_world_t* world) {
     if (service && service->api && service->api->show) {
         service->api->show(world);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -995,6 +1052,8 @@ void spectre_window_hide(ecs_world_t* world) {
     if (service && service->api && service->api->hide) {
         service->api->hide(world);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -1014,6 +1073,8 @@ void spectre_window_request_attention(ecs_world_t* world) {
     if (service && service->api && service->api->request_attention) {
         service->api->request_attention(world);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -1033,6 +1094,8 @@ bool spectre_window_is_minimized(ecs_world_t* world) {
     if (service && service->api && service->api->is_minimized) {
         return service->api->is_minimized(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return false;
 }
@@ -1052,6 +1115,8 @@ bool spectre_window_is_maximized(ecs_world_t* world) {
     if (service && service->api && service->api->is_maximized) {
         return service->api->is_maximized(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return false;
 }
@@ -1071,6 +1136,8 @@ bool spectre_window_is_visible(ecs_world_t* world) {
     if (service && service->api && service->api->is_visible) {
         return service->api->is_visible(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return false;
 }
@@ -1090,6 +1157,8 @@ bool spectre_window_is_focused(ecs_world_t* world) {
     if (service && service->api && service->api->is_focused) {
         return service->api->is_focused(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return false;
 }
@@ -1109,6 +1178,8 @@ bool spectre_window_is_hovered(ecs_world_t* world) {
     if (service && service->api && service->api->is_hovered) {
         return service->api->is_hovered(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return false;
 }
@@ -1128,6 +1199,8 @@ void spectre_window_set_cursor_visible(ecs_world_t* world, bool visible) {
     if (service && service->api && service->api->set_cursor_visible) {
         service->api->set_cursor_visible(world, visible);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -1147,6 +1220,8 @@ void spectre_window_set_cursor_locked(ecs_world_t* world, bool locked) {
     if (service && service->api && service->api->set_cursor_locked) {
         service->api->set_cursor_locked(world, locked);
         return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     
 }
@@ -1166,6 +1241,8 @@ bool spectre_window_is_cursor_visible(ecs_world_t* world) {
     if (service && service->api && service->api->is_cursor_visible) {
         return service->api->is_cursor_visible(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return false;
 }
@@ -1185,6 +1262,8 @@ bool spectre_window_is_cursor_locked(ecs_world_t* world) {
     if (service && service->api && service->api->is_cursor_locked) {
         return service->api->is_cursor_locked(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return false;
 }
@@ -1204,6 +1283,8 @@ void* spectre_window_get_native_handle(ecs_world_t* world) {
     if (service && service->api && service->api->get_native_handle) {
         return service->api->get_native_handle(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return NULL;
 }
@@ -1223,6 +1304,8 @@ bool spectre_window_is_key_down(ecs_world_t* world, int keycode) {
     if (service && service->api && service->api->is_key_down) {
         return service->api->is_key_down(world, keycode);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return false;
 }
@@ -1242,6 +1325,8 @@ bool spectre_window_is_key_pressed(ecs_world_t* world, int keycode) {
     if (service && service->api && service->api->is_key_pressed) {
         return service->api->is_key_pressed(world, keycode);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return false;
 }
@@ -1261,6 +1346,8 @@ bool spectre_window_is_key_released(ecs_world_t* world, int keycode) {
     if (service && service->api && service->api->is_key_released) {
         return service->api->is_key_released(world, keycode);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return false;
 }
@@ -1280,6 +1367,8 @@ float spectre_window_get_mouse_x(ecs_world_t* world) {
     if (service && service->api && service->api->get_mouse_x) {
         return service->api->get_mouse_x(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return 0;
 }
@@ -1299,6 +1388,8 @@ float spectre_window_get_mouse_y(ecs_world_t* world) {
     if (service && service->api && service->api->get_mouse_y) {
         return service->api->get_mouse_y(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return 0;
 }
@@ -1318,6 +1409,8 @@ float spectre_window_get_mouse_delta_x(ecs_world_t* world) {
     if (service && service->api && service->api->get_mouse_delta_x) {
         return service->api->get_mouse_delta_x(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return 0;
 }
@@ -1337,6 +1430,8 @@ float spectre_window_get_mouse_delta_y(ecs_world_t* world) {
     if (service && service->api && service->api->get_mouse_delta_y) {
         return service->api->get_mouse_delta_y(world);
         
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Window Module] Service not initialized!");
     }
     return 0;
 }

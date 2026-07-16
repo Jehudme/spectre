@@ -4,6 +4,8 @@
 #include <iostream>
 #include <algorithm>
 #include <fstream>
+#include <spectre/components/renderer_component.h>
+#include <sandbox/sdk/logs.hpp>
 
 #ifndef APP_RESOURCES_DIR
 #error "APP_RESOURCES_DIR must be defined"
@@ -36,10 +38,6 @@ int main(int argc, char* argv[]) {
         std::vector<std::string> modules;
         props.get_array<std::string>("engine/sandbox", modules);
         std::vector<std::string> mandatory = {
-            "sandbox-configuration@1.0.0", 
-            "sandbox-logs@1.0.0", 
-            "sandbox-filesystem@1.0.0", 
-            "sandbox-runtime@1.0.0",
             "sandbox-application@1.0.0"
         };
         for (const auto& m : mandatory) {
@@ -51,6 +49,7 @@ int main(int argc, char* argv[]) {
 
         if (engine.initialize(props)) {
             flecs::world ecs(static_cast<ecs_world_t*>(engine.get_ecs()));
+            
             sandbox::modules::runtime::run(ecs);
             return 0;
         }

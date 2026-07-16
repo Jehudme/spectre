@@ -1,4 +1,5 @@
 #include "spectre/services/scripts_service.h"
+#include <sandbox/sdk/logs.hpp>
 #include "scripts_module.h"
 #include <flecs.h>
 #include <vector>
