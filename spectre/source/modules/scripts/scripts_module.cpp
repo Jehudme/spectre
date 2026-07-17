@@ -14,6 +14,7 @@
 
 extern "C" {
     int luaopen_spectre_api(lua_State* L);
+    void set_global_world(ecs_world_t* world);
 }
 
 namespace spectre::modules {
@@ -70,6 +71,7 @@ namespace spectre::modules {
         luaL_openlibs(m_lua);
 
         // Initialize SWIG bindings
+        set_global_world(world.c_ptr());
         luaopen_spectre_api(m_lua);
         lua_setglobal(m_lua, "spectre_api");
         
@@ -161,6 +163,13 @@ namespace spectre::modules {
                                 std::string string_value;
                                 arguments_properties.get<std::string>(argument_name, string_value);
                                 script_arguments[index].value.string_value = strdup(string_value.c_str());
+                                break;
+                            }
+                            case SPECTRE_SCRIPT_ARGUMENT_TYPE_ENTITY: {
+                                std::string entity_value;
+                                arguments_properties.get<std::string>(argument_name, entity_value);
+                                if (entity_value.empty()) entity_value = "%self%";
+                                script_arguments[index].value.entity = strdup(entity_value.c_str());
                                 break;
                             }
                             default:

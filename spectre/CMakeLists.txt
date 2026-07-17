@@ -6,6 +6,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Lua REQUIRED)
 
+# Scripts code generation
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/scripts_interface_wrap.cxx
+           ${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generated_components.i
+           ${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/spectre_api_stubs.lua
+    COMMAND python3 generate_stubs.py
+    COMMAND swig -c++ -lua -I${CMAKE_CURRENT_SOURCE_DIR}/../../sandbox/modules/core/include -I${CMAKE_CURRENT_SOURCE_DIR}/include scripts_interface.i
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/scripts_interface.i
+            ${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_stubs.py
+    COMMENT "Generating SWIG bindings for scripts"
+)
+
 # Source files
 set(SOURCES
     source/modules/prefabs/prefabs_service.cpp
@@ -24,7 +37,6 @@ set(SOURCES
     source/modules/serializer/serializer_module.cpp
     source/modules/window/window_service.cpp
     source/modules/window/window_module.cpp
-
 )
 
 # Headers

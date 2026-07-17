@@ -9,6 +9,13 @@
                 "spectre_2D_transform_component_t": {
                     "position_x": 325.0,
                     "position_y": 225.0
+                },
+                "scripts": {
+                    "on_update": {
+                        "0": {
+                            "function": "on_update"
+                        }
+                    }
                 }
             }
         }
