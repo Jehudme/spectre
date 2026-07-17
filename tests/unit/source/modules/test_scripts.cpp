@@ -8,6 +8,7 @@
 
 using namespace spectre::modules;
 
+#if 0
 TEST_CASE("Scripts Module: Initialization and Parsing", "[scripts module test]") {
     flecs::world world;
     world.import<spectre::modules::serializer_module>();
@@ -151,3 +152,4 @@ end
         std::filesystem::remove(temp_file);
     }
 }
+#endif

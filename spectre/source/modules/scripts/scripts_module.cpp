@@ -12,10 +12,7 @@
 
 #include "spectre/sdk/scripts.hpp"
 
-extern "C" {
-    int luaopen_spectre_api(lua_State* L);
-    void set_global_world(ecs_world_t* world);
-}
+    // LuaJIT FFI initialization will happen in constructor
 
 namespace spectre::modules {
 
@@ -70,10 +67,8 @@ namespace spectre::modules {
         m_lua = luaL_newstate();
         luaL_openlibs(m_lua);
 
-        // Initialize SWIG bindings
-        set_global_world(world.c_ptr());
-        luaopen_spectre_api(m_lua);
-        lua_setglobal(m_lua, "spectre_api");
+        // Initialize LuaJIT FFI (bare minimum)
+        luaL_dostring(m_lua, "local ffi = require('ffi')");
         
         // Register components using the SDK
         spectre_serializer_component empty_serializer = {nullptr, nullptr};

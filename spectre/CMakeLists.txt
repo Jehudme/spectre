@@ -4,20 +4,10 @@ project(spectre_plugin VERSION 1.0.0)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Lua REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LUAJIT REQUIRED luajit)
 
-# Scripts code generation
-add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/scripts_interface_wrap.cxx
-           ${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generated_components.i
-           ${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/spectre_api_stubs.lua
-    COMMAND python3 generate_stubs.py
-    COMMAND swig -c++ -lua -I${CMAKE_CURRENT_SOURCE_DIR}/../../sandbox/modules/core/include -I${CMAKE_CURRENT_SOURCE_DIR}/include scripts_interface.i
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/scripts_interface.i
-            ${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_stubs.py
-    COMMENT "Generating SWIG bindings for scripts"
-)
+# Scripts code generation removed
 
 # Source files
 set(SOURCES
@@ -32,7 +22,6 @@ set(SOURCES
     source/modules/scenes/scenes_module.cpp
     source/modules/scripts/scripts_service.cpp
     source/modules/scripts/scripts_module.cpp
-    source/modules/scripts/scripts_interface_wrap.cxx
     source/modules/serializer/serializer_service.cpp
     source/modules/serializer/serializer_module.cpp
     source/modules/window/window_service.cpp
@@ -74,7 +63,7 @@ target_include_directories(spectre_plugin PRIVATE
 target_include_directories(spectre_plugin PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
-    ${LUA_INCLUDE_DIR}
+    ${LUAJIT_INCLUDE_DIRS}
 )
 
 target_include_directories(spectre_plugin_static PRIVATE
@@ -85,7 +74,7 @@ target_include_directories(spectre_plugin_static PRIVATE
 target_include_directories(spectre_plugin_static PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
-    ${LUA_INCLUDE_DIR}
+    ${LUAJIT_INCLUDE_DIRS}
 )
 
 # Link dependencies
@@ -93,14 +82,14 @@ target_link_libraries(spectre_plugin PRIVATE
     sandbox::library
     raylib
     EnTT::EnTT
-    ${LUA_LIBRARIES}
+    ${LUAJIT_LIBRARIES}
 )
 
 target_link_libraries(spectre_plugin_static PRIVATE
     sandbox::library
     raylib
     EnTT::EnTT
-    ${LUA_LIBRARIES}
+    ${LUAJIT_LIBRARIES}
 )
 
 # Copy to bin directory
