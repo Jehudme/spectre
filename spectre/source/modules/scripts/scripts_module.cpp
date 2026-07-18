@@ -79,7 +79,32 @@ namespace spectre::modules {
         .requirement_count = 2
     })
 
-
+    static int custom_vfs_loader(lua_State* L) {
+        const char* modname = luaL_checkstring(L, 1);
+        auto* world = static_cast<ecs_world_t*>(lua_touserdata(L, lua_upvalueindex(1)));
+        
+        std::string path1 = std::string("app://resources/assets/scripts/declarations/stubs/") + modname + ".lua";
+        std::string path2 = std::string("app://resources/assets/scripts/") + modname + ".lua";
+        
+        uint8_t* data = nullptr;
+        size_t data_size = 0;
+        
+        if (!sandbox_filesystem_read_all_bytes(world, path1.c_str(), &data, &data_size)) {
+            if (!sandbox_filesystem_read_all_bytes(world, path2.c_str(), &data, &data_size)) {
+                lua_pushstring(L, "\n\tno file found in sandbox VFS");
+                return 1;
+            }
+        }
+        
+        int status = luaL_loadbuffer(L, (const char*)data, data_size, modname);
+        sandbox_filesystem_free_bytes(world, data);
+        
+        if (status == 0) {
+            return 1;
+        }
+        
+        return lua_error(L);
+    }
         
     void script_module_t::init_ffi_if_needed() {
         if (m_ffi_initialized) return;
@@ -127,6 +152,15 @@ namespace spectre::modules {
         // Expose world to Lua
         lua_pushlightuserdata(m_lua, m_world.c_ptr());
         lua_setglobal(m_lua, "g_world");
+
+        // Register custom VFS require loader
+        lua_getglobal(m_lua, "package");
+        lua_getfield(m_lua, -1, "loaders");
+        int num_loaders = lua_objlen(m_lua, -1);
+        lua_pushlightuserdata(m_lua, m_world.c_ptr());
+        lua_pushcclosure(m_lua, custom_vfs_loader, 1);
+        lua_rawseti(m_lua, -2, num_loaders + 1);
+        lua_pop(m_lua, 2);
 
         // Initialize LuaJIT FFI
         luaL_dostring(m_lua, "local ffi = require('ffi')");
