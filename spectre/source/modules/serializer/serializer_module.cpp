@@ -39,14 +39,16 @@ namespace spectre::modules {
     serializer_module::serializer_module(flecs::world& world) : m_world(world) {
         sandbox::modules::logs::trace(m_world, "[Serializer Module] Initializing...");
 
-        spectre_serializer_component empty_serializer = {nullptr, nullptr};
-        register_serializer_comp(m_world.c_ptr());
-        register_serializer("spectre_serializer_component", empty_serializer);
-
         m_serializer = m_world.entity("::serializers");
         
         m_serializable_prefab = m_world.prefab("::serializers::prefab")
             .set<serializer_t>({});
+
+        auto deserialize_empty = [](ecs_world_t*, ecs_entity_t, sandbox_properties_handle_t) {};
+        auto serialize_empty = [](ecs_world_t*, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
+        spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
+        register_serializer_comp(m_world.c_ptr());
+        register_serializer("spectre_serializer_component", empty_serializer);
             
         sandbox::modules::logs::info(m_world, "[Serializer Module] Initialized successfully.");
     }

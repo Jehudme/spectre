@@ -132,7 +132,9 @@ namespace spectre::modules {
         luaL_dostring(m_lua, "local ffi = require('ffi')");
         
         // Register components using the SDK
-        spectre_serializer_component empty_serializer = {nullptr, nullptr};
+        auto deserialize_empty = [](ecs_world_t*, ecs_entity_t, sandbox_properties_handle_t) {};
+        auto serialize_empty = [](ecs_world_t*, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
+        spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
         
         register_script_comp(m_world.c_ptr());
         spectre::modules::serializer::register_serializer(m_world, "spectre_script_t", &empty_serializer);

@@ -88,7 +88,9 @@ namespace spectre::modules {
         sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Resources Module] Initializing...");
 
         // Register components and relations
-        spectre_serializer_component empty_serializer = {nullptr, nullptr};
+        auto deserialize_empty = [](ecs_world_t*, ecs_entity_t, sandbox_properties_handle_t) {};
+        auto serialize_empty = [](ecs_world_t*, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
+        spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
         spectre_serializer_component resource_comp_serializer = {deserialize_resource_comp_cb, serialize_resource_comp_cb};
         
         register_resource_component(m_world.c_ptr());
