@@ -458,6 +458,7 @@ namespace spectre::modules {
 
     void script_module_t::include_code(std::string_view file_path) {
         if (file_path.substr(file_path.find_last_of(".") + 1) != "lua") return;
+        if (file_path.find("declarations") != std::string_view::npos) return;
 
         init_ffi_if_needed();
 

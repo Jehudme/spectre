@@ -11,7 +11,7 @@ pkg_check_modules(LUAJIT REQUIRED luajit)
 set(FFI_INPUT_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/spectre_ffi_api.h")
 set(FFI_OUTPUT_HEADER "${CMAKE_SOURCE_DIR}/tests/application/resources/app/resources/assets/scripts/declarations/spectre_api.h")
 add_custom_command(
-    OUTPUT ${FFI_OUTPUT_HEADER}
+    OUTPUT ${FFI_OUTPUT_HEADER} "${CMAKE_SOURCE_DIR}/tests/application/resources/app/resources/assets/scripts/declarations/stubs/spectre_api.lua"
     COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_ffi_header.py" 
             ${FFI_INPUT_HEADER} 
             ${FFI_OUTPUT_HEADER}
@@ -20,10 +20,13 @@ add_custom_command(
             "${CMAKE_CURRENT_SOURCE_DIR}/include"
             "${CMAKE_BINARY_DIR}/_deps/flecs-src/distr"
             "${CMAKE_BINARY_DIR}/_deps/flecs-src/include"
-    DEPENDS ${FFI_INPUT_HEADER} ${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_ffi_header.py "${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_ffi_header.py"
-    COMMENT "Generating FFI cdef header for Lua scripts"
+    COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_ffi_stubs.py"
+            ${FFI_OUTPUT_HEADER}
+            "${CMAKE_SOURCE_DIR}/tests/application/resources/app/resources/assets/scripts/declarations/stubs/spectre_api.lua"
+    DEPENDS ${FFI_INPUT_HEADER} "${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_ffi_header.py" "${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_ffi_stubs.py"
+    COMMENT "Generating FFI cdef header and Lua stubs for Lua scripts"
 )
-add_custom_target(generate_ffi_header ALL DEPENDS ${FFI_OUTPUT_HEADER})
+add_custom_target(generate_ffi_header ALL DEPENDS ${FFI_OUTPUT_HEADER} "${CMAKE_SOURCE_DIR}/tests/application/resources/app/resources/assets/scripts/declarations/stubs/spectre_api.lua")
 
 # Source files
 set(SOURCES
