@@ -46,6 +46,27 @@ namespace spectre::modules {
             .member<int>("argument_count").id(); 
     }
 
+    static sandbox_requirement_info_t scripts_requirements[] = {
+        {
+            .kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+            .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+            .name = "logs",
+            .architecture = "sandbox",
+            .version_major = 1,
+            .version_minor = 0,
+            .version_patch = -1
+        },
+        {
+            .kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+            .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+            .name = "filesystem",
+            .architecture = "sandbox::core",
+            .version_major = 1,
+            .version_minor = 0,
+            .version_patch = -1
+        }
+    };
+
     SANDBOX_DECLARE_MODULE(script_module_t, {
         .name = "scripts",
         .description = "Scripts Module",
@@ -54,21 +75,14 @@ namespace spectre::modules {
         .version_minor = 0,
         .version_patch = 0,
         .service = &spectre_scripts_service_t_info,
-        .requirements = nullptr,
-        .requirement_count = 0
+        .requirements = scripts_requirements,
+        .requirement_count = 2
     })
 
-    script_module_t::script_module_t(flecs::world& world) : m_world(world) {
-        sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Scripts Module] Initializing...");
 
-        m_scripts_root = m_world.entity("::scripts");
-        m_script_prefab = m_world.prefab("::scripts::prefab");
-
-        m_lua = luaL_newstate();
-        luaL_openlibs(m_lua);
-
-        // Initialize LuaJIT FFI
-        luaL_dostring(m_lua, "local ffi = require('ffi')");
+        
+    void script_module_t::init_ffi_if_needed() {
+        if (m_ffi_initialized) return;
         
         char** files = nullptr;
         size_t file_count = 0;
@@ -95,9 +109,27 @@ namespace spectre::modules {
                 }
             }
             sandbox_filesystem_free_file_list(m_world.c_ptr(), files, file_count);
+            m_ffi_initialized = true;
         } else {
             sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world), "[Scripts Module] Declarations folder not found");
         }
+    }
+
+    script_module_t::script_module_t(flecs::world& world) : m_world(world), m_ffi_initialized(false) {
+        sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Scripts Module] Initializing...");
+
+        m_scripts_root = m_world.entity("::scripts");
+        m_script_prefab = m_world.prefab("::scripts::prefab");
+
+        m_lua = luaL_newstate();
+        luaL_openlibs(m_lua);
+
+        // Expose world to Lua
+        lua_pushlightuserdata(m_lua, m_world.c_ptr());
+        lua_setglobal(m_lua, "g_world");
+
+        // Initialize LuaJIT FFI
+        luaL_dostring(m_lua, "local ffi = require('ffi')");
         
         // Register components using the SDK
         spectre_serializer_component empty_serializer = {nullptr, nullptr};
@@ -424,6 +456,8 @@ namespace spectre::modules {
 
     void script_module_t::include_code(std::string_view file_path) {
         if (file_path.substr(file_path.find_last_of(".") + 1) != "lua") return;
+
+        init_ffi_if_needed();
 
         std::string source_code = sandbox::modules::filesystem::read_all_text(const_cast<flecs::world&>(m_world), file_path.data());
         if (source_code.empty()) {

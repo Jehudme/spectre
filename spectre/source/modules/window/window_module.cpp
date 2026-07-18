@@ -20,6 +20,27 @@ namespace spectre::modules {
 
     struct spectre_on_event_phase_t {};
 
+    static sandbox_requirement_info_t window_requirements[] = {
+        {
+            .kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+            .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+            .name = "logs",
+            .architecture = "sandbox",
+            .version_major = 1,
+            .version_minor = 0,
+            .version_patch = -1
+        },
+        {
+            .kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+            .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+            .name = "runtime",
+            .architecture = "sandbox",
+            .version_major = 1,
+            .version_minor = 0,
+            .version_patch = -1
+        }
+    };
+
     SANDBOX_DECLARE_MODULE(window_module_t, {
         .name = "window",
         .description = "Window Module",
@@ -28,8 +49,8 @@ namespace spectre::modules {
         .version_minor = 0,
         .version_patch = 0,
         .service = &spectre_window_service_t_info,
-        .requirements = nullptr,
-        .requirement_count = 0
+        .requirements = window_requirements,
+        .requirement_count = 2
     })
 
     window_module_t::window_module_t(flecs::world& world) : m_world(world) {

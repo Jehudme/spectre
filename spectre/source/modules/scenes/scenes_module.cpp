@@ -50,6 +50,18 @@ namespace spectre::modules {
             .member<char>("dummy").id(); 
     }
 
+    static sandbox_requirement_info_t scenes_requirements[] = {
+        {
+            .kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+            .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+            .name = "logs",
+            .architecture = "sandbox",
+            .version_major = 1,
+            .version_minor = 0,
+            .version_patch = -1
+        }
+    };
+
     SANDBOX_DECLARE_MODULE(scenes_module_t, {
         .name = "scenes",
         .description = "Scenes Module",
@@ -58,8 +70,8 @@ namespace spectre::modules {
         .version_minor = 0,
         .version_patch = 0,
         .service = &spectre_scenes_service_t_info,
-        .requirements = nullptr,
-        .requirement_count = 0
+        .requirements = scenes_requirements,
+        .requirement_count = 1
     })
 
     scenes_module_t::scenes_module_t(flecs::world& world) : m_world(world) {

@@ -11,7 +11,7 @@ def main():
     output_file = sys.argv[2]
     include_dirs = sys.argv[3:]
     
-    cmd = ["gcc", "-E", "-xc"]
+    cmd = ["gcc", "-E", "-xc", "-w", "-DSANDBOX_FFI_GENERATION"]
     for inc in include_dirs:
         cmd.append(f"-I{inc}")
     cmd.append(input_file)

@@ -19,5 +19,7 @@ target_link_libraries(spectre_test_application
         -Wl,--no-whole-archive
 )
 
+set_target_properties(spectre_test_application PROPERTIES ENABLE_EXPORTS ON)
+
 # Use the same PCH as spectre
 target_precompile_headers(spectre_test_application PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_SOURCE_DIR}/spectre/source/pch.h>")

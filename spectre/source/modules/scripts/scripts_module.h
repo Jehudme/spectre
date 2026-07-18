@@ -42,6 +42,7 @@ namespace spectre::modules {
         void execute_on_exit(flecs::entity entity);
 
     private:
+        void init_ffi_if_needed();
         scripts_t parse_code(std::string_view code);
         void register_scripts(const scripts_t& scripts);
         void execute_script_with_target(flecs::entity target, flecs::entity script_ent, spectre_script_argument_t* args, size_t arg_count);
@@ -55,5 +56,6 @@ namespace spectre::modules {
         std::deque<std::string> m_string_pool;
         std::vector<std::vector<spectre_script_argument_type_t>> m_type_pool;
         std::vector<std::vector<const char*>> m_ptr_pool;
+        bool m_ffi_initialized = false;
     };
 }

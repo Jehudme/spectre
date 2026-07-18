@@ -14,6 +14,18 @@ namespace spectre::modules {
     static void deserialize_entity_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle);
     static sandbox_properties_handle_t serialize_entity_cb(ecs_world_t* world, ecs_entity_t entity_id);
 
+    static sandbox_requirement_info_t prefabs_requirements[] = {
+        {
+            .kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+            .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+            .name = "logs",
+            .architecture = "sandbox",
+            .version_major = 1,
+            .version_minor = 0,
+            .version_patch = -1
+        }
+    };
+
     SANDBOX_DECLARE_MODULE(prefabs_module_t, {
         .name = "prefabs",
         .description = "Prefabs Module",
@@ -22,8 +34,8 @@ namespace spectre::modules {
         .version_minor = 0,
         .version_patch = 0,
         .service = &spectre_prefabs_service_t_info,
-        .requirements = nullptr,
-        .requirement_count = 0
+        .requirements = prefabs_requirements,
+        .requirement_count = 1
     })
 
     prefabs_module_t::prefabs_module_t(flecs::world& world) : m_world(world) {

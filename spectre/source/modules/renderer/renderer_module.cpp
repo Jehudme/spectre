@@ -15,6 +15,18 @@
 
 namespace spectre::modules {
 
+    static sandbox_requirement_info_t renderer_requirements[] = {
+        {
+            .kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+            .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+            .name = "logs",
+            .architecture = "sandbox",
+            .version_major = 1,
+            .version_minor = 0,
+            .version_patch = -1
+        }
+    };
+
     SANDBOX_DECLARE_MODULE(renderer_module_t, {
         .name = "renderer",
         .description = "Renderer Module",
@@ -23,8 +35,8 @@ namespace spectre::modules {
         .version_minor = 0,
         .version_patch = 0,
         .service = &spectre_renderer_service_t_info,
-        .requirements = nullptr,
-        .requirement_count = 0
+        .requirements = renderer_requirements,
+        .requirement_count = 1
     })
 
     static void deserialize_renderer_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle) {

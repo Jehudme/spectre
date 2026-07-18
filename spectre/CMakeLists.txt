@@ -20,7 +20,7 @@ add_custom_command(
             "${CMAKE_CURRENT_SOURCE_DIR}/include"
             "${CMAKE_BINARY_DIR}/_deps/flecs-src/distr"
             "${CMAKE_BINARY_DIR}/_deps/flecs-src/include"
-    DEPENDS ${FFI_INPUT_HEADER} "${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_ffi_header.py"
+    DEPENDS ${FFI_INPUT_HEADER} ${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_ffi_header.py "${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_ffi_header.py"
     COMMENT "Generating FFI cdef header for Lua scripts"
 )
 add_custom_target(generate_ffi_header ALL DEPENDS ${FFI_OUTPUT_HEADER})

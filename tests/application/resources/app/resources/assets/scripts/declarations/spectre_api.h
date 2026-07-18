@@ -8,9 +8,6 @@ typedef uint32_t u32;
 typedef uint64_t u64;
 typedef float f32;
 typedef double f64;
-/home/jehud/CLionProjects/spectre/spectre/source/modules/scripts/spectre_ffi_api.h:1:9: warning: #pragma once in main file
-1 | #pragma once
-// |         ^~~~
 typedef uint8_t ecs_flags8_t;
 typedef uint16_t ecs_flags16_t;
 typedef uint32_t ecs_flags32_t;
@@ -4535,9 +4532,7 @@ typedef struct sandbox_application_api_t {
 _Bool
 (*is_running)(ecs_world_t* ecs);
 } sandbox_application_api_t;
-typedef struct sandbox_application_service_t { sandbox_application_api_t* api; const sandbox_service_info_t* info; } sandbox_application_service_t; extern ecs_entity_t FLECS_IDsandbox_application_service_tID_; static const sandbox_service_info_t sandbox_application_service_t_info_decl = { .struct_size = 0, .name = "application", .description = "Application lifecycle service", .architecture = "sandbox", .version_major = 1, .version_minor = 0, .init_fn =
-((void *)0)
-}; extern sandbox_service_info_t sandbox_application_service_t_info;
+typedef struct sandbox_application_service_t { sandbox_application_api_t* api; const sandbox_service_info_t* info; } sandbox_application_service_t; extern ecs_entity_t FLECS_IDsandbox_application_service_tID_; extern sandbox_service_info_t sandbox_application_service_t_info;
 ;
 _Bool
 sandbox_application_is_running(ecs_world_t* ecs);
@@ -4596,7 +4591,7 @@ void sandbox_properties_set_string_array(sandbox_properties_handle_t props, cons
 typedef struct {
 sandbox_properties_handle_t (*get_properties)(ecs_world_t* ecs);
 } sandbox_configuration_api_t;
-typedef struct sandbox_configuration_service_t { sandbox_configuration_api_t* api; const sandbox_service_info_t* info; } sandbox_configuration_service_t; extern ecs_entity_t FLECS_IDsandbox_configuration_service_tID_; static const sandbox_service_info_t sandbox_configuration_service_t_info_decl = { .name = "configuration", .description = "The configuration service for global properties", .architecture = "sandbox", .version_major = 1, .version_minor = 0 }; extern sandbox_service_info_t sandbox_configuration_service_t_info;
+typedef struct sandbox_configuration_service_t { sandbox_configuration_api_t* api; const sandbox_service_info_t* info; } sandbox_configuration_service_t; extern ecs_entity_t FLECS_IDsandbox_configuration_service_tID_; extern sandbox_service_info_t sandbox_configuration_service_t_info;
 sandbox_properties_handle_t sandbox_configuration_get_properties(ecs_world_t* ecs);
 typedef struct { uintptr_t token; } sandbox_file_handle_t;
 typedef struct sandbox_filesystem_api_t {
@@ -4664,9 +4659,7 @@ _Bool
 (*read_all_bytes)(ecs_world_t* ecs, const char* virtual_path, uint8_t** out_data, size_t* out_size);
 void (*free_bytes)(ecs_world_t* ecs, uint8_t* data);
 } sandbox_filesystem_api_t;
-// typedef struct sandbox_filesystem_service_t { sandbox_filesystem_api_t* api; const sandbox_service_info_t* info; } sandbox_filesystem_service_t; extern ecs_entity_t FLECS_IDsandbox_filesystem_service_tID_; static const sandbox_service_info_t sandbox_filesystem_service_t_info_decl = { .struct_size = 0, .name = "filesystem", .description = "Filesystem module service", .architecture = "sandbox::core", .version_major = 1, .version_minor = 0, .init_fn =
-((void *)0)
-}; extern sandbox_service_info_t sandbox_filesystem_service_t_info;
+typedef struct sandbox_filesystem_service_t { sandbox_filesystem_api_t* api; const sandbox_service_info_t* info; } sandbox_filesystem_service_t; extern ecs_entity_t FLECS_IDsandbox_filesystem_service_tID_; extern sandbox_service_info_t sandbox_filesystem_service_t_info;
 ;
 _Bool
 sandbox_filesystem_mount(ecs_world_t* ecs, const char* physical_path, const char* virtual_mount_point,
@@ -4743,7 +4736,7 @@ void sandbox_logs_debug(ecs_world_t* ecs, const char* msg);
 void sandbox_logs_info(ecs_world_t* ecs, const char* msg);
 void sandbox_logs_warn(ecs_world_t* ecs, const char* msg);
 void sandbox_logs_error(ecs_world_t* ecs, const char* msg);
-typedef struct sandbox_logs_service_t { sandbox_logs_api_t* api; const sandbox_service_info_t* info; } sandbox_logs_service_t; extern ecs_entity_t FLECS_IDsandbox_logs_service_tID_; static const sandbox_service_info_t sandbox_logs_service_t_info_decl = { .name = "logs", .description = "The logging service", .architecture = "sandbox", .version_major = 1, .version_minor = 0 }; extern sandbox_service_info_t sandbox_logs_service_t_info;
+typedef struct sandbox_logs_service_t { sandbox_logs_api_t* api; const sandbox_service_info_t* info; } sandbox_logs_service_t; extern ecs_entity_t FLECS_IDsandbox_logs_service_tID_; extern sandbox_service_info_t sandbox_logs_service_t_info;
 typedef struct sandbox_runtime_api_t {
 void (*run)(ecs_world_t* ecs);
 void (*start)(ecs_world_t* ecs);
@@ -4751,7 +4744,7 @@ void (*stop)(ecs_world_t* ecs);
 void (*pause)(ecs_world_t* ecs);
 void (*resume)(ecs_world_t* ecs);
 } sandbox_runtime_api_t;
-typedef struct sandbox_runtime_service_t { sandbox_runtime_api_t* api; const sandbox_service_info_t* info; } sandbox_runtime_service_t; extern ecs_entity_t FLECS_IDsandbox_runtime_service_tID_; static const sandbox_service_info_t sandbox_runtime_service_t_info_decl = { .name = "runtime", .description = "Global runtime module service", .architecture = "sandbox", .version_major = 1, .version_minor = 0, }; extern sandbox_service_info_t sandbox_runtime_service_t_info;
+typedef struct sandbox_runtime_service_t { sandbox_runtime_api_t* api; const sandbox_service_info_t* info; } sandbox_runtime_service_t; extern ecs_entity_t FLECS_IDsandbox_runtime_service_tID_; extern sandbox_service_info_t sandbox_runtime_service_t_info;
 void sandbox_runtime_run(ecs_world_t* ecs);
 void sandbox_runtime_start(ecs_world_t* ecs);
 void sandbox_runtime_stop(ecs_world_t* ecs);
@@ -4921,9 +4914,7 @@ ecs_entity_t (*create_entity_from_props)(ecs_world_t* world, sandbox_properties_
 ecs_entity_t (*create_entity_from_prefab)(ecs_world_t* world, ecs_entity_t prefab);
 ecs_entity_t (*create_entity_from_name)(ecs_world_t* world, const char* name);
 } spectre_prefabs_api_t;
-typedef struct spectre_prefabs_service_t { spectre_prefabs_api_t* api; const sandbox_service_info_t* info; } spectre_prefabs_service_t; extern ecs_entity_t FLECS_IDspectre_prefabs_service_tID_; static const sandbox_service_info_t spectre_prefabs_service_t_info_decl = { .struct_size = 0, .name = "prefabs", .description = "Prefabs Service", .architecture = "spectre", .version_major = 1, .version_minor = 0, .init_fn =
-((void *)0)
-}; extern sandbox_service_info_t spectre_prefabs_service_t_info;
+typedef struct spectre_prefabs_service_t { spectre_prefabs_api_t* api; const sandbox_service_info_t* info; } spectre_prefabs_service_t; extern ecs_entity_t FLECS_IDspectre_prefabs_service_tID_; extern sandbox_service_info_t spectre_prefabs_service_t_info;
 ;
 sandbox_properties_handle_t spectre_prefabs_serialize_entity(ecs_world_t* world, ecs_entity_t entity);
 void spectre_prefabs_deserialize_entity(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
@@ -4943,9 +4934,7 @@ void (*register_renderer)(ecs_world_t* world, sandbox_properties_handle_t props)
 _Bool
 (*is_renderer)(ecs_world_t* world);
 } spectre_renderer_api_t;
-typedef struct spectre_renderer_service_t { spectre_renderer_api_t* api; const sandbox_service_info_t* info; } spectre_renderer_service_t; extern ecs_entity_t FLECS_IDspectre_renderer_service_tID_; static const sandbox_service_info_t spectre_renderer_service_t_info_decl = { .struct_size = 0, .name = "renderer", .description = "Renderer Service", .architecture = "spectre", .version_major = 1, .version_minor = 0, .init_fn =
-((void *)0)
-}; extern sandbox_service_info_t spectre_renderer_service_t_info;
+typedef struct spectre_renderer_service_t { spectre_renderer_api_t* api; const sandbox_service_info_t* info; } spectre_renderer_service_t; extern ecs_entity_t FLECS_IDspectre_renderer_service_tID_; extern sandbox_service_info_t spectre_renderer_service_t_info;
 ;
 void spectre_renderer_deserialize_renderer(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
 sandbox_properties_handle_t spectre_renderer_serialize_renderer(ecs_world_t* world, ecs_entity_t renderer);
@@ -4971,9 +4960,7 @@ void (*load_resource)(ecs_world_t* world, ecs_entity_t resourceEntity);
 void (*free_resource)(ecs_world_t* world, ecs_entity_t resourceEntity);
 void* (*get_resource)(ecs_world_t* world, ecs_entity_t resourceEntity);
 } spectre_resources_api_t;
-typedef struct spectre_resources_service_t { spectre_resources_api_t* api; const sandbox_service_info_t* info; } spectre_resources_service_t; extern ecs_entity_t FLECS_IDspectre_resources_service_tID_; static const sandbox_service_info_t spectre_resources_service_t_info_decl = { .struct_size = 0, .name = "resources", .description = "Resources Service", .architecture = "spectre", .version_major = 1, .version_minor = 0, .init_fn =
-((void *)0)
-}; extern sandbox_service_info_t spectre_resources_service_t_info;
+typedef struct spectre_resources_service_t { spectre_resources_api_t* api; const sandbox_service_info_t* info; } spectre_resources_service_t; extern ecs_entity_t FLECS_IDspectre_resources_service_tID_; extern sandbox_service_info_t spectre_resources_service_t_info;
 ;
 void spectre_resources_deserialize_resource(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
 sandbox_properties_handle_t spectre_resources_serialize_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
@@ -5015,9 +5002,7 @@ void (*push_state)(ecs_world_t* world, ecs_entity_t state);
 void (*pop_state)(ecs_world_t* world);
 void (*execute_recursive)(ecs_world_t* world, ecs_entity_t entity, spectre_recursive_callback_t callback, void* payload);
 } spectre_scenes_api_t;
-typedef struct spectre_scenes_service_t { spectre_scenes_api_t* api; const sandbox_service_info_t* info; } spectre_scenes_service_t; extern ecs_entity_t FLECS_IDspectre_scenes_service_tID_; static const sandbox_service_info_t spectre_scenes_service_t_info_decl = { .struct_size = 0, .name = "scenes", .description = "Scenes Service", .architecture = "spectre", .version_major = 1, .version_minor = 0, .init_fn =
-((void *)0)
-}; extern sandbox_service_info_t spectre_scenes_service_t_info;
+typedef struct spectre_scenes_service_t { spectre_scenes_api_t* api; const sandbox_service_info_t* info; } spectre_scenes_service_t; extern ecs_entity_t FLECS_IDspectre_scenes_service_tID_; extern sandbox_service_info_t spectre_scenes_service_t_info;
 ;
 sandbox_properties_handle_t spectre_scenes_serialize_state(ecs_world_t* world, ecs_entity_t state);
 void spectre_scenes_deserialize_state(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
@@ -5056,9 +5041,7 @@ void (*execute_on_update)(ecs_world_t* world, ecs_entity_t entity);
 void (*execute_on_enter)(ecs_world_t* world, ecs_entity_t entity);
 void (*execute_on_exit)(ecs_world_t* world, ecs_entity_t entity);
 } spectre_scripts_api_t;
-typedef struct spectre_scripts_service_t { spectre_scripts_api_t* api; const sandbox_service_info_t* info; } spectre_scripts_service_t; extern ecs_entity_t FLECS_IDspectre_scripts_service_tID_; static const sandbox_service_info_t spectre_scripts_service_t_info_decl = { .struct_size = 0, .name = "scripts", .description = "Scripts Service", .architecture = "spectre", .version_major = 1, .version_minor = 0, .init_fn =
-((void *)0)
-}; extern sandbox_service_info_t spectre_scripts_service_t_info;
+typedef struct spectre_scripts_service_t { spectre_scripts_api_t* api; const sandbox_service_info_t* info; } spectre_scripts_service_t; extern ecs_entity_t FLECS_IDspectre_scripts_service_tID_; extern sandbox_service_info_t spectre_scripts_service_t_info;
 ;
 _Bool
 spectre_scripts_has_script(ecs_world_t* world, const char* function_name, const spectre_script_argument_type_t* arg_types, size_t arg_count);
@@ -5084,9 +5067,7 @@ ecs_entity_t (*find_serializer)(ecs_world_t* world, const char* type);
 sandbox_properties_handle_t (*serialize_entity)(ecs_world_t* world, ecs_entity_t serializer, ecs_entity_t entity);
 void (*deserialize_entity)(ecs_world_t* world, ecs_entity_t serializer, ecs_entity_t entity, sandbox_properties_handle_t props);
 } spectre_serializer_api_t;
-typedef struct spectre_serializer_service_t { spectre_serializer_api_t* api; const sandbox_service_info_t* info; } spectre_serializer_service_t; extern ecs_entity_t FLECS_IDspectre_serializer_service_tID_; static const sandbox_service_info_t spectre_serializer_service_t_info_decl = { .struct_size = 0, .name = "serializer", .description = "Serializer Service", .architecture = "spectre", .version_major = 1, .version_minor = 0, .init_fn =
-((void *)0)
-}; extern sandbox_service_info_t spectre_serializer_service_t_info;
+typedef struct spectre_serializer_service_t { spectre_serializer_api_t* api; const sandbox_service_info_t* info; } spectre_serializer_service_t; extern ecs_entity_t FLECS_IDspectre_serializer_service_tID_; extern sandbox_service_info_t spectre_serializer_service_t_info;
 ;
 void spectre_serializer_register_serializer(ecs_world_t* world, const char* type, const spectre_serializer_component* serializer);
 _Bool
@@ -5176,9 +5157,7 @@ float (*get_mouse_y)(ecs_world_t* world);
 float (*get_mouse_delta_x)(ecs_world_t* world);
 float (*get_mouse_delta_y)(ecs_world_t* world);
 } spectre_window_api_t;
-typedef struct spectre_window_service_t { spectre_window_api_t* api; const sandbox_service_info_t* info; } spectre_window_service_t; extern ecs_entity_t FLECS_IDspectre_window_service_tID_; static const sandbox_service_info_t spectre_window_service_t_info_decl = { .struct_size = 0, .name = "window", .description = "Window Service", .architecture = "spectre", .version_major = 1, .version_minor = 0, .init_fn =
-((void *)0)
-}; extern sandbox_service_info_t spectre_window_service_t_info;
+typedef struct spectre_window_service_t { spectre_window_api_t* api; const sandbox_service_info_t* info; } spectre_window_service_t; extern ecs_entity_t FLECS_IDspectre_window_service_tID_; extern sandbox_service_info_t spectre_window_service_t_info;
 ;
 void spectre_window_deserialize_window(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
 sandbox_properties_handle_t spectre_window_serialize_window(ecs_world_t* world, ecs_entity_t window);

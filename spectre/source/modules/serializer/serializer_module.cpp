@@ -9,6 +9,18 @@
 
 namespace spectre::modules {
 
+    static sandbox_requirement_info_t serializer_requirements[] = {
+        {
+            .kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+            .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+            .name = "logs",
+            .architecture = "sandbox",
+            .version_major = 1,
+            .version_minor = 0,
+            .version_patch = -1
+        }
+    };
+
     SANDBOX_DECLARE_MODULE(serializer_module, {
         .name = "serializer",
         .description = "Serializer Module",
@@ -17,8 +29,8 @@ namespace spectre::modules {
         .version_minor = 0,
         .version_patch = 0,
         .service = &spectre_serializer_service_t_info,
-        .requirements = nullptr,
-        .requirement_count = 0
+        .requirements = serializer_requirements,
+        .requirement_count = 1
     })
 
     // Component Registration Callbacks
