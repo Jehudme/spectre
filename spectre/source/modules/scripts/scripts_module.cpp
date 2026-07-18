@@ -83,7 +83,7 @@ namespace spectre::modules {
         const char* modname = luaL_checkstring(L, 1);
         auto* world = static_cast<ecs_world_t*>(lua_touserdata(L, lua_upvalueindex(1)));
         
-        std::string path1 = std::string("app://resources/assets/scripts/declarations/stubs/") + modname + ".lua";
+        std::string path1 = std::string("app://resources/assets/scripts/wrappers/") + modname + ".lua";
         std::string path2 = std::string("app://resources/assets/scripts/") + modname + ".lua";
         
         uint8_t* data = nullptr;
@@ -91,8 +91,14 @@ namespace spectre::modules {
         
         if (!sandbox_filesystem_read_all_bytes(world, path1.c_str(), &data, &data_size)) {
             if (!sandbox_filesystem_read_all_bytes(world, path2.c_str(), &data, &data_size)) {
-                lua_pushstring(L, "\n\tno file found in sandbox VFS");
-                return 1;
+                // Also check if they try to require with dots, convert to slashes
+                std::string modpath = modname;
+                std::replace(modpath.begin(), modpath.end(), '.', '/');
+                std::string path3 = std::string("app://resources/assets/scripts/") + modpath + ".lua";
+                if (!sandbox_filesystem_read_all_bytes(world, path3.c_str(), &data, &data_size)) {
+                    lua_pushstring(L, "\n\tno file found in sandbox VFS");
+                    return 1;
+                }
             }
         }
         
@@ -111,7 +117,7 @@ namespace spectre::modules {
         
         char** files = nullptr;
         size_t file_count = 0;
-        if (sandbox_filesystem_list_files(m_world.c_ptr(), "app://resources/assets/scripts/declarations", false, &files, &file_count)) {
+        if (sandbox_filesystem_list_files(m_world.c_ptr(), "app://resources/assets/scripts/headers", false, &files, &file_count)) {
             for (size_t i = 0; i < file_count; ++i) {
                 if (std::string(files[i]).find(".h") != std::string::npos) {
                     uint8_t* data = nullptr;

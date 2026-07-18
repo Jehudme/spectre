@@ -74,6 +74,6 @@ def parse_header(content):
 
     return "\n".join(stubs)
 
-with open("/home/jehud/CLionProjects/spectre/tests/application/resources/app/resources/assets/scripts/declarations/spectre_api.h", "r") as f:
+with open("/tests/application/resources/app/resources/assets/scripts/headers/spectre_api.h", "r") as f:
     res = parse_header(f.read())
 print(len(res.splitlines()))
