@@ -67,8 +67,37 @@ namespace spectre::modules {
         m_lua = luaL_newstate();
         luaL_openlibs(m_lua);
 
-        // Initialize LuaJIT FFI (bare minimum)
+        // Initialize LuaJIT FFI
         luaL_dostring(m_lua, "local ffi = require('ffi')");
+        
+        char** files = nullptr;
+        size_t file_count = 0;
+        if (sandbox_filesystem_list_files(m_world.c_ptr(), "app://resources/assets/scripts/declarations", false, &files, &file_count)) {
+            for (size_t i = 0; i < file_count; ++i) {
+                if (std::string(files[i]).find(".h") != std::string::npos) {
+                    uint8_t* data = nullptr;
+                    size_t data_size = 0;
+                    if (sandbox_filesystem_read_all_bytes(m_world.c_ptr(), files[i], &data, &data_size)) {
+                        std::string cdef_content((const char*)data, data_size);
+                        sandbox_filesystem_free_bytes(m_world.c_ptr(), data);
+                        
+                        lua_getglobal(m_lua, "require");
+                        lua_pushstring(m_lua, "ffi");
+                        lua_pcall(m_lua, 1, 1, 0);
+                        lua_getfield(m_lua, -1, "cdef");
+                        lua_pushlstring(m_lua, cdef_content.c_str(), cdef_content.size());
+                        if (lua_pcall(m_lua, 1, 0, 0) != LUA_OK) {
+                            sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Scripts Module] FFI cdef error in {}: {}", files[i], lua_tostring(m_lua, -1));
+                            lua_pop(m_lua, 1);
+                        }
+                        lua_pop(m_lua, 1); // pop ffi
+                    }
+                }
+            }
+            sandbox_filesystem_free_file_list(m_world.c_ptr(), files, file_count);
+        } else {
+            sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world), "[Scripts Module] Declarations folder not found");
+        }
         
         // Register components using the SDK
         spectre_serializer_component empty_serializer = {nullptr, nullptr};
@@ -394,6 +423,8 @@ namespace spectre::modules {
     }
 
     void script_module_t::include_code(std::string_view file_path) {
+        if (file_path.substr(file_path.find_last_of(".") + 1) != "lua") return;
+
         std::string source_code = sandbox::modules::filesystem::read_all_text(const_cast<flecs::world&>(m_world), file_path.data());
         if (source_code.empty()) {
             sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Scripts Module] Failed to open/read script: {}", file_path);

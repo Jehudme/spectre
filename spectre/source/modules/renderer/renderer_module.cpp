@@ -473,10 +473,6 @@ namespace spectre::modules {
         if (entity_to_render.has<spectre_rectange_renderable_t>()) {
             const auto* rect = entity_to_render.try_get<spectre_rectange_renderable_t>();
             if (rect) {
-                std::cout << "Rendering rect: w=" << rect->width << ", h=" << rect->height 
-                          << ", fill=" << rect->fill_color.r << "," << rect->fill_color.g << "," << rect->fill_color.b
-                          << ", outline=" << rect->outline_color.r << "," << rect->outline_color.g << "," << rect->outline_color.b
-                          << std::endl;
                 DrawRectangle(0, 0, (int)rect->width, (int)rect->height, to_raylib_color(rect->fill_color));
                 if (rect->outline_thickness > 0) {
                     DrawRectangleLinesEx(Rectangle{0, 0, rect->width, rect->height}, rect->outline_thickness, to_raylib_color(rect->outline_color));

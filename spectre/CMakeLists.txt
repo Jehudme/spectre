@@ -7,7 +7,23 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LUAJIT REQUIRED luajit)
 
-# Scripts code generation removed
+# Scripts code generation
+set(FFI_INPUT_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/spectre_ffi_api.h")
+set(FFI_OUTPUT_HEADER "${CMAKE_SOURCE_DIR}/tests/application/resources/app/resources/assets/scripts/declarations/spectre_api.h")
+add_custom_command(
+    OUTPUT ${FFI_OUTPUT_HEADER}
+    COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_ffi_header.py" 
+            ${FFI_INPUT_HEADER} 
+            ${FFI_OUTPUT_HEADER}
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../sandbox/modules/core/include"
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../sandbox/sandbox/include"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            "${CMAKE_BINARY_DIR}/_deps/flecs-src/distr"
+            "${CMAKE_BINARY_DIR}/_deps/flecs-src/include"
+    DEPENDS ${FFI_INPUT_HEADER} "${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_ffi_header.py"
+    COMMENT "Generating FFI cdef header for Lua scripts"
+)
+add_custom_target(generate_ffi_header ALL DEPENDS ${FFI_OUTPUT_HEADER})
 
 # Source files
 set(SOURCES
