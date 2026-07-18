@@ -12,8 +12,6 @@
 
 #include "spectre/sdk/scripts.hpp"
 
-    // LuaJIT FFI initialization will happen in constructor
-
 namespace spectre::modules {
 
     static void deserialize_script_args_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle);
@@ -83,7 +81,7 @@ namespace spectre::modules {
         const char* modname = luaL_checkstring(L, 1);
         auto* world = static_cast<ecs_world_t*>(lua_touserdata(L, lua_upvalueindex(1)));
         
-        std::string path1 = std::string("app://resources/assets/scripts/wrappers/") + modname + ".lua";
+        std::string path1 = std::string("app://resources/assets/scripts/externals/") + modname + ".lua";
         std::string path2 = std::string("app://resources/assets/scripts/") + modname + ".lua";
         
         uint8_t* data = nullptr;

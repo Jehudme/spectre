@@ -7,34 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LUAJIT REQUIRED luajit)
 
-# Scripts code generation
-set(HEADERS_DIR "${CMAKE_SOURCE_DIR}/tests/application/resources/app/resources/assets/scripts/headers")
-set(WRAPPERS_DIR "${CMAKE_SOURCE_DIR}/tests/application/resources/app/resources/assets/scripts/wrappers")
-add_custom_command(
-    OUTPUT "${HEADERS_DIR}/spectre.h" "${HEADERS_DIR}/sandbox.h" "${HEADERS_DIR}/flecs.h"
-           "${WRAPPERS_DIR}/spectre.lua" "${WRAPPERS_DIR}/sandbox.lua"
-    COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_header.py" 
-            ${HEADERS_DIR}
-            "${CMAKE_CURRENT_SOURCE_DIR}/../../sandbox/modules/core/include"
-            "${CMAKE_CURRENT_SOURCE_DIR}/../../sandbox/sandbox/include"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include"
-            "${CMAKE_BINARY_DIR}/_deps/flecs-src/distr"
-            "${CMAKE_BINARY_DIR}/_deps/flecs-src/include"
-    COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_wrappers.py"
-            "spectre"
-            "${HEADERS_DIR}/spectre.h"
-            "${HEADERS_DIR}/stubs/spectre.lua"
-            "${WRAPPERS_DIR}/spectre.lua"
-    COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_wrappers.py"
-            "sandbox"
-            "${HEADERS_DIR}/sandbox.h"
-            "${HEADERS_DIR}/stubs/sandbox.lua"
-            "${WRAPPERS_DIR}/sandbox.lua"
-    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_header.py" "${CMAKE_CURRENT_SOURCE_DIR}/source/modules/scripts/generate_wrappers.py"
-    COMMENT "Generating separate FFI headers and Wrappers for Lua scripts"
-)
-add_custom_target(generate_ffi_header ALL DEPENDS "${HEADERS_DIR}/spectre.h" "${WRAPPERS_DIR}/spectre.lua" "${WRAPPERS_DIR}/sandbox.lua")
-
 # Source files
 set(SOURCES
     source/modules/prefabs/prefabs_service.cpp
@@ -107,14 +79,12 @@ target_include_directories(spectre_plugin_static PUBLIC
 target_link_libraries(spectre_plugin PRIVATE
     sandbox::library
     raylib
-    EnTT::EnTT
     ${LUAJIT_LIBRARIES}
 )
 
 target_link_libraries(spectre_plugin_static PRIVATE
     sandbox::library
     raylib
-    EnTT::EnTT
     ${LUAJIT_LIBRARIES}
 )
 
