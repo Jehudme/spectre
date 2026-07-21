@@ -5025,11 +5025,6 @@ function ret.init()
   return ffi.gc(register_world(ffi.C.ecs_init()), finish_world)
 end
 
-function ret.from_ptr(world_ptr)
-  local world = ffi.cast("ecs_world_t*", world_ptr)
-  return register_world(world)
-end
-
 function ret.mini()
   return ffi.gc(register_world(ffi.C.ecs_mini()), finish_world)
 end
