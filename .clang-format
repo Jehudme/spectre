@@ -1,22 +1,62 @@
+---
+Language: Cpp
 BasedOnStyle: LLVM
-IndentWidth: 4
+Standard: Latest
 ColumnLimit: 120
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
 
-# Fixes the extreme parameter pushing inside function pointers & structs
-AlignAfterOpenBracket: DontAlign
-AlignConsecutiveDeclarations: false
-
-# Keeps return types on the same line as function names
-AlwaysBreakAfterDefinitionReturnType: None
+# --- Function Signatures & Parameters ---
+AlignAfterOpenBracket: AlwaysBreak
+BinPackParameters: false
+BinPackArguments: false
 AlwaysBreakAfterReturnType: None
+AlwaysBreakAfterDefinitionReturnType: None
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortBlocksOnASingleLine: Never
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
 
-# Fixes formatting for macros like SANDBOX_DECLARE_SERVICE
-Cpp11BracedListStyle: true
+# --- Macro Handling ---
+StatementMacros:
+  - SANDBOX_API
+WhitespaceSensitiveMacros:
+  - SANDBOX_DECLARE_SERVICE
+
+# --- Braces & Struct / Array Initializer Lists ---
+Cpp11BracedListStyle: false
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterInitializerList: Always
+  BeforeElse: false
+  AfterClass: false
+  AfterControlStatement: Never
+  AfterFunction: false
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
+  AfterExternBlock: false
+  BeforeCatch: false
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+
+# --- Pointers & Preprocessor ---
+PointerAlignment: Right
+MaxEmptyLinesToKeep: 1
+KeepEmptyLinesAtTheStartOfBlocks: false
 IndentPPDirectives: AfterHash
 
-# Keeps pointer alignment clean (e.g. ecs_world_t *world)
-PointerAlignment: Right
+# --- Alignment & Layout Rules ---
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignConsecutiveMacros: true
+AlignEscapedNewlines: Left
+AlignOperands: Align
 
-# Macro penalty fixes (prevents forcing ugly line breaks inside macro calls)
+# --- Formatting Penalties (Avoids unnatural line splits) ---
+PenaltyReturnTypeOnItsOwnLine: 10000
 PenaltyBreakAssignment: 100
 PenaltyExcessCharacter: 10
+...
