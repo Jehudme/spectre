@@ -6,9 +6,15 @@
 extern "C" {
 #endif
 
-typedef struct spectre_use_loader_relation_t { char dummy; } spectre_resource_loader_relation;
-typedef struct spectre_use_resource_relation_t { char dummy; } spectre_use_resource_relation;
-typedef struct spectre_resource_loaded_flag_t { char dummy; } spectre_resource_flag_t;
+typedef struct spectre_use_loader_relation_t {
+    char dummy;
+} spectre_resource_loader_relation;
+typedef struct spectre_use_resource_relation_t {
+    char dummy;
+} spectre_use_resource_relation;
+typedef struct spectre_resource_loaded_flag_t {
+    char dummy;
+} spectre_resource_flag_t;
 
 typedef struct spectre_resource_component_t {
     const char* path;

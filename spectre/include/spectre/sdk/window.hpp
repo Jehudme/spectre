@@ -3,9 +3,10 @@
 
 #ifdef __cplusplus
 namespace spectre::modules {
-    class window {
-    public:
-    static void deserialize_window(const flecs::world& entity_world, ecs_entity_t target, sandbox_properties_handle_t props);
+class window {
+  public:
+    static void deserialize_window(const flecs::world& entity_world, ecs_entity_t target,
+                                   sandbox_properties_handle_t props);
 
     static sandbox_properties_handle_t serialize_window(const flecs::world& entity_world, ecs_entity_t window);
 
@@ -19,7 +20,8 @@ namespace spectre::modules {
 
     static void set_position(const flecs::world& entity_world, int32_t x, int32_t y);
 
-    static void set_size_limits(const flecs::world& entity_world, uint32_t min_width, uint32_t min_height, uint32_t max_width, uint32_t max_height);
+    static void set_size_limits(const flecs::world& entity_world, uint32_t min_width, uint32_t min_height,
+                                uint32_t max_width, uint32_t max_height);
 
     static uint32_t get_width(const flecs::world& entity_world);
 
@@ -98,6 +100,6 @@ namespace spectre::modules {
     static float get_mouse_delta_x(const flecs::world& entity_world);
 
     static float get_mouse_delta_y(const flecs::world& entity_world);
-    };
-}
+};
+} // namespace spectre::modules
 #endif

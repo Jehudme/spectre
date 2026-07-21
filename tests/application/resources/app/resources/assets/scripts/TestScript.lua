@@ -1,24 +1,26 @@
 local ffi = require("ffi")
 local flecs = require("ecs")
+local spectre = require("spectre")
 
-local world = flecs.init()
-
-local Position = world:new_struct("Position", "{ float x; float y; }")
-local Velocity = world:new_struct("Velocity", "{ float x; float y; }")
+-- `g_world` is injected by scripts_module.cpp
+local world = flecs.from_ptr(g_world)
 
 local player = world:new("Hero")
-
+local spectre_player = spectre.Entity(world, player)
 
 ---@param entity entity
 function on_update(entity)
-	world:set(player, Position, { x = 0.0, y = 0.0 })
-	world:set(player, Velocity, { x = 5.0, y = -2.5 })
-
-	local p = world:get(player, Position)
-	local v = world:get(player, Velocity)
-	if p then
-		print("Player Position: X=" .. p.x .. ", Y=" .. p.y)
-		print("Player Velocity: Y=" .. v.x .. ", Y=" .. v.y)
+	-- Use spectre module function
+	local transform = spectre_player:get_spectre_2D_transform_component_t()
+	if transform ~= nil then
+		transform.position_x = 0.0
+		transform.position_y = 0.0
+		spectre_player:mark_spectre_2D_transform_component_t_modified()
 	end
-
+	
+	-- Test getting it again
+	local get_transform = spectre_player:get_spectre_2D_transform_component_t()
+	if get_transform ~= nil then
+		print("Player Position: X=" .. get_transform.position_x .. ", Y=" .. get_transform.position_y)
+	end
 end

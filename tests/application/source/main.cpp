@@ -1,14 +1,14 @@
-#include <flecs.h>
-#include <sandbox/sdk/engine.hpp>
-#include <sandbox/sdk/runtime.hpp>
-#include <iostream>
 #include <algorithm>
+#include <flecs.h>
 #include <fstream>
-#include <spectre/components/renderer_component.h>
+#include <iostream>
+#include <sandbox/sdk/engine.hpp>
 #include <sandbox/sdk/logs.hpp>
+#include <sandbox/sdk/runtime.hpp>
+#include <spectre/components/renderer_component.h>
 
 #ifndef APP_RESOURCES_DIR
-#error "APP_RESOURCES_DIR must be defined"
+#    error "APP_RESOURCES_DIR must be defined"
 #endif
 
 int main(int argc, char* argv[]) {
@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
             std::string content(size, '\0');
             fread(&content[0], 1, size, f);
             fclose(f);
-            
+
             sandbox::properties app_props(content, sandbox::properties::Format::JSON);
             props.merge("", app_props);
         }
@@ -37,9 +37,7 @@ int main(int argc, char* argv[]) {
         // Ensure mandatory modules are present
         std::vector<std::string> modules;
         props.get_array<std::string>("engine/sandbox", modules);
-        std::vector<std::string> mandatory = {
-            "sandbox-application@1.0.0"
-        };
+        std::vector<std::string> mandatory = {"sandbox-application@1.0.0"};
         for (const auto& m : mandatory) {
             if (std::find(modules.begin(), modules.end(), m) == modules.end()) {
                 modules.push_back(m);
@@ -49,7 +47,7 @@ int main(int argc, char* argv[]) {
 
         if (engine.initialize(props)) {
             flecs::world ecs(static_cast<ecs_world_t*>(engine.get_ecs()));
-            
+
             sandbox::modules::runtime::run(ecs);
             return 0;
         }

@@ -1,10 +1,10 @@
-#include <catch2/catch_all.hpp>
-#include <flecs.h>
 #include "../../../../spectre/source/modules/scripts/scripts_module.h"
 #include "modules/serializer/serializer_module.h"
 #include "spectre/spectre.h"
-#include <fstream>
+#include <catch2/catch_all.hpp>
 #include <filesystem>
+#include <flecs.h>
+#include <fstream>
 
 using namespace spectre::modules;
 

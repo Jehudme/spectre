@@ -8,15 +8,16 @@ TabWidth: 4
 UseTab: Never
 
 # --- Function Signatures & Parameters ---
-AlignAfterOpenBracket: AlwaysBreak
-BinPackParameters: false
-BinPackArguments: false
+AlignAfterOpenBracket: Align
+BinPackParameters: true
+BinPackArguments: true
 AlwaysBreakAfterReturnType: None
 AlwaysBreakAfterDefinitionReturnType: None
-AllowShortFunctionsOnASingleLine: Inline
-AllowShortBlocksOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortBlocksOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
 
 # --- Macro Handling ---
 StatementMacros:
@@ -25,25 +26,26 @@ WhitespaceSensitiveMacros:
   - SANDBOX_DECLARE_SERVICE
 
 # --- Braces & Struct / Array Initializer Lists ---
-Cpp11BracedListStyle: false
+Cpp11BracedListStyle: true
 BreakBeforeBraces: Custom
 BraceWrapping:
-  AfterInitializerList: Always
-  BeforeElse: false
   AfterClass: false
   AfterControlStatement: Never
+  AfterEnum: false
   AfterFunction: false
   AfterNamespace: false
   AfterStruct: false
   AfterUnion: false
   AfterExternBlock: false
   BeforeCatch: false
+  BeforeElse: false
   IndentBraces: false
   SplitEmptyFunction: true
   SplitEmptyRecord: true
+  SplitEmptyNamespace: true
 
 # --- Pointers & Preprocessor ---
-PointerAlignment: Right
+PointerAlignment: Left
 MaxEmptyLinesToKeep: 1
 KeepEmptyLinesAtTheStartOfBlocks: false
 IndentPPDirectives: AfterHash
@@ -55,8 +57,25 @@ AlignConsecutiveMacros: true
 AlignEscapedNewlines: Left
 AlignOperands: Align
 
-# --- Formatting Penalties (Avoids unnatural line splits) ---
-PenaltyReturnTypeOnItsOwnLine: 10000
+# --- Spaces ---
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
+SpacesInAngles: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpaceBeforeCpp11BracedList: false
+
+# --- Includes ---
+SortIncludes: CaseSensitive
+SortUsingDeclarations: true
+
+# --- Switch/Case ---
+IndentCaseLabels: true
+IndentCaseBlocks: false
+
+# --- Formatting Penalties ---
+PenaltyReturnTypeOnItsOwnLine: 1000
 PenaltyBreakAssignment: 100
 PenaltyExcessCharacter: 10
 ...

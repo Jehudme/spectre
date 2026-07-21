@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +36,6 @@ typedef struct spectre_circle_renderable_t {
     spectre_color_t outline_color;
     float outline_thickness;
 } spectre_circle_renderable_t;
-
 
 typedef struct spectre_polygone_renderable_t {
     float radius;
