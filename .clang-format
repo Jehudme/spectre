@@ -1,0 +1,22 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit: 120
+
+# Fixes the extreme parameter pushing inside function pointers & structs
+AlignAfterOpenBracket: DontAlign
+AlignConsecutiveDeclarations: false
+
+# Keeps return types on the same line as function names
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
+
+# Fixes formatting for macros like SANDBOX_DECLARE_SERVICE
+Cpp11BracedListStyle: true
+IndentPPDirectives: AfterHash
+
+# Keeps pointer alignment clean (e.g. ecs_world_t *world)
+PointerAlignment: Right
+
+# Macro penalty fixes (prevents forcing ugly line breaks inside macro calls)
+PenaltyBreakAssignment: 100
+PenaltyExcessCharacter: 10

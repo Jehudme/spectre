@@ -28,7 +28,7 @@ if(NOT sandbox_FOUND)
   FetchContent_Declare(
         sandbox
         SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../sandbox
-    )
+  )
   FetchContent_MakeAvailable(sandbox)
 endif()
 
@@ -40,7 +40,7 @@ if(NOT raylib_FOUND)
         GIT_REPOSITORY https://github.com/raysan5/raylib.git
         GIT_TAG 5.0 # Locked to specific tag
         GIT_SHALLOW TRUE
-    )
+  )
   FetchContent_MakeAvailable(raylib)
 endif()
 
