@@ -4919,7 +4919,7 @@ ffi.metatype('ecs_world_t', {
     ---@generic T
     ---@param self ecs_world_t
     ---@param entity integer
-    ---@param component `T`
+    ---@param component T
     ---@return T|any
     get = function (self, entity, component)
       if component == nil then return nil end
@@ -4939,7 +4939,7 @@ ffi.metatype('ecs_world_t', {
     ---@generic T
     ---@param self ecs_world_t
     ---@param entity integer
-    ---@param component `T`
+    ---@param component T
     ---@param value T|any
     set = function (self, entity, component, value)
       if component == nil then error('Component ID must not be nil', 2) end

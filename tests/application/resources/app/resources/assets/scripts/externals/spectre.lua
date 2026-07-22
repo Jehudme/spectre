@@ -1126,16 +1126,27 @@ end
 
 ---@param world any
 function spectre.init(world)
+    ---@type spectre_2D_transform_component_t
     spectre.Transform2D = spectre.components.find_component(world, "Transform2D")
     if spectre.Transform2D ~= 0 then world:bind_struct(spectre.Transform2D, "spectre_2D_transform_component_t") end
+    
+    ---@type spectre_renderable_t
     spectre.Renderable = spectre.components.find_component(world, "Renderable")
     if spectre.Renderable ~= 0 then world:bind_struct(spectre.Renderable, "spectre_renderable_t") end
+    
+    ---@type spectre_rectange_renderable_t
     spectre.RectangleRenderable = spectre.components.find_component(world, "RectangleRenderable")
     if spectre.RectangleRenderable ~= 0 then world:bind_struct(spectre.RectangleRenderable, "spectre_rectange_renderable_t") end
+    
+    ---@type spectre_scene_t
     spectre.Scene = spectre.components.find_component(world, "Scene")
     if spectre.Scene ~= 0 then world:bind_struct(spectre.Scene, "spectre_scene_t") end
+    
+    ---@type spectre_state_t
     spectre.State = spectre.components.find_component(world, "State")
     if spectre.State ~= 0 then world:bind_struct(spectre.State, "spectre_state_t") end
+    
+    ---@type spectre_window_component_t
     spectre.Window = spectre.components.find_component(world, "Window")
     if spectre.Window ~= 0 then world:bind_struct(spectre.Window, "spectre_window_component_t") end
 end
