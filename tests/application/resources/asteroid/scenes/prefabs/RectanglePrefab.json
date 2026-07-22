@@ -2,22 +2,10 @@
     "name": "RectanglePrefab",
     "components": {
         "Renderable": {},
-        "RectangleRenderable": {
+        "TextureRenderable": {
+            "name": "unknow_texture",
             "width": 150.0,
-            "height": 150.0,
-            "fill_color": {
-                "r": 255,
-                "g": 0,
-                "b": 0,
-                "a": 255
-            },
-            "outline_thickness": 5.0,
-            "outline_color": {
-                "r": 255,
-                "g": 255,
-                "b": 255,
-                "a": 255
-            }
+            "height": 150.0
         },
         "Transform2D": {
             "position_x": 0.0,

@@ -109,6 +109,13 @@ static ecs_entity_t register_line_comp(ecs_world_t* world) {
         .member<float>("thickness")
         .id();
 }
+static ecs_entity_t register_texture_comp(ecs_world_t* world) {
+    auto w = flecs::world(world);
+    return w.component<spectre_texture_renderable_t>("TextureRenderable")
+        .member<float>("width")
+        .member<float>("height")
+        .id();
+}
 
 // Helper functions for properties <-> spectre_color_t
 static sandbox::properties serialize_color(const spectre_color_t& color) {
@@ -284,6 +291,46 @@ static void deserialize_line_renderable(ecs_world_t* world, ecs_entity_t entity,
     e.set<spectre_ligne_renderable_t>(comp);
 }
 
+static sandbox_properties_handle_t serialize_texture_renderable(ecs_world_t* world, ecs_entity_t entity) {
+    if (!world || !entity)
+        return {0};
+    flecs::world flecs_world(world);
+    const auto* comp = flecs_world.entity(entity).try_get<spectre_texture_renderable_t>();
+    if (!comp)
+        return {0};
+    sandbox::properties props;
+    props.set("width", comp->width);
+    props.set("height", comp->height);
+    props.set("x_position", comp->x_position);
+    props.set("y_position", comp->y_position);
+    sandbox_properties_handle_t handle = props.get_raw();
+    props.release();
+    return handle;
+}
+static void deserialize_texture_renderable(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+    if (!world)
+        return;
+    sandbox::properties props(handle, false);
+    flecs::world flecs_world(world);
+    flecs::entity e(flecs_world, entity);
+    spectre_texture_renderable_t comp = {};
+    comp.width = props.get<float>("width").value_or(10.0f);
+    comp.height = props.get<float>("height").value_or(10.0f);
+    comp.x_position = props.get<uint32_t>("x_position").value_or(0);
+    comp.y_position = props.get<uint32_t>("y_position").value_or(0);
+    
+    std::string name;
+    if (props.get<std::string>("name", name)) {
+        ecs_entity_t resource_entity = spectre::modules::resources::find_resource(flecs_world, name.c_str());
+        if (resource_entity) {
+            e.add<spectre_use_resource_relation_t>(resource_entity);
+        } else {
+            sandbox::modules::logs::error(flecs_world, "[Renderer Module] Texture resource '{}' not found", name.c_str());
+        }
+    }
+    e.set<spectre_texture_renderable_t>(comp);
+}
+
 struct spectre_renderer_update_marker_t {
     char dummy;
 };
@@ -406,18 +453,21 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
 
     spectre_serializer_component rect_serializer = {deserialize_rectangle_renderable, serialize_rectangle_renderable};
     spectre_serializer_component poly_serializer = {deserialize_polygon_renderable, serialize_polygon_renderable};
+    spectre_serializer_component cpoly_serializer = {deserialize_empty, serialize_empty};
     spectre_serializer_component line_serializer = {deserialize_line_renderable, serialize_line_renderable};
     spectre_serializer_component transform_serializer = {deserialize_2D_transform_component,
                                                          serialize_2D_transform_component};
     spectre_serializer_component circle_serializer = {deserialize_circle_renderable, serialize_circle_renderable};
+    spectre_serializer_component texture_serializer = {deserialize_texture_renderable, serialize_texture_renderable};
 
     spectre::modules::components::register_component(m_world, "Renderable", register_renderable_comp, renderable_serializer);
+    spectre::modules::components::register_component(m_world, "Transform2D", register_transform2d_comp, transform_serializer);
     spectre::modules::components::register_component(m_world, "RectangleRenderable", register_rectangle_comp, rect_serializer);
     spectre::modules::components::register_component(m_world, "CircleRenderable", register_circle_comp, circle_serializer);
     spectre::modules::components::register_component(m_world, "PolygoneRenderable", register_polygon_comp, poly_serializer);
-    spectre::modules::components::register_component(m_world, "CustomPolygoneRenderable", register_custom_polygon_comp, empty_serializer);
+    spectre::modules::components::register_component(m_world, "CustomPolygoneRenderable", register_custom_polygon_comp, cpoly_serializer);
     spectre::modules::components::register_component(m_world, "LigneRenderable", register_line_comp, line_serializer);
-    spectre::modules::components::register_component(m_world, "Transform2D", register_transform2d_comp, transform_serializer);
+    spectre::modules::components::register_component(m_world, "TextureRenderable", register_texture_comp, texture_serializer);
 
     flecs::entity on_renderer_phase = m_world.entity("on_renderer").add(flecs::Phase).depends_on(flecs::OnUpdate);
 
@@ -596,6 +646,27 @@ void renderer_module_t::render(flecs::entity entity_to_render) {
             Vector2 startPos = {(float)line->position_x1, (float)line->position_y1};
             Vector2 endPos = {(float)line->position_x2, (float)line->position_y2};
             DrawLineEx(startPos, endPos, line->thickness, to_raylib_color(line->color));
+        }
+    }
+
+    if (entity_to_render.has<spectre_texture_renderable_t>() && entity_to_render.has<spectre_use_resource_relation_t>()) {
+        const auto* tex_comp = entity_to_render.try_get<spectre_texture_renderable_t>();
+        flecs::entity resource_entity = entity_to_render.target<spectre_use_resource_relation_t>();
+        
+        if (resource_entity.is_valid()) {
+            if (spectre::modules::resources::is_resource_loaded(m_world, resource_entity.id())) {
+                void* instance = spectre::modules::resources::get_resource(m_world, resource_entity.id());
+                if (instance && tex_comp) {
+                    Texture2D* tex = static_cast<Texture2D*>(instance);
+                    Rectangle source = { 0.0f, 0.0f, (float)tex->width, (float)tex->height };
+                    Rectangle dest = { 0.0f, 0.0f, tex_comp->width > 0 ? tex_comp->width : (float)tex->width, 
+                                       tex_comp->height > 0 ? tex_comp->height : (float)tex->height };
+                    Vector2 origin = { 0.0f, 0.0f };
+                    DrawTexturePro(*tex, source, dest, origin, 0.0f, WHITE);
+                }
+            } else {
+                spectre::modules::resources::load_resource(m_world, resource_entity.id());
+            }
         }
     }
 
