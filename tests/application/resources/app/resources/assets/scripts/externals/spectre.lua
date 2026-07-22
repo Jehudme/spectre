@@ -1,55 +1,16 @@
 local ffi = require('ffi')
 
-pcall(function()
 ffi.cdef[[
     typedef struct { uintptr_t token; } sandbox_properties_handle_t;
-    typedef struct { uintptr_t token; } sandbox_file_handle_t;
-    typedef enum { SANDBOX_FORMAT_JSON = 0, SANDBOX_FORMAT_BEVE, SANDBOX_FORMAT_TOML, SANDBOX_FORMAT_YAML } sandbox_properties_format_t;
     typedef struct spectre_serializer_component { void* deserialize; void* serialize; } spectre_serializer_component;
+    typedef uint64_t ecs_entity_t;
+    typedef struct ecs_world_t ecs_world_t;
+    typedef struct ecs_query_t ecs_query_t;
     typedef ecs_entity_t (*spectre_component_registration_fn_t)(ecs_world_t* world);
     typedef struct spectre_resource_loader_component_t { void* load_fn; void* free_fn; } spectre_resource_loader_component_t;
     typedef struct spectre_script_argument_t { int dummy; } spectre_script_argument_t;
     typedef enum spectre_script_argument_type_t { DUMMY_ARG = 0 } spectre_script_argument_type_t;
     typedef void (*spectre_recursive_callback_t)(ecs_world_t*, ecs_entity_t, void*);
-    void sandbox_runtime_run(ecs_world_t* ecs);
-    void sandbox_runtime_start(ecs_world_t* ecs);
-    void sandbox_runtime_stop(ecs_world_t* ecs);
-    void sandbox_runtime_pause(ecs_world_t* ecs);
-    void sandbox_runtime_resume(ecs_world_t* ecs);
-    bool sandbox_application_is_running(ecs_world_t* ecs);
-    bool sandbox_filesystem_mount(ecs_world_t* ecs, const char* physical_path, const char* virtual_mount_point, bool read_only);
-    bool sandbox_filesystem_unmount(ecs_world_t* ecs, const char* mount_point);
-    sandbox_file_handle_t sandbox_filesystem_open_read(ecs_world_t* ecs, const char* virtual_path);
-    sandbox_file_handle_t sandbox_filesystem_open_write(ecs_world_t* ecs, const char* virtual_path, bool append, bool force_path);
-    size_t sandbox_filesystem_read(ecs_world_t* ecs, sandbox_file_handle_t handle, void* buffer, size_t bytes_to_read);
-    size_t sandbox_filesystem_write(ecs_world_t* ecs, sandbox_file_handle_t handle, const void* buffer, size_t bytes_to_write);
-    bool sandbox_filesystem_eof(ecs_world_t* ecs, sandbox_file_handle_t handle);
-    size_t sandbox_filesystem_tell(ecs_world_t* ecs, sandbox_file_handle_t handle);
-    bool sandbox_filesystem_seek(ecs_world_t* ecs, sandbox_file_handle_t handle, size_t position);
-    size_t sandbox_filesystem_size(ecs_world_t* ecs, sandbox_file_handle_t handle);
-    void sandbox_filesystem_close_handle(ecs_world_t* ecs, sandbox_file_handle_t handle);
-    bool sandbox_filesystem_create_file(ecs_world_t* ecs, const char* virtual_path, bool force_path);
-    bool sandbox_filesystem_remove_file(ecs_world_t* ecs, const char* virtual_path);
-    bool sandbox_filesystem_copy(ecs_world_t* ecs, const char* source_virtual_path, const char* dest_virtual_path, bool overwrite, bool force_path);
-    bool sandbox_filesystem_move(ecs_world_t* ecs, const char* source_virtual_path, const char* dest_virtual_path, bool overwrite, bool force_path);
-    bool sandbox_filesystem_create_directory(ecs_world_t* ecs, const char* virtual_path, bool force_path);
-    bool sandbox_filesystem_remove_directory(ecs_world_t* ecs, const char* virtual_path);
-    bool sandbox_filesystem_exists(ecs_world_t* ecs, const char* virtual_path);
-    bool sandbox_filesystem_is_file(ecs_world_t* ecs, const char* virtual_path);
-    bool sandbox_filesystem_is_directory(ecs_world_t* ecs, const char* virtual_path);
-    bool sandbox_filesystem_is_readonly(ecs_world_t* ecs, const char* virtual_path);
-    size_t sandbox_filesystem_file_size(ecs_world_t* ecs, const char* virtual_path);
-    int64_t sandbox_filesystem_last_modified(ecs_world_t* ecs, const char* virtual_path);
-    bool sandbox_filesystem_list_files(ecs_world_t* ecs, const char* virtual_path, bool recursive, char*** out_files, size_t* out_count);
-    void sandbox_filesystem_free_file_list(ecs_world_t* ecs, char** files, size_t count);
-    bool sandbox_filesystem_read_all_bytes(ecs_world_t* ecs, const char* virtual_path, uint8_t** out_data, size_t* out_size);
-    void sandbox_filesystem_free_bytes(ecs_world_t* ecs, uint8_t* data);
-    sandbox_properties_handle_t sandbox_configuration_get_properties(ecs_world_t* ecs);
-    void sandbox_logs_trace(ecs_world_t* ecs, const char* msg);
-    void sandbox_logs_debug(ecs_world_t* ecs, const char* msg);
-    void sandbox_logs_info(ecs_world_t* ecs, const char* msg);
-    void sandbox_logs_warn(ecs_world_t* ecs, const char* msg);
-    void sandbox_logs_error(ecs_world_t* ecs, const char* msg);
     void spectre_resources_deserialize_resource(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
     sandbox_properties_handle_t spectre_resources_serialize_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
     void spectre_resources_register_resource(ecs_world_t* world, sandbox_properties_handle_t props);
@@ -62,32 +23,13 @@ ffi.cdef[[
     void spectre_resources_load_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
     void spectre_resources_free_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
     void* spectre_resources_get_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
-    void spectre_resources_deserialize_resource(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
-    sandbox_properties_handle_t spectre_resources_serialize_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
     void spectre_resources_register_resource_loader(ecs_world_t* world, const char* type, spectre_resource_loader_component_t loader);
-    void spectre_resources_register_resource(ecs_world_t* world, sandbox_properties_handle_t props);
-    bool spectre_resources_has_resource_loader(ecs_world_t* world, const char* type);
-    bool spectre_resources_has_resource(ecs_world_t* world, const char* name);
-    bool spectre_resources_is_resource(ecs_world_t* world, ecs_entity_t entity);
-    ecs_entity_t spectre_resources_find_resource_loader(ecs_world_t* world, const char* type);
-    ecs_entity_t spectre_resources_find_resource(ecs_world_t* world, const char* name);
-    bool spectre_resources_is_resource_loaded(ecs_world_t* world, ecs_entity_t resource);
-    void spectre_resources_load_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
-    void spectre_resources_free_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
-    void* spectre_resources_get_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
     bool spectre_serializer_has_serializer(ecs_world_t* world, const char* type);
     bool spectre_serializer_is_serializer(ecs_world_t* world, ecs_entity_t entity);
     ecs_entity_t spectre_serializer_find_serializer(ecs_world_t* world, const char* type);
     void spectre_serializer_register_serializer(ecs_world_t* world, const char* type, const spectre_serializer_component* serializer);
-    bool spectre_serializer_has_serializer(ecs_world_t* world, const char* type);
-    bool spectre_serializer_is_serializer(ecs_world_t* world, ecs_entity_t entity);
-    ecs_entity_t spectre_serializer_find_serializer(ecs_world_t* world, const char* type);
     sandbox_properties_handle_t spectre_serializer_serialize_entity(ecs_world_t* world, ecs_entity_t serializer, ecs_entity_t entity);
     void spectre_serializer_deserialize_entity(ecs_world_t* world, ecs_entity_t serializer, ecs_entity_t entity, sandbox_properties_handle_t props);
-    void spectre_renderer_deserialize_renderer(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
-    sandbox_properties_handle_t spectre_renderer_serialize_renderer(ecs_world_t* world, ecs_entity_t renderer);
-    void spectre_renderer_register_renderer(ecs_world_t* world, sandbox_properties_handle_t props);
-    bool spectre_renderer_is_renderer(ecs_world_t* world);
     void spectre_renderer_deserialize_renderer(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
     sandbox_properties_handle_t spectre_renderer_serialize_renderer(ecs_world_t* world, ecs_entity_t renderer);
     void spectre_renderer_register_renderer(ecs_world_t* world, sandbox_properties_handle_t props);
@@ -106,21 +48,6 @@ ffi.cdef[[
     bool spectre_scenes_is_scene(ecs_world_t* world, ecs_entity_t entity);
     ecs_entity_t spectre_scenes_find_current_state(ecs_world_t* world);
     ecs_query_t* spectre_scenes_find_current_scenes(ecs_world_t* world);
-    void spectre_scenes_push_state(ecs_world_t* world, ecs_entity_t state);
-    void spectre_scenes_pop_state(ecs_world_t* world);
-    sandbox_properties_handle_t spectre_scenes_serialize_state(ecs_world_t* world, ecs_entity_t state);
-    void spectre_scenes_deserialize_state(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
-    sandbox_properties_handle_t spectre_scenes_serialize_scene(ecs_world_t* world, ecs_entity_t scene);
-    void spectre_scenes_deserialize_scene(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
-    void spectre_scenes_register_state(ecs_world_t* world, sandbox_properties_handle_t props);
-    void spectre_scenes_register_scene(ecs_world_t* world, sandbox_properties_handle_t props);
-    ecs_entity_t spectre_scenes_find_state(ecs_world_t* world, const char* name);
-    ecs_entity_t spectre_scenes_find_scene(ecs_world_t* world, const char* name);
-    bool spectre_scenes_has_state(ecs_world_t* world, const char* name);
-    bool spectre_scenes_has_scene(ecs_world_t* world, const char* name);
-    bool spectre_scenes_is_state(ecs_world_t* world, ecs_entity_t entity);
-    bool spectre_scenes_is_scene(ecs_world_t* world, ecs_entity_t entity);
-    ecs_entity_t spectre_scenes_find_current_state(ecs_world_t* world);
     void spectre_scenes_push_state(ecs_world_t* world, ecs_entity_t state);
     void spectre_scenes_pop_state(ecs_world_t* world);
     void spectre_scenes_execute_recursive(ecs_world_t* world, ecs_entity_t entity, spectre_recursive_callback_t callback, void* payload);
@@ -170,50 +97,11 @@ ffi.cdef[[
     float spectre_window_get_mouse_y(ecs_world_t* world);
     float spectre_window_get_mouse_delta_x(ecs_world_t* world);
     float spectre_window_get_mouse_delta_y(ecs_world_t* world);
-    void spectre_window_deserialize_window(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
-    sandbox_properties_handle_t spectre_window_serialize_window(ecs_world_t* world, ecs_entity_t window);
-    void spectre_window_register_window(ecs_world_t* world, sandbox_properties_handle_t props);
-    bool spectre_window_should_close(ecs_world_t* world);
-    void spectre_window_set_should_close(ecs_world_t* world, bool close);
-    void spectre_window_set_size(ecs_world_t* world, uint32_t width, uint32_t height);
-    void spectre_window_set_position(ecs_world_t* world, int32_t x, int32_t y);
     void spectre_window_set_size_limits(ecs_world_t* world, uint32_t min_width, uint32_t min_height, uint32_t max_width, uint32_t max_height);
-    void spectre_window_set_title(ecs_world_t* world, const char* title);
-    void spectre_window_set_vsync(ecs_world_t* world, bool enabled);
-    void spectre_window_set_fullscreen(ecs_world_t* world, bool fullscreen);
-    void spectre_window_set_borderless(ecs_world_t* world, bool borderless);
-    void spectre_window_set_resizable(ecs_world_t* world, bool resizable);
-    void spectre_window_set_always_on_top(ecs_world_t* world, bool always_on_top);
-    bool spectre_window_is_vsync(ecs_world_t* world);
-    bool spectre_window_is_fullscreen(ecs_world_t* world);
-    bool spectre_window_is_borderless(ecs_world_t* world);
-    bool spectre_window_is_resizable(ecs_world_t* world);
-    void spectre_window_minimize(ecs_world_t* world);
-    void spectre_window_maximize(ecs_world_t* world);
-    void spectre_window_restore(ecs_world_t* world);
-    void spectre_window_show(ecs_world_t* world);
-    void spectre_window_hide(ecs_world_t* world);
-    void spectre_window_request_attention(ecs_world_t* world);
-    bool spectre_window_is_minimized(ecs_world_t* world);
-    bool spectre_window_is_maximized(ecs_world_t* world);
-    bool spectre_window_is_visible(ecs_world_t* world);
-    bool spectre_window_is_focused(ecs_world_t* world);
-    bool spectre_window_is_hovered(ecs_world_t* world);
-    void spectre_window_set_cursor_visible(ecs_world_t* world, bool visible);
-    void spectre_window_set_cursor_locked(ecs_world_t* world, bool locked);
-    bool spectre_window_is_cursor_visible(ecs_world_t* world);
-    bool spectre_window_is_cursor_locked(ecs_world_t* world);
-    void* spectre_window_get_native_handle(ecs_world_t* world);
-    bool spectre_window_is_key_down(ecs_world_t* world, int keycode);
-    bool spectre_window_is_key_pressed(ecs_world_t* world, int keycode);
-    bool spectre_window_is_key_released(ecs_world_t* world, int keycode);
     ecs_entity_t spectre_components_find_component(ecs_world_t* world, const char* name);
     bool spectre_components_has_component(ecs_world_t* world, const char* name);
     bool spectre_components_is_component(ecs_world_t* world, ecs_entity_t entity);
     void spectre_components_register_component(ecs_world_t* world, const char* name, spectre_component_registration_fn_t registration_fn, spectre_serializer_component serializer);
-    ecs_entity_t spectre_components_find_component(ecs_world_t* world, const char* name);
-    bool spectre_components_has_component(ecs_world_t* world, const char* name);
-    bool spectre_components_is_component(ecs_world_t* world, ecs_entity_t entity);
     bool spectre_scripts_is_script(ecs_world_t* world, ecs_entity_t entity);
     ecs_entity_t spectre_scripts_find_script(ecs_world_t* world, const char* function_name);
     void spectre_scripts_include_code(ecs_world_t* world, const char* path);
@@ -225,17 +113,7 @@ ffi.cdef[[
     void spectre_scripts_execute_on_enter(ecs_world_t* world, ecs_entity_t entity);
     void spectre_scripts_execute_on_exit(ecs_world_t* world, ecs_entity_t entity);
     bool spectre_scripts_has_script(ecs_world_t* world, const char* function_name, const spectre_script_argument_type_t* arg_types, size_t arg_count);
-    bool spectre_scripts_is_script(ecs_world_t* world, ecs_entity_t entity);
-    ecs_entity_t spectre_scripts_find_script(ecs_world_t* world, const char* function_name);
-    void spectre_scripts_include_code(ecs_world_t* world, const char* path);
     void spectre_scripts_execute_script(ecs_world_t* world, const char* function_name, spectre_script_argument_t* args, size_t arg_count);
-    sandbox_properties_handle_t spectre_scripts_serialize_scripts(ecs_world_t* world, ecs_entity_t entity);
-    void spectre_scripts_deserialize_scripts(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
-    void spectre_scripts_execute_on_create(ecs_world_t* world, ecs_entity_t entity);
-    void spectre_scripts_execute_on_destroy(ecs_world_t* world, ecs_entity_t entity);
-    void spectre_scripts_execute_on_update(ecs_world_t* world, ecs_entity_t entity);
-    void spectre_scripts_execute_on_enter(ecs_world_t* world, ecs_entity_t entity);
-    void spectre_scripts_execute_on_exit(ecs_world_t* world, ecs_entity_t entity);
     sandbox_properties_handle_t spectre_prefabs_serialize_entity(ecs_world_t* world, ecs_entity_t entity);
     void spectre_prefabs_deserialize_entity(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
     void spectre_prefabs_register_prefab(ecs_world_t* world, const char* name, sandbox_properties_handle_t props);
@@ -245,652 +123,494 @@ ffi.cdef[[
     ecs_entity_t spectre_prefabs_create_entity_from_props(ecs_world_t* world, sandbox_properties_handle_t props);
     ecs_entity_t spectre_prefabs_create_entity_from_prefab(ecs_world_t* world, ecs_entity_t prefab);
     ecs_entity_t spectre_prefabs_create_entity_from_name(ecs_world_t* world, const char* name);
-    sandbox_properties_handle_t spectre_prefabs_serialize_entity(ecs_world_t* world, ecs_entity_t entity);
-    void spectre_prefabs_deserialize_entity(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
-    void spectre_prefabs_register_prefab(ecs_world_t* world, const char* name, sandbox_properties_handle_t props);
-    bool spectre_prefabs_has_prefab(ecs_world_t* world, const char* name);
-    bool spectre_prefabs_is_prefab(ecs_world_t* world, ecs_entity_t entity);
-    ecs_entity_t spectre_prefabs_find_prefab(ecs_world_t* world, const char* name);
-    ecs_entity_t spectre_prefabs_create_entity_from_props(ecs_world_t* world, sandbox_properties_handle_t props);
-    ecs_entity_t spectre_prefabs_create_entity_from_prefab(ecs_world_t* world, ecs_entity_t prefab);
-    ecs_entity_t spectre_prefabs_create_entity_from_name(ecs_world_t* world, const char* name);
-    bool sandbox_stage_service(const sandbox_service_info_t* info);
-    bool sandbox_stage_module(const sandbox_module_info_t* info);
-    void sandbox_index_library(ecs_world_t* ecs, const char* library_path);
-    sandbox_bootstrapper_t* sandbox_get_bootstrapper(ecs_world_t* ecs);
-    bool sandbox_bootstrapper_activate(sandbox_bootstrapper_t* bootstrapper, ecs_world_t* ecs, const char* architecture, const char* name, int version_major, int version_minor, int version_patch);
-    bool sandbox_bootstrapper_activate_string(sandbox_bootstrapper_t* bootstrapper, ecs_world_t* ecs, const char* module_str);
-    bool sandbox_bootstrapper_boot(sandbox_bootstrapper_t* bootstrapper, ecs_world_t* ecs);
 ]]
-
-end)
 
 local spectre = {}
 
+-- ========================================
+-- Resources API
+-- ========================================
 spectre.resources = {}
+
 function spectre.resources.deserialize_resource(world, target, props)
     return ffi.C.spectre_resources_deserialize_resource((world and world.ptr) and world.ptr or world, target, props)
 end
+
 function spectre.resources.serialize_resource(world, resourceEntity)
     return ffi.C.spectre_resources_serialize_resource((world and world.ptr) and world.ptr or world, resourceEntity)
 end
+
 function spectre.resources.register_resource(world, props)
     return ffi.C.spectre_resources_register_resource((world and world.ptr) and world.ptr or world, props)
 end
+
 function spectre.resources.has_resource_loader(world, type)
     return ffi.C.spectre_resources_has_resource_loader((world and world.ptr) and world.ptr or world, type)
 end
+
 function spectre.resources.has_resource(world, name)
     return ffi.C.spectre_resources_has_resource((world and world.ptr) and world.ptr or world, name)
 end
+
 function spectre.resources.is_resource(world, entity)
     return ffi.C.spectre_resources_is_resource((world and world.ptr) and world.ptr or world, entity)
 end
+
 function spectre.resources.find_resource_loader(world, type)
     return ffi.C.spectre_resources_find_resource_loader((world and world.ptr) and world.ptr or world, type)
 end
+
 function spectre.resources.find_resource(world, name)
     return ffi.C.spectre_resources_find_resource((world and world.ptr) and world.ptr or world, name)
 end
+
 function spectre.resources.is_resource_loaded(world, resource)
     return ffi.C.spectre_resources_is_resource_loaded((world and world.ptr) and world.ptr or world, resource)
 end
+
 function spectre.resources.load_resource(world, resourceEntity)
     return ffi.C.spectre_resources_load_resource((world and world.ptr) and world.ptr or world, resourceEntity)
 end
+
 function spectre.resources.free_resource(world, resourceEntity)
     return ffi.C.spectre_resources_free_resource((world and world.ptr) and world.ptr or world, resourceEntity)
 end
-function spectre.resources.get_resource(world, resourceEntity)
-    return ffi.C.spectre_resources_get_resource((world and world.ptr) and world.ptr or world, resourceEntity)
-end
-function spectre.resources.deserialize_resource(world, target, props)
-    return ffi.C.spectre_resources_deserialize_resource((world and world.ptr) and world.ptr or world, target, props)
-end
-function spectre.resources.serialize_resource(world, resourceEntity)
-    return ffi.C.spectre_resources_serialize_resource((world and world.ptr) and world.ptr or world, resourceEntity)
-end
-function spectre.resources.register_resource_loader(world, type, loader)
-    return ffi.C.spectre_resources_register_resource_loader((world and world.ptr) and world.ptr or world, type, loader)
-end
-function spectre.resources.register_resource(world, props)
-    return ffi.C.spectre_resources_register_resource((world and world.ptr) and world.ptr or world, props)
-end
-function spectre.resources.has_resource_loader(world, type)
-    return ffi.C.spectre_resources_has_resource_loader((world and world.ptr) and world.ptr or world, type)
-end
-function spectre.resources.has_resource(world, name)
-    return ffi.C.spectre_resources_has_resource((world and world.ptr) and world.ptr or world, name)
-end
-function spectre.resources.is_resource(world, entity)
-    return ffi.C.spectre_resources_is_resource((world and world.ptr) and world.ptr or world, entity)
-end
-function spectre.resources.find_resource_loader(world, type)
-    return ffi.C.spectre_resources_find_resource_loader((world and world.ptr) and world.ptr or world, type)
-end
-function spectre.resources.find_resource(world, name)
-    return ffi.C.spectre_resources_find_resource((world and world.ptr) and world.ptr or world, name)
-end
-function spectre.resources.is_resource_loaded(world, resource)
-    return ffi.C.spectre_resources_is_resource_loaded((world and world.ptr) and world.ptr or world, resource)
-end
-function spectre.resources.load_resource(world, resourceEntity)
-    return ffi.C.spectre_resources_load_resource((world and world.ptr) and world.ptr or world, resourceEntity)
-end
-function spectre.resources.free_resource(world, resourceEntity)
-    return ffi.C.spectre_resources_free_resource((world and world.ptr) and world.ptr or world, resourceEntity)
-end
+
 function spectre.resources.get_resource(world, resourceEntity)
     return ffi.C.spectre_resources_get_resource((world and world.ptr) and world.ptr or world, resourceEntity)
 end
 
+function spectre.resources.register_resource_loader(world, type, loader)
+    return ffi.C.spectre_resources_register_resource_loader((world and world.ptr) and world.ptr or world, type, loader)
+end
+
+-- ========================================
+-- Serializer API
+-- ========================================
 spectre.serializer = {}
+
 function spectre.serializer.has_serializer(world, type)
     return ffi.C.spectre_serializer_has_serializer((world and world.ptr) and world.ptr or world, type)
 end
+
 function spectre.serializer.is_serializer(world, entity)
     return ffi.C.spectre_serializer_is_serializer((world and world.ptr) and world.ptr or world, entity)
 end
+
 function spectre.serializer.find_serializer(world, type)
     return ffi.C.spectre_serializer_find_serializer((world and world.ptr) and world.ptr or world, type)
 end
+
 function spectre.serializer.register_serializer(world, type, serializer)
     return ffi.C.spectre_serializer_register_serializer((world and world.ptr) and world.ptr or world, type, serializer)
 end
-function spectre.serializer.has_serializer(world, type)
-    return ffi.C.spectre_serializer_has_serializer((world and world.ptr) and world.ptr or world, type)
-end
-function spectre.serializer.is_serializer(world, entity)
-    return ffi.C.spectre_serializer_is_serializer((world and world.ptr) and world.ptr or world, entity)
-end
-function spectre.serializer.find_serializer(world, type)
-    return ffi.C.spectre_serializer_find_serializer((world and world.ptr) and world.ptr or world, type)
-end
+
 function spectre.serializer.serialize_entity(world, serializer, entity)
     return ffi.C.spectre_serializer_serialize_entity((world and world.ptr) and world.ptr or world, serializer, entity)
 end
+
 function spectre.serializer.deserialize_entity(world, serializer, entity, props)
     return ffi.C.spectre_serializer_deserialize_entity((world and world.ptr) and world.ptr or world, serializer, entity, props)
 end
 
+-- ========================================
+-- Renderer API
+-- ========================================
 spectre.renderer = {}
+
 function spectre.renderer.deserialize_renderer(world, target, props)
     return ffi.C.spectre_renderer_deserialize_renderer((world and world.ptr) and world.ptr or world, target, props)
 end
+
 function spectre.renderer.serialize_renderer(world, renderer)
     return ffi.C.spectre_renderer_serialize_renderer((world and world.ptr) and world.ptr or world, renderer)
 end
+
 function spectre.renderer.register_renderer(world, props)
     return ffi.C.spectre_renderer_register_renderer((world and world.ptr) and world.ptr or world, props)
 end
-function spectre.renderer.is_renderer(world)
-    return ffi.C.spectre_renderer_is_renderer((world and world.ptr) and world.ptr or world)
-end
-function spectre.renderer.deserialize_renderer(world, target, props)
-    return ffi.C.spectre_renderer_deserialize_renderer((world and world.ptr) and world.ptr or world, target, props)
-end
-function spectre.renderer.serialize_renderer(world, renderer)
-    return ffi.C.spectre_renderer_serialize_renderer((world and world.ptr) and world.ptr or world, renderer)
-end
-function spectre.renderer.register_renderer(world, props)
-    return ffi.C.spectre_renderer_register_renderer((world and world.ptr) and world.ptr or world, props)
-end
+
 function spectre.renderer.is_renderer(world)
     return ffi.C.spectre_renderer_is_renderer((world and world.ptr) and world.ptr or world)
 end
 
+-- ========================================
+-- Scenes API
+-- ========================================
 spectre.scenes = {}
+
 function spectre.scenes.serialize_state(world, state)
     return ffi.C.spectre_scenes_serialize_state((world and world.ptr) and world.ptr or world, state)
 end
+
 function spectre.scenes.deserialize_state(world, target, props)
     return ffi.C.spectre_scenes_deserialize_state((world and world.ptr) and world.ptr or world, target, props)
 end
+
 function spectre.scenes.serialize_scene(world, scene)
     return ffi.C.spectre_scenes_serialize_scene((world and world.ptr) and world.ptr or world, scene)
 end
+
 function spectre.scenes.deserialize_scene(world, target, props)
     return ffi.C.spectre_scenes_deserialize_scene((world and world.ptr) and world.ptr or world, target, props)
 end
+
 function spectre.scenes.register_state(world, props)
     return ffi.C.spectre_scenes_register_state((world and world.ptr) and world.ptr or world, props)
 end
+
 function spectre.scenes.register_scene(world, props)
     return ffi.C.spectre_scenes_register_scene((world and world.ptr) and world.ptr or world, props)
 end
+
 function spectre.scenes.find_state(world, name)
     return ffi.C.spectre_scenes_find_state((world and world.ptr) and world.ptr or world, name)
 end
+
 function spectre.scenes.find_scene(world, name)
     return ffi.C.spectre_scenes_find_scene((world and world.ptr) and world.ptr or world, name)
 end
+
 function spectre.scenes.has_state(world, name)
     return ffi.C.spectre_scenes_has_state((world and world.ptr) and world.ptr or world, name)
 end
+
 function spectre.scenes.has_scene(world, name)
     return ffi.C.spectre_scenes_has_scene((world and world.ptr) and world.ptr or world, name)
 end
+
 function spectre.scenes.is_state(world, entity)
     return ffi.C.spectre_scenes_is_state((world and world.ptr) and world.ptr or world, entity)
 end
+
 function spectre.scenes.is_scene(world, entity)
     return ffi.C.spectre_scenes_is_scene((world and world.ptr) and world.ptr or world, entity)
 end
+
 function spectre.scenes.find_current_state(world)
     return ffi.C.spectre_scenes_find_current_state((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.scenes.find_current_scenes(world)
     return ffi.C.spectre_scenes_find_current_scenes((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.scenes.push_state(world, state)
     return ffi.C.spectre_scenes_push_state((world and world.ptr) and world.ptr or world, state)
 end
+
 function spectre.scenes.pop_state(world)
     return ffi.C.spectre_scenes_pop_state((world and world.ptr) and world.ptr or world)
 end
-function spectre.scenes.serialize_state(world, state)
-    return ffi.C.spectre_scenes_serialize_state((world and world.ptr) and world.ptr or world, state)
-end
-function spectre.scenes.deserialize_state(world, target, props)
-    return ffi.C.spectre_scenes_deserialize_state((world and world.ptr) and world.ptr or world, target, props)
-end
-function spectre.scenes.serialize_scene(world, scene)
-    return ffi.C.spectre_scenes_serialize_scene((world and world.ptr) and world.ptr or world, scene)
-end
-function spectre.scenes.deserialize_scene(world, target, props)
-    return ffi.C.spectre_scenes_deserialize_scene((world and world.ptr) and world.ptr or world, target, props)
-end
-function spectre.scenes.register_state(world, props)
-    return ffi.C.spectre_scenes_register_state((world and world.ptr) and world.ptr or world, props)
-end
-function spectre.scenes.register_scene(world, props)
-    return ffi.C.spectre_scenes_register_scene((world and world.ptr) and world.ptr or world, props)
-end
-function spectre.scenes.find_state(world, name)
-    return ffi.C.spectre_scenes_find_state((world and world.ptr) and world.ptr or world, name)
-end
-function spectre.scenes.find_scene(world, name)
-    return ffi.C.spectre_scenes_find_scene((world and world.ptr) and world.ptr or world, name)
-end
-function spectre.scenes.has_state(world, name)
-    return ffi.C.spectre_scenes_has_state((world and world.ptr) and world.ptr or world, name)
-end
-function spectre.scenes.has_scene(world, name)
-    return ffi.C.spectre_scenes_has_scene((world and world.ptr) and world.ptr or world, name)
-end
-function spectre.scenes.is_state(world, entity)
-    return ffi.C.spectre_scenes_is_state((world and world.ptr) and world.ptr or world, entity)
-end
-function spectre.scenes.is_scene(world, entity)
-    return ffi.C.spectre_scenes_is_scene((world and world.ptr) and world.ptr or world, entity)
-end
-function spectre.scenes.find_current_state(world)
-    return ffi.C.spectre_scenes_find_current_state((world and world.ptr) and world.ptr or world)
-end
-function spectre.scenes.push_state(world, state)
-    return ffi.C.spectre_scenes_push_state((world and world.ptr) and world.ptr or world, state)
-end
-function spectre.scenes.pop_state(world)
-    return ffi.C.spectre_scenes_pop_state((world and world.ptr) and world.ptr or world)
-end
+
 function spectre.scenes.execute_recursive(world, entity, callback, payload)
     return ffi.C.spectre_scenes_execute_recursive((world and world.ptr) and world.ptr or world, entity, callback, payload)
 end
 
+-- ========================================
+-- Window API
+-- ========================================
 spectre.window = {}
+
 function spectre.window.deserialize_window(world, target, props)
     return ffi.C.spectre_window_deserialize_window((world and world.ptr) and world.ptr or world, target, props)
 end
+
 function spectre.window.serialize_window(world, window)
     return ffi.C.spectre_window_serialize_window((world and world.ptr) and world.ptr or world, window)
 end
+
 function spectre.window.register_window(world, props)
     return ffi.C.spectre_window_register_window((world and world.ptr) and world.ptr or world, props)
 end
+
 function spectre.window.should_close(world)
     return ffi.C.spectre_window_should_close((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.set_should_close(world, close)
     return ffi.C.spectre_window_set_should_close((world and world.ptr) and world.ptr or world, close)
 end
+
 function spectre.window.set_size(world, width, height)
     return ffi.C.spectre_window_set_size((world and world.ptr) and world.ptr or world, width, height)
 end
+
 function spectre.window.set_position(world, x, y)
     return ffi.C.spectre_window_set_position((world and world.ptr) and world.ptr or world, x, y)
 end
+
 function spectre.window.get_width(world)
     return ffi.C.spectre_window_get_width((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.get_height(world)
     return ffi.C.spectre_window_get_height((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.get_aspect_ratio(world)
     return ffi.C.spectre_window_get_aspect_ratio((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.get_position_x(world)
     return ffi.C.spectre_window_get_position_x((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.get_position_y(world)
     return ffi.C.spectre_window_get_position_y((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.set_title(world, title)
     return ffi.C.spectre_window_set_title((world and world.ptr) and world.ptr or world, title)
 end
+
 function spectre.window.set_vsync(world, enabled)
     return ffi.C.spectre_window_set_vsync((world and world.ptr) and world.ptr or world, enabled)
 end
+
 function spectre.window.set_fullscreen(world, fullscreen)
     return ffi.C.spectre_window_set_fullscreen((world and world.ptr) and world.ptr or world, fullscreen)
 end
+
 function spectre.window.set_borderless(world, borderless)
     return ffi.C.spectre_window_set_borderless((world and world.ptr) and world.ptr or world, borderless)
 end
+
 function spectre.window.set_resizable(world, resizable)
     return ffi.C.spectre_window_set_resizable((world and world.ptr) and world.ptr or world, resizable)
 end
+
 function spectre.window.set_always_on_top(world, always_on_top)
     return ffi.C.spectre_window_set_always_on_top((world and world.ptr) and world.ptr or world, always_on_top)
 end
+
 function spectre.window.get_title(world)
     return ffi.C.spectre_window_get_title((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.is_vsync(world)
     return ffi.C.spectre_window_is_vsync((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.is_fullscreen(world)
     return ffi.C.spectre_window_is_fullscreen((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.is_borderless(world)
     return ffi.C.spectre_window_is_borderless((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.is_resizable(world)
     return ffi.C.spectre_window_is_resizable((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.minimize(world)
     return ffi.C.spectre_window_minimize((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.maximize(world)
     return ffi.C.spectre_window_maximize((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.restore(world)
     return ffi.C.spectre_window_restore((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.show(world)
     return ffi.C.spectre_window_show((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.hide(world)
     return ffi.C.spectre_window_hide((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.request_attention(world)
     return ffi.C.spectre_window_request_attention((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.is_minimized(world)
     return ffi.C.spectre_window_is_minimized((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.is_maximized(world)
     return ffi.C.spectre_window_is_maximized((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.is_visible(world)
     return ffi.C.spectre_window_is_visible((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.is_focused(world)
     return ffi.C.spectre_window_is_focused((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.is_hovered(world)
     return ffi.C.spectre_window_is_hovered((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.set_cursor_visible(world, visible)
     return ffi.C.spectre_window_set_cursor_visible((world and world.ptr) and world.ptr or world, visible)
 end
+
 function spectre.window.set_cursor_locked(world, locked)
     return ffi.C.spectre_window_set_cursor_locked((world and world.ptr) and world.ptr or world, locked)
 end
+
 function spectre.window.is_cursor_visible(world)
     return ffi.C.spectre_window_is_cursor_visible((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.is_cursor_locked(world)
     return ffi.C.spectre_window_is_cursor_locked((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.get_native_handle(world)
     return ffi.C.spectre_window_get_native_handle((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.is_key_down(world, keycode)
     return ffi.C.spectre_window_is_key_down((world and world.ptr) and world.ptr or world, keycode)
 end
+
 function spectre.window.is_key_pressed(world, keycode)
     return ffi.C.spectre_window_is_key_pressed((world and world.ptr) and world.ptr or world, keycode)
 end
+
 function spectre.window.is_key_released(world, keycode)
     return ffi.C.spectre_window_is_key_released((world and world.ptr) and world.ptr or world, keycode)
 end
+
 function spectre.window.get_mouse_x(world)
     return ffi.C.spectre_window_get_mouse_x((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.get_mouse_y(world)
     return ffi.C.spectre_window_get_mouse_y((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.get_mouse_delta_x(world)
     return ffi.C.spectre_window_get_mouse_delta_x((world and world.ptr) and world.ptr or world)
 end
+
 function spectre.window.get_mouse_delta_y(world)
     return ffi.C.spectre_window_get_mouse_delta_y((world and world.ptr) and world.ptr or world)
 end
-function spectre.window.deserialize_window(world, target, props)
-    return ffi.C.spectre_window_deserialize_window((world and world.ptr) and world.ptr or world, target, props)
-end
-function spectre.window.serialize_window(world, window)
-    return ffi.C.spectre_window_serialize_window((world and world.ptr) and world.ptr or world, window)
-end
-function spectre.window.register_window(world, props)
-    return ffi.C.spectre_window_register_window((world and world.ptr) and world.ptr or world, props)
-end
-function spectre.window.should_close(world)
-    return ffi.C.spectre_window_should_close((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.set_should_close(world, close)
-    return ffi.C.spectre_window_set_should_close((world and world.ptr) and world.ptr or world, close)
-end
-function spectre.window.set_size(world, width, height)
-    return ffi.C.spectre_window_set_size((world and world.ptr) and world.ptr or world, width, height)
-end
-function spectre.window.set_position(world, x, y)
-    return ffi.C.spectre_window_set_position((world and world.ptr) and world.ptr or world, x, y)
-end
+
 function spectre.window.set_size_limits(world, min_width, min_height, max_width, max_height)
     return ffi.C.spectre_window_set_size_limits((world and world.ptr) and world.ptr or world, min_width, min_height, max_width, max_height)
 end
-function spectre.window.set_title(world, title)
-    return ffi.C.spectre_window_set_title((world and world.ptr) and world.ptr or world, title)
-end
-function spectre.window.set_vsync(world, enabled)
-    return ffi.C.spectre_window_set_vsync((world and world.ptr) and world.ptr or world, enabled)
-end
-function spectre.window.set_fullscreen(world, fullscreen)
-    return ffi.C.spectre_window_set_fullscreen((world and world.ptr) and world.ptr or world, fullscreen)
-end
-function spectre.window.set_borderless(world, borderless)
-    return ffi.C.spectre_window_set_borderless((world and world.ptr) and world.ptr or world, borderless)
-end
-function spectre.window.set_resizable(world, resizable)
-    return ffi.C.spectre_window_set_resizable((world and world.ptr) and world.ptr or world, resizable)
-end
-function spectre.window.set_always_on_top(world, always_on_top)
-    return ffi.C.spectre_window_set_always_on_top((world and world.ptr) and world.ptr or world, always_on_top)
-end
-function spectre.window.is_vsync(world)
-    return ffi.C.spectre_window_is_vsync((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.is_fullscreen(world)
-    return ffi.C.spectre_window_is_fullscreen((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.is_borderless(world)
-    return ffi.C.spectre_window_is_borderless((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.is_resizable(world)
-    return ffi.C.spectre_window_is_resizable((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.minimize(world)
-    return ffi.C.spectre_window_minimize((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.maximize(world)
-    return ffi.C.spectre_window_maximize((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.restore(world)
-    return ffi.C.spectre_window_restore((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.show(world)
-    return ffi.C.spectre_window_show((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.hide(world)
-    return ffi.C.spectre_window_hide((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.request_attention(world)
-    return ffi.C.spectre_window_request_attention((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.is_minimized(world)
-    return ffi.C.spectre_window_is_minimized((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.is_maximized(world)
-    return ffi.C.spectre_window_is_maximized((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.is_visible(world)
-    return ffi.C.spectre_window_is_visible((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.is_focused(world)
-    return ffi.C.spectre_window_is_focused((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.is_hovered(world)
-    return ffi.C.spectre_window_is_hovered((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.set_cursor_visible(world, visible)
-    return ffi.C.spectre_window_set_cursor_visible((world and world.ptr) and world.ptr or world, visible)
-end
-function spectre.window.set_cursor_locked(world, locked)
-    return ffi.C.spectre_window_set_cursor_locked((world and world.ptr) and world.ptr or world, locked)
-end
-function spectre.window.is_cursor_visible(world)
-    return ffi.C.spectre_window_is_cursor_visible((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.is_cursor_locked(world)
-    return ffi.C.spectre_window_is_cursor_locked((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.get_native_handle(world)
-    return ffi.C.spectre_window_get_native_handle((world and world.ptr) and world.ptr or world)
-end
-function spectre.window.is_key_down(world, keycode)
-    return ffi.C.spectre_window_is_key_down((world and world.ptr) and world.ptr or world, keycode)
-end
-function spectre.window.is_key_pressed(world, keycode)
-    return ffi.C.spectre_window_is_key_pressed((world and world.ptr) and world.ptr or world, keycode)
-end
-function spectre.window.is_key_released(world, keycode)
-    return ffi.C.spectre_window_is_key_released((world and world.ptr) and world.ptr or world, keycode)
-end
 
+-- ========================================
+-- Components API
+-- ========================================
 spectre.components = {}
+
 function spectre.components.find_component(world, name)
     return ffi.C.spectre_components_find_component((world and world.ptr) and world.ptr or world, name)
 end
+
 function spectre.components.has_component(world, name)
     return ffi.C.spectre_components_has_component((world and world.ptr) and world.ptr or world, name)
 end
+
 function spectre.components.is_component(world, entity)
     return ffi.C.spectre_components_is_component((world and world.ptr) and world.ptr or world, entity)
 end
+
 function spectre.components.register_component(world, name, registration_fn, serializer)
     return ffi.C.spectre_components_register_component((world and world.ptr) and world.ptr or world, name, registration_fn, serializer)
 end
-function spectre.components.find_component(world, name)
-    return ffi.C.spectre_components_find_component((world and world.ptr) and world.ptr or world, name)
-end
-function spectre.components.has_component(world, name)
-    return ffi.C.spectre_components_has_component((world and world.ptr) and world.ptr or world, name)
-end
-function spectre.components.is_component(world, entity)
-    return ffi.C.spectre_components_is_component((world and world.ptr) and world.ptr or world, entity)
-end
 
+-- ========================================
+-- Scripts API
+-- ========================================
 spectre.scripts = {}
+
 function spectre.scripts.is_script(world, entity)
     return ffi.C.spectre_scripts_is_script((world and world.ptr) and world.ptr or world, entity)
 end
+
 function spectre.scripts.find_script(world, function_name)
     return ffi.C.spectre_scripts_find_script((world and world.ptr) and world.ptr or world, function_name)
 end
+
 function spectre.scripts.include_code(world, path)
     return ffi.C.spectre_scripts_include_code((world and world.ptr) and world.ptr or world, path)
 end
+
 function spectre.scripts.serialize_scripts(world, entity)
     return ffi.C.spectre_scripts_serialize_scripts((world and world.ptr) and world.ptr or world, entity)
 end
+
 function spectre.scripts.deserialize_scripts(world, target, props)
     return ffi.C.spectre_scripts_deserialize_scripts((world and world.ptr) and world.ptr or world, target, props)
 end
+
 function spectre.scripts.execute_on_create(world, entity)
     return ffi.C.spectre_scripts_execute_on_create((world and world.ptr) and world.ptr or world, entity)
 end
+
 function spectre.scripts.execute_on_destroy(world, entity)
     return ffi.C.spectre_scripts_execute_on_destroy((world and world.ptr) and world.ptr or world, entity)
 end
+
 function spectre.scripts.execute_on_update(world, entity)
     return ffi.C.spectre_scripts_execute_on_update((world and world.ptr) and world.ptr or world, entity)
 end
+
 function spectre.scripts.execute_on_enter(world, entity)
     return ffi.C.spectre_scripts_execute_on_enter((world and world.ptr) and world.ptr or world, entity)
 end
+
 function spectre.scripts.execute_on_exit(world, entity)
     return ffi.C.spectre_scripts_execute_on_exit((world and world.ptr) and world.ptr or world, entity)
 end
+
 function spectre.scripts.has_script(world, function_name, arg_types, arg_count)
     return ffi.C.spectre_scripts_has_script((world and world.ptr) and world.ptr or world, function_name, arg_types, arg_count)
 end
-function spectre.scripts.is_script(world, entity)
-    return ffi.C.spectre_scripts_is_script((world and world.ptr) and world.ptr or world, entity)
-end
-function spectre.scripts.find_script(world, function_name)
-    return ffi.C.spectre_scripts_find_script((world and world.ptr) and world.ptr or world, function_name)
-end
-function spectre.scripts.include_code(world, path)
-    return ffi.C.spectre_scripts_include_code((world and world.ptr) and world.ptr or world, path)
-end
+
 function spectre.scripts.execute_script(world, function_name, args, arg_count)
     return ffi.C.spectre_scripts_execute_script((world and world.ptr) and world.ptr or world, function_name, args, arg_count)
 end
-function spectre.scripts.serialize_scripts(world, entity)
-    return ffi.C.spectre_scripts_serialize_scripts((world and world.ptr) and world.ptr or world, entity)
-end
-function spectre.scripts.deserialize_scripts(world, target, props)
-    return ffi.C.spectre_scripts_deserialize_scripts((world and world.ptr) and world.ptr or world, target, props)
-end
-function spectre.scripts.execute_on_create(world, entity)
-    return ffi.C.spectre_scripts_execute_on_create((world and world.ptr) and world.ptr or world, entity)
-end
-function spectre.scripts.execute_on_destroy(world, entity)
-    return ffi.C.spectre_scripts_execute_on_destroy((world and world.ptr) and world.ptr or world, entity)
-end
-function spectre.scripts.execute_on_update(world, entity)
-    return ffi.C.spectre_scripts_execute_on_update((world and world.ptr) and world.ptr or world, entity)
-end
-function spectre.scripts.execute_on_enter(world, entity)
-    return ffi.C.spectre_scripts_execute_on_enter((world and world.ptr) and world.ptr or world, entity)
-end
-function spectre.scripts.execute_on_exit(world, entity)
-    return ffi.C.spectre_scripts_execute_on_exit((world and world.ptr) and world.ptr or world, entity)
+
+-- ========================================
+-- Prefabs API
+-- ========================================
+spectre.prefabs = {}
+
+function spectre.prefabs.serialize_entity(world, entity)
+    return ffi.C.spectre_prefabs_serialize_entity((world and world.ptr) and world.ptr or world, entity)
 end
 
-spectre.prefabs = {}
-function spectre.prefabs.serialize_entity(world, entity)
-    return ffi.C.spectre_prefabs_serialize_entity((world and world.ptr) and world.ptr or world, entity)
-end
 function spectre.prefabs.deserialize_entity(world, target, props)
     return ffi.C.spectre_prefabs_deserialize_entity((world and world.ptr) and world.ptr or world, target, props)
 end
+
 function spectre.prefabs.register_prefab(world, name, props)
     return ffi.C.spectre_prefabs_register_prefab((world and world.ptr) and world.ptr or world, name, props)
 end
+
 function spectre.prefabs.has_prefab(world, name)
     return ffi.C.spectre_prefabs_has_prefab((world and world.ptr) and world.ptr or world, name)
 end
+
 function spectre.prefabs.is_prefab(world, entity)
     return ffi.C.spectre_prefabs_is_prefab((world and world.ptr) and world.ptr or world, entity)
 end
+
 function spectre.prefabs.find_prefab(world, name)
     return ffi.C.spectre_prefabs_find_prefab((world and world.ptr) and world.ptr or world, name)
 end
+
 function spectre.prefabs.create_entity_from_props(world, props)
     return ffi.C.spectre_prefabs_create_entity_from_props((world and world.ptr) and world.ptr or world, props)
 end
+
 function spectre.prefabs.create_entity_from_prefab(world, prefab)
     return ffi.C.spectre_prefabs_create_entity_from_prefab((world and world.ptr) and world.ptr or world, prefab)
 end
-function spectre.prefabs.create_entity_from_name(world, name)
-    return ffi.C.spectre_prefabs_create_entity_from_name((world and world.ptr) and world.ptr or world, name)
-end
-function spectre.prefabs.serialize_entity(world, entity)
-    return ffi.C.spectre_prefabs_serialize_entity((world and world.ptr) and world.ptr or world, entity)
-end
-function spectre.prefabs.deserialize_entity(world, target, props)
-    return ffi.C.spectre_prefabs_deserialize_entity((world and world.ptr) and world.ptr or world, target, props)
-end
-function spectre.prefabs.register_prefab(world, name, props)
-    return ffi.C.spectre_prefabs_register_prefab((world and world.ptr) and world.ptr or world, name, props)
-end
-function spectre.prefabs.has_prefab(world, name)
-    return ffi.C.spectre_prefabs_has_prefab((world and world.ptr) and world.ptr or world, name)
-end
-function spectre.prefabs.is_prefab(world, entity)
-    return ffi.C.spectre_prefabs_is_prefab((world and world.ptr) and world.ptr or world, entity)
-end
-function spectre.prefabs.find_prefab(world, name)
-    return ffi.C.spectre_prefabs_find_prefab((world and world.ptr) and world.ptr or world, name)
-end
-function spectre.prefabs.create_entity_from_props(world, props)
-    return ffi.C.spectre_prefabs_create_entity_from_props((world and world.ptr) and world.ptr or world, props)
-end
-function spectre.prefabs.create_entity_from_prefab(world, prefab)
-    return ffi.C.spectre_prefabs_create_entity_from_prefab((world and world.ptr) and world.ptr or world, prefab)
-end
+
 function spectre.prefabs.create_entity_from_name(world, name)
     return ffi.C.spectre_prefabs_create_entity_from_name((world and world.ptr) and world.ptr or world, name)
 end
