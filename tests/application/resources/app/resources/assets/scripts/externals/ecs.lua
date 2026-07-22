@@ -4297,27 +4297,40 @@ local c_identifier_sequence = 0
 local worlds = {}
 
 ffi.metatype('ecs_world_t', {
+  ---@class ecs_world_t
   __index = {
+    ---@param self ecs_world_t
+    ---@return any
     is_fini = function (self)
       return ffi.C.ecs_is_fini(self)
     end,
+    ---@param self ecs_world_t
+    ---@return any
     info = function (self)
       return ffi.C.ecs_get_world_info(self)
     end,
+    ---@param self ecs_world_t
+    ---@return any
     stats = function (self)
       local stats = ecs_world_stats_t()
       ffi.C.ecs_world_stats_get(self, stats)
       return stats
     end,
+    ---@param self ecs_world_t
+    ---@param entity_count any
     dim = function (self, entity_count)
       ffi.C.ecs_dim(self, entity_count)
     end,
+    ---@param self ecs_world_t
     quit = function (self)
       ffi.C.ecs_quit(self)
     end,
+    ---@param self ecs_world_t
+    ---@return any
     should_quit = function (self)
       return ffi.C.ecs_should_quit(self)
     end,
+    ---@param self ecs_world_t
     get_entities = function (self)
       local entities = ffi.C.ecs_get_entities(self)
       local alive = {}
@@ -4333,21 +4346,35 @@ ffi.metatype('ecs_world_t', {
 
       return { alive = alive, dead = dead }
     end,
+    ---@param self ecs_world_t
+    ---@return any
     get_flags = function (self)
       return ffi.C.ecs_world_get_flags(self)
     end,
+    ---@param self ecs_world_t
+    ---@param enable boolean
     measure_frame_time = function (self, enable)
       ffi.C.ecs_measure_frame_time(self, enable)
     end,
+    ---@param self ecs_world_t
+    ---@param enable boolean
     measure_system_time = function (self, enable)
       ffi.C.ecs_measure_system_time(self, enable)
     end,
+    ---@param self ecs_world_t
+    ---@param fps integer
     set_target_fps = function (self, fps)
       ffi.C.ecs_set_target_fps(self, fps)
     end,
+    ---@param self ecs_world_t
+    ---@param flags integer
     set_default_query_flags = function (self, flags)
       ffi.C.ecs_set_default_query_flags(self, flags)
     end,
+    ---@param self ecs_world_t
+    ---@param arg1 any
+    ---@param arg2 any
+    ---@param arg3 any
     new = function (self, arg1, arg2, arg3)
       local entity
       local name
@@ -4420,6 +4447,8 @@ ffi.metatype('ecs_world_t', {
 
       return entity ~= 0 and entity or nil
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
     delete = function (self, entity)
       if is_entity(entity) then
         ffi.C.ecs_delete(self, entity)
@@ -4429,6 +4458,8 @@ ffi.metatype('ecs_world_t', {
         end
       end
     end,
+    ---@param self ecs_world_t
+    ---@param name string
     new_tag = function (self, name)
       local entity = ffi.C.ecs_lookup(self, name)
       if entity == 0 then
@@ -4437,6 +4468,10 @@ ffi.metatype('ecs_world_t', {
 
       return entity ~= 0 and entity or nil
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@param numeric_name any
+    ---@return any
     name = function (self, entity, numeric_name)
       local name = ffi.C.ecs_get_name(self, entity)
       if name ~= nil then
@@ -4445,40 +4480,73 @@ ffi.metatype('ecs_world_t', {
         return '#' .. tostring(entity)
       end
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@param name string
     set_name = function (self, entity, name)
       ffi.C.ecs_set_name(self, entity, name)
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@return any
     symbol = function (self, entity)
       local symbol = ffi.C.ecs_get_symbol(self, entity)
       if symbol ~= nil then
         return ffi.string(symbol)
       end
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@return any
     path = function (self, entity)
       local path = ecs_get_path(self, entity)
       local ret = ffi.string(path)
       ffi.C.free(path)
       return ret
     end,
+    ---@param self ecs_world_t
+    ---@param path any
+    ---@return any
     lookup = function (self, path)
       local ret = ffi.C.ecs_lookup(self, path)
       return ret ~= 0 and ret or nil
     end,
+    ---@param self ecs_world_t
+    ---@param parent any
+    ---@param name string
+    ---@return any
     lookup_child = function (self, parent, name)
       local ret = ffi.C.ecs_lookup_child(self, parent, name)
       return ret ~= 0 and ret or nil
     end,
+    ---@param self ecs_world_t
+    ---@param parent any
+    ---@param path any
+    ---@param sep any
+    ---@param prefix any
+    ---@return any
     lookup_path = function (self, parent, path, sep, prefix)
       local ret = ffi.C.ecs_lookup_path_w_sep(self, parent, path, sep, prefix, false)
       return ret ~= 0 and ret or nil
     end,
+    ---@param self ecs_world_t
+    ---@param symbol any
+    ---@return any
     lookup_symbol = function (self, symbol)
       local ret = ffi.C.ecs_lookup_symbol(self, symbol, true, false)
       return ret ~= 0 and ret or nil
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@param name string
     set_alias = function (self, entity, name)
       ffi.C.ecs_set_alias(self, entity, name)
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@param arg1 any
+    ---@param arg2 any
+    ---@return any
     has = function (self, entity, arg1, arg2)
       if entity and arg1 and arg2 then
         return ecs_has_pair(self, entity, arg1, arg2)
@@ -4486,25 +4554,47 @@ ffi.metatype('ecs_world_t', {
         return ffi.C.ecs_has_id(self, entity, arg1)
       end
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@param id integer
+    ---@return any
     owns = function (self, entity, id)
       return ffi.C.ecs_owns_id(self, entity, id)
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@return any
     is_alive = function (self, entity)
       return ffi.C.ecs_is_alive(self, entity)
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@return any
     is_valid = function (self, entity)
       return ffi.C.ecs_is_valid(self, entity)
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@return any
     alive = function (self, entity)
       local ret = ffi.C.ecs_get_alive(self, entity)
       return ret
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
     make_alive = function (self, entity)
       ffi.C.ecs_make_alive(self, entity)
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@return any
     exists = function (self, entity)
       return ffi.C.ecs_exists(self, entity)
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@param arg1 any
+    ---@param arg2 any
     add = function (self, entity, arg1, arg2)
       if entity and arg1 and arg2 then
         ecs_add_pair(self, entity, arg1, arg2)
@@ -4512,6 +4602,10 @@ ffi.metatype('ecs_world_t', {
         ffi.C.ecs_add_id(self, entity, arg1)
       end
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@param arg1 any
+    ---@param arg2 any
     remove = function (self, entity, arg1, arg2)
       if arg1 and arg2 then
         ecs_remove_pair(self, entity, arg1, arg2)
@@ -4519,9 +4613,14 @@ ffi.metatype('ecs_world_t', {
         ffi.C.ecs_remove_id(self, entity, arg1)
       end
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
     clear = function (self, entity)
       ffi.C.ecs_clear(self, entity)
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@param component integer
     enable = function (self, entity, component)
       if component then
         ffi.C.ecs_enable_id(self, entity, component, true)
@@ -4529,6 +4628,9 @@ ffi.metatype('ecs_world_t', {
         ffi.C.ecs_enable(self, entity, true)
       end
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@param component integer
     disable = function (self, entity, component)
       if component then
         ffi.C.ecs_enable_id(self, entity, component, false)
@@ -4536,43 +4638,81 @@ ffi.metatype('ecs_world_t', {
         ffi.C.ecs_enable(self, entity, false)
       end
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@return any
     count = function (self, entity)
       return ffi.C.ecs_count_id(self, entity)
     end,
+    ---@param self ecs_world_t
+    ---@param parent any
     delete_children = function (self, parent)
       ffi.C.ecs_delete_with(self, ecs_pair(ffi.C.EcsChildOf, parent))
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@return any
     parent = function (self, entity)
       local ret = ffi.C.ecs_get_target(self, entity, ffi.C.EcsChildOf, 0)
       return ret
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@param component integer
+    ---@return any
     is_component_enabled = function (self, entity, component)
       return ffi.C.ecs_is_enabled_id(self, entity, component)
     end,
+    ---@param predicate any
+    ---@param object any
+    ---@return any
     pair = function (predicate, object)
       return ecs_pair(predicate, object)
     end,
+    ---@param id integer
+    ---@return any
     is_pair = function (id)
       return ECS_IS_PAIR(id)
     end,
+    ---@param self ecs_world_t
+    ---@param pair any
+    ---@return any
     pair_target = function (self, pair)
       return ecs_pair_target(self, pair)
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@param base any
     add_is_a = function (self, entity, base)
       ecs_add_pair(self, entity, ffi.C.EcsIsA, base)
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@param base any
     remove_is_a = function (self, entity, base)
       ecs_remove_pair(self, entity, ffi.C.EcsIsA, base)
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@param parent any
     add_child_of = function (self, entity, parent)
       ecs_add_pair(self, entity, ffi.C.EcsChildOf, parent)
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@param parent any
     remove_child_of = function (self, entity, parent)
       ecs_remove_pair(self, entity, ffi.C.EcsChildOf, parent)
     end,
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@param component integer
     auto_override = function (self, entity, component)
       ffi.C.ecs_add_id(self, entity, bit.bor(ffi.C.ECS_AUTO_OVERRIDE, component))
     end,
+    ---@param self ecs_world_t
+    ---@param name string
+    ---@param description any
     new_enum = function (self, name, description)
       if ffi.C.ecs_lookup(self, name) ~= 0 then
         error('Component already exists.', 2)
@@ -4590,6 +4730,9 @@ ffi.metatype('ecs_world_t', {
       init_scope(self, component)
       return component
     end,
+    ---@param self ecs_world_t
+    ---@param name string
+    ---@param description any
     new_bitmask = function (self, name, description)
       if ffi.C.ecs_lookup(self, name) ~= 0 then
         error('Component already exists.', 2)
@@ -4607,6 +4750,10 @@ ffi.metatype('ecs_world_t', {
       init_scope(self, component)
       return component
     end,
+    ---@param self ecs_world_t
+    ---@param name string
+    ---@param element any
+    ---@param count any
     new_array = function (self, name, element, count)
       if count < 0 or count > 0x7fffffff then
         error(string.format('Element count out of range (%f)', count), 2)
@@ -4625,6 +4772,9 @@ ffi.metatype('ecs_world_t', {
       init_scope(self, component)
       return component
     end,
+    ---@param self ecs_world_t
+    ---@param name string
+    ---@param description any
     new_struct = function (self, name, description)
       check_c_identifier(name)
 
@@ -4671,6 +4821,8 @@ ffi.metatype('ecs_world_t', {
       }
 
       ffi.metatype(c_identifier, {
+        ---@param this any
+        ---@return any
         __tostring = function (this)
           local ptr = ffi.C.ecs_ptr_to_expr(self, component, this)
           local result = ffi.string(ptr)
@@ -4682,6 +4834,10 @@ ffi.metatype('ecs_world_t', {
       init_scope(self, component)
       return component
     end,
+    ---@param self ecs_world_t
+    ---@param component integer
+    ---@param c_identifier any
+    ---@return any
     bind_struct = function (self, component, c_identifier)
       local component_ctypes = worlds[tostring(self)].component_ctypes
       component_ctypes[tostring(component)] = {
@@ -4693,6 +4849,8 @@ ffi.metatype('ecs_world_t', {
 
       pcall(function()
         ffi.metatype(c_identifier, {
+          ---@param this any
+          ---@return any
           __tostring = function (this)
             local ptr = ffi.C.ecs_ptr_to_expr(self, component, this)
             local result = ffi.string(ptr)
@@ -4702,6 +4860,9 @@ ffi.metatype('ecs_world_t', {
         })
       end)
     end,
+    ---@param self ecs_world_t
+    ---@param name string
+    ---@param alias any
     new_alias = function (self, name, alias)
       local type_entity = ffi.C.ecs_lookup(self, name)
       if type_entity == 0 then
@@ -4730,6 +4891,9 @@ ffi.metatype('ecs_world_t', {
       init_scope(self, component)
       return component
     end,
+    ---@param self ecs_world_t
+    ---@param id integer
+    ---@param expression any
     new_prefab = function (self, id, expression)
       local entity
       if not id then
@@ -4752,6 +4916,10 @@ ffi.metatype('ecs_world_t', {
     -- For safety, this function always returns a new struct initialized with the component's value.
     -- Client code should have no access to pointers, references, or arrays.
     -- And, since we're returning a copy here, there's no need for a get_mut function.
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@param component integer
+    ---@return any
     get = function (self, entity, component)
       if component == nil then return nil end
       local data = ffi.C.ecs_get_id(self, entity, component)
@@ -4767,6 +4935,10 @@ ffi.metatype('ecs_world_t', {
       return ctype.struct(ffi.cast(ctype.const_ptr, data)[0])
     end,
     -- TODO: Get ref.
+    ---@param self ecs_world_t
+    ---@param entity integer
+    ---@param component integer
+    ---@param value any
     set = function (self, entity, component, value)
       if component == nil then error('Component ID must not be nil', 2) end
       if not value then
@@ -4779,15 +4951,25 @@ ffi.metatype('ecs_world_t', {
 
       ffi.C.ecs_set_id(self, entity, component, ctype.size, type(value) == 'table' and ctype.struct(value) or value)
     end,
+    ---@param self ecs_world_t
+    ---@param component integer
     singleton_add = function (self, component)
       self:add(component, component)
     end,
+    ---@param self ecs_world_t
+    ---@param component integer
     singleton_remove = function (self, component)
       self:remove(component, component)
     end,
+    ---@param self ecs_world_t
+    ---@param component integer
+    ---@return any
     singleton_get = function (self, component)
       return self:get(component, component)
     end,
+    ---@param self ecs_world_t
+    ---@param component integer
+    ---@param value any
     singleton_set = function (self, component, value)
       if not value then
         error('Value must not be nil', 2)
@@ -5047,16 +5229,21 @@ local function finish_world(world)
   ffi.C.ecs_fini(world)
 end
 
+---@class ecs
 local ret = {}
 
+---@return any
 function ret.init()
   return ffi.gc(register_world(ffi.C.ecs_init()), finish_world)
 end
 
+---@return any
 function ret.mini()
   return ffi.gc(register_world(ffi.C.ecs_mini()), finish_world)
 end
 
+---@param ptr any
+---@return any
 function ret.from_ptr(ptr)
   local world = ffi.cast('ecs_world_t*', ptr)
   if not worlds[tostring(world)] then
@@ -5066,6 +5253,8 @@ function ret.from_ptr(ptr)
 end
 
 ret.Script = {}
+---@param func function
+---@return any
 function ret.Script.define(func, ...)
     local args = {}
     for i, arg in ipairs({...}) do
