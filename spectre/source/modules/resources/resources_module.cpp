@@ -180,10 +180,9 @@ void resource_module_t::deserialize_resource(flecs::entity resource_entity, cons
         return;
     }
 
-    flecs::entity loader_entity = find_resource_loader(type);
+    flecs::entity loader_entity = m_loaders_root.lookup(type.c_str());
     if (!loader_entity.is_valid()) {
-        sandbox::modules::logs::error(m_world, "[Resources Module] Resource loader not found for type '{}'.", type);
-        return;
+        loader_entity = m_world.entity(type.c_str()).child_of(m_loaders_root);
     }
 
     resource_entity.is_a(m_resource_prefab).add<spectre_use_loader_relation_t>(loader_entity);
@@ -271,9 +270,9 @@ void resource_module_t::load_resource(flecs::entity resource_entity) {
         return;
     }
 
-    const ResourceLoader* loader = &loader_entity.get<ResourceLoader>();
+    const ResourceLoader* loader = loader_entity.try_get<ResourceLoader>();
     if (!loader || !loader->load_fn) {
-        sandbox::modules::logs::error(m_world, "[Resources Module] Loader for resource '{}' is invalid.",
+        sandbox::modules::logs::error(m_world, "[Resources Module] Loader for resource '{}' is invalid or not registered.",
                                       resource_entity.name().c_str());
         return;
     }
@@ -295,7 +294,7 @@ void resource_module_t::free_resource(flecs::entity resource_entity) {
     if (!loader_entity.is_valid())
         return;
 
-    const ResourceLoader* loader = &loader_entity.get<ResourceLoader>();
+    const ResourceLoader* loader = loader_entity.try_get<ResourceLoader>();
     if (!loader || !loader->free_fn)
         return;
 
