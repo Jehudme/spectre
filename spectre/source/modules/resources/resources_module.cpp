@@ -122,13 +122,13 @@ resource_module_t::resource_module_t(flecs::world& world) : m_world(world) {
 
     m_resources_serializer = m_world.entity(spectre::modules::serializer::find_serializer(m_world, "resources"));
 
-    if (sandbox::modules::filesystem::exists(m_world, "app://resources/configs/resources.json")) {
-        std::string content = sandbox::modules::filesystem::read_all_text(m_world, "app://resources/configs/resources.json");
+    if (sandbox::modules::filesystem::exists(m_world, "app://configs/resources.json")) {
+        std::string content = sandbox::modules::filesystem::read_all_text(m_world, "app://configs/resources.json");
         sandbox::properties props(content, sandbox::properties::Format::JSON);
         register_resource(props);
         sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Resources Module] Registered resources from config.");
     } else {
-        sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world), "[Resources Module] Resources configuration missing at app://resources/configs/resources.json");
+        sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world), "[Resources Module] Resources configuration missing at app://configs/resources.json");
     }
 
     sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Resources Module] Initialized successfully.");

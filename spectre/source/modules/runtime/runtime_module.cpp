@@ -92,39 +92,39 @@ static void register_states_from_directory(flecs::world& world, const char* virt
 bool runtime_module_t::initialize(flecs::world& entity_world) {
     sandbox::modules::logs::info(entity_world, "[Runtime Module] Initializing runtime resources...");
 
-    register_scripts_from_directory(entity_world, "app://resources/assets/scripts");
-    register_prefabs_from_directory(entity_world, "app://resources/scenes/prefabs");
-    register_scenes_from_directory(entity_world, "app://resources/scenes/scenes");
-    register_states_from_directory(entity_world, "app://resources/scenes/states");
+    register_scripts_from_directory(entity_world, "app://resources/scripts");
+    register_prefabs_from_directory(entity_world, "app://scenes/prefabs");
+    register_scenes_from_directory(entity_world, "app://scenes/scenes");
+    register_states_from_directory(entity_world, "app://scenes/states");
 
     // Window Registration
-    if (sandbox::modules::filesystem::exists(entity_world, "app://resources/configs/window.json")) {
+    if (sandbox::modules::filesystem::exists(entity_world, "app://configs/window.json")) {
         std::string content = sandbox::modules::filesystem::read_all_text(entity_world,
-                                                                          "app://resources/configs/window.json");
+                                                                          "app://configs/window.json");
         sandbox::properties props(content, sandbox::properties::Format::JSON);
         spectre::modules::window::register_window(entity_world, props.get_raw());
         sandbox::modules::logs::trace(entity_world, "[Runtime Module] Registered window config.");
     } else {
         sandbox::modules::logs::warn(entity_world, "[Runtime Module] Window configuration missing at "
-                                                   "app://resources/configs/window.json");
+                                                   "app://configs/window.json");
     }
 
     // Renderer Registration
-    if (sandbox::modules::filesystem::exists(entity_world, "app://resources/configs/renderer.json")) {
+    if (sandbox::modules::filesystem::exists(entity_world, "app://configs/renderer.json")) {
         std::string content = sandbox::modules::filesystem::read_all_text(entity_world,
-                                                                          "app://resources/configs/renderer.json");
+                                                                          "app://configs/renderer.json");
         sandbox::properties props(content, sandbox::properties::Format::JSON);
         spectre::modules::renderer::register_renderer(entity_world, props.get_raw());
         sandbox::modules::logs::trace(entity_world, "[Runtime Module] Registered renderer config.");
     } else {
         sandbox::modules::logs::warn(entity_world, "[Runtime Module] Renderer configuration missing at "
-                                                   "app://resources/configs/renderer.json");
+                                                   "app://configs/renderer.json");
     }
 
     // Default State Stack
-    if (sandbox::modules::filesystem::exists(entity_world, "app://resources/configs/startup.json")) {
+    if (sandbox::modules::filesystem::exists(entity_world, "app://configs/startup.json")) {
         std::string content = sandbox::modules::filesystem::read_all_text(entity_world,
-                                                                          "app://resources/configs/startup.json");
+                                                                          "app://configs/startup.json");
         sandbox::properties props(content, sandbox::properties::Format::JSON);
         std::vector<std::string> startup_states;
         if (props.get_array<std::string>("states", startup_states)) {
