@@ -51,16 +51,16 @@ static void deserialize_resource_comp_cb(ecs_world_t* world, ecs_entity_t entity
 
 // Component Registration Callbacks
 static ecs_entity_t register_resource_component(ecs_world_t* world) {
-    return flecs::world(world).component<spectre_resource_component_t>().id();
+    return flecs::world(world).component<spectre_resource_component_t>("Resource").id();
 }
 static ecs_entity_t register_resource_loader_component(ecs_world_t* world) {
-    return flecs::world(world).component<spectre_resource_loader_component_t>().id();
+    return flecs::world(world).component<spectre_resource_loader_component_t>("ResourceLoader").id();
 }
 static ecs_entity_t register_use_loader_relation(ecs_world_t* world) {
-    return flecs::world(world).component<spectre_use_loader_relation_t>().member<char>("dummy").id();
+    return flecs::world(world).component<spectre_use_loader_relation_t>("UseLoaderRelation").member<char>("dummy").id();
 }
 static ecs_entity_t register_resource_flag(ecs_world_t* world) {
-    return flecs::world(world).component<spectre_resource_flag_t>().member<char>("dummy").id();
+    return flecs::world(world).component<spectre_resource_flag_t>("ResourceFlag").member<char>("dummy").id();
 }
 
 static sandbox_requirement_info_t resources_requirements[] = {{.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,

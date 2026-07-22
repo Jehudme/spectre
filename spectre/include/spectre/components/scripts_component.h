@@ -14,8 +14,7 @@ typedef enum spectre_script_argument_type_t {
     SPECTRE_SCRIPT_ARGUMENT_TYPE_INTEGER,
     SPECTRE_SCRIPT_ARGUMENT_TYPE_STRING,
     SPECTRE_SCRIPT_ARGUMENT_TYPE_TABLE,
-    SPECTRE_SCRIPT_ARGUMENT_TYPE_USERDATA,
-    SPECTRE_SCRIPT_ARGUMENT_TYPE_ENTITY
+    SPECTRE_SCRIPT_ARGUMENT_TYPE_USERDATA
 } spectre_script_argument_type_t;
 
 typedef struct spectre_script_argument_t {
@@ -27,12 +26,11 @@ typedef struct spectre_script_argument_t {
         const char* string_value;
         void* table_pointer;
         void* userdata_pointer;
-        const char* entity;
     } value;
 } spectre_script_argument_t;
 
 typedef struct spectre_script_t {
-    const char* function_name;
+    int lua_function_ref;
     const char** arguments_name;
     const spectre_script_argument_type_t* argument_types;
     uint32_t argument_count;

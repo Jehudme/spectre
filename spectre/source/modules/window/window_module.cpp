@@ -16,10 +16,10 @@ static sandbox_properties_handle_t serialize_window_cb(ecs_world_t* world, ecs_e
 
 // Component Registration Callbacks
 static ecs_entity_t register_window_comp(ecs_world_t* world) {
-    return flecs::world(world).component<spectre_window_component_t>().id();
+    return flecs::world(world).component<spectre_window_component_t>("Window").id();
 }
 static ecs_entity_t register_input_state_comp(ecs_world_t* world) {
-    return flecs::world(world).component<spectre_input_state_t>().id();
+    return flecs::world(world).component<spectre_input_state_t>("InputState").id();
 }
 
 struct spectre_on_event_phase_t {};

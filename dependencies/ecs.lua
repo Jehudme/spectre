@@ -4651,7 +4651,7 @@ ffi.metatype('ecs_world_t', {
         ffi.C.ecs_delete(self, component)
         error(error_message, 2)
       end
-      local component_ctypes = worlds[tostring(self)].component_ctypes
+      local component_ctypes = worlds[self].component_ctypes
       -- In LuaJIT, uint64_t is boxed in a cdata object. And every time you make a new uint64_t by any means,
       -- you get a different cdata object, which counts as a different table index!
       -- Therefore, the quick, easy and correct workaround is to convert the component ID to string
@@ -4675,26 +4675,6 @@ ffi.metatype('ecs_world_t', {
 
       init_scope(self, component)
       return component
-    end,
-    bind_struct = function (self, component, c_identifier)
-      local component_ctypes = worlds[tostring(self)].component_ctypes
-      component_ctypes[tostring(component)] = {
-        struct = ffi.typeof(c_identifier),
-        ptr = ffi.typeof(c_identifier .. '*'),
-        const_ptr = ffi.typeof('const ' .. c_identifier .. '*'),
-        size = ffi.sizeof(c_identifier),
-      }
-
-      pcall(function()
-        ffi.metatype(c_identifier, {
-          __tostring = function (this)
-            local ptr = ffi.C.ecs_ptr_to_expr(self, component, this)
-            local result = ffi.string(ptr)
-            ffi.C.free(ptr)
-            return result
-          end
-        })
-      end)
     end,
     new_alias = function (self, name, alias)
       local type_entity = ffi.C.ecs_lookup(self, name)
@@ -4747,13 +4727,12 @@ ffi.metatype('ecs_world_t', {
     -- Client code should have no access to pointers, references, or arrays.
     -- And, since we're returning a copy here, there's no need for a get_mut function.
     get = function (self, entity, component)
-      if component == nil then return nil end
       local data = ffi.C.ecs_get_id(self, entity, component)
       if data == nil then
         return
       end
 
-      local ctype = worlds[tostring(self)].component_ctypes[tostring(component)]
+      local ctype = worlds[self].component_ctypes[tostring(component)]
       if not ctype then
         error('Component ' .. self:name(component, true) .. " does not exist or it's missing serialization data.", 2)
       end
@@ -4762,11 +4741,10 @@ ffi.metatype('ecs_world_t', {
     end,
     -- TODO: Get ref.
     set = function (self, entity, component, value)
-      if component == nil then error('Component ID must not be nil', 2) end
       if not value then
         error('Value must not be nil', 2)
       end
-      local ctype = worlds[tostring(self)].component_ctypes[tostring(component)]
+      local ctype = worlds[self].component_ctypes[tostring(component)]
       if not ctype then
         error('Component ' .. self:name(component, true) .. " does not exist or it's missing serialization data.", 2)
       end
@@ -5030,14 +5008,14 @@ ffi.metatype(ecs_metric_t, {
 })
 
 local function register_world(world)
-  worlds[tostring(world)] = {
+  worlds[world] = {
     component_ctypes = {},
   }
   return world
 end
 
 local function finish_world(world)
-  worlds[tostring(world)] = nil
+  worlds[world] = nil
   ffi.C.ecs_fini(world)
 end
 
@@ -5047,29 +5025,13 @@ function ret.init()
   return ffi.gc(register_world(ffi.C.ecs_init()), finish_world)
 end
 
+function ret.from_ptr(world_ptr)
+  local world = ffi.cast("ecs_world_t*", world_ptr)
+  return register_world(world)
+end
+
 function ret.mini()
   return ffi.gc(register_world(ffi.C.ecs_mini()), finish_world)
-end
-
-function ret.from_ptr(ptr)
-  local world = ffi.cast('ecs_world_t*', ptr)
-  if not worlds[tostring(world)] then
-    register_world(world)
-  end
-  return world
-end
-
-ret.Script = {}
-function ret.Script.define(func, ...)
-    local args = {}
-    for i, arg in ipairs({...}) do
-        local name, arg_type = string.match(arg, "^([%w_]+):([%w_]+)$")
-        table.insert(args, { name = name, type = arg_type })
-    end
-    return {
-        func = func,
-        args = args
-    }
 end
 
 return ret

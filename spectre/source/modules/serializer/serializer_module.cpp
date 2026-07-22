@@ -28,7 +28,7 @@ SANDBOX_DECLARE_MODULE(serializer_module, {.name = "serializer",
 
 // Component Registration Callbacks
 static ecs_entity_t register_serializer_comp(ecs_world_t* world) {
-    return flecs::world(world).component<spectre_serializer_component>().id();
+    return flecs::world(world).component<spectre_serializer_component>("Serializer").id();
 }
 
 serializer_module::serializer_module(flecs::world& world) : m_world(world) {

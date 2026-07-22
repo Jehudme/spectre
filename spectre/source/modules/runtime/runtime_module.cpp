@@ -248,7 +248,7 @@ static sandbox_runtime_api_t g_spectre_runtime_api = {.run = spectre_runtime_run
 
 struct runtime_module_initializer_t {
     runtime_module_initializer_t(flecs::world& entity_world) {
-        entity_world.component<runtime_module_t>();
+        entity_world.component<runtime_module_t>("RuntimeModule");
         entity_world.set<runtime_module_t>(runtime_module_t());
 
         // Override the default API with spectre's implementation

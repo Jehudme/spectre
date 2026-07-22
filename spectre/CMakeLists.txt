@@ -37,8 +37,6 @@ set(HEADERS
     source/modules/scripts/scripts_module.h
     source/modules/serializer/serializer_module.h
     source/modules/window/window_module.h
-    source/utilities/hashing.h
-    source/utilities/properties_helpers.h
 )
 
 add_library(spectre_plugin MODULE ${SOURCES} ${HEADERS})

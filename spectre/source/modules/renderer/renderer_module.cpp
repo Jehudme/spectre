@@ -43,14 +43,14 @@ static sandbox_properties_handle_t serialize_renderer_cb(ecs_world_t* world, ecs
 }
 
 static ecs_entity_t register_renderable_comp(ecs_world_t* world) {
-    return flecs::world(world).component<spectre_renderable_t>().member<char>("dummy").id();
+    return flecs::world(world).component<spectre_renderable_t>("Renderable").member<char>("dummy").id();
 }
 static ecs_entity_t register_rectangle_comp(ecs_world_t* world) {
     auto w = flecs::world(world);
     if (!w.lookup("spectre_color_t").is_valid()) {
-        w.component<spectre_color_t>().member<float>("r").member<float>("g").member<float>("b").member<float>("a");
+        w.component<spectre_color_t>("Color").member<float>("r").member<float>("g").member<float>("b").member<float>("a");
     }
-    return w.component<spectre_rectange_renderable_t>()
+    return w.component<spectre_rectange_renderable_t>("RectangeRenderable")
         .member<float>("width")
         .member<float>("height")
         .member<spectre_color_t>("fill_color")
@@ -61,9 +61,9 @@ static ecs_entity_t register_rectangle_comp(ecs_world_t* world) {
 static ecs_entity_t register_polygon_comp(ecs_world_t* world) {
     auto w = flecs::world(world);
     if (!w.lookup("spectre_color_t").is_valid()) {
-        w.component<spectre_color_t>().member<float>("r").member<float>("g").member<float>("b").member<float>("a");
+        w.component<spectre_color_t>("Color").member<float>("r").member<float>("g").member<float>("b").member<float>("a");
     }
-    return w.component<spectre_polygone_renderable_t>()
+    return w.component<spectre_polygone_renderable_t>("PolygoneRenderable")
         .member<float>("radius")
         .member<uint32_t>("point_count")
         .member<spectre_color_t>("fill_color")
@@ -74,9 +74,9 @@ static ecs_entity_t register_polygon_comp(ecs_world_t* world) {
 static ecs_entity_t register_custom_polygon_comp(ecs_world_t* world) {
     auto w = flecs::world(world);
     if (!w.lookup("spectre_color_t").is_valid()) {
-        w.component<spectre_color_t>().member<float>("r").member<float>("g").member<float>("b").member<float>("a");
+        w.component<spectre_color_t>("Color").member<float>("r").member<float>("g").member<float>("b").member<float>("a");
     }
-    return w.component<spectre_custom_polygone_renderable_t>()
+    return w.component<spectre_custom_polygone_renderable_t>("CustomPolygoneRenderable")
         .member<uint32_t>("vertex_count")
         .member<spectre_color_t>("fill_color")
         .member<spectre_color_t>("outline_color")
@@ -86,9 +86,9 @@ static ecs_entity_t register_custom_polygon_comp(ecs_world_t* world) {
 static ecs_entity_t register_line_comp(ecs_world_t* world) {
     auto w = flecs::world(world);
     if (!w.lookup("spectre_color_t").is_valid()) {
-        w.component<spectre_color_t>().member<float>("r").member<float>("g").member<float>("b").member<float>("a");
+        w.component<spectre_color_t>("Color").member<float>("r").member<float>("g").member<float>("b").member<float>("a");
     }
-    return w.component<spectre_ligne_renderable_t>()
+    return w.component<spectre_ligne_renderable_t>("LigneRenderable")
         .member<double>("position_x1")
         .member<double>("position_y1")
         .member<double>("position_x2")
@@ -165,9 +165,9 @@ static void deserialize_rectangle_renderable(ecs_world_t* world, ecs_entity_t en
 static ecs_entity_t register_circle_comp(ecs_world_t* world) {
     auto w = flecs::world(world);
     if (!w.lookup("spectre_color_t").is_valid()) {
-        w.component<spectre_color_t>().member<float>("r").member<float>("g").member<float>("b").member<float>("a");
+        w.component<spectre_color_t>("Color").member<float>("r").member<float>("g").member<float>("b").member<float>("a");
     }
-    return w.component<spectre_circle_renderable_t>()
+    return w.component<spectre_circle_renderable_t>("CircleRenderable")
         .member<float>("radius")
         .member<spectre_color_t>("fill_color")
         .member<spectre_color_t>("outline_color")
@@ -364,7 +364,7 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
     register_line_comp(m_world.c_ptr());
     spectre::modules::serializer::register_serializer(m_world, "spectre_ligne_renderable_t", &line_serializer);
 
-    m_world.component<spectre_2D_transform_component_t>()
+    m_world.component<spectre_2D_transform_component_t>("Transform2D")
         .member<float>("position_x")
         .member<float>("position_y")
         .member<float>("position_z")

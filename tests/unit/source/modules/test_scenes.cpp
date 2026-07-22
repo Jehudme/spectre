@@ -6,6 +6,8 @@
 #include "spectre/spectre.h"
 #include <catch2/catch_all.hpp>
 #include <flecs.h>
+#include <fstream>
+#include <iostream>
 
 using namespace spectre::modules;
 
@@ -16,34 +18,57 @@ TEST_CASE("Scenes Module: Serialization and Deserialization", "[modules][scenes]
     world.import <script_module_t>();
     world.import <prefabs_module_t>();
     world.import <scenes_module_t>();
-
+    auto* scripts_mod = const_cast<script_module_t*>(world.try_get<script_module_t>());
     auto* scenes_module = const_cast<scenes_module_t*>(&world.get_mut<scenes_module_t>());
 
     SECTION("state and scene serialization") {
-        sandbox::properties scene_props;
-        scene_props.set<std::string>("name", "Level1");
+        std::string lua_code = R"(
+g_world = g_world or nil
+local ecs = { Script = {} }
+function ecs.Script.define(func, ...)
+    local args = {}
+    for i, arg in ipairs({...}) do
+        local name, arg_type = string.match(arg, "^([%w_]+):([%w_]+)$")
+        table.insert(args, { name = name, type = arg_type })
+    end
+    return { func = func, args = args }
+end
 
-        sandbox::properties scene_scripts;
-        sandbox::properties on_create;
-        on_create.set<std::string>("test_scene_create", "test_scene_create");
-        scene_scripts.merge("on_create", on_create);
-        scene_props.merge("scripts", scene_scripts);
+local Test = {}
+function Test.test_scene_create() end
+function Test.test_state_enter() end
+
+return {
+    test_scene_create = ecs.Script.define(Test.test_scene_create),
+    test_state_enter = ecs.Script.define(Test.test_state_enter)
+}
+        )";
+
+        scripts_mod->eval_code(lua_code, "test_scene_script");
+
+        std::string scene_json = R"({
+            "name": "Level1",
+            "scripts": {
+                "on_create": {
+                    "0": { "function": "test_scene_create" }
+                }
+            }
+        })";
+        sandbox::properties scene_props(scene_json, sandbox::properties::Format::JSON);
 
         scenes_module->register_scene(std::move(scene_props));
         REQUIRE(scenes_module->has_scene("Level1"));
 
-        sandbox::properties state_props;
-        state_props.set<std::string>("name", "GameState");
-
-        sandbox::properties state_scripts;
-        sandbox::properties on_enter;
-        on_enter.set<std::string>("test_state_enter", "test_state_enter");
-        state_scripts.merge("on_enter", on_enter);
-        state_props.merge("scripts", state_scripts);
-
-        sandbox::properties scenes_arr;
-        scenes_arr.set<std::string>("0", "Level1");
-        state_props.merge("scenes", scenes_arr);
+        std::string state_json = R"({
+            "name": "GameState",
+            "scripts": {
+                "on_enter": {
+                    "0": { "function": "test_state_enter" }
+                }
+            },
+            "scenes": ["Level1"]
+        })";
+        sandbox::properties state_props(state_json, sandbox::properties::Format::JSON);
 
         scenes_module->register_state(std::move(state_props));
         REQUIRE(scenes_module->has_state("GameState"));

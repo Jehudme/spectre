@@ -1,4 +1,5 @@
 #include "scenes_module.h"
+#include <iostream>
 #include "spectre/sdk/scripts.hpp"
 #include "spectre/sdk/serializer.hpp"
 #include "spectre/services/scenes_service.h"
@@ -27,23 +28,23 @@ static void deserialize_scene_cb(ecs_world_t* world, ecs_entity_t entity, sandbo
 }
 
 static ecs_entity_t register_scene_component(ecs_world_t* world) {
-    return flecs::world(world).component<spectre_scene_t>().member<char>("dummy").id();
+    return flecs::world(world).component<spectre_scene_t>("Scene").member<char>("dummy").id();
 }
 static ecs_entity_t register_state_component(ecs_world_t* world) {
-    return flecs::world(world).component<spectre_state_t>().member<char>("dummy").id();
+    return flecs::world(world).component<spectre_state_t>("State").member<char>("dummy").id();
 }
 static ecs_entity_t register_state_use_scene_relation_component(ecs_world_t* world) {
-    return flecs::world(world).component<spectre_state_use_scene_relation_t>().member<int>("layer_index").id();
+    return flecs::world(world).component<spectre_state_use_scene_relation_t>("StateUseSceneRelation").member<int>("layer_index").id();
 }
 
 static ecs_entity_t register_state_context_component(ecs_world_t* world) {
-    return flecs::world(world).component<spectre_state_context_t>().id(); // holds flecs::entity, reflection is tricky
+    return flecs::world(world).component<spectre_state_context_t>("StateContext").id(); // holds flecs::entity, reflection is tricky
 }
 static ecs_entity_t register_scene_context_component(ecs_world_t* world) {
-    return flecs::world(world).component<spectre_scene_context_t>().id();
+    return flecs::world(world).component<spectre_scene_context_t>("SceneContext").id();
 }
 static ecs_entity_t register_disable_rendering_component(ecs_world_t* world) {
-    return flecs::world(world).component<spectre_disable_rendering_t>().member<char>("dummy").id();
+    return flecs::world(world).component<spectre_disable_rendering_t>("DisableRendering").member<char>("dummy").id();
 }
 
 static sandbox_requirement_info_t scenes_requirements[] = {{.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
@@ -114,7 +115,7 @@ scenes_module_t::scenes_module_t(flecs::world& world) : m_world(world) {
     }
 
     struct spectre_scenes_update_marker_t {};
-    m_world.component<spectre_scenes_update_marker_t>();
+    m_world.component<spectre_scenes_update_marker_t>("ScenesUpdateMarker");
     m_world.entity("Scenes Update Marker").add<spectre_scenes_update_marker_t>();
 
     m_world.system<spectre_scenes_update_marker_t>("Scenes OnUpdate")

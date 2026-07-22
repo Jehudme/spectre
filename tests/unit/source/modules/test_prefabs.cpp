@@ -142,51 +142,54 @@ TEST_CASE("Prefabs Module: Serialization and Deserialization", "[prefabs module 
 
     SECTION("serialize and deserialize entity with scripts") {
         std::string lua_code = R"(
---- @param number
-function on_create_test(value)
+g_world = g_world or nil
+local ecs = { Script = {} }
+function ecs.Script.define(func, ...)
+    local args = {}
+    for i, arg in ipairs({...}) do
+        local name, arg_type = string.match(arg, "^([%w_]+):([%w_]+)$")
+        table.insert(args, { name = name, type = arg_type })
+    end
+    return { func = func, args = args }
+end
+
+local Test = {}
+function Test.on_create_test(value)
     print("on_create_test called with value " .. tostring(value))
 end
 
---- @param number
-function on_destroy_test(value)
+function Test.on_destroy_test(value)
     print("on_destroy_test called with value " .. tostring(value))
 end
+
+return {
+    on_create_test = ecs.Script.define(Test.on_create_test, "value:number"),
+    on_destroy_test = ecs.Script.define(Test.on_destroy_test, "value:number")
+}
         )";
 
-        std::string temp_file = "temp_prefab_script.lua";
-        std::ofstream out(temp_file);
-        out << lua_code;
-        out.close();
+        scripts_mod->eval_code(lua_code, "test_prefab_script");
 
-        scripts_mod->include_code(temp_file);
-
-        sandbox::properties prefab_props;
-        prefab_props.set<std::string>("name", "ScriptedPrefab");
-
-        sandbox::properties scripts_node;
-
-        sandbox::properties on_create_arr;
-        sandbox::properties create_script;
-        create_script.set<std::string>("function", "on_create_test");
-        sandbox::properties create_args;
-        create_args.set<double>("value", 42.0);
-        create_script.merge("arguments", create_args);
-        on_create_arr.merge("0", create_script);
-
-        sandbox::properties on_destroy_arr;
-        sandbox::properties destroy_script;
-        destroy_script.set<std::string>("function", "on_destroy_test");
-        sandbox::properties destroy_args;
-        destroy_args.set<double>("value", 99.0);
-        destroy_script.merge("arguments", destroy_args);
-        on_destroy_arr.merge("0", destroy_script);
-
-        scripts_node.merge("on_create", on_create_arr);
-        scripts_node.merge("on_destroy", on_destroy_arr);
-
-        sandbox::properties components_node;
-        components_node.merge("scripts", scripts_node);
-        prefab_props.merge("components", components_node);
+        std::string prefab_json = R"({
+            "name": "ScriptedPrefab",
+            "components": {
+                "scripts": {
+                    "on_create": {
+                        "0": {
+                            "function": "on_create_test",
+                            "arguments": { "value": 42.0 }
+                        }
+                    },
+                    "on_destroy": {
+                        "0": {
+                            "function": "on_destroy_test",
+                            "arguments": { "value": 99.0 }
+                        }
+                    }
+                }
+            }
+        })";
+        sandbox::properties prefab_props(prefab_json, sandbox::properties::Format::JSON);
 
         prefabs_mod->register_prefab("ScriptedPrefab", std::move(prefab_props));
         REQUIRE(prefabs_mod->has_prefab("ScriptedPrefab") == true);
@@ -229,6 +232,5 @@ end
         // Destroy instance (should trigger on_destroy)
         instance.destruct();
 
-        std::filesystem::remove(temp_file);
-    }
+        world.quit();}
 }
