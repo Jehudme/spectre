@@ -5078,4 +5078,5 @@ function ret.Script.define(func, ...)
     }
 end
 
+---@type ecs
 return ret
