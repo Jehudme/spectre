@@ -22,7 +22,7 @@ spectre = {}
 ---@field a number
 
 ---@class spectre_renderable_t
----@field dummy any
+---@field dummy number
 
 ---@class spectre_2D_transform_component_t
 ---@field position_x number
@@ -42,10 +42,10 @@ spectre = {}
 ---@field outline_thickness number
 
 ---@class spectre_scene_t
----@field dummy any
+---@field dummy number
 
 ---@class spectre_state_t
----@field dummy any
+---@field dummy number
 
 ---@class spectre_window_component_t
 ---@field width number
@@ -56,7 +56,7 @@ spectre = {}
 ---@field min_height number
 ---@field max_width number
 ---@field max_height number
----@field chartitle any
+---@field title string
 ---@field vsync boolean
 ---@field fullscreen boolean
 ---@field borderless boolean
@@ -249,7 +249,7 @@ local spectre = {}
 ---@field a number
 
 ---@class spectre_renderable_t
----@field dummy any
+---@field dummy number
 
 ---@class spectre_2D_transform_component_t
 ---@field position_x number
@@ -269,10 +269,10 @@ local spectre = {}
 ---@field outline_thickness number
 
 ---@class spectre_scene_t
----@field dummy any
+---@field dummy number
 
 ---@class spectre_state_t
----@field dummy any
+---@field dummy number
 
 ---@class spectre_window_component_t
 ---@field width number
@@ -283,7 +283,7 @@ local spectre = {}
 ---@field min_height number
 ---@field max_width number
 ---@field max_height number
----@field chartitle any
+---@field title string
 ---@field vsync boolean
 ---@field fullscreen boolean
 ---@field borderless boolean
@@ -305,95 +305,88 @@ local spectre = {}
 ---@class spectre.resources
 spectre.resources = {}
 
----@param world any
+---@param world ecs_world_t
 ---@param target integer
----@param props any
----@return any
+---@param props sandbox.Properties
 function spectre.resources.deserialize_resource(world, target, props)
     return ffi.C.spectre_resources_deserialize_resource((type(world) == "table" and world.ptr) and world.ptr or world, target, props)
 end
 
----@param world any
----@param resourceEntity any
----@return any
+---@param world ecs_world_t
+---@param resourceEntity integer
 function spectre.resources.serialize_resource(world, resourceEntity)
     return ffi.C.spectre_resources_serialize_resource((type(world) == "table" and world.ptr) and world.ptr or world, resourceEntity)
 end
 
----@param world any
----@param props any
----@return any
+---@param world ecs_world_t
+---@param props sandbox.Properties
 function spectre.resources.register_resource(world, props)
     return ffi.C.spectre_resources_register_resource((type(world) == "table" and world.ptr) and world.ptr or world, props)
 end
 
----@param world any
----@param type any
----@return any
+---@param world ecs_world_t
+---@param type string
+---@return boolean
 function spectre.resources.has_resource_loader(world, type)
     return ffi.C.spectre_resources_has_resource_loader((type(world) == "table" and world.ptr) and world.ptr or world, type)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param name string
----@return any
+---@return boolean
 function spectre.resources.has_resource(world, name)
     return ffi.C.spectre_resources_has_resource((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param entity integer
----@return any
+---@return boolean
 function spectre.resources.is_resource(world, entity)
     return ffi.C.spectre_resources_is_resource((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
----@param world any
----@param type any
----@return any
+---@param world ecs_world_t
+---@param type string
+---@return integer
 function spectre.resources.find_resource_loader(world, type)
     return ffi.C.spectre_resources_find_resource_loader((type(world) == "table" and world.ptr) and world.ptr or world, type)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param name string
----@return any
+---@return integer
 function spectre.resources.find_resource(world, name)
     return ffi.C.spectre_resources_find_resource((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
----@param world any
----@param resource any
----@return any
+---@param world ecs_world_t
+---@param resource integer
+---@return boolean
 function spectre.resources.is_resource_loaded(world, resource)
     return ffi.C.spectre_resources_is_resource_loaded((type(world) == "table" and world.ptr) and world.ptr or world, resource)
 end
 
----@param world any
----@param resourceEntity any
----@return any
+---@param world ecs_world_t
+---@param resourceEntity integer
 function spectre.resources.load_resource(world, resourceEntity)
     return ffi.C.spectre_resources_load_resource((type(world) == "table" and world.ptr) and world.ptr or world, resourceEntity)
 end
 
----@param world any
----@param resourceEntity any
----@return any
+---@param world ecs_world_t
+---@param resourceEntity integer
 function spectre.resources.free_resource(world, resourceEntity)
     return ffi.C.spectre_resources_free_resource((type(world) == "table" and world.ptr) and world.ptr or world, resourceEntity)
 end
 
----@param world any
----@param resourceEntity any
----@return any
+---@param world ecs_world_t
+---@param resourceEntity integer
 function spectre.resources.get_resource(world, resourceEntity)
     return ffi.C.spectre_resources_get_resource((type(world) == "table" and world.ptr) and world.ptr or world, resourceEntity)
 end
 
----@param world any
----@param type any
----@param loader any
----@return any
+---@param world ecs_world_t
+---@param type string
+---@param loader spectre_resource_loader_component_t
 function spectre.resources.register_resource_loader(world, type, loader)
     return ffi.C.spectre_resources_register_resource_loader((type(world) == "table" and world.ptr) and world.ptr or world, type, loader)
 end
@@ -404,48 +397,45 @@ end
 ---@class spectre.serializer
 spectre.serializer = {}
 
----@param world any
----@param type any
----@return any
+---@param world ecs_world_t
+---@param type string
+---@return boolean
 function spectre.serializer.has_serializer(world, type)
     return ffi.C.spectre_serializer_has_serializer((type(world) == "table" and world.ptr) and world.ptr or world, type)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param entity integer
----@return any
+---@return boolean
 function spectre.serializer.is_serializer(world, entity)
     return ffi.C.spectre_serializer_is_serializer((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
----@param world any
----@param type any
----@return any
+---@param world ecs_world_t
+---@param type string
+---@return integer
 function spectre.serializer.find_serializer(world, type)
     return ffi.C.spectre_serializer_find_serializer((type(world) == "table" and world.ptr) and world.ptr or world, type)
 end
 
----@param world any
----@param type any
+---@param world ecs_world_t
+---@param type string
 ---@param serializer integer
----@return any
 function spectre.serializer.register_serializer(world, type, serializer)
     return ffi.C.spectre_serializer_register_serializer((type(world) == "table" and world.ptr) and world.ptr or world, type, serializer)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param serializer integer
 ---@param entity integer
----@return any
 function spectre.serializer.serialize_entity(world, serializer, entity)
     return ffi.C.spectre_serializer_serialize_entity((type(world) == "table" and world.ptr) and world.ptr or world, serializer, entity)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param serializer integer
 ---@param entity integer
----@param props any
----@return any
+---@param props sandbox.Properties
 function spectre.serializer.deserialize_entity(world, serializer, entity, props)
     return ffi.C.spectre_serializer_deserialize_entity((type(world) == "table" and world.ptr) and world.ptr or world, serializer, entity, props)
 end
@@ -456,30 +446,27 @@ end
 ---@class spectre.renderer
 spectre.renderer = {}
 
----@param world any
+---@param world ecs_world_t
 ---@param target integer
----@param props any
----@return any
+---@param props sandbox.Properties
 function spectre.renderer.deserialize_renderer(world, target, props)
     return ffi.C.spectre_renderer_deserialize_renderer((type(world) == "table" and world.ptr) and world.ptr or world, target, props)
 end
 
----@param world any
----@param renderer any
----@return any
+---@param world ecs_world_t
+---@param renderer integer
 function spectre.renderer.serialize_renderer(world, renderer)
     return ffi.C.spectre_renderer_serialize_renderer((type(world) == "table" and world.ptr) and world.ptr or world, renderer)
 end
 
----@param world any
----@param props any
----@return any
+---@param world ecs_world_t
+---@param props sandbox.Properties
 function spectre.renderer.register_renderer(world, props)
     return ffi.C.spectre_renderer_register_renderer((type(world) == "table" and world.ptr) and world.ptr or world, props)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
+---@return boolean
 function spectre.renderer.is_renderer(world)
     return ffi.C.spectre_renderer_is_renderer((type(world) == "table" and world.ptr) and world.ptr or world)
 end
@@ -490,122 +477,113 @@ end
 ---@class spectre.scenes
 spectre.scenes = {}
 
----@param world any
----@param state any
----@return any
+---@param world ecs_world_t
+---@param state integer
 function spectre.scenes.serialize_state(world, state)
     return ffi.C.spectre_scenes_serialize_state((type(world) == "table" and world.ptr) and world.ptr or world, state)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param target integer
----@param props any
----@return any
+---@param props sandbox.Properties
 function spectre.scenes.deserialize_state(world, target, props)
     return ffi.C.spectre_scenes_deserialize_state((type(world) == "table" and world.ptr) and world.ptr or world, target, props)
 end
 
----@param world any
----@param scene any
----@return any
+---@param world ecs_world_t
+---@param scene integer
 function spectre.scenes.serialize_scene(world, scene)
     return ffi.C.spectre_scenes_serialize_scene((type(world) == "table" and world.ptr) and world.ptr or world, scene)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param target integer
----@param props any
----@return any
+---@param props sandbox.Properties
 function spectre.scenes.deserialize_scene(world, target, props)
     return ffi.C.spectre_scenes_deserialize_scene((type(world) == "table" and world.ptr) and world.ptr or world, target, props)
 end
 
----@param world any
----@param props any
----@return any
+---@param world ecs_world_t
+---@param props sandbox.Properties
 function spectre.scenes.register_state(world, props)
     return ffi.C.spectre_scenes_register_state((type(world) == "table" and world.ptr) and world.ptr or world, props)
 end
 
----@param world any
----@param props any
----@return any
+---@param world ecs_world_t
+---@param props sandbox.Properties
 function spectre.scenes.register_scene(world, props)
     return ffi.C.spectre_scenes_register_scene((type(world) == "table" and world.ptr) and world.ptr or world, props)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param name string
----@return any
+---@return integer
 function spectre.scenes.find_state(world, name)
     return ffi.C.spectre_scenes_find_state((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param name string
----@return any
+---@return integer
 function spectre.scenes.find_scene(world, name)
     return ffi.C.spectre_scenes_find_scene((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param name string
----@return any
+---@return boolean
 function spectre.scenes.has_state(world, name)
     return ffi.C.spectre_scenes_has_state((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param name string
----@return any
+---@return boolean
 function spectre.scenes.has_scene(world, name)
     return ffi.C.spectre_scenes_has_scene((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param entity integer
----@return any
+---@return boolean
 function spectre.scenes.is_state(world, entity)
     return ffi.C.spectre_scenes_is_state((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param entity integer
----@return any
+---@return boolean
 function spectre.scenes.is_scene(world, entity)
     return ffi.C.spectre_scenes_is_scene((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
+---@return integer
 function spectre.scenes.find_current_state(world)
     return ffi.C.spectre_scenes_find_current_state((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
+---@return integer
 function spectre.scenes.find_current_scenes(world)
     return ffi.C.spectre_scenes_find_current_scenes((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@param state any
----@return any
+---@param world ecs_world_t
+---@param state integer
 function spectre.scenes.push_state(world, state)
     return ffi.C.spectre_scenes_push_state((type(world) == "table" and world.ptr) and world.ptr or world, state)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.scenes.pop_state(world)
     return ffi.C.spectre_scenes_pop_state((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param entity integer
----@param callback any
+---@param callback function
 ---@param payload any
----@return any
 function spectre.scenes.execute_recursive(world, entity, callback, payload)
     return ffi.C.spectre_scenes_execute_recursive((type(world) == "table" and world.ptr) and world.ptr or world, entity, callback, payload)
 end
@@ -616,308 +594,277 @@ end
 ---@class spectre.window
 spectre.window = {}
 
----@param world any
+---@param world ecs_world_t
 ---@param target integer
----@param props any
----@return any
+---@param props sandbox.Properties
 function spectre.window.deserialize_window(world, target, props)
     return ffi.C.spectre_window_deserialize_window((type(world) == "table" and world.ptr) and world.ptr or world, target, props)
 end
 
----@param world any
----@param window any
----@return any
+---@param world ecs_world_t
+---@param window integer
 function spectre.window.serialize_window(world, window)
     return ffi.C.spectre_window_serialize_window((type(world) == "table" and world.ptr) and world.ptr or world, window)
 end
 
----@param world any
----@param props any
----@return any
+---@param world ecs_world_t
+---@param props sandbox.Properties
 function spectre.window.register_window(world, props)
     return ffi.C.spectre_window_register_window((type(world) == "table" and world.ptr) and world.ptr or world, props)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.should_close(world)
     return ffi.C.spectre_window_should_close((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@param close any
----@return any
+---@param world ecs_world_t
+---@param close boolean
 function spectre.window.set_should_close(world, close)
     return ffi.C.spectre_window_set_should_close((type(world) == "table" and world.ptr) and world.ptr or world, close)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param width any
 ---@param height any
----@return any
+---@return integer
 function spectre.window.set_size(world, width, height)
     return ffi.C.spectre_window_set_size((type(world) == "table" and world.ptr) and world.ptr or world, width, height)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param x any
 ---@param y any
----@return any
 function spectre.window.set_position(world, x, y)
     return ffi.C.spectre_window_set_position((type(world) == "table" and world.ptr) and world.ptr or world, x, y)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.get_width(world)
     return ffi.C.spectre_window_get_width((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.get_height(world)
     return ffi.C.spectre_window_get_height((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.get_aspect_ratio(world)
     return ffi.C.spectre_window_get_aspect_ratio((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.get_position_x(world)
     return ffi.C.spectre_window_get_position_x((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.get_position_y(world)
     return ffi.C.spectre_window_get_position_y((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param title any
----@return any
 function spectre.window.set_title(world, title)
     return ffi.C.spectre_window_set_title((type(world) == "table" and world.ptr) and world.ptr or world, title)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param enabled any
----@return any
 function spectre.window.set_vsync(world, enabled)
     return ffi.C.spectre_window_set_vsync((type(world) == "table" and world.ptr) and world.ptr or world, enabled)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param fullscreen any
----@return any
 function spectre.window.set_fullscreen(world, fullscreen)
     return ffi.C.spectre_window_set_fullscreen((type(world) == "table" and world.ptr) and world.ptr or world, fullscreen)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param borderless any
----@return any
 function spectre.window.set_borderless(world, borderless)
     return ffi.C.spectre_window_set_borderless((type(world) == "table" and world.ptr) and world.ptr or world, borderless)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param resizable any
----@return any
 function spectre.window.set_resizable(world, resizable)
     return ffi.C.spectre_window_set_resizable((type(world) == "table" and world.ptr) and world.ptr or world, resizable)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param always_on_top any
----@return any
 function spectre.window.set_always_on_top(world, always_on_top)
     return ffi.C.spectre_window_set_always_on_top((type(world) == "table" and world.ptr) and world.ptr or world, always_on_top)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.get_title(world)
     return ffi.C.spectre_window_get_title((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
+---@return boolean
 function spectre.window.is_vsync(world)
     return ffi.C.spectre_window_is_vsync((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
+---@return boolean
 function spectre.window.is_fullscreen(world)
     return ffi.C.spectre_window_is_fullscreen((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
+---@return boolean
 function spectre.window.is_borderless(world)
     return ffi.C.spectre_window_is_borderless((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
+---@return boolean
 function spectre.window.is_resizable(world)
     return ffi.C.spectre_window_is_resizable((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.minimize(world)
     return ffi.C.spectre_window_minimize((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.maximize(world)
     return ffi.C.spectre_window_maximize((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.restore(world)
     return ffi.C.spectre_window_restore((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.show(world)
     return ffi.C.spectre_window_show((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.hide(world)
     return ffi.C.spectre_window_hide((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.request_attention(world)
     return ffi.C.spectre_window_request_attention((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
+---@return boolean
 function spectre.window.is_minimized(world)
     return ffi.C.spectre_window_is_minimized((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
+---@return boolean
 function spectre.window.is_maximized(world)
     return ffi.C.spectre_window_is_maximized((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
+---@return boolean
 function spectre.window.is_visible(world)
     return ffi.C.spectre_window_is_visible((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
+---@return boolean
 function spectre.window.is_focused(world)
     return ffi.C.spectre_window_is_focused((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
+---@return boolean
 function spectre.window.is_hovered(world)
     return ffi.C.spectre_window_is_hovered((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param visible any
----@return any
 function spectre.window.set_cursor_visible(world, visible)
     return ffi.C.spectre_window_set_cursor_visible((type(world) == "table" and world.ptr) and world.ptr or world, visible)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param locked any
----@return any
 function spectre.window.set_cursor_locked(world, locked)
     return ffi.C.spectre_window_set_cursor_locked((type(world) == "table" and world.ptr) and world.ptr or world, locked)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
+---@return boolean
 function spectre.window.is_cursor_visible(world)
     return ffi.C.spectre_window_is_cursor_visible((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
+---@return boolean
 function spectre.window.is_cursor_locked(world)
     return ffi.C.spectre_window_is_cursor_locked((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.get_native_handle(world)
     return ffi.C.spectre_window_get_native_handle((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param keycode any
----@return any
+---@return boolean
 function spectre.window.is_key_down(world, keycode)
     return ffi.C.spectre_window_is_key_down((type(world) == "table" and world.ptr) and world.ptr or world, keycode)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param keycode any
----@return any
+---@return boolean
 function spectre.window.is_key_pressed(world, keycode)
     return ffi.C.spectre_window_is_key_pressed((type(world) == "table" and world.ptr) and world.ptr or world, keycode)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param keycode any
----@return any
+---@return boolean
 function spectre.window.is_key_released(world, keycode)
     return ffi.C.spectre_window_is_key_released((type(world) == "table" and world.ptr) and world.ptr or world, keycode)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.get_mouse_x(world)
     return ffi.C.spectre_window_get_mouse_x((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.get_mouse_y(world)
     return ffi.C.spectre_window_get_mouse_y((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.get_mouse_delta_x(world)
     return ffi.C.spectre_window_get_mouse_delta_x((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
----@return any
+---@param world ecs_world_t
 function spectre.window.get_mouse_delta_y(world)
     return ffi.C.spectre_window_get_mouse_delta_y((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param min_width any
 ---@param min_height any
 ---@param max_width any
 ---@param max_height any
----@return any
+---@return integer
 function spectre.window.set_size_limits(world, min_width, min_height, max_width, max_height)
     return ffi.C.spectre_window_set_size_limits((type(world) == "table" and world.ptr) and world.ptr or world, min_width, min_height, max_width, max_height)
 end
@@ -928,32 +875,31 @@ end
 ---@class spectre.components
 spectre.components = {}
 
----@param world any
+---@param world ecs_world_t
 ---@param name string
----@return any
+---@return integer
 function spectre.components.find_component(world, name)
     return ffi.C.spectre_components_find_component((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param name string
----@return any
+---@return boolean
 function spectre.components.has_component(world, name)
     return ffi.C.spectre_components_has_component((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param entity integer
----@return any
+---@return boolean
 function spectre.components.is_component(world, entity)
     return ffi.C.spectre_components_is_component((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param name string
 ---@param registration_fn any
 ---@param serializer integer
----@return any
 function spectre.components.register_component(world, name, registration_fn, serializer)
     return ffi.C.spectre_components_register_component((type(world) == "table" and world.ptr) and world.ptr or world, name, registration_fn, serializer)
 end
@@ -964,91 +910,83 @@ end
 ---@class spectre.scripts
 spectre.scripts = {}
 
----@param world any
+---@param world ecs_world_t
 ---@param entity integer
----@return any
+---@return boolean
 function spectre.scripts.is_script(world, entity)
     return ffi.C.spectre_scripts_is_script((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param function_name any
----@return any
+---@return integer
 function spectre.scripts.find_script(world, function_name)
     return ffi.C.spectre_scripts_find_script((type(world) == "table" and world.ptr) and world.ptr or world, function_name)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param path string
----@return any
 function spectre.scripts.include_code(world, path)
     return ffi.C.spectre_scripts_include_code((type(world) == "table" and world.ptr) and world.ptr or world, path)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param entity integer
----@return any
 function spectre.scripts.serialize_scripts(world, entity)
     return ffi.C.spectre_scripts_serialize_scripts((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param target integer
----@param props any
----@return any
+---@param props sandbox.Properties
 function spectre.scripts.deserialize_scripts(world, target, props)
     return ffi.C.spectre_scripts_deserialize_scripts((type(world) == "table" and world.ptr) and world.ptr or world, target, props)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param entity integer
----@return any
+---@return boolean
 function spectre.scripts.execute_on_create(world, entity)
     return ffi.C.spectre_scripts_execute_on_create((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param entity integer
----@return any
 function spectre.scripts.execute_on_destroy(world, entity)
     return ffi.C.spectre_scripts_execute_on_destroy((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param entity integer
----@return any
 function spectre.scripts.execute_on_update(world, entity)
     return ffi.C.spectre_scripts_execute_on_update((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param entity integer
----@return any
 function spectre.scripts.execute_on_enter(world, entity)
     return ffi.C.spectre_scripts_execute_on_enter((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param entity integer
----@return any
 function spectre.scripts.execute_on_exit(world, entity)
     return ffi.C.spectre_scripts_execute_on_exit((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param function_name any
 ---@param arg_types any
 ---@param arg_count any
----@return any
+---@return boolean
 function spectre.scripts.has_script(world, function_name, arg_types, arg_count)
     return ffi.C.spectre_scripts_has_script((type(world) == "table" and world.ptr) and world.ptr or world, function_name, arg_types, arg_count)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param function_name any
 ---@param args any
 ---@param arg_count any
----@return any
 function spectre.scripts.execute_script(world, function_name, args, arg_count)
     return ffi.C.spectre_scripts_execute_script((type(world) == "table" and world.ptr) and world.ptr or world, function_name, args, arg_count)
 end
@@ -1059,72 +997,69 @@ end
 ---@class spectre.prefabs
 spectre.prefabs = {}
 
----@param world any
+---@param world ecs_world_t
 ---@param entity integer
----@return any
 function spectre.prefabs.serialize_entity(world, entity)
     return ffi.C.spectre_prefabs_serialize_entity((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param target integer
----@param props any
----@return any
+---@param props sandbox.Properties
 function spectre.prefabs.deserialize_entity(world, target, props)
     return ffi.C.spectre_prefabs_deserialize_entity((type(world) == "table" and world.ptr) and world.ptr or world, target, props)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param name string
----@param props any
----@return any
+---@param props sandbox.Properties
 function spectre.prefabs.register_prefab(world, name, props)
     return ffi.C.spectre_prefabs_register_prefab((type(world) == "table" and world.ptr) and world.ptr or world, name, props)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param name string
----@return any
+---@return boolean
 function spectre.prefabs.has_prefab(world, name)
     return ffi.C.spectre_prefabs_has_prefab((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param entity integer
----@return any
+---@return boolean
 function spectre.prefabs.is_prefab(world, entity)
     return ffi.C.spectre_prefabs_is_prefab((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param name string
----@return any
+---@return integer
 function spectre.prefabs.find_prefab(world, name)
     return ffi.C.spectre_prefabs_find_prefab((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
----@param world any
----@param props any
----@return any
+---@param world ecs_world_t
+---@param props sandbox.Properties
+---@return boolean
 function spectre.prefabs.create_entity_from_props(world, props)
     return ffi.C.spectre_prefabs_create_entity_from_props((type(world) == "table" and world.ptr) and world.ptr or world, props)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param prefab any
----@return any
+---@return boolean
 function spectre.prefabs.create_entity_from_prefab(world, prefab)
     return ffi.C.spectre_prefabs_create_entity_from_prefab((type(world) == "table" and world.ptr) and world.ptr or world, prefab)
 end
 
----@param world any
+---@param world ecs_world_t
 ---@param name string
----@return any
+---@return boolean
 function spectre.prefabs.create_entity_from_name(world, name)
     return ffi.C.spectre_prefabs_create_entity_from_name((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
----@param world any
+---@param world ecs_world_t
 function spectre.init(world)
     ---@type spectre_2D_transform_component_t
     spectre.Transform2D = spectre.components.find_component(world, "Transform2D")
