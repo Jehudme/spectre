@@ -51,7 +51,7 @@ static ecs_entity_t register_rectangle_comp(ecs_world_t* world) {
     if (!w.lookup("spectre_color_t").is_valid()) {
         w.component<spectre_color_t>("Color").member<float>("r").member<float>("g").member<float>("b").member<float>("a");
     }
-    return w.component<spectre_rectange_renderable_t>("RectangeRenderable")
+    return w.component<spectre_rectange_renderable_t>("RectangleRenderable")
         .member<float>("width")
         .member<float>("height")
         .member<spectre_color_t>("fill_color")
@@ -361,7 +361,7 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
     spectre_serializer_component circle_serializer = {deserialize_circle_renderable, serialize_circle_renderable};
 
     spectre::modules::components::register_component(m_world, "Renderable", register_renderable_comp, renderable_serializer);
-    spectre::modules::components::register_component(m_world, "RectangeRenderable", register_rectangle_comp, rect_serializer);
+    spectre::modules::components::register_component(m_world, "RectangleRenderable", register_rectangle_comp, rect_serializer);
     spectre::modules::components::register_component(m_world, "CircleRenderable", register_circle_comp, circle_serializer);
     spectre::modules::components::register_component(m_world, "PolygoneRenderable", register_polygon_comp, poly_serializer);
     spectre::modules::components::register_component(m_world, "CustomPolygoneRenderable", register_custom_polygon_comp, empty_serializer);

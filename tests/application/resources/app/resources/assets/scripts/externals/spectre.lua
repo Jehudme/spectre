@@ -647,7 +647,7 @@ function spectre.init(world)
     if spectre.Transform2D ~= 0 then world:bind_struct(spectre.Transform2D, "spectre_2D_transform_component_t") end
     spectre.Renderable = spectre.components.find_component(world, "Renderable")
     if spectre.Renderable ~= 0 then world:bind_struct(spectre.Renderable, "spectre_renderable_t") end
-    spectre.RectangleRenderable = spectre.components.find_component(world, "RectangeRenderable")
+    spectre.RectangleRenderable = spectre.components.find_component(world, "RectangleRenderable")
     if spectre.RectangleRenderable ~= 0 then world:bind_struct(spectre.RectangleRenderable, "spectre_rectange_renderable_t") end
     spectre.Scene = spectre.components.find_component(world, "Scene")
     if spectre.Scene ~= 0 then world:bind_struct(spectre.Scene, "spectre_scene_t") end
