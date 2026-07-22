@@ -41,6 +41,34 @@ spectre = {}
 ---@field outline_color spectre_color_t
 ---@field outline_thickness number
 
+---@class spectre_circle_renderable_t
+---@field radius number
+---@field fill_color spectre_color_t
+---@field outline_color spectre_color_t
+---@field outline_thickness number
+
+---@class spectre_polygone_renderable_t
+---@field radius number
+---@field point_count integer
+---@field fill_color spectre_color_t
+---@field outline_color spectre_color_t
+---@field outline_thickness number
+
+---@class spectre_custom_polygone_renderable_t
+---@field vertices userdata
+---@field vertex_count integer
+---@field fill_color spectre_color_t
+---@field outline_color spectre_color_t
+---@field outline_thickness number
+
+---@class spectre_ligne_renderable_t
+---@field position_x1 number
+---@field position_y1 number
+---@field position_x2 number
+---@field position_y2 number
+---@field color spectre_color_t
+---@field thickness number
+
 ---@class spectre_scene_t
 ---@field dummy number
 
@@ -96,6 +124,25 @@ pcall(function() ffi.cdef[[
         spectre_color_t fill_color; spectre_color_t outline_color;
         float outline_thickness;
     } spectre_rectange_renderable_t;
+    typedef struct spectre_circle_renderable_t {
+        float radius;
+        spectre_color_t fill_color; spectre_color_t outline_color;
+        float outline_thickness;
+    } spectre_circle_renderable_t;
+    typedef struct spectre_polygone_renderable_t {
+        float radius; uint32_t point_count;
+        spectre_color_t fill_color; spectre_color_t outline_color;
+        float outline_thickness;
+    } spectre_polygone_renderable_t;
+    typedef struct spectre_custom_polygone_renderable_t {
+        float* vertices; uint32_t vertex_count;
+        spectre_color_t fill_color; spectre_color_t outline_color;
+        float outline_thickness;
+    } spectre_custom_polygone_renderable_t;
+    typedef struct spectre_ligne_renderable_t {
+        double position_x1; double position_y1; double position_x2; double position_y2;
+        spectre_color_t color; float thickness;
+    } spectre_ligne_renderable_t;
     typedef struct spectre_scene_t { char dummy; } spectre_scene_t;
     typedef struct spectre_state_t { char dummy; } spectre_state_t;
     typedef struct spectre_window_component_t {
@@ -1072,6 +1119,22 @@ function spectre.init(world)
     ---@type spectre_rectange_renderable_t
     spectre.RectangleRenderable = spectre.components.find_component(world, "RectangleRenderable")
     if spectre.RectangleRenderable ~= 0 then world:bind_struct(spectre.RectangleRenderable, "spectre_rectange_renderable_t") end
+    
+    ---@type spectre_circle_renderable_t
+    spectre.CircleRenderable = spectre.components.find_component(world, "CircleRenderable")
+    if spectre.CircleRenderable ~= 0 then world:bind_struct(spectre.CircleRenderable, "spectre_circle_renderable_t") end
+    
+    ---@type spectre_polygone_renderable_t
+    spectre.PolygoneRenderable = spectre.components.find_component(world, "PolygoneRenderable")
+    if spectre.PolygoneRenderable ~= 0 then world:bind_struct(spectre.PolygoneRenderable, "spectre_polygone_renderable_t") end
+    
+    ---@type spectre_custom_polygone_renderable_t
+    spectre.CustomPolygoneRenderable = spectre.components.find_component(world, "CustomPolygoneRenderable")
+    if spectre.CustomPolygoneRenderable ~= 0 then world:bind_struct(spectre.CustomPolygoneRenderable, "spectre_custom_polygone_renderable_t") end
+    
+    ---@type spectre_ligne_renderable_t
+    spectre.LigneRenderable = spectre.components.find_component(world, "LigneRenderable")
+    if spectre.LigneRenderable ~= 0 then world:bind_struct(spectre.LigneRenderable, "spectre_ligne_renderable_t") end
     
     ---@type spectre_scene_t
     spectre.Scene = spectre.components.find_component(world, "Scene")
