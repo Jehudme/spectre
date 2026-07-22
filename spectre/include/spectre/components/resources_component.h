@@ -1,6 +1,7 @@
 #pragma once
 
 #include <flecs.h>
+#include <sandbox/abi/properties.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,6 +20,7 @@ typedef struct spectre_resource_loaded_flag_t {
 typedef struct spectre_resource_component_t {
     const char* path;
     void* instance;
+    sandbox_properties_handle_t properties_handle;
 } spectre_resource_component_t;
 
 typedef struct spectre_resource_loader_component_t {

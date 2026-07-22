@@ -1,9 +1,10 @@
 #include "resources_module.h"
+#include "sandbox/sdk/properties.hpp"
 #include "spectre/sdk/serializer.hpp"
 #include "spectre/services/resources_service.h"
 
-#include "sandbox/sdk/logs.hpp"
 #include "sandbox/sdk/filesystem.hpp"
+#include "sandbox/sdk/logs.hpp"
 #include <iostream>
 
 #include "spectre/sdk/components.hpp"
@@ -65,22 +66,20 @@ static ecs_entity_t register_resource_flag(ecs_world_t* world) {
     return flecs::world(world).component<spectre_resource_flag_t>("ResourceFlag").member<char>("dummy").id();
 }
 
-static sandbox_requirement_info_t resources_requirements[] = {
-    {.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
-     .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
-     .name = "logs",
-     .architecture = "sandbox",
-     .version_major = 1,
-     .version_minor = 0,
-     .version_patch = -1},
-    {.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
-     .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
-     .name = "filesystem",
-     .architecture = "sandbox",
-     .version_major = 1,
-     .version_minor = 0,
-     .version_patch = -1}
-};
+static sandbox_requirement_info_t resources_requirements[] = {{.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+                                                               .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+                                                               .name = "logs",
+                                                               .architecture = "sandbox",
+                                                               .version_major = 1,
+                                                               .version_minor = 0,
+                                                               .version_patch = -1},
+                                                              {.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+                                                               .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+                                                               .name = "filesystem",
+                                                               .architecture = "sandbox",
+                                                               .version_major = 1,
+                                                               .version_minor = 0,
+                                                               .version_patch = -1}};
 
 SANDBOX_DECLARE_MODULE(resource_module_t, {.name = "resources",
                                            .description = "Resources Module",
@@ -101,11 +100,14 @@ resource_module_t::resource_module_t(flecs::world& world) : m_world(world) {
     spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
     spectre_serializer_component resource_comp_serializer = {deserialize_resource_comp_cb, serialize_resource_comp_cb};
 
-    spectre::modules::components::register_component(m_world, "Resource", register_resource_component, resource_comp_serializer);
+    spectre::modules::components::register_component(m_world, "Resource", register_resource_component,
+                                                     resource_comp_serializer);
 
-    spectre::modules::components::register_component(m_world, "ResourceLoader", register_resource_loader_component, empty_serializer);
+    spectre::modules::components::register_component(m_world, "ResourceLoader", register_resource_loader_component,
+                                                     empty_serializer);
 
-    spectre::modules::components::register_component(m_world, "UseLoaderRelation", register_use_loader_relation, empty_serializer);
+    spectre::modules::components::register_component(m_world, "UseLoaderRelation", register_use_loader_relation,
+                                                     empty_serializer);
 
     spectre::modules::components::register_component(m_world, "ResourceFlag", register_resource_flag, empty_serializer);
 
@@ -126,9 +128,12 @@ resource_module_t::resource_module_t(flecs::world& world) : m_world(world) {
         std::string content = sandbox::modules::filesystem::read_all_text(m_world, "app://configs/resources.json");
         sandbox::properties props(content, sandbox::properties::Format::JSON);
         register_resource(props);
-        sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Resources Module] Registered resources from config.");
+        sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world),
+                                      "[Resources Module] Registered resources from config.");
     } else {
-        sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world), "[Resources Module] Resources configuration missing at app://configs/resources.json");
+        sandbox::modules::logs::warn(
+            const_cast<flecs::world&>(m_world),
+            "[Resources Module] Resources configuration missing at app://configs/resources.json");
     }
 
     sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Resources Module] Initialized successfully.");
@@ -199,6 +204,8 @@ void resource_module_t::deserialize_resource(flecs::entity resource_entity, cons
         return;
     }
 
+    sandbox::properties configs = properties.sub("configurations");
+
     flecs::entity loader_entity = m_loaders_root.lookup(type.c_str());
     if (!loader_entity.is_valid()) {
         loader_entity = m_world.entity(type.c_str()).child_of(m_loaders_root);
@@ -212,7 +219,9 @@ void resource_module_t::deserialize_resource(flecs::entity resource_entity, cons
     path_copy[path.size()] = '\0';
     resource_component.path = path_copy;
     resource_component.instance = nullptr;
+    resource_component.properties_handle = configs.get_raw();
     resource_entity.set<Resource>(resource_component);
+    configs.release();
 }
 
 sandbox::properties resource_module_t::serialize_resource(flecs::entity entity_to_serialize) {
@@ -225,6 +234,7 @@ sandbox::properties resource_module_t::serialize_resource(flecs::entity entity_t
     const auto* resource_component = entity_to_serialize.try_get<Resource>();
     if (resource_component && resource_component->path) {
         result_properties.set("path", std::string(resource_component->path));
+        result_properties.merge("", sandbox::properties(resource_component->properties_handle));
     }
 
     entity_to_serialize.each<spectre_use_loader_relation_t>(
@@ -291,7 +301,8 @@ void resource_module_t::load_resource(flecs::entity resource_entity) {
 
     const ResourceLoader* loader = loader_entity.try_get<ResourceLoader>();
     if (!loader || !loader->load_fn) {
-        sandbox::modules::logs::error(m_world, "[Resources Module] Loader for resource '{}' is invalid or not registered.",
+        sandbox::modules::logs::error(m_world,
+                                      "[Resources Module] Loader for resource '{}' is invalid or not registered.",
                                       resource_entity.name().c_str());
         return;
     }

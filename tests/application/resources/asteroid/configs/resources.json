@@ -1,6 +1,10 @@
 {
   "unknow_texture": {
     "type": "texture",
-    "path": "app://resources/textures/unknow.png"
+    "path": "app://resources/textures/unknow.png",
+    "configurations": {
+      "filtering": "point",
+      "wrap_mode": "repeat"
+    }
   }
 }

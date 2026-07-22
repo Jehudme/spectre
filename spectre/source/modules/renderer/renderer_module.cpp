@@ -418,6 +418,26 @@ static void texture_load_fn(ecs_world_t* world, spectre_resource_component_t* re
             Texture2D* tex = new Texture2D;
             *tex = LoadTextureFromImage(img);
             UnloadImage(img);
+
+            sandbox::properties configs(resource->properties_handle, false);
+            if (configs.is_valid()) {
+                std::string filtering;
+                if (configs.get<std::string>("filtering", filtering)) {
+                    if (filtering == "point") SetTextureFilter(*tex, TEXTURE_FILTER_POINT);
+                    else if (filtering == "bilinear") SetTextureFilter(*tex, TEXTURE_FILTER_BILINEAR);
+                    else if (filtering == "trilinear") SetTextureFilter(*tex, TEXTURE_FILTER_TRILINEAR);
+                    sandbox::modules::logs::info(w, "[Renderer Module] Applied filtering {} to texture {}", filtering.c_str(), resource->path);
+                }
+                std::string wrap_mode;
+                if (configs.get<std::string>("wrap_mode", wrap_mode)) {
+                    if (wrap_mode == "repeat") SetTextureWrap(*tex, TEXTURE_WRAP_REPEAT);
+                    else if (wrap_mode == "clamp") SetTextureWrap(*tex, TEXTURE_WRAP_CLAMP);
+                    else if (wrap_mode == "mirror_repeat") SetTextureWrap(*tex, TEXTURE_WRAP_MIRROR_REPEAT);
+                    else if (wrap_mode == "mirror_clamp") SetTextureWrap(*tex, TEXTURE_WRAP_MIRROR_CLAMP);
+                    sandbox::modules::logs::info(w, "[Renderer Module] Applied wrap mode {} to texture {}", wrap_mode.c_str(), resource->path);
+                }
+            }
+
             resource->instance = tex;
         }
     } catch (const std::exception& e) {

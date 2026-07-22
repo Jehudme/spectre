@@ -74,6 +74,9 @@ TEST_CASE("Resources Module: Registration and Lifecycle", "[resources]") {
         sandbox::properties res_node;
         res_node.set<std::string>("type", "dummy");
         res_node.set<std::string>("path", "/path/to/second");
+        sandbox::properties configs;
+        configs.set<std::string>("filtering", "point");
+        res_node.merge("configurations", configs);
 
         flecs::entity res_ent = world.entity();
         resources_mod->deserialize_resource(res_ent, res_node);
@@ -82,6 +85,10 @@ TEST_CASE("Resources Module: Registration and Lifecycle", "[resources]") {
         const auto* res_comp = &res_ent.get<spectre_resource_component_t>();
         REQUIRE(res_comp != nullptr);
         REQUIRE(std::string(res_comp->path) == "/path/to/second");
+
+        sandbox::properties extracted_configs(res_comp->properties_handle, false);
+        REQUIRE(extracted_configs.is_valid() == true);
+        REQUIRE(extracted_configs.get<std::string>("filtering").value_or("") == "point");
 
         void* instance = resources_mod->get_resource(res_ent);
         REQUIRE(instance == (void*)0x1234);
