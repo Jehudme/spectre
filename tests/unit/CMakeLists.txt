@@ -18,7 +18,7 @@ add_executable(spectre_unit_tests ${SPECTRE_UNIT_TEST_SOURCES})
 set_target_properties(spectre_unit_tests PROPERTIES ENABLE_EXPORTS ON)
 
 target_compile_definitions(spectre_unit_tests PRIVATE
-    APP_RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../application/resources/app"
+    APP_RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../application/resources/asteroid"
 )
 
 target_link_libraries(spectre_unit_tests

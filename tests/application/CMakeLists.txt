@@ -6,7 +6,7 @@ add_executable(spectre_test_application
 )
 
 target_compile_definitions(spectre_test_application PRIVATE
-    APP_RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources/app"
+    APP_RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources/asteroid"
 )
 
 target_link_libraries(spectre_test_application
