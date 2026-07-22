@@ -1,6 +1,6 @@
 #pragma once
-#include "spectre/spectre.h" // for custom types
 #include "spectre/components/serializer_component.h"
+#include "spectre/spectre.h" // for custom types
 #include <sandbox/abi/bootstrapper.h>
 
 #ifdef __cplusplus
@@ -10,7 +10,8 @@ extern "C" {
 typedef ecs_entity_t (*spectre_component_registration_fn_t)(ecs_world_t* world);
 
 typedef struct spectre_components_api_t {
-    void (*register_component)(ecs_world_t* world, const char* name, spectre_component_registration_fn_t registration_fn, spectre_serializer_component serializer);
+    void (*register_component)(ecs_world_t* world, const char* name, spectre_component_registration_fn_t registration_fn,
+                               spectre_serializer_component serializer);
     ecs_entity_t (*find_component)(ecs_world_t* world, const char* name);
     bool (*has_component)(ecs_world_t* world, const char* name);
     bool (*is_component)(ecs_world_t* world, ecs_entity_t entity);
