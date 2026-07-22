@@ -4310,6 +4310,11 @@ ffi.metatype('ecs_world_t', {
       return ffi.C.ecs_get_world_info(self)
     end,
     ---@param self ecs_world_t
+    ---@return number
+    get_delta_time = function (self)
+      return ffi.C.ecs_get_world_info(self).delta_time
+    end,
+    ---@param self ecs_world_t
     ---@return any
     stats = function (self)
       local stats = ecs_world_stats_t()
