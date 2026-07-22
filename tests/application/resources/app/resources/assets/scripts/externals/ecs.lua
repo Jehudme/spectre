@@ -4916,10 +4916,11 @@ ffi.metatype('ecs_world_t', {
     -- For safety, this function always returns a new struct initialized with the component's value.
     -- Client code should have no access to pointers, references, or arrays.
     -- And, since we're returning a copy here, there's no need for a get_mut function.
+    ---@generic T
     ---@param self ecs_world_t
     ---@param entity integer
-    ---@param component integer
-    ---@return any
+    ---@param component `T`
+    ---@return T|any
     get = function (self, entity, component)
       if component == nil then return nil end
       local data = ffi.C.ecs_get_id(self, entity, component)
@@ -4935,10 +4936,11 @@ ffi.metatype('ecs_world_t', {
       return ctype.struct(ffi.cast(ctype.const_ptr, data)[0])
     end,
     -- TODO: Get ref.
+    ---@generic T
     ---@param self ecs_world_t
     ---@param entity integer
-    ---@param component integer
-    ---@param value any
+    ---@param component `T`
+    ---@param value T|any
     set = function (self, entity, component, value)
       if component == nil then error('Component ID must not be nil', 2) end
       if not value then

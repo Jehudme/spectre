@@ -1,6 +1,77 @@
 ---@class spectre
 spectre = {}
 
+---@class sandbox_properties_handle_t
+---@field token uintptr_t
+
+---@class spectre_serializer_component
+---@field deserialize any
+---@field serialize any
+
+---@class spectre_resource_loader_component_t
+---@field load_fn any
+---@field free_fn any
+
+---@class spectre_script_argument_t
+---@field dummy number
+
+---@class spectre_color_t
+---@field r number
+---@field g number
+---@field b number
+---@field a number
+
+---@class spectre_renderable_t
+---@field dummy any
+
+---@class spectre_2D_transform_component_t
+---@field position_x number
+---@field position_y number
+---@field position_z number
+---@field scale_x number
+---@field scale_y number
+---@field origin_x number
+---@field origin_y number
+---@field rotation number
+
+---@class spectre_rectange_renderable_t
+---@field width number
+---@field height number
+---@field fill_color spectre_color_t
+---@field outline_color spectre_color_t
+---@field outline_thickness number
+
+---@class spectre_scene_t
+---@field dummy any
+
+---@class spectre_state_t
+---@field dummy any
+
+---@class spectre_window_component_t
+---@field width number
+---@field height number
+---@field position_x number
+---@field position_y number
+---@field min_width number
+---@field min_height number
+---@field max_width number
+---@field max_height number
+---@field chartitle any
+---@field vsync boolean
+---@field fullscreen boolean
+---@field borderless boolean
+---@field resizable boolean
+---@field always_on_top boolean
+---@field minimized boolean
+---@field maximized boolean
+---@field visible boolean
+---@field focused boolean
+---@field hovered boolean
+---@field cursor_visible boolean
+---@field cursor_locked boolean
+---@field native_handle any
+
+
 local ffi = require('ffi')
 
 pcall(function() ffi.cdef[[
@@ -156,6 +227,77 @@ pcall(function() ffi.cdef[[
 ]] end)
 
 local spectre = {}
+
+---@class sandbox_properties_handle_t
+---@field token uintptr_t
+
+---@class spectre_serializer_component
+---@field deserialize any
+---@field serialize any
+
+---@class spectre_resource_loader_component_t
+---@field load_fn any
+---@field free_fn any
+
+---@class spectre_script_argument_t
+---@field dummy number
+
+---@class spectre_color_t
+---@field r number
+---@field g number
+---@field b number
+---@field a number
+
+---@class spectre_renderable_t
+---@field dummy any
+
+---@class spectre_2D_transform_component_t
+---@field position_x number
+---@field position_y number
+---@field position_z number
+---@field scale_x number
+---@field scale_y number
+---@field origin_x number
+---@field origin_y number
+---@field rotation number
+
+---@class spectre_rectange_renderable_t
+---@field width number
+---@field height number
+---@field fill_color spectre_color_t
+---@field outline_color spectre_color_t
+---@field outline_thickness number
+
+---@class spectre_scene_t
+---@field dummy any
+
+---@class spectre_state_t
+---@field dummy any
+
+---@class spectre_window_component_t
+---@field width number
+---@field height number
+---@field position_x number
+---@field position_y number
+---@field min_width number
+---@field min_height number
+---@field max_width number
+---@field max_height number
+---@field chartitle any
+---@field vsync boolean
+---@field fullscreen boolean
+---@field borderless boolean
+---@field resizable boolean
+---@field always_on_top boolean
+---@field minimized boolean
+---@field maximized boolean
+---@field visible boolean
+---@field focused boolean
+---@field hovered boolean
+---@field cursor_visible boolean
+---@field cursor_locked boolean
+---@field native_handle any
+
 
 -- ========================================
 -- Resources API
