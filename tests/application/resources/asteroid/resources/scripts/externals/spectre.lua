@@ -1181,6 +1181,14 @@ function spectre.init(world)
     spectre.LigneRenderable = spectre.components.find_component(world, "LigneRenderable")
     if spectre.LigneRenderable ~= 0 then world:bind_struct(spectre.LigneRenderable, "spectre_ligne_renderable_t") end
     
+    ---@type spectre_texture_renderable_t
+    spectre.TextureRenderable = spectre.components.find_component(world, "TextureRenderable")
+    if spectre.TextureRenderable ~= 0 then world:bind_struct(spectre.TextureRenderable, "spectre_texture_renderable_t") end
+    
+    ---@type spectre_text_renderable_t
+    spectre.TextRenderable = spectre.components.find_component(world, "TextRenderable")
+    if spectre.TextRenderable ~= 0 then world:bind_struct(spectre.TextRenderable, "spectre_text_renderable_t") end
+    
     ---@type spectre_scene_t
     spectre.Scene = spectre.components.find_component(world, "Scene")
     if spectre.Scene ~= 0 then world:bind_struct(spectre.Scene, "spectre_scene_t") end
