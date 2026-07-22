@@ -61,6 +61,15 @@ TEST_CASE("Renderer Module: Rendering and Logging", "[renderer]") {
         flecs::entity line_entity = world.entity("MyLine").add<spectre_renderable_t>().set<spectre_ligne_renderable_t>(
             line_comp);
 
+        spectre_text_renderable_t text_comp;
+        text_comp.font_size = 20.0f;
+        text_comp.spacing = 2.0f;
+        text_comp.tint = {1, 1, 1, 1};
+        text_comp.bold = true;
+        text_comp.italic = false;
+        
+        flecs::entity text_entity = world.entity("MyText").add<spectre_renderable_t>().set<spectre_text_renderable_t>(text_comp);
+
         // Run ECS pipeline (triggers OnUpdate -> on_renderer)
         world.progress();
 
@@ -69,6 +78,7 @@ TEST_CASE("Renderer Module: Rendering and Logging", "[renderer]") {
         REQUIRE(rect_entity.is_valid());
         REQUIRE(poly_entity.is_valid());
         REQUIRE(line_entity.is_valid());
+        REQUIRE(text_entity.is_valid());
     }
 
     SECTION("Renderables only draw when their state is active") {

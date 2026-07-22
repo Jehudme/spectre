@@ -18,6 +18,17 @@
                     }
                 }
             }
+        },
+        "TestText": {
+            "prefabs": [
+                "TextPrefab"
+            ],
+            "components": {
+                "Transform2D": {
+                    "position_x": 50.0,
+                    "position_y": 50.0
+                }
+            }
         }
     }
 }

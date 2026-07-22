@@ -1,0 +1,726 @@
+[2026-07-22 19:49:40.410] [sandbox] [info] Filesystem Module: Found 1 mounts in configuration.
+[2026-07-22 19:49:40.411] [sandbox] [info] Mounting physical include '/home/jehud/CLionProjects/spectre/tests/application/resources/asteroid' to 'app://' (readonly: true)
+[2026-07-22 19:49:40.411] [sandbox] [info] [Components Module] Initialized successfully.
+[2026-07-22 19:49:40.411] [sandbox] [info] Registered serializer for type: 'Serializer'.
+[2026-07-22 19:49:40.412] [sandbox] [info] [Serializer Module] Initialized successfully.
+[2026-07-22 19:49:40.412] [sandbox] [info] Registered serializer for type: 'entity'.
+[2026-07-22 19:49:40.412] [sandbox] [info] [Prefabs Module] Initialized successfully.
+[2026-07-22 19:49:40.412] [sandbox] [info] [Scenes Module] Initializing...
+[2026-07-22 19:49:40.412] [sandbox] [info] Registered serializer for type: 'Scene'.
+[2026-07-22 19:49:40.413] [sandbox] [info] Registered serializer for type: 'State'.
+[2026-07-22 19:49:40.413] [sandbox] [info] Registered serializer for type: 'StateUseSceneRelation'.
+[2026-07-22 19:49:40.413] [sandbox] [info] Registered serializer for type: 'StateContext'.
+[2026-07-22 19:49:40.413] [sandbox] [info] Registered serializer for type: 'SceneContext'.
+[2026-07-22 19:49:40.413] [sandbox] [info] Registered serializer for type: 'DisableRendering'.
+[2026-07-22 19:49:40.413] [sandbox] [info] Registered serializer for type: 'state'.
+[2026-07-22 19:49:40.413] [sandbox] [info] Registered serializer for type: 'scene'.
+[2026-07-22 19:49:40.413] [sandbox] [warning] [Scenes Module] Could not find 'scripts' serializer. Serialization might be incomplete.
+[2026-07-22 19:49:40.413] [sandbox] [info] [Scenes Module] Initialized successfully.
+[2026-07-22 19:49:40.414] [sandbox] [info] Registered serializer for type: 'Script'.
+[2026-07-22 19:49:40.414] [sandbox] [info] Registered serializer for type: 'UseScriptOnCreateRelation'.
+[2026-07-22 19:49:40.414] [sandbox] [info] Registered serializer for type: 'UseScriptOnDestroyRelation'.
+[2026-07-22 19:49:40.414] [sandbox] [info] Registered serializer for type: 'UseScriptOnUpdateRelation'.
+[2026-07-22 19:49:40.414] [sandbox] [info] Registered serializer for type: 'UseScriptOnEnterRelation'.
+[2026-07-22 19:49:40.414] [sandbox] [info] Registered serializer for type: 'UseScriptOnExitRelation'.
+[2026-07-22 19:49:40.414] [sandbox] [info] Registered serializer for type: 'UseScriptOnRenderRelation'.
+[2026-07-22 19:49:40.414] [sandbox] [info] Registered serializer for type: 'scripts'.
+[2026-07-22 19:49:40.414] [sandbox] [info] [Scripts Module] Initialized successfully.
+[2026-07-22 19:49:40.414] [sandbox] [info] Registered serializer for type: 'Resource'.
+[2026-07-22 19:49:40.414] [sandbox] [info] Registered serializer for type: 'ResourceLoader'.
+[2026-07-22 19:49:40.414] [sandbox] [info] Registered serializer for type: 'UseLoaderRelation'.
+[2026-07-22 19:49:40.415] [sandbox] [info] Registered serializer for type: 'ResourceFlag'.
+[2026-07-22 19:49:40.415] [sandbox] [info] Registered serializer for type: 'resources'.
+[2026-07-22 19:49:40.415] [sandbox] [info] [Resources Module] Initialized successfully.
+[2026-07-22 19:49:40.415] [sandbox] [info] [Window Module] Initializing...
+[2026-07-22 19:49:40.415] [sandbox] [info] Registered serializer for type: 'Window'.
+[2026-07-22 19:49:40.415] [sandbox] [info] Registered serializer for type: 'InputState'.
+[2026-07-22 19:49:40.415] [sandbox] [info] Registered serializer for type: 'window'.
+[2026-07-22 19:49:40.415] [sandbox] [info] [Window Module] Initialized successfully.
+[2026-07-22 19:49:40.416] [sandbox] [info] Starting Application Module
+[2026-07-22 19:49:40.416] [sandbox] [info] Mounting physical include '/tmp/SandboxEngine/plugin_cache' to 'cache://' (readonly: false)
+[2026-07-22 19:49:40.416] [sandbox] [info] Mounting physical include '/home/jehud/.local/share/SandboxEngine/saves' to 'save://' (readonly: false)
+[2026-07-22 19:49:40.416] [sandbox] [info] Ingested app://configuration.json
+[2026-07-22 19:49:40.416] [sandbox] [warning] Path does not exist or is not a directory: /home/jehud/CLionProjects/spectre/tests/application/resources/asteroid/plugins
+[2026-07-22 19:49:40.416] [sandbox] [info] Application Module Initialized
+[2026-07-22 19:49:40.416] [sandbox] [info] Registered serializer for type: 'renderer'.
+[2026-07-22 19:49:40.416] [sandbox] [info] Registered serializer for type: 'Renderable'.
+[2026-07-22 19:49:40.416] [sandbox] [info] Registered serializer for type: 'Transform2D'.
+[2026-07-22 19:49:40.417] [sandbox] [info] Registered serializer for type: 'RectangleRenderable'.
+[2026-07-22 19:49:40.417] [sandbox] [info] Registered serializer for type: 'CircleRenderable'.
+[2026-07-22 19:49:40.417] [sandbox] [info] Registered serializer for type: 'PolygoneRenderable'.
+[2026-07-22 19:49:40.417] [sandbox] [info] Registered serializer for type: 'CustomPolygoneRenderable'.
+[2026-07-22 19:49:40.417] [sandbox] [info] Registered serializer for type: 'LigneRenderable'.
+[2026-07-22 19:49:40.418] [sandbox] [info] Registered serializer for type: 'TextureRenderable'.
+[2026-07-22 19:49:40.418] [sandbox] [info] Registered serializer for type: 'TextRenderable'.
+[2026-07-22 19:49:40.418] [sandbox] [info] [Renderer Module] Initialized successfully.
+[2026-07-22 19:49:40.418] [sandbox] [info] [Runtime Module] Initializing runtime resources...
+[2026-07-22 19:49:40.419] [sandbox] [error] File does not exist or is not a regular file: /home/jehud/CLionProjects/spectre/tests/application/resources/asteroid/resources/assets/scripts/externals/ecs.lua
+[2026-07-22 19:49:40.419] [sandbox] [error] ABI filesystem_read_all_bytes error: File does not exist on disk
+[2026-07-22 19:49:40.419] [sandbox] [error] File does not exist or is not a regular file: /home/jehud/CLionProjects/spectre/tests/application/resources/asteroid/resources/assets/scripts/ecs.lua
+[2026-07-22 19:49:40.419] [sandbox] [error] ABI filesystem_read_all_bytes error: File does not exist on disk
+[2026-07-22 19:49:40.419] [sandbox] [error] File does not exist or is not a regular file: /home/jehud/CLionProjects/spectre/tests/application/resources/asteroid/resources/assets/scripts/ecs.lua
+[2026-07-22 19:49:40.419] [sandbox] [error] ABI filesystem_read_all_bytes error: File does not exist on disk
+[2026-07-22 19:49:40.419] [sandbox] [error] [Scripts Module] Lua execution error: [string "app://resources/scripts/TestScript.lua"]:1: module 'ecs' not found:
+	no field package.preload['ecs']
+	no file './ecs.lua'
+	no file '/usr/share/luajit-2.1/ecs.lua'
+	no file '/usr/local/share/lua/5.1/ecs.lua'
+	no file '/usr/local/share/lua/5.1/ecs/init.lua'
+	no file '/usr/share/lua/5.1/ecs.lua'
+	no file '/usr/share/lua/5.1/ecs/init.lua'
+	no file './ecs.so'
+	no file '/usr/local/lib/lua/5.1/ecs.so'
+	no file '/usr/lib/x86_64-linux-gnu/lua/5.1/ecs.so'
+	no file '/usr/local/lib/lua/5.1/loadall.so'
+	no file found in sandbox VFS
+[2026-07-22 19:49:40.420] [sandbox] [error] File does not exist or is not a regular file: /home/jehud/CLionProjects/spectre/tests/application/resources/asteroid/resources/assets/scripts/externals/externals.sandbox.lua
+[2026-07-22 19:49:40.420] [sandbox] [error] ABI filesystem_read_all_bytes error: File does not exist on disk
+[2026-07-22 19:49:40.420] [sandbox] [error] File does not exist or is not a regular file: /home/jehud/CLionProjects/spectre/tests/application/resources/asteroid/resources/assets/scripts/externals.sandbox.lua
+[2026-07-22 19:49:40.420] [sandbox] [error] ABI filesystem_read_all_bytes error: File does not exist on disk
+[2026-07-22 19:49:40.420] [sandbox] [error] File does not exist or is not a regular file: /home/jehud/CLionProjects/spectre/tests/application/resources/asteroid/resources/assets/scripts/externals/sandbox.lua
+[2026-07-22 19:49:40.420] [sandbox] [error] ABI filesystem_read_all_bytes error: File does not exist on disk
+[2026-07-22 19:49:40.420] [sandbox] [info] [Scripts Module] Successfully evaluated script: app://resources/scripts/api_tests.lua
+[2026-07-22 19:49:40.422] [sandbox] [info] [Scripts Module] Successfully evaluated script: app://resources/scripts/externals/spectre.lua
+[2026-07-22 19:49:40.426] [sandbox] [info] [Scripts Module] Successfully evaluated script: app://resources/scripts/externals/ecs.lua
+[2026-07-22 19:49:40.428] [sandbox] [info] [Scripts Module] Successfully evaluated script: app://resources/scripts/externals/sandbox.lua
+[2026-07-22 19:49:40.428] [sandbox] [error] [Scripts Module] Lua parse error: [string "app://resources/scripts/.luarc.json"]:1: unexpected symbol near '{'
+deserialize_color parsed: r=255, g=255, b=255, a=255
+[2026-07-22 19:49:40.428] [sandbox] [info] [Prefabs Module] Registered prefab: 'RectanglePrefab'
+[2026-07-22 19:49:40.429] [sandbox] [info] [Renderer Module] Deserializing TextRenderable for entity TextPrefab
+[2026-07-22 19:49:40.429] [sandbox] [info] [Renderer Module] Parsed text content: Hello Spectre Text Rendering!
+deserialize_color parsed: r=255, g=50, b=50, a=255
+[2026-07-22 19:49:40.429] [sandbox] [info] [Renderer Module] Found font resource: super_bouncer_font
+[2026-07-22 19:49:40.429] [sandbox] [info] [Prefabs Module] Registered prefab: 'TextPrefab'
+[2026-07-22 19:49:40.429] [sandbox] [warning] [Scripts Module] Script 'on_update' not found when deserializing relation 'on_update'.
+[2026-07-22 19:49:40.429] [sandbox] [info] [Scenes Module] Registered scene 'MainScene'.
+[2026-07-22 19:49:40.430] [sandbox] [info] [Scenes Module] Attached scene 'MainScene' to state.
+[2026-07-22 19:49:40.430] [sandbox] [info] [Scenes Module] Registered state 'MainState'.
+INFO: Initializing raylib 5.0
+INFO: Platform backend: DESKTOP (GLFW)
+INFO: Supported raylib modules:
+INFO:     > rcore:..... loaded (mandatory)
+INFO:     > rlgl:...... loaded (mandatory)
+INFO:     > rshapes:... loaded (optional)
+INFO:     > rtextures:. loaded (optional)
+INFO:     > rtext:..... loaded (optional)
+INFO:     > rmodels:... loaded (optional)
+INFO:     > raudio:.... loaded (optional)
+INFO: DISPLAY: Trying to enable VSYNC
+INFO: DISPLAY: Device initialized successfully
+INFO:     > Display size: 1920 x 1080
+INFO:     > Screen size:  800 x 600
+INFO:     > Render size:  800 x 600
+INFO:     > Viewport offsets: 0, 0
+INFO: GLAD: OpenGL extensions loaded successfully
+INFO: GL: Supported extensions count: 384
+INFO: GL: OpenGL device information:
+INFO:     > Vendor:   NVIDIA Corporation
+INFO:     > Renderer: NVIDIA GeForce GTX 970/PCIe/SSE2
+INFO:     > Version:  3.3.0 NVIDIA 535.309.01
+INFO:     > GLSL:     3.30 NVIDIA via Cg compiler
+INFO: GL: VAO extension detected, VAO functions loaded successfully
+INFO: GL: NPOT textures extension detected, full NPOT textures supported
+INFO: GL: DXT compressed textures supported
+INFO: GL: ETC2/EAC compressed textures supported
+INFO: PLATFORM: DESKTOP (GLFW): Initialized successfully
+INFO: TEXTURE: [ID 1] Texture loaded successfully (1x1 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 1] Default texture loaded successfully
+INFO: SHADER: [ID 1] Vertex shader compiled successfully
+INFO: SHADER: [ID 2] Fragment shader compiled successfully
+INFO: SHADER: [ID 3] Program shader loaded successfully
+INFO: SHADER: [ID 3] Default shader loaded successfully
+INFO: RLGL: Render batch vertex buffers loaded successfully in RAM (CPU)
+INFO: RLGL: Render batch vertex buffers loaded successfully in VRAM (GPU)
+INFO: RLGL: Default OpenGL state initialized successfully
+INFO: TEXTURE: [ID 2] Texture loaded successfully (128x128 | GRAY_ALPHA | 1 mipmaps)
+INFO: FONT: Default font loaded successfully (224 glyphs)
+[2026-07-22 19:49:40.752] [sandbox] [info] [Window Module] Window registered and created.
+[2026-07-22 19:49:40.753] [sandbox] [info] [Scenes Module] Pushed state 'MainState'.
+[2026-07-22 19:49:40.753] [sandbox] [info] [Runtime Module] Runtime initialization complete.
+[2026-07-22 19:49:40.753] [sandbox] [info] [Runtime Module] Runtime loop started
+INFO: IMAGE: Data loaded successfully (500x500 | R8G8B8 | 1 mipmaps)
+INFO: TEXTURE: [ID 3] Texture loaded successfully (500x500 | R8G8B8 | 1 mipmaps)
+[2026-07-22 19:49:40.758] [sandbox] [info] [Renderer Module] Applied filtering point to texture app://resources/textures/unknow.png
+[2026-07-22 19:49:40.759] [sandbox] [info] [Renderer Module] Applied wrap mode repeat to texture app://resources/textures/unknow.png
+INFO: TEXTURE: [ID 4] Texture loaded successfully (1024x512 | GRAY_ALPHA | 1 mipmaps)
+INFO: FONT: Data loaded successfully (64 pixel size | 95 glyphs)
+[2026-07-22 19:49:40.763] [sandbox] [info] [Renderer Module] Applied filtering point to font app://resources/fonts/Super Bouncer.ttf
+[2026-07-22 19:49:40.764] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:40.768] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:40.785] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:40.819] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:40.822] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:40.835] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:40.851] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:40.868] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:40.885] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:40.901] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:40.918] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:40.934] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:40.952] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:40.968] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:40.985] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.001] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.018] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.035] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.052] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.068] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.085] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.102] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.118] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.135] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.152] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.168] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.185] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.202] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.218] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.235] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.252] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.268] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.285] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.302] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.318] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.340] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.351] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.368] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.385] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.402] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.418] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.435] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.452] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.468] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.485] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.502] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.518] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.535] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.552] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.568] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.585] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.602] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.618] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.638] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.651] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.668] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.685] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.701] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.718] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.735] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.751] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.768] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.785] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.801] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.818] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.835] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.851] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.868] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.885] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.902] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.918] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.935] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.951] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.968] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:41.985] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.001] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.018] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.035] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.052] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.068] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.085] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.102] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.118] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.135] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.152] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.168] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.185] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.202] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.218] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.235] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.251] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.268] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.285] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.302] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.318] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.335] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.352] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.368] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.385] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.402] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.418] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.435] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.452] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.468] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.485] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.502] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.518] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.535] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.551] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.568] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.585] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.602] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.618] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.635] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.651] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.668] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.685] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.702] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.718] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.735] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.751] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.768] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.785] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.801] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.818] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.835] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.852] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.868] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.885] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.901] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.918] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.935] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.951] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.968] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:42.985] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.001] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.018] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.035] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.052] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.068] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.085] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.102] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.118] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.135] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.152] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.168] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.185] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.201] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.218] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.235] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.252] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.268] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.285] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.301] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.318] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.335] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.352] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.369] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.385] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.401] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.418] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.436] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.452] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.468] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.485] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.501] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.518] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.535] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.552] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.568] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.585] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.601] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.618] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.635] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.651] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.668] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.685] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.701] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.718] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.735] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.751] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.768] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.785] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.802] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.818] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.835] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.851] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.868] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.885] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.902] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.918] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.935] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.952] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.968] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:43.985] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.001] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.018] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.035] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.052] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.068] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.085] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.101] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.118] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.135] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.151] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.168] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.185] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.201] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.218] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.235] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.251] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.268] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.285] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.302] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.318] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.335] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.351] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.368] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.385] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.401] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.418] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.435] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.452] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.468] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.485] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.501] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.518] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.535] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.552] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.568] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.585] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.601] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.618] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.634] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.651] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.668] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.685] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.701] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.718] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.735] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.751] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.768] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.785] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.801] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.818] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.835] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.851] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.868] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.885] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.901] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.918] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.935] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.952] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.968] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:44.985] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.001] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.018] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.035] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.051] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.068] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.085] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.102] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.118] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.135] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.151] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.168] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.185] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.201] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.218] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.235] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.251] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.268] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.285] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.301] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.318] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.335] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.352] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.368] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.385] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.401] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.418] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.435] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.451] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.468] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.485] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.501] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.518] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.535] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.551] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.568] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.585] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.601] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.618] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.635] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.652] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.668] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.685] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.706] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.718] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.735] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.751] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.768] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.785] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.802] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.818] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.835] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.852] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.868] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.885] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.901] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.918] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.935] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.951] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.968] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:45.985] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.001] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.018] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.035] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.052] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.068] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.085] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.101] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.118] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.135] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.152] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.168] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.185] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.202] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.218] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.235] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.252] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.268] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.285] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.302] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.318] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.335] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.351] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.368] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.385] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.402] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.418] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.435] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.451] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.468] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.485] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.501] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.518] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.535] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.552] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.568] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.585] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.601] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.618] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.635] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.652] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.668] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.685] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.701] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.718] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.734] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.751] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.768] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.785] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.801] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.818] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.835] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.852] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.868] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.885] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.902] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.918] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.935] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.952] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.968] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:46.985] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.001] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.018] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.035] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.052] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.068] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.085] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.101] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.118] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.135] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.151] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.168] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.185] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.201] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.218] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.235] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.252] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.268] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.285] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.301] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.318] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.335] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.352] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.368] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.385] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.402] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.418] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.435] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.452] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.468] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.485] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.502] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.518] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.535] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.552] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.568] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.585] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.602] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.618] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.635] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.652] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.668] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.685] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.701] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.718] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.735] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.752] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.768] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.785] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.801] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.818] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.834] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.852] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.868] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.884] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.901] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.918] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.934] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.951] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.968] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:47.985] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.001] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.018] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.035] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.052] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.068] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.085] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.102] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.118] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.135] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.151] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.168] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.185] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.201] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.218] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.235] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.252] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.268] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.285] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.301] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.318] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.335] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.351] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.368] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.385] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.401] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.418] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.435] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.451] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.468] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.485] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.501] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.518] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.535] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.552] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.568] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.585] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.601] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.618] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.635] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.652] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.668] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.685] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.702] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.718] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.735] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.752] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.768] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.785] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.801] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.818] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.835] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.851] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.868] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.885] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.901] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.918] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.935] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.951] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.968] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:48.985] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.002] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.018] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.035] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.052] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.068] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.085] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.102] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.118] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.135] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.152] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.168] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.185] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.202] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.218] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.235] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.251] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.268] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.285] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.301] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.318] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.335] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.352] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.368] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.385] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.401] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.418] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.435] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.451] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.468] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.485] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.501] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.518] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.535] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.551] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.568] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.585] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.601] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.618] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.634] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.651] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.668] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.685] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.701] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.718] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.735] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.751] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.768] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.785] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.802] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.818] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.835] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.851] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.868] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.885] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.902] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.918] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.935] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.951] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.968] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:49.985] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.001] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.018] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.035] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.051] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.069] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.087] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.103] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.118] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.135] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.151] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.168] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.185] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.201] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.218] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.234] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.251] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.268] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.285] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.301] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.318] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.335] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.351] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.368] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!
+[2026-07-22 19:49:50.385] [sandbox] [info] [Renderer Module] Drawing text: Hello Spectre Text Rendering!

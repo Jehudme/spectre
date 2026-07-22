@@ -1,0 +1,23 @@
+{
+    "name": "TextPrefab",
+    "components": {
+        "Renderable": {},
+        "TextRenderable": {
+            "name": "super_bouncer_font",
+            "content": "Hello Spectre Text Rendering!",
+            "font_size": 48.0,
+            "spacing": 2.0,
+            "tint": { "r": 255.0, "g": 50.0, "b": 50.0, "a": 255.0 },
+            "bold": true,
+            "italic": false
+        },
+        "Transform2D": {
+            "position_x": 50.0,
+            "position_y": 50.0,
+            "position_z": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "rotation": 0.0
+        }
+    }
+}

@@ -6,5 +6,13 @@
       "filtering": "point",
       "wrap_mode": "repeat"
     }
+  },
+  "super_bouncer_font": {
+    "type": "font",
+    "path": "app://resources/fonts/Super Bouncer.ttf",
+    "configurations": {
+      "font_size": 64,
+      "filtering": "point"
+    }
   }
 }
