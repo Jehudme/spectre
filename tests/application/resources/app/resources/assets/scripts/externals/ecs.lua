@@ -4506,7 +4506,7 @@ ffi.metatype('ecs_world_t', {
     end,
     ---@param self ecs_world_t
     ---@param path any
-    ---@return any
+    ---@return integer
     lookup = function (self, path)
       local ret = ffi.C.ecs_lookup(self, path)
       return ret ~= 0 and ret or nil
@@ -4546,7 +4546,7 @@ ffi.metatype('ecs_world_t', {
     ---@param entity integer
     ---@param arg1 any
     ---@param arg2 any
-    ---@return any
+    ---@return boolean
     has = function (self, entity, arg1, arg2)
       if entity and arg1 and arg2 then
         return ecs_has_pair(self, entity, arg1, arg2)
@@ -4563,13 +4563,13 @@ ffi.metatype('ecs_world_t', {
     end,
     ---@param self ecs_world_t
     ---@param entity integer
-    ---@return any
+    ---@return boolean
     is_alive = function (self, entity)
       return ffi.C.ecs_is_alive(self, entity)
     end,
     ---@param self ecs_world_t
     ---@param entity integer
-    ---@return any
+    ---@return boolean
     is_valid = function (self, entity)
       return ffi.C.ecs_is_valid(self, entity)
     end,
@@ -5232,18 +5232,18 @@ end
 ---@class ecs
 local ret = {}
 
----@return any
+---@return ecs_world_t
 function ret.init()
   return ffi.gc(register_world(ffi.C.ecs_init()), finish_world)
 end
 
----@return any
+---@return ecs_world_t
 function ret.mini()
   return ffi.gc(register_world(ffi.C.ecs_mini()), finish_world)
 end
 
 ---@param ptr any
----@return any
+---@return ecs_world_t
 function ret.from_ptr(ptr)
   local world = ffi.cast('ecs_world_t*', ptr)
   if not worlds[tostring(world)] then
