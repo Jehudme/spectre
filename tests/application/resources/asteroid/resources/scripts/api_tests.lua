@@ -92,13 +92,56 @@ local function test_components()
     local is_comp = spectre.components.is_component(g_world, 0)
     assert_eq(is_comp, false, "invalid component")
     
+    local transform_id = spectre.components.find_component(g_world, "Transform2D")
+    assert(transform_id ~= 0, "Transform2D component not found")
+    
+    assert_eq(spectre.components.has_component(g_world, "Transform2D"), true, "has Transform2D")
+    
     print("Components tests passed.")
+end
+
+local function test_sandbox_api()
+    -- Logs
+    sandbox.logs.trace(g_world, "Lua API trace test")
+    sandbox.logs.debug(g_world, "Lua API debug test")
+    sandbox.logs.info(g_world, "Lua API info test")
+    sandbox.logs.warn(g_world, "Lua API warn test")
+    sandbox.logs.error(g_world, "Lua API error test")
+    
+    -- Configuration
+    local config = sandbox.configuration.get_properties(g_world)
+    assert(config ~= nil, "read_engine_configuration should return Properties")
+    
+    -- Application
+    local app = sandbox.application.is_running(g_world)
+    assert(type(app) == "boolean", "is_running should return boolean")
+    
+    print("Sandbox basic APIs tests passed.")
+end
+
+local function test_spectre_api()
+    -- Prefabs
+    local p = spectre.prefabs.create_entity_from_name(g_world, "non_existent_prefab")
+    assert_eq(tonumber(p), 0, "create_entity_from_name should return 0 for non-existent prefab")
+    
+    -- Scenes
+    local state = spectre.scenes.find_current_state(g_world)
+    assert(tonumber(state) ~= nil, "find_current_state should return number or cdata number")
+    spectre.scenes.push_state(g_world, 0)
+    
+    -- Renderer
+    local is_rend = spectre.renderer.is_renderer(g_world)
+    assert(type(is_rend) == "boolean", "is_renderer should return boolean")
+    
+    print("Spectre basic APIs tests passed.")
 end
 
 local status, err = pcall(function()
     test_properties()
     test_filesystem()
     test_components()
+    test_sandbox_api()
+    test_spectre_api()
 end)
 
 local out = io.open("api_test_success.txt", "w")
