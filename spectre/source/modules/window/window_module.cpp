@@ -9,6 +9,8 @@
 #include <iostream>
 #include <raylib.h>
 
+#include "spectre/sdk/components.hpp"
+
 namespace spectre::modules {
 
 static void deserialize_window_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle);
@@ -57,11 +59,9 @@ window_module_t::window_module_t(flecs::world& world) : m_world(world) {
     auto serialize_empty = [](ecs_world_t*, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
     spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
 
-    register_window_comp(m_world.c_ptr());
-    spectre::modules::serializer::register_serializer(m_world, "spectre_window_component_t", &empty_serializer);
+    spectre::modules::components::register_component(m_world, "Window", register_window_comp, empty_serializer);
 
-    register_input_state_comp(m_world.c_ptr());
-    spectre::modules::serializer::register_serializer(m_world, "spectre_input_state_t", &empty_serializer);
+    spectre::modules::components::register_component(m_world, "InputState", register_input_state_comp, empty_serializer);
 
     spectre_serializer_component window_serializer = {};
     window_serializer.deserialize = deserialize_window_cb;

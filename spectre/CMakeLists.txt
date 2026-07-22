@@ -9,6 +9,8 @@ pkg_check_modules(LUAJIT REQUIRED luajit)
 
 # Source files
 set(SOURCES
+    source/modules/components/components_service.cpp
+    source/modules/components/components_module.cpp
     source/modules/prefabs/prefabs_service.cpp
     source/modules/prefabs/prefabs_module.cpp
     source/modules/renderer/renderer_service.cpp
@@ -29,6 +31,7 @@ set(SOURCES
 # Headers
 set(HEADERS
         source/pch.h
+    source/modules/components/components_module.h
     source/modules/prefabs/prefabs_module.h
     source/modules/renderer/renderer_module.h
     source/modules/resources/resources_module.h

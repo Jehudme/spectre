@@ -15,7 +15,7 @@ TEST_CASE("Serializer Module: Registration and Queries", "[serializers module te
     world.import <spectre::modules::serializer_module>();
 
     // Obtain the module
-    auto* serializer_mod = &world.get_mut<spectre::modules::serializer_module>();
+    auto* serializer_mod = world.try_get_mut<spectre::modules::serializer_module>();
     REQUIRE(serializer_mod != nullptr);
 
     SECTION("has_serializer returns false for empty or unregistered type") {

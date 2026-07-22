@@ -5,6 +5,7 @@
 #include "sandbox/sdk/logs.hpp"
 #include <iostream>
 
+#include "spectre/sdk/components.hpp"
 #include "spectre/sdk/resources.hpp"
 
 namespace spectre::modules {
@@ -90,17 +91,13 @@ resource_module_t::resource_module_t(flecs::world& world) : m_world(world) {
     spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
     spectre_serializer_component resource_comp_serializer = {deserialize_resource_comp_cb, serialize_resource_comp_cb};
 
-    register_resource_component(m_world.c_ptr());
-    spectre::modules::serializer::register_serializer(m_world, "spectre_resource_component_t", &resource_comp_serializer);
+    spectre::modules::components::register_component(m_world, "Resource", register_resource_component, resource_comp_serializer);
 
-    register_resource_loader_component(m_world.c_ptr());
-    spectre::modules::serializer::register_serializer(m_world, "spectre_resource_loader_component_t", &empty_serializer);
+    spectre::modules::components::register_component(m_world, "ResourceLoader", register_resource_loader_component, empty_serializer);
 
-    register_use_loader_relation(m_world.c_ptr());
-    spectre::modules::serializer::register_serializer(m_world, "spectre_use_loader_relation_t", &empty_serializer);
+    spectre::modules::components::register_component(m_world, "UseLoaderRelation", register_use_loader_relation, empty_serializer);
 
-    register_resource_flag(m_world.c_ptr());
-    spectre::modules::serializer::register_serializer(m_world, "spectre_resource_flag_t", &empty_serializer);
+    spectre::modules::components::register_component(m_world, "ResourceFlag", register_resource_flag, empty_serializer);
 
     // Create roots
     m_resources_root = m_world.entity("::resources");

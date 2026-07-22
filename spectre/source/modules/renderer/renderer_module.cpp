@@ -4,6 +4,7 @@
 #include "spectre/services/renderer_service.h"
 
 #include "sandbox/sdk/logs.hpp"
+#include "spectre/sdk/components.hpp"
 #include "spectre/sdk/serializer.hpp"
 #include <algorithm>
 #include <iostream>
@@ -291,6 +292,17 @@ static void deserialize_renderable(ecs_world_t* world, ecs_entity_t entity, sand
     }
 }
 
+static ecs_entity_t register_transform2d_comp(ecs_world_t* world) {
+    return flecs::world(world).component<spectre_2D_transform_component_t>("Transform2D")
+        .member<float>("position_x")
+        .member<float>("position_y")
+        .member<float>("position_z")
+        .member<float>("scale_x")
+        .member<float>("scale_y")
+        .member<float>("rotation")
+        .id();
+}
+
 static sandbox_properties_handle_t serialize_2D_transform_component(ecs_world_t* world, ecs_entity_t entity) {
     if (!world || !entity)
         return {0};
@@ -344,34 +356,15 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
     spectre_serializer_component line_serializer = {deserialize_line_renderable, serialize_line_renderable};
     spectre_serializer_component transform_serializer = {deserialize_2D_transform_component,
                                                          serialize_2D_transform_component};
-
-    register_renderable_comp(m_world.c_ptr());
-    spectre::modules::serializer::register_serializer(m_world, "spectre_renderable_t", &renderable_serializer);
-
-    register_rectangle_comp(m_world.c_ptr());
-    spectre::modules::serializer::register_serializer(m_world, "spectre_rectange_renderable_t", &rect_serializer);
-
-    register_circle_comp(m_world.c_ptr());
     spectre_serializer_component circle_serializer = {deserialize_circle_renderable, serialize_circle_renderable};
-    spectre::modules::serializer::register_serializer(m_world, "spectre_circle_renderable_t", &circle_serializer);
 
-    register_polygon_comp(m_world.c_ptr());
-    spectre::modules::serializer::register_serializer(m_world, "spectre_polygone_renderable_t", &poly_serializer);
-
-    register_custom_polygon_comp(m_world.c_ptr());
-    spectre::modules::serializer::register_serializer(m_world, "spectre_custom_polygone_renderable_t", &empty_serializer);
-
-    register_line_comp(m_world.c_ptr());
-    spectre::modules::serializer::register_serializer(m_world, "spectre_ligne_renderable_t", &line_serializer);
-
-    m_world.component<spectre_2D_transform_component_t>("Transform2D")
-        .member<float>("position_x")
-        .member<float>("position_y")
-        .member<float>("position_z")
-        .member<float>("scale_x")
-        .member<float>("scale_y")
-        .member<float>("rotation");
-    spectre::modules::serializer::register_serializer(m_world, "spectre_2D_transform_component_t", &transform_serializer);
+    spectre::modules::components::register_component(m_world, "Renderable", register_renderable_comp, renderable_serializer);
+    spectre::modules::components::register_component(m_world, "RectangeRenderable", register_rectangle_comp, rect_serializer);
+    spectre::modules::components::register_component(m_world, "CircleRenderable", register_circle_comp, circle_serializer);
+    spectre::modules::components::register_component(m_world, "PolygoneRenderable", register_polygon_comp, poly_serializer);
+    spectre::modules::components::register_component(m_world, "CustomPolygoneRenderable", register_custom_polygon_comp, empty_serializer);
+    spectre::modules::components::register_component(m_world, "LigneRenderable", register_line_comp, line_serializer);
+    spectre::modules::components::register_component(m_world, "Transform2D", register_transform2d_comp, transform_serializer);
 
     flecs::entity on_renderer_phase = m_world.entity("on_renderer").add(flecs::Phase).depends_on(flecs::OnUpdate);
 

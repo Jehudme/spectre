@@ -24,6 +24,8 @@ class script_module_t {
     script_module_t& operator=(const script_module_t&) = delete;
     script_module_t(script_module_t&&) = delete;
     script_module_t& operator=(script_module_t&&) = delete;
+    
+    lua_State* get_lua() const { return m_lua; }
 
     sandbox::properties serialize_scripts(flecs::entity entity);
     void deserialize_scripts(flecs::entity target, sandbox::properties props);

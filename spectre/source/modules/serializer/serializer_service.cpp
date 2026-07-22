@@ -29,28 +29,18 @@ static void serializer_register_serializer(ecs_world_t* entity_world, const char
     if (!entity_world || !serializer)
         return;
     flecs::world flecs_world(entity_world);
-    flecs::entity module_ent = flecs_world.lookup("spectre::modules::serializer_module");
-    if (module_ent.is_valid()) {
-        auto* module = flecs_world.lookup("spectre::modules::serializer_module").is_valid()
-                           ? flecs_world.try_get_mut<spectre::modules::serializer_module>()
-                           : nullptr;
+    auto* module = flecs_world.try_get_mut<spectre::modules::serializer_module>();
         if (module)
             module->register_serializer(type, *serializer);
-    }
 }
 
 static bool serializer_has_serializer(ecs_world_t* entity_world, const char* type) {
     if (!entity_world)
         return false;
     flecs::world flecs_world(entity_world);
-    flecs::entity module_ent = flecs_world.lookup("spectre::modules::serializer_module");
-    if (module_ent.is_valid()) {
-        auto* module = flecs_world.lookup("spectre::modules::serializer_module").is_valid()
-                           ? flecs_world.try_get_mut<spectre::modules::serializer_module>()
-                           : nullptr;
+    auto* module = flecs_world.try_get_mut<spectre::modules::serializer_module>();
         if (module)
             return module->has_serializer(type);
-    }
     return false;
 }
 
@@ -58,14 +48,9 @@ static bool serializer_is_serializer(ecs_world_t* entity_world, ecs_entity_t ent
     if (!entity_world)
         return false;
     flecs::world flecs_world(entity_world);
-    flecs::entity module_ent = flecs_world.lookup("spectre::modules::serializer_module");
-    if (module_ent.is_valid()) {
-        auto* module = flecs_world.lookup("spectre::modules::serializer_module").is_valid()
-                           ? flecs_world.try_get_mut<spectre::modules::serializer_module>()
-                           : nullptr;
+    auto* module = flecs_world.try_get_mut<spectre::modules::serializer_module>();
         if (module)
             return module->is_serializer(flecs_world.entity(entity));
-    }
     return false;
 }
 
@@ -73,14 +58,9 @@ static ecs_entity_t serializer_find_serializer(ecs_world_t* entity_world, const 
     if (!entity_world)
         return 0;
     flecs::world flecs_world(entity_world);
-    flecs::entity module_ent = flecs_world.lookup("spectre::modules::serializer_module");
-    if (module_ent.is_valid()) {
-        auto* module = flecs_world.lookup("spectre::modules::serializer_module").is_valid()
-                           ? flecs_world.try_get_mut<spectre::modules::serializer_module>()
-                           : nullptr;
+    auto* module = flecs_world.try_get_mut<spectre::modules::serializer_module>();
         if (module)
             return module->find_serializer(type).id();
-    }
     return 0;
 }
 
@@ -89,11 +69,7 @@ static sandbox_properties_handle_t serializer_serialize_entity(ecs_world_t* enti
     if (!entity_world)
         return {0};
     flecs::world flecs_world(entity_world);
-    flecs::entity module_ent = flecs_world.lookup("spectre::modules::serializer_module");
-    if (module_ent.is_valid()) {
-        auto* module = flecs_world.lookup("spectre::modules::serializer_module").is_valid()
-                           ? flecs_world.try_get_mut<spectre::modules::serializer_module>()
-                           : nullptr;
+    auto* module = flecs_world.try_get_mut<spectre::modules::serializer_module>();
         if (module) {
             sandbox::properties props = module->serialize_entity(flecs_world.entity(serializer),
                                                                  flecs_world.entity(entity));
@@ -101,7 +77,6 @@ static sandbox_properties_handle_t serializer_serialize_entity(ecs_world_t* enti
             props.release();
             return raw;
         }
-    }
     return {0};
 }
 
@@ -110,15 +85,10 @@ static void serializer_deserialize_entity(ecs_world_t* entity_world, ecs_entity_
     if (!entity_world)
         return;
     flecs::world flecs_world(entity_world);
-    flecs::entity module_ent = flecs_world.lookup("spectre::modules::serializer_module");
-    if (module_ent.is_valid()) {
-        auto* module = flecs_world.lookup("spectre::modules::serializer_module").is_valid()
-                           ? flecs_world.try_get_mut<spectre::modules::serializer_module>()
-                           : nullptr;
+    auto* module = flecs_world.try_get_mut<spectre::modules::serializer_module>();
         if (module)
             module->deserialize_entity(flecs_world.entity(serializer), flecs_world.entity(target),
                                        sandbox::properties(props, false));
-    }
 }
 
 // --- Public C API Implementations ---

@@ -7,6 +7,7 @@
 #include <lua.hpp>
 #include <algorithm>
 #include "spectre/sdk/scripts.hpp"
+#include "spectre/sdk/components.hpp"
 
 namespace spectre::modules {
 
@@ -76,8 +77,10 @@ const char* script_module_t::intern_string(const std::string& str) {
 }
 
 template<typename T>
-void register_relation_hooks(flecs::world& world, const char* name) {
-    world.component<T>(name).on_remove([](flecs::entity e, T& rel) {
+static ecs_entity_t register_script_relation(ecs_world_t* world, const char* name) {
+    flecs::world flecs_world(world);
+    auto id = flecs_world.component<T>(name).id();
+    flecs_world.component<T>().on_remove([](flecs::entity e, T& rel) {
         if (rel.arguments) {
             for (int i = 0; i < rel.argument_count; ++i) {
                 if (rel.arguments[i].type == SPECTRE_SCRIPT_ARGUMENT_TYPE_STRING && rel.arguments[i].value.string_value) {
@@ -87,7 +90,31 @@ void register_relation_hooks(flecs::world& world, const char* name) {
             delete[] rel.arguments;
         }
     });
+    return id;
 }
+
+static ecs_entity_t register_script_component(ecs_world_t* world) {
+    flecs::world flecs_world(world);
+    auto id = flecs_world.component<spectre_script_t>("Script").id();
+    flecs_world.component<spectre_script_t>().on_remove([](flecs::entity e, spectre_script_t& s) {
+        delete[] s.arguments_name;
+        delete[] s.argument_types;
+        if (s.lua_function_ref != LUA_REFNIL) {
+            const auto* mod_ptr = e.world().try_get<script_module_t>();
+            if (mod_ptr) {
+                luaL_unref(mod_ptr->get_lua(), LUA_REGISTRYINDEX, s.lua_function_ref);
+            }
+        }
+    });
+    return id;
+}
+
+static ecs_entity_t register_use_script_on_create_relation(ecs_world_t* world) { return register_script_relation<spectre_use_script_on_create_relation_t>(world, "UseScriptOnCreateRelation"); }
+static ecs_entity_t register_use_script_on_destroy_relation(ecs_world_t* world) { return register_script_relation<spectre_use_script_on_destroy_relation_t>(world, "UseScriptOnDestroyRelation"); }
+static ecs_entity_t register_use_script_on_update_relation(ecs_world_t* world) { return register_script_relation<spectre_use_script_on_update_relation_t>(world, "UseScriptOnUpdateRelation"); }
+static ecs_entity_t register_use_script_on_enter_relation(ecs_world_t* world) { return register_script_relation<spectre_use_script_on_enter_relation_t>(world, "UseScriptOnEnterRelation"); }
+static ecs_entity_t register_use_script_on_exit_relation(ecs_world_t* world) { return register_script_relation<spectre_use_script_on_exit_relation_t>(world, "UseScriptOnExitRelation"); }
+static ecs_entity_t register_use_script_on_render_relation(ecs_world_t* world) { return register_script_relation<spectre_use_script_on_render_relation_t>(world, "UseScriptOnRenderRelation"); }
 
 script_module_t::script_module_t(flecs::world& world) : m_world(world), m_ffi_initialized(false) {
     sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Scripts Module] Initializing...");
@@ -115,35 +142,13 @@ script_module_t::script_module_t(flecs::world& world) : m_world(world), m_ffi_in
     auto serialize_empty = [](ecs_world_t*, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
     spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
 
-    m_world.component<spectre_script_t>("Script").on_remove([](flecs::entity e, spectre_script_t& s) {
-        delete[] s.arguments_name;
-        delete[] s.argument_types;
-        if (s.lua_function_ref != LUA_REFNIL) {
-            const auto* mod_ptr = e.world().try_get<script_module_t>();
-            if (mod_ptr) {
-                luaL_unref(mod_ptr->m_lua, LUA_REGISTRYINDEX, s.lua_function_ref);
-            }
-        }
-    });
-    spectre::modules::serializer::register_serializer(m_world, "spectre_script_t", &empty_serializer);
-
-    register_relation_hooks<spectre_use_script_on_create_relation_t>(m_world, "UseScriptOnCreateRelation");
-    spectre::modules::serializer::register_serializer(m_world, "spectre_use_script_on_create_relation_t", &empty_serializer);
-
-    register_relation_hooks<spectre_use_script_on_destroy_relation_t>(m_world, "UseScriptOnDestroyRelation");
-    spectre::modules::serializer::register_serializer(m_world, "spectre_use_script_on_destroy_relation_t", &empty_serializer);
-
-    register_relation_hooks<spectre_use_script_on_update_relation_t>(m_world, "UseScriptOnUpdateRelation");
-    spectre::modules::serializer::register_serializer(m_world, "spectre_use_script_on_update_relation_t", &empty_serializer);
-
-    register_relation_hooks<spectre_use_script_on_enter_relation_t>(m_world, "UseScriptOnEnterRelation");
-    spectre::modules::serializer::register_serializer(m_world, "spectre_use_script_on_enter_relation_t", &empty_serializer);
-
-    register_relation_hooks<spectre_use_script_on_exit_relation_t>(m_world, "UseScriptOnExitRelation");
-    spectre::modules::serializer::register_serializer(m_world, "spectre_use_script_on_exit_relation_t", &empty_serializer);
-
-    register_relation_hooks<spectre_use_script_on_render_relation_t>(m_world, "UseScriptOnRenderRelation");
-    spectre::modules::serializer::register_serializer(m_world, "spectre_use_script_on_render_relation_t", &empty_serializer);
+    spectre::modules::components::register_component(m_world, "Script", register_script_component, empty_serializer);
+    spectre::modules::components::register_component(m_world, "UseScriptOnCreateRelation", register_use_script_on_create_relation, empty_serializer);
+    spectre::modules::components::register_component(m_world, "UseScriptOnDestroyRelation", register_use_script_on_destroy_relation, empty_serializer);
+    spectre::modules::components::register_component(m_world, "UseScriptOnUpdateRelation", register_use_script_on_update_relation, empty_serializer);
+    spectre::modules::components::register_component(m_world, "UseScriptOnEnterRelation", register_use_script_on_enter_relation, empty_serializer);
+    spectre::modules::components::register_component(m_world, "UseScriptOnExitRelation", register_use_script_on_exit_relation, empty_serializer);
+    spectre::modules::components::register_component(m_world, "UseScriptOnRenderRelation", register_use_script_on_render_relation, empty_serializer);
 
     spectre_serializer_component script_serializer = {};
     script_serializer.deserialize = deserialize_script_args_cb;

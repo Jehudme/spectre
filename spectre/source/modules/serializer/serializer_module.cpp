@@ -6,6 +6,8 @@
 #include "sandbox/sdk/logs.hpp"
 #include "spectre/services/serializer_service.h"
 
+#include "spectre/sdk/components.hpp"
+
 namespace spectre::modules {
 
 static sandbox_requirement_info_t serializer_requirements[] = {{.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
@@ -41,8 +43,7 @@ serializer_module::serializer_module(flecs::world& world) : m_world(world) {
     auto deserialize_empty = [](ecs_world_t*, ecs_entity_t, sandbox_properties_handle_t) {};
     auto serialize_empty = [](ecs_world_t*, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
     spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
-    register_serializer_comp(m_world.c_ptr());
-    register_serializer("spectre_serializer_component", empty_serializer);
+    spectre::modules::components::register_component(m_world, "Serializer", register_serializer_comp, empty_serializer);
 
     sandbox::modules::logs::info(m_world, "[Serializer Module] Initialized successfully.");
 }
