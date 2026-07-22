@@ -186,6 +186,10 @@ flecs::entity prefabs_module_t::deserialize_entity(flecs::entity target_entity, 
                     flecs::entity comp_entity = m_world.lookup(component_name.c_str());
                     if (comp_entity.is_valid()) {
                         target_entity.add(comp_entity);
+                    } else {
+                        sandbox::modules::logs::warn(m_world,
+                                                     "[Prefabs Module] Failed to find component '{}' during deserialization. It may be misspelled or unregistered.",
+                                                     component_name);
                     }
                 }
             }
