@@ -4,6 +4,7 @@ ffi.cdef[[
     typedef struct { uintptr_t token; } sandbox_properties_handle_t;
     typedef struct { uintptr_t token; } sandbox_file_handle_t;
     typedef enum { SANDBOX_FORMAT_JSON = 0, SANDBOX_FORMAT_BEVE, SANDBOX_FORMAT_TOML, SANDBOX_FORMAT_YAML } sandbox_properties_format_t;
+    typedef struct ecs_world_t ecs_world_t;
     void sandbox_runtime_run(ecs_world_t* ecs);
     void sandbox_runtime_start(ecs_world_t* ecs);
     void sandbox_runtime_stop(ecs_world_t* ecs);
@@ -43,13 +44,39 @@ ffi.cdef[[
     void sandbox_logs_info(ecs_world_t* ecs, const char* msg);
     void sandbox_logs_warn(ecs_world_t* ecs, const char* msg);
     void sandbox_logs_error(ecs_world_t* ecs, const char* msg);
-    bool sandbox_stage_service(const sandbox_service_info_t* info);
-    bool sandbox_stage_module(const sandbox_module_info_t* info);
-    void sandbox_index_library(ecs_world_t* ecs, const char* library_path);
-    sandbox_bootstrapper_t* sandbox_get_bootstrapper(ecs_world_t* ecs);
-    bool sandbox_bootstrapper_activate(sandbox_bootstrapper_t* bootstrapper, ecs_world_t* ecs, const char* architecture, const char* name, int version_major, int version_minor, int version_patch);
-    bool sandbox_bootstrapper_activate_string(sandbox_bootstrapper_t* bootstrapper, ecs_world_t* ecs, const char* module_str);
-    bool sandbox_bootstrapper_boot(sandbox_bootstrapper_t* bootstrapper, ecs_world_t* ecs);
+
+
+    // Properties API
+    sandbox_properties_handle_t sandbox_properties_create(void);
+    void sandbox_properties_destroy(sandbox_properties_handle_t* props);
+    bool sandbox_properties_load(sandbox_properties_handle_t props, const char* data, size_t data_length, sandbox_properties_format_t format);
+    char* sandbox_properties_dump(sandbox_properties_handle_t props, sandbox_properties_format_t format);
+    void  sandbox_properties_free_string(char* str);
+    void sandbox_properties_clear(sandbox_properties_handle_t props, const char* path_str);
+    bool sandbox_properties_has(sandbox_properties_handle_t props, const char* path_str);
+    void sandbox_properties_keys(sandbox_properties_handle_t props, const char* path_str, void (*callback)(const char* key, void* ctx), void* ctx);
+    void sandbox_properties_merge(sandbox_properties_handle_t props, const char* path_str, sandbox_properties_handle_t other);
+    sandbox_properties_handle_t sandbox_properties_sub(sandbox_properties_handle_t props, const char* path_str);
+    bool sandbox_properties_get_int64(sandbox_properties_handle_t props, const char* path_str, int64_t* out_val);
+    bool sandbox_properties_get_uint64(sandbox_properties_handle_t props, const char* path_str, uint64_t* out_val);
+    bool sandbox_properties_get_double(sandbox_properties_handle_t props, const char* path_str, double* out_val);
+    bool sandbox_properties_get_bool(sandbox_properties_handle_t props, const char* path_str, bool* out_val);
+    void sandbox_properties_read_string(sandbox_properties_handle_t props, const char* path_str, void (*callback)(const char* value, void* user_data), void* user_data);
+    void sandbox_properties_read_int64_array(sandbox_properties_handle_t props, const char* path_str, void (*callback)(int64_t value, void* user_data), void* user_data);
+    void sandbox_properties_read_uint64_array(sandbox_properties_handle_t props, const char* path_str, void (*callback)(uint64_t value, void* user_data), void* user_data);
+    void sandbox_properties_read_double_array(sandbox_properties_handle_t props, const char* path_str, void (*callback)(double value, void* user_data), void* user_data);
+    void sandbox_properties_read_bool_array(sandbox_properties_handle_t props, const char* path_str, void (*callback)(bool value, void* user_data), void* user_data);
+    void sandbox_properties_read_string_array(sandbox_properties_handle_t props, const char* path_str, void (*callback)(const char* value, void* user_data), void* user_data);
+    void sandbox_properties_set_int64(sandbox_properties_handle_t props, const char* path_str, int64_t val);
+    void sandbox_properties_set_uint64(sandbox_properties_handle_t props, const char* path_str, uint64_t val);
+    void sandbox_properties_set_double(sandbox_properties_handle_t props, const char* path_str, double val);
+    void sandbox_properties_set_bool(sandbox_properties_handle_t props, const char* path_str, bool val);
+    void sandbox_properties_set_string(sandbox_properties_handle_t props, const char* path_str, const char* val);
+    void sandbox_properties_set_int64_array(sandbox_properties_handle_t props, const char* path_str, const int64_t* values, size_t count);
+    void sandbox_properties_set_uint64_array(sandbox_properties_handle_t props, const char* path_str, const uint64_t* values, size_t count);
+    void sandbox_properties_set_double_array(sandbox_properties_handle_t props, const char* path_str, const double* values, size_t count);
+    void sandbox_properties_set_bool_array(sandbox_properties_handle_t props, const char* path_str, const bool* values, size_t count);
+    void sandbox_properties_set_string_array(sandbox_properties_handle_t props, const char* path_str, const char** values, size_t count);
 ]]
 
 local sandbox = {}
