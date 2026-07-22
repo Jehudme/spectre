@@ -5,6 +5,7 @@
             "sandbox-logs@1.0.0",
             "sandbox-filesystem@1.0.0",
 
+            "spectre-components@1.0.0",
             "spectre-serializer@1.0.0",
             "spectre-runtime@1.0.0",
             "spectre-window@1.0.0",

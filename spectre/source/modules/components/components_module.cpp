@@ -56,7 +56,7 @@ flecs::entity components_module_t::find_component(std::string_view name) const {
     if (name.empty()) return flecs::entity::null();
     flecs::entity comp = m_components_root.lookup(name.data());
     if (!comp.is_valid()) {
-        sandbox::modules::logs::error(m_world, "[Components Module] Could not find component '{}'.", name.data());
+        sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Components Module] Could not find component '{}'.", name.data());
     }
     return comp;
 }

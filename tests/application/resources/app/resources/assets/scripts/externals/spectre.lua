@@ -1,6 +1,6 @@
 local ffi = require('ffi')
 
-ffi.cdef[[
+pcall(function() ffi.cdef[[
     typedef struct { uintptr_t token; } sandbox_properties_handle_t;
     typedef struct spectre_serializer_component { void* deserialize; void* serialize; } spectre_serializer_component;
     typedef uint64_t ecs_entity_t;
@@ -9,6 +9,33 @@ ffi.cdef[[
     typedef ecs_entity_t (*spectre_component_registration_fn_t)(ecs_world_t* world);
     typedef struct spectre_resource_loader_component_t { void* load_fn; void* free_fn; } spectre_resource_loader_component_t;
     typedef struct spectre_script_argument_t { int dummy; } spectre_script_argument_t;
+    typedef struct spectre_color_t { float r, g, b, a; } spectre_color_t;
+    typedef struct spectre_renderable_t { char dummy; } spectre_renderable_t;
+    typedef struct spectre_2D_transform_component_t {
+        float position_x, position_y, position_z;
+        float scale_x, scale_y;
+        float origin_x, origin_y;
+        float rotation;
+    } spectre_2D_transform_component_t;
+    typedef struct spectre_rectange_renderable_t {
+        float width; float height;
+        spectre_color_t fill_color; spectre_color_t outline_color;
+        float outline_thickness;
+    } spectre_rectange_renderable_t;
+    typedef struct spectre_scene_t { char dummy; } spectre_scene_t;
+    typedef struct spectre_state_t { char dummy; } spectre_state_t;
+    typedef struct spectre_window_component_t {
+        uint32_t width; uint32_t height;
+        int32_t position_x; int32_t position_y;
+        uint32_t min_width; uint32_t min_height;
+        uint32_t max_width; uint32_t max_height;
+        const char* title;
+        bool vsync; bool fullscreen; bool borderless; bool resizable;
+        bool always_on_top; bool minimized; bool maximized;
+        bool visible; bool focused; bool hovered;
+        bool cursor_visible; bool cursor_locked;
+        void* native_handle;
+    } spectre_window_component_t;
     typedef enum spectre_script_argument_type_t { DUMMY_ARG = 0 } spectre_script_argument_type_t;
     typedef void (*spectre_recursive_callback_t)(ecs_world_t*, ecs_entity_t, void*);
     void spectre_resources_deserialize_resource(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
@@ -123,7 +150,7 @@ ffi.cdef[[
     ecs_entity_t spectre_prefabs_create_entity_from_props(ecs_world_t* world, sandbox_properties_handle_t props);
     ecs_entity_t spectre_prefabs_create_entity_from_prefab(ecs_world_t* world, ecs_entity_t prefab);
     ecs_entity_t spectre_prefabs_create_entity_from_name(ecs_world_t* world, const char* name);
-]]
+]] end)
 
 local spectre = {}
 
@@ -133,55 +160,55 @@ local spectre = {}
 spectre.resources = {}
 
 function spectre.resources.deserialize_resource(world, target, props)
-    return ffi.C.spectre_resources_deserialize_resource((world and world.ptr) and world.ptr or world, target, props)
+    return ffi.C.spectre_resources_deserialize_resource((type(world) == "table" and world.ptr) and world.ptr or world, target, props)
 end
 
 function spectre.resources.serialize_resource(world, resourceEntity)
-    return ffi.C.spectre_resources_serialize_resource((world and world.ptr) and world.ptr or world, resourceEntity)
+    return ffi.C.spectre_resources_serialize_resource((type(world) == "table" and world.ptr) and world.ptr or world, resourceEntity)
 end
 
 function spectre.resources.register_resource(world, props)
-    return ffi.C.spectre_resources_register_resource((world and world.ptr) and world.ptr or world, props)
+    return ffi.C.spectre_resources_register_resource((type(world) == "table" and world.ptr) and world.ptr or world, props)
 end
 
 function spectre.resources.has_resource_loader(world, type)
-    return ffi.C.spectre_resources_has_resource_loader((world and world.ptr) and world.ptr or world, type)
+    return ffi.C.spectre_resources_has_resource_loader((type(world) == "table" and world.ptr) and world.ptr or world, type)
 end
 
 function spectre.resources.has_resource(world, name)
-    return ffi.C.spectre_resources_has_resource((world and world.ptr) and world.ptr or world, name)
+    return ffi.C.spectre_resources_has_resource((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
 function spectre.resources.is_resource(world, entity)
-    return ffi.C.spectre_resources_is_resource((world and world.ptr) and world.ptr or world, entity)
+    return ffi.C.spectre_resources_is_resource((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
 function spectre.resources.find_resource_loader(world, type)
-    return ffi.C.spectre_resources_find_resource_loader((world and world.ptr) and world.ptr or world, type)
+    return ffi.C.spectre_resources_find_resource_loader((type(world) == "table" and world.ptr) and world.ptr or world, type)
 end
 
 function spectre.resources.find_resource(world, name)
-    return ffi.C.spectre_resources_find_resource((world and world.ptr) and world.ptr or world, name)
+    return ffi.C.spectre_resources_find_resource((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
 function spectre.resources.is_resource_loaded(world, resource)
-    return ffi.C.spectre_resources_is_resource_loaded((world and world.ptr) and world.ptr or world, resource)
+    return ffi.C.spectre_resources_is_resource_loaded((type(world) == "table" and world.ptr) and world.ptr or world, resource)
 end
 
 function spectre.resources.load_resource(world, resourceEntity)
-    return ffi.C.spectre_resources_load_resource((world and world.ptr) and world.ptr or world, resourceEntity)
+    return ffi.C.spectre_resources_load_resource((type(world) == "table" and world.ptr) and world.ptr or world, resourceEntity)
 end
 
 function spectre.resources.free_resource(world, resourceEntity)
-    return ffi.C.spectre_resources_free_resource((world and world.ptr) and world.ptr or world, resourceEntity)
+    return ffi.C.spectre_resources_free_resource((type(world) == "table" and world.ptr) and world.ptr or world, resourceEntity)
 end
 
 function spectre.resources.get_resource(world, resourceEntity)
-    return ffi.C.spectre_resources_get_resource((world and world.ptr) and world.ptr or world, resourceEntity)
+    return ffi.C.spectre_resources_get_resource((type(world) == "table" and world.ptr) and world.ptr or world, resourceEntity)
 end
 
 function spectre.resources.register_resource_loader(world, type, loader)
-    return ffi.C.spectre_resources_register_resource_loader((world and world.ptr) and world.ptr or world, type, loader)
+    return ffi.C.spectre_resources_register_resource_loader((type(world) == "table" and world.ptr) and world.ptr or world, type, loader)
 end
 
 -- ========================================
@@ -190,27 +217,27 @@ end
 spectre.serializer = {}
 
 function spectre.serializer.has_serializer(world, type)
-    return ffi.C.spectre_serializer_has_serializer((world and world.ptr) and world.ptr or world, type)
+    return ffi.C.spectre_serializer_has_serializer((type(world) == "table" and world.ptr) and world.ptr or world, type)
 end
 
 function spectre.serializer.is_serializer(world, entity)
-    return ffi.C.spectre_serializer_is_serializer((world and world.ptr) and world.ptr or world, entity)
+    return ffi.C.spectre_serializer_is_serializer((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
 function spectre.serializer.find_serializer(world, type)
-    return ffi.C.spectre_serializer_find_serializer((world and world.ptr) and world.ptr or world, type)
+    return ffi.C.spectre_serializer_find_serializer((type(world) == "table" and world.ptr) and world.ptr or world, type)
 end
 
 function spectre.serializer.register_serializer(world, type, serializer)
-    return ffi.C.spectre_serializer_register_serializer((world and world.ptr) and world.ptr or world, type, serializer)
+    return ffi.C.spectre_serializer_register_serializer((type(world) == "table" and world.ptr) and world.ptr or world, type, serializer)
 end
 
 function spectre.serializer.serialize_entity(world, serializer, entity)
-    return ffi.C.spectre_serializer_serialize_entity((world and world.ptr) and world.ptr or world, serializer, entity)
+    return ffi.C.spectre_serializer_serialize_entity((type(world) == "table" and world.ptr) and world.ptr or world, serializer, entity)
 end
 
 function spectre.serializer.deserialize_entity(world, serializer, entity, props)
-    return ffi.C.spectre_serializer_deserialize_entity((world and world.ptr) and world.ptr or world, serializer, entity, props)
+    return ffi.C.spectre_serializer_deserialize_entity((type(world) == "table" and world.ptr) and world.ptr or world, serializer, entity, props)
 end
 
 -- ========================================
@@ -219,19 +246,19 @@ end
 spectre.renderer = {}
 
 function spectre.renderer.deserialize_renderer(world, target, props)
-    return ffi.C.spectre_renderer_deserialize_renderer((world and world.ptr) and world.ptr or world, target, props)
+    return ffi.C.spectre_renderer_deserialize_renderer((type(world) == "table" and world.ptr) and world.ptr or world, target, props)
 end
 
 function spectre.renderer.serialize_renderer(world, renderer)
-    return ffi.C.spectre_renderer_serialize_renderer((world and world.ptr) and world.ptr or world, renderer)
+    return ffi.C.spectre_renderer_serialize_renderer((type(world) == "table" and world.ptr) and world.ptr or world, renderer)
 end
 
 function spectre.renderer.register_renderer(world, props)
-    return ffi.C.spectre_renderer_register_renderer((world and world.ptr) and world.ptr or world, props)
+    return ffi.C.spectre_renderer_register_renderer((type(world) == "table" and world.ptr) and world.ptr or world, props)
 end
 
 function spectre.renderer.is_renderer(world)
-    return ffi.C.spectre_renderer_is_renderer((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_renderer_is_renderer((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 -- ========================================
@@ -240,71 +267,71 @@ end
 spectre.scenes = {}
 
 function spectre.scenes.serialize_state(world, state)
-    return ffi.C.spectre_scenes_serialize_state((world and world.ptr) and world.ptr or world, state)
+    return ffi.C.spectre_scenes_serialize_state((type(world) == "table" and world.ptr) and world.ptr or world, state)
 end
 
 function spectre.scenes.deserialize_state(world, target, props)
-    return ffi.C.spectre_scenes_deserialize_state((world and world.ptr) and world.ptr or world, target, props)
+    return ffi.C.spectre_scenes_deserialize_state((type(world) == "table" and world.ptr) and world.ptr or world, target, props)
 end
 
 function spectre.scenes.serialize_scene(world, scene)
-    return ffi.C.spectre_scenes_serialize_scene((world and world.ptr) and world.ptr or world, scene)
+    return ffi.C.spectre_scenes_serialize_scene((type(world) == "table" and world.ptr) and world.ptr or world, scene)
 end
 
 function spectre.scenes.deserialize_scene(world, target, props)
-    return ffi.C.spectre_scenes_deserialize_scene((world and world.ptr) and world.ptr or world, target, props)
+    return ffi.C.spectre_scenes_deserialize_scene((type(world) == "table" and world.ptr) and world.ptr or world, target, props)
 end
 
 function spectre.scenes.register_state(world, props)
-    return ffi.C.spectre_scenes_register_state((world and world.ptr) and world.ptr or world, props)
+    return ffi.C.spectre_scenes_register_state((type(world) == "table" and world.ptr) and world.ptr or world, props)
 end
 
 function spectre.scenes.register_scene(world, props)
-    return ffi.C.spectre_scenes_register_scene((world and world.ptr) and world.ptr or world, props)
+    return ffi.C.spectre_scenes_register_scene((type(world) == "table" and world.ptr) and world.ptr or world, props)
 end
 
 function spectre.scenes.find_state(world, name)
-    return ffi.C.spectre_scenes_find_state((world and world.ptr) and world.ptr or world, name)
+    return ffi.C.spectre_scenes_find_state((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
 function spectre.scenes.find_scene(world, name)
-    return ffi.C.spectre_scenes_find_scene((world and world.ptr) and world.ptr or world, name)
+    return ffi.C.spectre_scenes_find_scene((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
 function spectre.scenes.has_state(world, name)
-    return ffi.C.spectre_scenes_has_state((world and world.ptr) and world.ptr or world, name)
+    return ffi.C.spectre_scenes_has_state((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
 function spectre.scenes.has_scene(world, name)
-    return ffi.C.spectre_scenes_has_scene((world and world.ptr) and world.ptr or world, name)
+    return ffi.C.spectre_scenes_has_scene((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
 function spectre.scenes.is_state(world, entity)
-    return ffi.C.spectre_scenes_is_state((world and world.ptr) and world.ptr or world, entity)
+    return ffi.C.spectre_scenes_is_state((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
 function spectre.scenes.is_scene(world, entity)
-    return ffi.C.spectre_scenes_is_scene((world and world.ptr) and world.ptr or world, entity)
+    return ffi.C.spectre_scenes_is_scene((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
 function spectre.scenes.find_current_state(world)
-    return ffi.C.spectre_scenes_find_current_state((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_scenes_find_current_state((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.scenes.find_current_scenes(world)
-    return ffi.C.spectre_scenes_find_current_scenes((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_scenes_find_current_scenes((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.scenes.push_state(world, state)
-    return ffi.C.spectre_scenes_push_state((world and world.ptr) and world.ptr or world, state)
+    return ffi.C.spectre_scenes_push_state((type(world) == "table" and world.ptr) and world.ptr or world, state)
 end
 
 function spectre.scenes.pop_state(world)
-    return ffi.C.spectre_scenes_pop_state((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_scenes_pop_state((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.scenes.execute_recursive(world, entity, callback, payload)
-    return ffi.C.spectre_scenes_execute_recursive((world and world.ptr) and world.ptr or world, entity, callback, payload)
+    return ffi.C.spectre_scenes_execute_recursive((type(world) == "table" and world.ptr) and world.ptr or world, entity, callback, payload)
 end
 
 -- ========================================
@@ -313,191 +340,191 @@ end
 spectre.window = {}
 
 function spectre.window.deserialize_window(world, target, props)
-    return ffi.C.spectre_window_deserialize_window((world and world.ptr) and world.ptr or world, target, props)
+    return ffi.C.spectre_window_deserialize_window((type(world) == "table" and world.ptr) and world.ptr or world, target, props)
 end
 
 function spectre.window.serialize_window(world, window)
-    return ffi.C.spectre_window_serialize_window((world and world.ptr) and world.ptr or world, window)
+    return ffi.C.spectre_window_serialize_window((type(world) == "table" and world.ptr) and world.ptr or world, window)
 end
 
 function spectre.window.register_window(world, props)
-    return ffi.C.spectre_window_register_window((world and world.ptr) and world.ptr or world, props)
+    return ffi.C.spectre_window_register_window((type(world) == "table" and world.ptr) and world.ptr or world, props)
 end
 
 function spectre.window.should_close(world)
-    return ffi.C.spectre_window_should_close((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_should_close((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.set_should_close(world, close)
-    return ffi.C.spectre_window_set_should_close((world and world.ptr) and world.ptr or world, close)
+    return ffi.C.spectre_window_set_should_close((type(world) == "table" and world.ptr) and world.ptr or world, close)
 end
 
 function spectre.window.set_size(world, width, height)
-    return ffi.C.spectre_window_set_size((world and world.ptr) and world.ptr or world, width, height)
+    return ffi.C.spectre_window_set_size((type(world) == "table" and world.ptr) and world.ptr or world, width, height)
 end
 
 function spectre.window.set_position(world, x, y)
-    return ffi.C.spectre_window_set_position((world and world.ptr) and world.ptr or world, x, y)
+    return ffi.C.spectre_window_set_position((type(world) == "table" and world.ptr) and world.ptr or world, x, y)
 end
 
 function spectre.window.get_width(world)
-    return ffi.C.spectre_window_get_width((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_get_width((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.get_height(world)
-    return ffi.C.spectre_window_get_height((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_get_height((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.get_aspect_ratio(world)
-    return ffi.C.spectre_window_get_aspect_ratio((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_get_aspect_ratio((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.get_position_x(world)
-    return ffi.C.spectre_window_get_position_x((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_get_position_x((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.get_position_y(world)
-    return ffi.C.spectre_window_get_position_y((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_get_position_y((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.set_title(world, title)
-    return ffi.C.spectre_window_set_title((world and world.ptr) and world.ptr or world, title)
+    return ffi.C.spectre_window_set_title((type(world) == "table" and world.ptr) and world.ptr or world, title)
 end
 
 function spectre.window.set_vsync(world, enabled)
-    return ffi.C.spectre_window_set_vsync((world and world.ptr) and world.ptr or world, enabled)
+    return ffi.C.spectre_window_set_vsync((type(world) == "table" and world.ptr) and world.ptr or world, enabled)
 end
 
 function spectre.window.set_fullscreen(world, fullscreen)
-    return ffi.C.spectre_window_set_fullscreen((world and world.ptr) and world.ptr or world, fullscreen)
+    return ffi.C.spectre_window_set_fullscreen((type(world) == "table" and world.ptr) and world.ptr or world, fullscreen)
 end
 
 function spectre.window.set_borderless(world, borderless)
-    return ffi.C.spectre_window_set_borderless((world and world.ptr) and world.ptr or world, borderless)
+    return ffi.C.spectre_window_set_borderless((type(world) == "table" and world.ptr) and world.ptr or world, borderless)
 end
 
 function spectre.window.set_resizable(world, resizable)
-    return ffi.C.spectre_window_set_resizable((world and world.ptr) and world.ptr or world, resizable)
+    return ffi.C.spectre_window_set_resizable((type(world) == "table" and world.ptr) and world.ptr or world, resizable)
 end
 
 function spectre.window.set_always_on_top(world, always_on_top)
-    return ffi.C.spectre_window_set_always_on_top((world and world.ptr) and world.ptr or world, always_on_top)
+    return ffi.C.spectre_window_set_always_on_top((type(world) == "table" and world.ptr) and world.ptr or world, always_on_top)
 end
 
 function spectre.window.get_title(world)
-    return ffi.C.spectre_window_get_title((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_get_title((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.is_vsync(world)
-    return ffi.C.spectre_window_is_vsync((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_is_vsync((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.is_fullscreen(world)
-    return ffi.C.spectre_window_is_fullscreen((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_is_fullscreen((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.is_borderless(world)
-    return ffi.C.spectre_window_is_borderless((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_is_borderless((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.is_resizable(world)
-    return ffi.C.spectre_window_is_resizable((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_is_resizable((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.minimize(world)
-    return ffi.C.spectre_window_minimize((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_minimize((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.maximize(world)
-    return ffi.C.spectre_window_maximize((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_maximize((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.restore(world)
-    return ffi.C.spectre_window_restore((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_restore((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.show(world)
-    return ffi.C.spectre_window_show((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_show((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.hide(world)
-    return ffi.C.spectre_window_hide((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_hide((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.request_attention(world)
-    return ffi.C.spectre_window_request_attention((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_request_attention((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.is_minimized(world)
-    return ffi.C.spectre_window_is_minimized((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_is_minimized((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.is_maximized(world)
-    return ffi.C.spectre_window_is_maximized((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_is_maximized((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.is_visible(world)
-    return ffi.C.spectre_window_is_visible((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_is_visible((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.is_focused(world)
-    return ffi.C.spectre_window_is_focused((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_is_focused((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.is_hovered(world)
-    return ffi.C.spectre_window_is_hovered((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_is_hovered((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.set_cursor_visible(world, visible)
-    return ffi.C.spectre_window_set_cursor_visible((world and world.ptr) and world.ptr or world, visible)
+    return ffi.C.spectre_window_set_cursor_visible((type(world) == "table" and world.ptr) and world.ptr or world, visible)
 end
 
 function spectre.window.set_cursor_locked(world, locked)
-    return ffi.C.spectre_window_set_cursor_locked((world and world.ptr) and world.ptr or world, locked)
+    return ffi.C.spectre_window_set_cursor_locked((type(world) == "table" and world.ptr) and world.ptr or world, locked)
 end
 
 function spectre.window.is_cursor_visible(world)
-    return ffi.C.spectre_window_is_cursor_visible((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_is_cursor_visible((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.is_cursor_locked(world)
-    return ffi.C.spectre_window_is_cursor_locked((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_is_cursor_locked((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.get_native_handle(world)
-    return ffi.C.spectre_window_get_native_handle((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_get_native_handle((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.is_key_down(world, keycode)
-    return ffi.C.spectre_window_is_key_down((world and world.ptr) and world.ptr or world, keycode)
+    return ffi.C.spectre_window_is_key_down((type(world) == "table" and world.ptr) and world.ptr or world, keycode)
 end
 
 function spectre.window.is_key_pressed(world, keycode)
-    return ffi.C.spectre_window_is_key_pressed((world and world.ptr) and world.ptr or world, keycode)
+    return ffi.C.spectre_window_is_key_pressed((type(world) == "table" and world.ptr) and world.ptr or world, keycode)
 end
 
 function spectre.window.is_key_released(world, keycode)
-    return ffi.C.spectre_window_is_key_released((world and world.ptr) and world.ptr or world, keycode)
+    return ffi.C.spectre_window_is_key_released((type(world) == "table" and world.ptr) and world.ptr or world, keycode)
 end
 
 function spectre.window.get_mouse_x(world)
-    return ffi.C.spectre_window_get_mouse_x((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_get_mouse_x((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.get_mouse_y(world)
-    return ffi.C.spectre_window_get_mouse_y((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_get_mouse_y((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.get_mouse_delta_x(world)
-    return ffi.C.spectre_window_get_mouse_delta_x((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_get_mouse_delta_x((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.get_mouse_delta_y(world)
-    return ffi.C.spectre_window_get_mouse_delta_y((world and world.ptr) and world.ptr or world)
+    return ffi.C.spectre_window_get_mouse_delta_y((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function spectre.window.set_size_limits(world, min_width, min_height, max_width, max_height)
-    return ffi.C.spectre_window_set_size_limits((world and world.ptr) and world.ptr or world, min_width, min_height, max_width, max_height)
+    return ffi.C.spectre_window_set_size_limits((type(world) == "table" and world.ptr) and world.ptr or world, min_width, min_height, max_width, max_height)
 end
 
 -- ========================================
@@ -506,19 +533,19 @@ end
 spectre.components = {}
 
 function spectre.components.find_component(world, name)
-    return ffi.C.spectre_components_find_component((world and world.ptr) and world.ptr or world, name)
+    return ffi.C.spectre_components_find_component((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
 function spectre.components.has_component(world, name)
-    return ffi.C.spectre_components_has_component((world and world.ptr) and world.ptr or world, name)
+    return ffi.C.spectre_components_has_component((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
 function spectre.components.is_component(world, entity)
-    return ffi.C.spectre_components_is_component((world and world.ptr) and world.ptr or world, entity)
+    return ffi.C.spectre_components_is_component((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
 function spectre.components.register_component(world, name, registration_fn, serializer)
-    return ffi.C.spectre_components_register_component((world and world.ptr) and world.ptr or world, name, registration_fn, serializer)
+    return ffi.C.spectre_components_register_component((type(world) == "table" and world.ptr) and world.ptr or world, name, registration_fn, serializer)
 end
 
 -- ========================================
@@ -527,51 +554,51 @@ end
 spectre.scripts = {}
 
 function spectre.scripts.is_script(world, entity)
-    return ffi.C.spectre_scripts_is_script((world and world.ptr) and world.ptr or world, entity)
+    return ffi.C.spectre_scripts_is_script((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
 function spectre.scripts.find_script(world, function_name)
-    return ffi.C.spectre_scripts_find_script((world and world.ptr) and world.ptr or world, function_name)
+    return ffi.C.spectre_scripts_find_script((type(world) == "table" and world.ptr) and world.ptr or world, function_name)
 end
 
 function spectre.scripts.include_code(world, path)
-    return ffi.C.spectre_scripts_include_code((world and world.ptr) and world.ptr or world, path)
+    return ffi.C.spectre_scripts_include_code((type(world) == "table" and world.ptr) and world.ptr or world, path)
 end
 
 function spectre.scripts.serialize_scripts(world, entity)
-    return ffi.C.spectre_scripts_serialize_scripts((world and world.ptr) and world.ptr or world, entity)
+    return ffi.C.spectre_scripts_serialize_scripts((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
 function spectre.scripts.deserialize_scripts(world, target, props)
-    return ffi.C.spectre_scripts_deserialize_scripts((world and world.ptr) and world.ptr or world, target, props)
+    return ffi.C.spectre_scripts_deserialize_scripts((type(world) == "table" and world.ptr) and world.ptr or world, target, props)
 end
 
 function spectre.scripts.execute_on_create(world, entity)
-    return ffi.C.spectre_scripts_execute_on_create((world and world.ptr) and world.ptr or world, entity)
+    return ffi.C.spectre_scripts_execute_on_create((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
 function spectre.scripts.execute_on_destroy(world, entity)
-    return ffi.C.spectre_scripts_execute_on_destroy((world and world.ptr) and world.ptr or world, entity)
+    return ffi.C.spectre_scripts_execute_on_destroy((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
 function spectre.scripts.execute_on_update(world, entity)
-    return ffi.C.spectre_scripts_execute_on_update((world and world.ptr) and world.ptr or world, entity)
+    return ffi.C.spectre_scripts_execute_on_update((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
 function spectre.scripts.execute_on_enter(world, entity)
-    return ffi.C.spectre_scripts_execute_on_enter((world and world.ptr) and world.ptr or world, entity)
+    return ffi.C.spectre_scripts_execute_on_enter((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
 function spectre.scripts.execute_on_exit(world, entity)
-    return ffi.C.spectre_scripts_execute_on_exit((world and world.ptr) and world.ptr or world, entity)
+    return ffi.C.spectre_scripts_execute_on_exit((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
 function spectre.scripts.has_script(world, function_name, arg_types, arg_count)
-    return ffi.C.spectre_scripts_has_script((world and world.ptr) and world.ptr or world, function_name, arg_types, arg_count)
+    return ffi.C.spectre_scripts_has_script((type(world) == "table" and world.ptr) and world.ptr or world, function_name, arg_types, arg_count)
 end
 
 function spectre.scripts.execute_script(world, function_name, args, arg_count)
-    return ffi.C.spectre_scripts_execute_script((world and world.ptr) and world.ptr or world, function_name, args, arg_count)
+    return ffi.C.spectre_scripts_execute_script((type(world) == "table" and world.ptr) and world.ptr or world, function_name, args, arg_count)
 end
 
 -- ========================================
@@ -580,39 +607,54 @@ end
 spectre.prefabs = {}
 
 function spectre.prefabs.serialize_entity(world, entity)
-    return ffi.C.spectre_prefabs_serialize_entity((world and world.ptr) and world.ptr or world, entity)
+    return ffi.C.spectre_prefabs_serialize_entity((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
 function spectre.prefabs.deserialize_entity(world, target, props)
-    return ffi.C.spectre_prefabs_deserialize_entity((world and world.ptr) and world.ptr or world, target, props)
+    return ffi.C.spectre_prefabs_deserialize_entity((type(world) == "table" and world.ptr) and world.ptr or world, target, props)
 end
 
 function spectre.prefabs.register_prefab(world, name, props)
-    return ffi.C.spectre_prefabs_register_prefab((world and world.ptr) and world.ptr or world, name, props)
+    return ffi.C.spectre_prefabs_register_prefab((type(world) == "table" and world.ptr) and world.ptr or world, name, props)
 end
 
 function spectre.prefabs.has_prefab(world, name)
-    return ffi.C.spectre_prefabs_has_prefab((world and world.ptr) and world.ptr or world, name)
+    return ffi.C.spectre_prefabs_has_prefab((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
 function spectre.prefabs.is_prefab(world, entity)
-    return ffi.C.spectre_prefabs_is_prefab((world and world.ptr) and world.ptr or world, entity)
+    return ffi.C.spectre_prefabs_is_prefab((type(world) == "table" and world.ptr) and world.ptr or world, entity)
 end
 
 function spectre.prefabs.find_prefab(world, name)
-    return ffi.C.spectre_prefabs_find_prefab((world and world.ptr) and world.ptr or world, name)
+    return ffi.C.spectre_prefabs_find_prefab((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
 
 function spectre.prefabs.create_entity_from_props(world, props)
-    return ffi.C.spectre_prefabs_create_entity_from_props((world and world.ptr) and world.ptr or world, props)
+    return ffi.C.spectre_prefabs_create_entity_from_props((type(world) == "table" and world.ptr) and world.ptr or world, props)
 end
 
 function spectre.prefabs.create_entity_from_prefab(world, prefab)
-    return ffi.C.spectre_prefabs_create_entity_from_prefab((world and world.ptr) and world.ptr or world, prefab)
+    return ffi.C.spectre_prefabs_create_entity_from_prefab((type(world) == "table" and world.ptr) and world.ptr or world, prefab)
 end
 
 function spectre.prefabs.create_entity_from_name(world, name)
-    return ffi.C.spectre_prefabs_create_entity_from_name((world and world.ptr) and world.ptr or world, name)
+    return ffi.C.spectre_prefabs_create_entity_from_name((type(world) == "table" and world.ptr) and world.ptr or world, name)
+end
+
+function spectre.init(world)
+    spectre.Transform2D = spectre.components.find_component(world, "Transform2D")
+    if spectre.Transform2D ~= 0 then world:bind_struct(spectre.Transform2D, "spectre_2D_transform_component_t") end
+    spectre.Renderable = spectre.components.find_component(world, "Renderable")
+    if spectre.Renderable ~= 0 then world:bind_struct(spectre.Renderable, "spectre_renderable_t") end
+    spectre.RectangleRenderable = spectre.components.find_component(world, "RectangeRenderable")
+    if spectre.RectangleRenderable ~= 0 then world:bind_struct(spectre.RectangleRenderable, "spectre_rectange_renderable_t") end
+    spectre.Scene = spectre.components.find_component(world, "Scene")
+    if spectre.Scene ~= 0 then world:bind_struct(spectre.Scene, "spectre_scene_t") end
+    spectre.State = spectre.components.find_component(world, "State")
+    if spectre.State ~= 0 then world:bind_struct(spectre.State, "spectre_state_t") end
+    spectre.Window = spectre.components.find_component(world, "Window")
+    if spectre.Window ~= 0 then world:bind_struct(spectre.Window, "spectre_window_component_t") end
 end
 
 return spectre

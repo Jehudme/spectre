@@ -6,7 +6,7 @@
                 "RectanglePrefab"
             ],
             "components": {
-                "spectre_2D_transform_component_t": {
+                "Transform2D": {
                     "position_x": 325.0,
                     "position_y": 225.0
                 },

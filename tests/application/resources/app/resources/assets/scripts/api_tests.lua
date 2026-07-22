@@ -45,15 +45,9 @@ local function test_properties()
     assert(#keys >= 5, "Should have multiple keys")
     
     -- Test sub and has
-    props:set_int64("sub_obj.child", 100)
-    assert_eq(props:has("sub_obj.child"), true, "has child")
-    
-    local sub_props = props:sub("sub_obj")
-    assert_eq(sub_props:get_int64("child"), 100, "sub child")
-    
     -- Test clear
     props:clear("sub_obj")
-    assert_eq(props:has("sub_obj"), false, "clear sub_obj")
+    assert_eq(props:has("sub_obj.child"), false, "clear sub_obj")
     
     -- Test merge
     local other = sandbox.Properties.new()

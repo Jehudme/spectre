@@ -23,8 +23,8 @@ function TestScript.on_update(self_id, scene_id, state_id)
 	local v = world:get(self_id, Velocity)
 
 	if transform and v then
-		sandbox.logs.info("[TestScript] Player Position: X=" .. transform.position_x .. ", Y=" .. transform.position_y)
-		sandbox.logs.info("[TestScript] Player Velocity: X=" .. v.x .. ", Y=" .. v.y)
+		sandbox.logs.info(world, "[TestScript] Player Position: X=" .. transform.position_x .. ", Y=" .. transform.position_y)
+		sandbox.logs.info(world, "[TestScript] Player Velocity: X=" .. v.x .. ", Y=" .. v.y)
 
 		-- Update position
 		world:set(self_id, spectre.Transform2D, {

@@ -1,4 +1,4 @@
-require('ffi').cdef[[
+pcall(function() require('ffi').cdef[[
 typedef uint8_t ecs_flags8_t;
 typedef uint16_t ecs_flags16_t;
 typedef uint32_t ecs_flags32_t;
@@ -4110,16 +4110,22 @@ typedef struct ecs_cpp_get_mut_t {
 const ecs_member_t* ecs_cpp_last_member(
     const ecs_world_t *world,
     ecs_entity_t type);
-]]
+]] end)
 
 local bit = require 'bit'
 local ffi = require 'ffi'
 local buffer = require 'string.buffer'
 local table = table
+local original_metatype = ffi.metatype
+local function safe_metatype(t, mt)
+    local success, result = pcall(original_metatype, t, mt)
+    if success then return result else return nil end
+end
+ffi.metatype = safe_metatype
 
-ffi.cdef[[
+pcall(function() ffi.cdef[[
 void free(void *ptr);
-]]
+]] end)
 
 local ecs_world_info_t = ffi.typeof 'ecs_world_info_t'
 local ecs_world_stats_t = ffi.typeof 'ecs_world_stats_t'

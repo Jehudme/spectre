@@ -299,6 +299,8 @@ static ecs_entity_t register_transform2d_comp(ecs_world_t* world) {
         .member<float>("position_z")
         .member<float>("scale_x")
         .member<float>("scale_y")
+        .member<float>("origin_x")
+        .member<float>("origin_y")
         .member<float>("rotation")
         .id();
 }

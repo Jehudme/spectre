@@ -22,7 +22,7 @@ class components_module_t {
     bool is_component(flecs::entity entity) const;
 
   private:
-    flecs::world& m_world;
+    flecs::world m_world;
     flecs::entity m_components_root;
 };
 

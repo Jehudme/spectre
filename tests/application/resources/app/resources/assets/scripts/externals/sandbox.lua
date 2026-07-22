@@ -1,6 +1,6 @@
 local ffi = require('ffi')
 
-ffi.cdef[[
+pcall(function() ffi.cdef[[
     typedef struct { uintptr_t token; } sandbox_properties_handle_t;
     typedef struct { uintptr_t token; } sandbox_file_handle_t;
     typedef enum { SANDBOX_FORMAT_JSON = 0, SANDBOX_FORMAT_BEVE, SANDBOX_FORMAT_TOML, SANDBOX_FORMAT_YAML } sandbox_properties_format_t;
@@ -77,7 +77,7 @@ ffi.cdef[[
     void sandbox_properties_set_double_array(sandbox_properties_handle_t props, const char* path_str, const double* values, size_t count);
     void sandbox_properties_set_bool_array(sandbox_properties_handle_t props, const char* path_str, const bool* values, size_t count);
     void sandbox_properties_set_string_array(sandbox_properties_handle_t props, const char* path_str, const char** values, size_t count);
-]]
+]] end)
 
 local sandbox = {}
 
@@ -87,23 +87,23 @@ local sandbox = {}
 sandbox.runtime = {}
 
 function sandbox.runtime.run(world)
-    return ffi.C.sandbox_runtime_run((world and world.ptr) and world.ptr or world)
+    return ffi.C.sandbox_runtime_run((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function sandbox.runtime.start(world)
-    return ffi.C.sandbox_runtime_start((world and world.ptr) and world.ptr or world)
+    return ffi.C.sandbox_runtime_start((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function sandbox.runtime.stop(world)
-    return ffi.C.sandbox_runtime_stop((world and world.ptr) and world.ptr or world)
+    return ffi.C.sandbox_runtime_stop((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function sandbox.runtime.pause(world)
-    return ffi.C.sandbox_runtime_pause((world and world.ptr) and world.ptr or world)
+    return ffi.C.sandbox_runtime_pause((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 function sandbox.runtime.resume(world)
-    return ffi.C.sandbox_runtime_resume((world and world.ptr) and world.ptr or world)
+    return ffi.C.sandbox_runtime_resume((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 -- ========================================
@@ -112,7 +112,7 @@ end
 sandbox.application = {}
 
 function sandbox.application.is_running(world)
-    return ffi.C.sandbox_application_is_running((world and world.ptr) and world.ptr or world)
+    return ffi.C.sandbox_application_is_running((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 -- ========================================
@@ -121,111 +121,111 @@ end
 sandbox.filesystem = {}
 
 function sandbox.filesystem.mount(world, physical_path, virtual_mount_point, read_only)
-    return ffi.C.sandbox_filesystem_mount((world and world.ptr) and world.ptr or world, physical_path, virtual_mount_point, read_only)
+    return ffi.C.sandbox_filesystem_mount((type(world) == "table" and world.ptr) and world.ptr or world, physical_path, virtual_mount_point, read_only)
 end
 
 function sandbox.filesystem.unmount(world, mount_point)
-    return ffi.C.sandbox_filesystem_unmount((world and world.ptr) and world.ptr or world, mount_point)
+    return ffi.C.sandbox_filesystem_unmount((type(world) == "table" and world.ptr) and world.ptr or world, mount_point)
 end
 
 function sandbox.filesystem.open_read(world, virtual_path)
-    return ffi.C.sandbox_filesystem_open_read((world and world.ptr) and world.ptr or world, virtual_path)
+    return ffi.C.sandbox_filesystem_open_read((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path)
 end
 
 function sandbox.filesystem.open_write(world, virtual_path, append, force_path)
-    return ffi.C.sandbox_filesystem_open_write((world and world.ptr) and world.ptr or world, virtual_path, append, force_path)
+    return ffi.C.sandbox_filesystem_open_write((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, append, force_path)
 end
 
 function sandbox.filesystem.read(world, handle, buffer, bytes_to_read)
-    return ffi.C.sandbox_filesystem_read((world and world.ptr) and world.ptr or world, handle, buffer, bytes_to_read)
+    return ffi.C.sandbox_filesystem_read((type(world) == "table" and world.ptr) and world.ptr or world, handle, buffer, bytes_to_read)
 end
 
 function sandbox.filesystem.write(world, handle, buffer, bytes_to_write)
-    return ffi.C.sandbox_filesystem_write((world and world.ptr) and world.ptr or world, handle, buffer, bytes_to_write)
+    return ffi.C.sandbox_filesystem_write((type(world) == "table" and world.ptr) and world.ptr or world, handle, buffer, bytes_to_write)
 end
 
 function sandbox.filesystem.eof(world, handle)
-    return ffi.C.sandbox_filesystem_eof((world and world.ptr) and world.ptr or world, handle)
+    return ffi.C.sandbox_filesystem_eof((type(world) == "table" and world.ptr) and world.ptr or world, handle)
 end
 
 function sandbox.filesystem.tell(world, handle)
-    return ffi.C.sandbox_filesystem_tell((world and world.ptr) and world.ptr or world, handle)
+    return ffi.C.sandbox_filesystem_tell((type(world) == "table" and world.ptr) and world.ptr or world, handle)
 end
 
 function sandbox.filesystem.seek(world, handle, position)
-    return ffi.C.sandbox_filesystem_seek((world and world.ptr) and world.ptr or world, handle, position)
+    return ffi.C.sandbox_filesystem_seek((type(world) == "table" and world.ptr) and world.ptr or world, handle, position)
 end
 
 function sandbox.filesystem.size(world, handle)
-    return ffi.C.sandbox_filesystem_size((world and world.ptr) and world.ptr or world, handle)
+    return ffi.C.sandbox_filesystem_size((type(world) == "table" and world.ptr) and world.ptr or world, handle)
 end
 
 function sandbox.filesystem.close_handle(world, handle)
-    return ffi.C.sandbox_filesystem_close_handle((world and world.ptr) and world.ptr or world, handle)
+    return ffi.C.sandbox_filesystem_close_handle((type(world) == "table" and world.ptr) and world.ptr or world, handle)
 end
 
 function sandbox.filesystem.create_file(world, virtual_path, force_path)
-    return ffi.C.sandbox_filesystem_create_file((world and world.ptr) and world.ptr or world, virtual_path, force_path)
+    return ffi.C.sandbox_filesystem_create_file((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, force_path)
 end
 
 function sandbox.filesystem.remove_file(world, virtual_path)
-    return ffi.C.sandbox_filesystem_remove_file((world and world.ptr) and world.ptr or world, virtual_path)
+    return ffi.C.sandbox_filesystem_remove_file((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path)
 end
 
 function sandbox.filesystem.copy(world, source_virtual_path, dest_virtual_path, overwrite, force_path)
-    return ffi.C.sandbox_filesystem_copy((world and world.ptr) and world.ptr or world, source_virtual_path, dest_virtual_path, overwrite, force_path)
+    return ffi.C.sandbox_filesystem_copy((type(world) == "table" and world.ptr) and world.ptr or world, source_virtual_path, dest_virtual_path, overwrite, force_path)
 end
 
 function sandbox.filesystem.move(world, source_virtual_path, dest_virtual_path, overwrite, force_path)
-    return ffi.C.sandbox_filesystem_move((world and world.ptr) and world.ptr or world, source_virtual_path, dest_virtual_path, overwrite, force_path)
+    return ffi.C.sandbox_filesystem_move((type(world) == "table" and world.ptr) and world.ptr or world, source_virtual_path, dest_virtual_path, overwrite, force_path)
 end
 
 function sandbox.filesystem.create_directory(world, virtual_path, force_path)
-    return ffi.C.sandbox_filesystem_create_directory((world and world.ptr) and world.ptr or world, virtual_path, force_path)
+    return ffi.C.sandbox_filesystem_create_directory((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, force_path)
 end
 
 function sandbox.filesystem.remove_directory(world, virtual_path)
-    return ffi.C.sandbox_filesystem_remove_directory((world and world.ptr) and world.ptr or world, virtual_path)
+    return ffi.C.sandbox_filesystem_remove_directory((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path)
 end
 
 function sandbox.filesystem.exists(world, virtual_path)
-    return ffi.C.sandbox_filesystem_exists((world and world.ptr) and world.ptr or world, virtual_path)
+    return ffi.C.sandbox_filesystem_exists((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path)
 end
 
 function sandbox.filesystem.is_file(world, virtual_path)
-    return ffi.C.sandbox_filesystem_is_file((world and world.ptr) and world.ptr or world, virtual_path)
+    return ffi.C.sandbox_filesystem_is_file((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path)
 end
 
 function sandbox.filesystem.is_directory(world, virtual_path)
-    return ffi.C.sandbox_filesystem_is_directory((world and world.ptr) and world.ptr or world, virtual_path)
+    return ffi.C.sandbox_filesystem_is_directory((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path)
 end
 
 function sandbox.filesystem.is_readonly(world, virtual_path)
-    return ffi.C.sandbox_filesystem_is_readonly((world and world.ptr) and world.ptr or world, virtual_path)
+    return ffi.C.sandbox_filesystem_is_readonly((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path)
 end
 
 function sandbox.filesystem.file_size(world, virtual_path)
-    return ffi.C.sandbox_filesystem_file_size((world and world.ptr) and world.ptr or world, virtual_path)
+    return ffi.C.sandbox_filesystem_file_size((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path)
 end
 
 function sandbox.filesystem.last_modified(world, virtual_path)
-    return ffi.C.sandbox_filesystem_last_modified((world and world.ptr) and world.ptr or world, virtual_path)
+    return ffi.C.sandbox_filesystem_last_modified((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path)
 end
 
 function sandbox.filesystem.list_files(world, virtual_path, recursive, out_files, out_count)
-    return ffi.C.sandbox_filesystem_list_files((world and world.ptr) and world.ptr or world, virtual_path, recursive, out_files, out_count)
+    return ffi.C.sandbox_filesystem_list_files((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, recursive, out_files, out_count)
 end
 
 function sandbox.filesystem.free_file_list(world, files, count)
-    return ffi.C.sandbox_filesystem_free_file_list((world and world.ptr) and world.ptr or world, files, count)
+    return ffi.C.sandbox_filesystem_free_file_list((type(world) == "table" and world.ptr) and world.ptr or world, files, count)
 end
 
 function sandbox.filesystem.read_all_bytes(world, virtual_path, out_data, out_size)
-    return ffi.C.sandbox_filesystem_read_all_bytes((world and world.ptr) and world.ptr or world, virtual_path, out_data, out_size)
+    return ffi.C.sandbox_filesystem_read_all_bytes((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, out_data, out_size)
 end
 
 function sandbox.filesystem.free_bytes(world, data)
-    return ffi.C.sandbox_filesystem_free_bytes((world and world.ptr) and world.ptr or world, data)
+    return ffi.C.sandbox_filesystem_free_bytes((type(world) == "table" and world.ptr) and world.ptr or world, data)
 end
 
 -- ========================================
@@ -234,7 +234,7 @@ end
 sandbox.configuration = {}
 
 function sandbox.configuration.get_properties(world)
-    return ffi.C.sandbox_configuration_get_properties((world and world.ptr) and world.ptr or world)
+    return ffi.C.sandbox_configuration_get_properties((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 -- ========================================
@@ -243,23 +243,23 @@ end
 sandbox.logs = {}
 
 function sandbox.logs.trace(world, msg)
-    return ffi.C.sandbox_logs_trace((world and world.ptr) and world.ptr or world, tostring(msg))
+    return ffi.C.sandbox_logs_trace((type(world) == "table" and world.ptr) and world.ptr or world, tostring(msg))
 end
 
 function sandbox.logs.debug(world, msg)
-    return ffi.C.sandbox_logs_debug((world and world.ptr) and world.ptr or world, tostring(msg))
+    return ffi.C.sandbox_logs_debug((type(world) == "table" and world.ptr) and world.ptr or world, tostring(msg))
 end
 
 function sandbox.logs.info(world, msg)
-    return ffi.C.sandbox_logs_info((world and world.ptr) and world.ptr or world, tostring(msg))
+    return ffi.C.sandbox_logs_info((type(world) == "table" and world.ptr) and world.ptr or world, tostring(msg))
 end
 
 function sandbox.logs.warn(world, msg)
-    return ffi.C.sandbox_logs_warn((world and world.ptr) and world.ptr or world, tostring(msg))
+    return ffi.C.sandbox_logs_warn((type(world) == "table" and world.ptr) and world.ptr or world, tostring(msg))
 end
 
 function sandbox.logs.error(world, msg)
-    return ffi.C.sandbox_logs_error((world and world.ptr) and world.ptr or world, tostring(msg))
+    return ffi.C.sandbox_logs_error((type(world) == "table" and world.ptr) and world.ptr or world, tostring(msg))
 end
 
 -- ========================================
@@ -281,7 +281,7 @@ end
 sandbox.index = {}
 
 function sandbox.index.library(world, library_path)
-    return ffi.C.sandbox_index_library((world and world.ptr) and world.ptr or world, library_path)
+    return ffi.C.sandbox_index_library((type(world) == "table" and world.ptr) and world.ptr or world, library_path)
 end
 
 -- ========================================
@@ -290,7 +290,7 @@ end
 sandbox.get = {}
 
 function sandbox.get.bootstrapper(world)
-    return ffi.C.sandbox_get_bootstrapper((world and world.ptr) and world.ptr or world)
+    return ffi.C.sandbox_get_bootstrapper((type(world) == "table" and world.ptr) and world.ptr or world)
 end
 
 -- ========================================
@@ -299,15 +299,15 @@ end
 sandbox.bootstrapper = {}
 
 function sandbox.bootstrapper.activate(bootstrapper, world, architecture, name, version_major, version_minor, version_patch)
-    return ffi.C.sandbox_bootstrapper_activate(bootstrapper, (world and world.ptr) and world.ptr or world, architecture, name, version_major, version_minor, version_patch)
+    return ffi.C.sandbox_bootstrapper_activate(bootstrapper, (type(world) == "table" and world.ptr) and world.ptr or world, architecture, name, version_major, version_minor, version_patch)
 end
 
 function sandbox.bootstrapper.activate_string(bootstrapper, world, module_str)
-    return ffi.C.sandbox_bootstrapper_activate_string(bootstrapper, (world and world.ptr) and world.ptr or world, module_str)
+    return ffi.C.sandbox_bootstrapper_activate_string(bootstrapper, (type(world) == "table" and world.ptr) and world.ptr or world, module_str)
 end
 
 function sandbox.bootstrapper.boot(bootstrapper, world)
-    return ffi.C.sandbox_bootstrapper_boot(bootstrapper, (world and world.ptr) and world.ptr or world)
+    return ffi.C.sandbox_bootstrapper_boot(bootstrapper, (type(world) == "table" and world.ptr) and world.ptr or world)
 end
 -- ========================================
 -- Properties Wrapper Class
