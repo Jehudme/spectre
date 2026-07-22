@@ -11,18 +11,29 @@
 #include <vector>
 
 #include "spectre/sdk/renderer.hpp"
+#include "spectre/sdk/resources.hpp"
+#include "sandbox/sdk/filesystem.hpp"
 #include <raylib.h>
 #include <rlgl.h>
 
 namespace spectre::modules {
 
-static sandbox_requirement_info_t renderer_requirements[] = {{.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
-                                                              .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
-                                                              .name = "logs",
-                                                              .architecture = "sandbox",
-                                                              .version_major = 1,
-                                                              .version_minor = 0,
-                                                              .version_patch = -1}};
+static sandbox_requirement_info_t renderer_requirements[] = {
+    {.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+     .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+     .name = "logs",
+     .architecture = "sandbox",
+     .version_major = 1,
+     .version_minor = 0,
+     .version_patch = -1},
+    {.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+     .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+     .name = "resources",
+     .architecture = "spectre",
+     .version_major = 1,
+     .version_minor = 0,
+     .version_patch = -1}
+};
 
 SANDBOX_DECLARE_MODULE(renderer_module_t, {.name = "renderer",
                                            .description = "Renderer Module",
@@ -32,7 +43,7 @@ SANDBOX_DECLARE_MODULE(renderer_module_t, {.name = "renderer",
                                            .version_patch = 0,
                                            .service = &spectre_renderer_service_t_info,
                                            .requirements = renderer_requirements,
-                                           .requirement_count = 1})
+                                           .requirement_count = 2})
 
 static void deserialize_renderer_cb(ecs_world_t* world, ecs_entity_t entity,
                                     sandbox_properties_handle_t properties_handle) {
@@ -340,8 +351,48 @@ static void deserialize_2D_transform_component(ecs_world_t* world, ecs_entity_t 
     e.set<spectre_2D_transform_component_t>(comp);
 }
 
+static void texture_load_fn(ecs_world_t* world, spectre_resource_component_t* resource) {
+    if (!world || !resource || !resource->path) return;
+    flecs::world w(world);
+    try {
+        std::vector<uint8_t> data = sandbox::modules::filesystem::read_all_bytes(w, resource->path);
+        if (data.empty()) return;
+        
+        // Find extension
+        std::string path_str(resource->path);
+        std::string ext = ".png";
+        auto pos = path_str.find_last_of('.');
+        if (pos != std::string::npos) {
+            ext = path_str.substr(pos);
+        }
+        
+        Image img = LoadImageFromMemory(ext.c_str(), data.data(), static_cast<int>(data.size()));
+        if (img.data != nullptr) {
+            Texture2D* tex = new Texture2D;
+            *tex = LoadTextureFromImage(img);
+            UnloadImage(img);
+            resource->instance = tex;
+        }
+    } catch (const std::exception& e) {
+        sandbox::modules::logs::error(w, "[Renderer Module] Failed to load texture {}: {}", resource->path, e.what());
+    }
+}
+
+static void texture_free_fn(ecs_world_t* world, spectre_resource_component_t* resource) {
+    if (!resource || !resource->instance) return;
+    Texture2D* tex = static_cast<Texture2D*>(resource->instance);
+    UnloadTexture(*tex);
+    delete tex;
+    resource->instance = nullptr;
+}
+
 renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
     sandbox::modules::logs::trace(m_world, "[Renderer Module] Initializing...");
+
+    spectre_resource_loader_component_t tex_loader = {};
+    tex_loader.load_fn = texture_load_fn;
+    tex_loader.free_fn = texture_free_fn;
+    spectre::modules::resources::register_resource_loader(m_world, "texture", tex_loader);
 
     spectre_serializer_component serializer_callbacks = {};
     serializer_callbacks.deserialize = deserialize_renderer_cb;
