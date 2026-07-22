@@ -80,6 +80,14 @@ spectre = {}
 ---@field flip_x boolean
 ---@field flip_y boolean
 
+---@class spectre_text_renderable_t
+---@field content string
+---@field font_size number
+---@field spacing number
+---@field tint spectre_color_t
+---@field bold boolean
+---@field italic boolean
+
 ---@class spectre_scene_t
 ---@field dummy number
 
@@ -161,6 +169,14 @@ pcall(function() ffi.cdef[[
         spectre_color_t tint;
         bool flip_x, flip_y;
     } spectre_texture_renderable_t;
+    typedef struct spectre_text_renderable_t {
+        char* content;
+        float font_size;
+        float spacing;
+        spectre_color_t tint;
+        bool bold;
+        bool italic;
+    } spectre_text_renderable_t;
     typedef struct spectre_scene_t { char dummy; } spectre_scene_t;
     typedef struct spectre_state_t { char dummy; } spectre_state_t;
     typedef struct spectre_window_component_t {

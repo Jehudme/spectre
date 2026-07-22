@@ -68,6 +68,15 @@ typedef struct spectre_texture_renderable_t {
     bool flip_x, flip_y;
 } spectre_texture_renderable_t;
 
+typedef struct spectre_text_renderable_t {
+    char* content;
+    float font_size;
+    float spacing;
+    spectre_color_t tint;
+    bool bold;
+    bool italic;
+} spectre_text_renderable_t;
+
 #ifdef __cplusplus
 }
 #endif

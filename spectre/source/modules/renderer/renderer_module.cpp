@@ -348,6 +348,72 @@ static void deserialize_texture_renderable(ecs_world_t* world, ecs_entity_t enti
     e.set<spectre_texture_renderable_t>(comp);
 }
 
+static ecs_entity_t register_text_comp(ecs_world_t* world) {
+    auto w = flecs::world(world);
+    if (!w.lookup("spectre_color_t").is_valid()) {
+        w.component<spectre_color_t>("Color").member<float>("r").member<float>("g").member<float>("b").member<float>("a");
+    }
+    return w.component<spectre_text_renderable_t>("TextRenderable")
+        .member<char*>("content")
+        .member<float>("font_size")
+        .member<float>("spacing")
+        .member<spectre_color_t>("tint")
+        .member<bool>("bold")
+        .member<bool>("italic")
+        .id();
+}
+
+static sandbox_properties_handle_t serialize_text_renderable(ecs_world_t* world, ecs_entity_t entity) {
+    if (!world || !entity)
+        return {0};
+    flecs::world flecs_world(world);
+    const auto* comp = flecs_world.entity(entity).try_get<spectre_text_renderable_t>();
+    if (!comp)
+        return {0};
+    sandbox::properties props;
+    if (comp->content) props.set("content", std::string(comp->content));
+    props.set("font_size", comp->font_size);
+    props.set("spacing", comp->spacing);
+    props.merge("tint", serialize_color(comp->tint));
+    props.set("bold", comp->bold);
+    props.set("italic", comp->italic);
+    sandbox_properties_handle_t handle = props.get_raw();
+    props.release();
+    return handle;
+}
+
+static void deserialize_text_renderable(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+    if (!world) return;
+    sandbox::properties props(handle, false);
+    flecs::world flecs_world(world);
+    flecs::entity e(flecs_world, entity);
+    spectre_text_renderable_t comp = {};
+    
+    std::string content;
+    if (props.get<std::string>("content", content)) {
+        comp.content = strdup(content.c_str());
+    } else {
+        comp.content = nullptr;
+    }
+    
+    comp.font_size = props.get<float>("font_size").value_or(20.0f);
+    comp.spacing = props.get<float>("spacing").value_or(1.0f);
+    comp.tint = deserialize_color(props.sub("tint"));
+    comp.bold = props.get<bool>("bold").value_or(false);
+    comp.italic = props.get<bool>("italic").value_or(false);
+    
+    std::string name;
+    if (props.get<std::string>("name", name)) {
+        ecs_entity_t resource_entity = spectre::modules::resources::find_resource(flecs_world, name.c_str());
+        if (resource_entity) {
+            e.add<spectre_use_resource_relation_t>(resource_entity);
+        } else {
+            sandbox::modules::logs::error(flecs_world, "[Renderer Module] Font resource '{}' not found", name.c_str());
+        }
+    }
+    e.set<spectre_text_renderable_t>(comp);
+}
+
 struct spectre_renderer_update_marker_t {
     char dummy;
 };
@@ -478,6 +544,53 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
     tex_loader.free_fn = texture_free_fn;
     spectre::modules::resources::register_resource_loader(m_world, "texture", tex_loader);
 
+    auto font_load_fn = [](ecs_world_t* world, spectre_resource_component_t* resource) {
+        if (!world || !resource || !resource->path) return;
+        flecs::world w(world);
+        try {
+            std::vector<uint8_t> data = sandbox::modules::filesystem::read_all_bytes(w, resource->path);
+            if (data.empty()) return;
+            
+            std::string path_str(resource->path);
+            std::string ext = ".ttf";
+            auto pos = path_str.find_last_of('.');
+            if (pos != std::string::npos) ext = path_str.substr(pos);
+            
+            sandbox::properties configs(resource->properties_handle, false);
+            int font_size = 32;
+            if (configs.is_valid()) configs.get<int>("font_size", font_size);
+            
+            Font* font = new Font;
+            *font = LoadFontFromMemory(ext.c_str(), data.data(), static_cast<int>(data.size()), font_size, nullptr, 0);
+            
+            if (configs.is_valid()) {
+                std::string filtering;
+                if (configs.get<std::string>("filtering", filtering)) {
+                    if (filtering == "point") SetTextureFilter(font->texture, TEXTURE_FILTER_POINT);
+                    else if (filtering == "bilinear") SetTextureFilter(font->texture, TEXTURE_FILTER_BILINEAR);
+                    else if (filtering == "trilinear") SetTextureFilter(font->texture, TEXTURE_FILTER_TRILINEAR);
+                    sandbox::modules::logs::info(w, "[Renderer Module] Applied filtering {} to font {}", filtering.c_str(), resource->path);
+                }
+            }
+            resource->instance = font;
+        } catch (const std::exception& e) {
+            sandbox::modules::logs::error(w, "[Renderer Module] Failed to load font {}: {}", resource->path, e.what());
+        }
+    };
+    
+    auto font_free_fn = [](ecs_world_t* world, spectre_resource_component_t* resource) {
+        if (!resource || !resource->instance) return;
+        Font* font = static_cast<Font*>(resource->instance);
+        UnloadFont(*font);
+        delete font;
+        resource->instance = nullptr;
+    };
+    
+    spectre_resource_loader_component_t font_loader = {};
+    font_loader.load_fn = font_load_fn;
+    font_loader.free_fn = font_free_fn;
+    spectre::modules::resources::register_resource_loader(m_world, "font", font_loader);
+
     spectre_serializer_component serializer_callbacks = {};
     serializer_callbacks.deserialize = deserialize_renderer_cb;
     serializer_callbacks.serialize = serialize_renderer_cb;
@@ -496,6 +609,7 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
                                                          serialize_2D_transform_component};
     spectre_serializer_component circle_serializer = {deserialize_circle_renderable, serialize_circle_renderable};
     spectre_serializer_component texture_serializer = {deserialize_texture_renderable, serialize_texture_renderable};
+    spectre_serializer_component text_serializer = {deserialize_text_renderable, serialize_text_renderable};
 
     spectre::modules::components::register_component(m_world, "Renderable", register_renderable_comp, renderable_serializer);
     spectre::modules::components::register_component(m_world, "Transform2D", register_transform2d_comp, transform_serializer);
@@ -505,6 +619,7 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
     spectre::modules::components::register_component(m_world, "CustomPolygoneRenderable", register_custom_polygon_comp, cpoly_serializer);
     spectre::modules::components::register_component(m_world, "LigneRenderable", register_line_comp, line_serializer);
     spectre::modules::components::register_component(m_world, "TextureRenderable", register_texture_comp, texture_serializer);
+    spectre::modules::components::register_component(m_world, "TextRenderable", register_text_comp, text_serializer);
 
     flecs::entity on_renderer_phase = m_world.entity("on_renderer").add(flecs::Phase).depends_on(flecs::OnUpdate);
 
@@ -725,6 +840,38 @@ void renderer_module_t::render(flecs::entity entity_to_render) {
             }
         } else {
             sandbox::modules::logs::trace(m_world, "[Renderer Module] TextureRenderable found but resource_entity is invalid on entity {}", entity_to_render.name().c_str());
+        }
+    }
+
+    if (entity_to_render.has<spectre_text_renderable_t>()) {
+        const auto* text_comp = entity_to_render.try_get<spectre_text_renderable_t>();
+        flecs::entity resource_entity = entity_to_render.target<spectre_use_resource_relation_t>();
+        
+        if (resource_entity.is_valid()) {
+            if (spectre::modules::resources::is_resource_loaded(m_world, resource_entity.id())) {
+                void* instance = spectre::modules::resources::get_resource(m_world, resource_entity.id());
+                if (instance && text_comp && text_comp->content) {
+                    Font* font = static_cast<Font*>(instance);
+                    
+                    spectre_color_t actual_tint = text_comp->tint;
+                    if (actual_tint.r == 0 && actual_tint.g == 0 && actual_tint.b == 0 && actual_tint.a == 0) {
+                        actual_tint = {255.0f, 255.0f, 255.0f, 255.0f};
+                    }
+                    
+                    Vector2 origin = { 0.0f, 0.0f };
+                    
+                    sandbox::modules::logs::trace(m_world, "[Renderer Module] Drawing text: {}", text_comp->content);
+                    
+                    if (text_comp->bold) {
+                        DrawTextEx(*font, text_comp->content, Vector2{1.0f, 0.0f}, text_comp->font_size, text_comp->spacing, to_raylib_color(actual_tint));
+                    }
+                    DrawTextEx(*font, text_comp->content, origin, text_comp->font_size, text_comp->spacing, to_raylib_color(actual_tint));
+                }
+            } else {
+                spectre::modules::resources::load_resource(m_world, resource_entity.id());
+            }
+        } else {
+            sandbox::modules::logs::trace(m_world, "[Renderer Module] TextRenderable found but resource_entity is invalid on entity {}", entity_to_render.name().c_str());
         }
     }
 
