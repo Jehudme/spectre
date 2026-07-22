@@ -1,6 +1,6 @@
 {
   "unknow_texture": {
     "type": "texture",
-    "path": "/virtual/resources/textures/unknow.png"
+    "path": "app://resources/textures/unknow.png"
   }
 }

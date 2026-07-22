@@ -556,6 +556,7 @@ void renderer_module_t::render_frame() {
 }
 
 void renderer_module_t::render(flecs::entity entity_to_render) {
+    sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Renderer Module] Rendering entity {}", entity_to_render.name().c_str());
     // Setup transform
     float pos_x = 0.0f, pos_y = 0.0f;
     float scale_x = 1.0f, scale_y = 1.0f;
@@ -649,7 +650,7 @@ void renderer_module_t::render(flecs::entity entity_to_render) {
         }
     }
 
-    if (entity_to_render.has<spectre_texture_renderable_t>() && entity_to_render.has<spectre_use_resource_relation_t>()) {
+    if (entity_to_render.has<spectre_texture_renderable_t>()) {
         const auto* tex_comp = entity_to_render.try_get<spectre_texture_renderable_t>();
         flecs::entity resource_entity = entity_to_render.target<spectre_use_resource_relation_t>();
         
@@ -663,10 +664,14 @@ void renderer_module_t::render(flecs::entity entity_to_render) {
                                        tex_comp->height > 0 ? tex_comp->height : (float)tex->height };
                     Vector2 origin = { 0.0f, 0.0f };
                     DrawTexturePro(*tex, source, dest, origin, 0.0f, WHITE);
+                } else {
+                    sandbox::modules::logs::trace(m_world, "[Renderer Module] Instance or tex_comp is null");
                 }
             } else {
                 spectre::modules::resources::load_resource(m_world, resource_entity.id());
             }
+        } else {
+            sandbox::modules::logs::trace(m_world, "[Renderer Module] TextureRenderable found but resource_entity is invalid on entity {}", entity_to_render.name().c_str());
         }
     }
 
