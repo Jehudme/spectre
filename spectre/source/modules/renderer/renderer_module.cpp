@@ -114,6 +114,13 @@ static ecs_entity_t register_texture_comp(ecs_world_t* world) {
     return w.component<spectre_texture_renderable_t>("TextureRenderable")
         .member<float>("width")
         .member<float>("height")
+        .member<float>("source_x")
+        .member<float>("source_y")
+        .member<float>("source_width")
+        .member<float>("source_height")
+        .member<spectre_color_t>("tint")
+        .member<bool>("flip_x")
+        .member<bool>("flip_y")
         .id();
 }
 
@@ -301,8 +308,13 @@ static sandbox_properties_handle_t serialize_texture_renderable(ecs_world_t* wor
     sandbox::properties props;
     props.set("width", comp->width);
     props.set("height", comp->height);
-    props.set("x_position", comp->x_position);
-    props.set("y_position", comp->y_position);
+    props.set("source_x", comp->source_x);
+    props.set("source_y", comp->source_y);
+    props.set("source_width", comp->source_width);
+    props.set("source_height", comp->source_height);
+    props.merge("tint", serialize_color(comp->tint));
+    props.set("flip_x", comp->flip_x);
+    props.set("flip_y", comp->flip_y);
     sandbox_properties_handle_t handle = props.get_raw();
     props.release();
     return handle;
@@ -314,10 +326,15 @@ static void deserialize_texture_renderable(ecs_world_t* world, ecs_entity_t enti
     flecs::world flecs_world(world);
     flecs::entity e(flecs_world, entity);
     spectre_texture_renderable_t comp = {};
-    comp.width = props.get<float>("width").value_or(10.0f);
-    comp.height = props.get<float>("height").value_or(10.0f);
-    comp.x_position = props.get<uint32_t>("x_position").value_or(0);
-    comp.y_position = props.get<uint32_t>("y_position").value_or(0);
+    comp.width = props.get<float>("width").value_or(0.0f);
+    comp.height = props.get<float>("height").value_or(0.0f);
+    comp.source_x = props.get<float>("source_x").value_or(0.0f);
+    comp.source_y = props.get<float>("source_y").value_or(0.0f);
+    comp.source_width = props.get<float>("source_width").value_or(0.0f);
+    comp.source_height = props.get<float>("source_height").value_or(0.0f);
+    comp.tint = deserialize_color(props.sub("tint"));
+    comp.flip_x = props.get<bool>("flip_x").value_or(false);
+    comp.flip_y = props.get<bool>("flip_y").value_or(false);
     
     std::string name;
     if (props.get<std::string>("name", name)) {
@@ -679,11 +696,27 @@ void renderer_module_t::render(flecs::entity entity_to_render) {
                 void* instance = spectre::modules::resources::get_resource(m_world, resource_entity.id());
                 if (instance && tex_comp) {
                     Texture2D* tex = static_cast<Texture2D*>(instance);
-                    Rectangle source = { 0.0f, 0.0f, (float)tex->width, (float)tex->height };
+                    Rectangle source = { 
+                        tex_comp->source_x, 
+                        tex_comp->source_y, 
+                        tex_comp->source_width > 0 ? tex_comp->source_width : (float)tex->width, 
+                        tex_comp->source_height > 0 ? tex_comp->source_height : (float)tex->height 
+                    };
+                    
+                    if (tex_comp->flip_x) source.width = -source.width;
+                    if (tex_comp->flip_y) source.height = -source.height;
+
                     Rectangle dest = { 0.0f, 0.0f, tex_comp->width > 0 ? tex_comp->width : (float)tex->width, 
                                        tex_comp->height > 0 ? tex_comp->height : (float)tex->height };
                     Vector2 origin = { 0.0f, 0.0f };
-                    DrawTexturePro(*tex, source, dest, origin, 0.0f, WHITE);
+                    
+                    // If tint is completely 0 (default zero-init), treat it as white
+                    spectre_color_t actual_tint = tex_comp->tint;
+                    if (actual_tint.r == 0 && actual_tint.g == 0 && actual_tint.b == 0 && actual_tint.a == 0) {
+                        actual_tint = {255.0f, 255.0f, 255.0f, 255.0f};
+                    }
+                    
+                    DrawTexturePro(*tex, source, dest, origin, 0.0f, to_raylib_color(actual_tint));
                 } else {
                     sandbox::modules::logs::trace(m_world, "[Renderer Module] Instance or tex_comp is null");
                 }

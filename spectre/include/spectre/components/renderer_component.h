@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -58,6 +59,14 @@ typedef struct spectre_ligne_renderable_t {
     spectre_color_t color;
     float thickness;
 } spectre_ligne_renderable_t;
+
+typedef struct spectre_texture_renderable_t {
+    float width, height;
+    float source_x, source_y;
+    float source_width, source_height;
+    spectre_color_t tint;
+    bool flip_x, flip_y;
+} spectre_texture_renderable_t;
 
 #ifdef __cplusplus
 }

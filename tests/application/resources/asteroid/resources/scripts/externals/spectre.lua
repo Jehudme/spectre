@@ -69,6 +69,17 @@ spectre = {}
 ---@field color spectre_color_t
 ---@field thickness number
 
+---@class spectre_texture_renderable_t
+---@field width number
+---@field height number
+---@field source_x number
+---@field source_y number
+---@field source_width number
+---@field source_height number
+---@field tint spectre_color_t
+---@field flip_x boolean
+---@field flip_y boolean
+
 ---@class spectre_scene_t
 ---@field dummy number
 
@@ -143,6 +154,13 @@ pcall(function() ffi.cdef[[
         double position_x1; double position_y1; double position_x2; double position_y2;
         spectre_color_t color; float thickness;
     } spectre_ligne_renderable_t;
+    typedef struct spectre_texture_renderable_t {
+        float width, height;
+        float source_x, source_y;
+        float source_width, source_height;
+        spectre_color_t tint;
+        bool flip_x, flip_y;
+    } spectre_texture_renderable_t;
     typedef struct spectre_scene_t { char dummy; } spectre_scene_t;
     typedef struct spectre_state_t { char dummy; } spectre_state_t;
     typedef struct spectre_window_component_t {
@@ -314,6 +332,17 @@ local spectre = {}
 ---@field fill_color spectre_color_t
 ---@field outline_color spectre_color_t
 ---@field outline_thickness number
+
+---@class spectre_texture_renderable_t
+---@field width number
+---@field height number
+---@field source_x number
+---@field source_y number
+---@field source_width number
+---@field source_height number
+---@field tint spectre_color_t
+---@field flip_x boolean
+---@field flip_y boolean
 
 ---@class spectre_scene_t
 ---@field dummy number
