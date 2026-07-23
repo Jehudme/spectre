@@ -174,7 +174,7 @@ Below is the complete dictionary of components available for use inside `scenes`
 
 ### Transform and Core
 
-- **Transform2D**: Represents the 2D transform (position, scale, rotation) of an entity.
+- **Transform2D**: Represents the 2D transform (position, scale, rotation, origin) of an entity.
   ```json
   "Transform2D": {
       "position_x": 0.0,
@@ -182,6 +182,8 @@ Below is the complete dictionary of components available for use inside `scenes`
       "position_z": 0.0,
       "scale_x": 1.0,
       "scale_y": 1.0,
+      "origin_x": 0.0,
+      "origin_y": 0.0,
       "rotation": 0.0
   }
   ```

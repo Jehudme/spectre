@@ -315,6 +315,12 @@ static sandbox_properties_handle_t serialize_texture_renderable(ecs_world_t* wor
     props.merge("tint", serialize_color(comp->tint));
     props.set("flip_x", comp->flip_x);
     props.set("flip_y", comp->flip_y);
+
+    flecs::entity e = flecs_world.entity(entity);
+    e.each<spectre_use_resource_relation_t>([&](flecs::entity resource_entity) {
+        props.set("name", std::string(resource_entity.name().c_str()));
+    });
+
     sandbox_properties_handle_t handle = props.get_raw();
     props.release();
     return handle;
@@ -376,6 +382,12 @@ static sandbox_properties_handle_t serialize_text_renderable(ecs_world_t* world,
     props.merge("tint", serialize_color(comp->tint));
     props.set("bold", comp->bold);
     props.set("italic", comp->italic);
+
+    flecs::entity e = flecs_world.entity(entity);
+    e.each<spectre_use_resource_relation_t>([&](flecs::entity resource_entity) {
+        props.set("name", std::string(resource_entity.name().c_str()));
+    });
+
     sandbox_properties_handle_t handle = props.get_raw();
     props.release();
     return handle;
@@ -458,6 +470,8 @@ static sandbox_properties_handle_t serialize_2D_transform_component(ecs_world_t*
     props.set("position_z", comp->position_z);
     props.set("scale_x", comp->scale_x);
     props.set("scale_y", comp->scale_y);
+    props.set("origin_x", comp->origin_x);
+    props.set("origin_y", comp->origin_y);
     props.set("rotation", comp->rotation);
     sandbox_properties_handle_t handle = props.get_raw();
     props.release();
@@ -476,6 +490,8 @@ static void deserialize_2D_transform_component(ecs_world_t* world, ecs_entity_t 
     comp.position_z = props.get<float>("position_z").value_or(0.0f);
     comp.scale_x = props.get<float>("scale_x").value_or(1.0f);
     comp.scale_y = props.get<float>("scale_y").value_or(1.0f);
+    comp.origin_x = props.get<float>("origin_x").value_or(0.0f);
+    comp.origin_y = props.get<float>("origin_y").value_or(0.0f);
     comp.rotation = props.get<float>("rotation").value_or(0.0f);
     e.set<spectre_2D_transform_component_t>(comp);
 }
