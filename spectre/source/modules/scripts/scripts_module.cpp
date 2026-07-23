@@ -44,8 +44,8 @@ static int custom_vfs_loader(lua_State* L) {
     const char* modname = luaL_checkstring(L, 1);
     auto* world = static_cast<ecs_world_t*>(lua_touserdata(L, lua_upvalueindex(1)));
 
-    std::string path1 = std::string("app://resources/assets/scripts/externals/") + modname + ".lua";
-    std::string path2 = std::string("app://resources/assets/scripts/") + modname + ".lua";
+    std::string path1 = std::string("app://resources/scripts/externals/") + modname + ".lua";
+    std::string path2 = std::string("app://resources/scripts/") + modname + ".lua";
 
     uint8_t* data = nullptr;
     size_t data_size = 0;
@@ -54,7 +54,7 @@ static int custom_vfs_loader(lua_State* L) {
         if (!sandbox_filesystem_read_all_bytes(world, path2.c_str(), &data, &data_size)) {
             std::string modpath = modname;
             std::replace(modpath.begin(), modpath.end(), '.', '/');
-            std::string path3 = std::string("app://resources/assets/scripts/") + modpath + ".lua";
+            std::string path3 = std::string("app://resources/scripts/") + modpath + ".lua";
             if (!sandbox_filesystem_read_all_bytes(world, path3.c_str(), &data, &data_size)) {
                 lua_pushstring(L, "\n\tno file found in sandbox VFS");
                 return 1;

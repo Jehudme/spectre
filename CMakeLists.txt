@@ -79,3 +79,6 @@ add_subdirectory(spectre)
 include(CTest)
 enable_testing()
 add_subdirectory(tests)
+
+# 4. Add demo
+add_subdirectory(demo)
