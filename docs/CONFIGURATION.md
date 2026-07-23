@@ -95,8 +95,12 @@ Path: `configs/resources.json`
 }
 ```
 **Options**:
-- **filtering**: `point`, `bilinear`, `trilinear`
-- **wrap_mode**: `repeat`, `clamp`, `mirror_repeat`, `mirror_clamp`
+- **Textures**:
+  - `filtering`: `point`, `bilinear`, `trilinear`
+  - `wrap_mode`: `repeat`, `clamp`, `mirror_repeat`, `mirror_clamp`
+- **Fonts**:
+  - `font_size`: Integer (e.g., `64`)
+  - `filtering`: `point`, `bilinear`, `trilinear`
 
 ---
 
