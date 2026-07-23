@@ -193,41 +193,46 @@ Below is the complete dictionary of components available for use inside `scenes`
 
 ### Renderer Shapes
 
-- **RectangleRenderable**: Draws a filled rectangle.
+- **RectangleRenderable**: Draws a filled rectangle with an optional outline.
   ```json
   "RectangleRenderable": {
       "width": 100.0,
       "height": 50.0,
-      "color": { "r": 255, "g": 255, "b": 255, "a": 255 }
+      "fill_color": { "r": 255, "g": 255, "b": 255, "a": 255 },
+      "outline_color": { "r": 0, "g": 0, "b": 0, "a": 255 },
+      "outline_thickness": 2.0
   }
   ```
 
-- **CircleRenderable**: Draws a filled circle.
+- **CircleRenderable**: Draws a filled circle with an optional outline.
   ```json
   "CircleRenderable": {
       "radius": 50.0,
-      "color": { "r": 255, "g": 255, "b": 255, "a": 255 }
+      "fill_color": { "r": 255, "g": 255, "b": 255, "a": 255 },
+      "outline_color": { "r": 0, "g": 0, "b": 0, "a": 255 },
+      "outline_thickness": 2.0
   }
   ```
 
-- **PolygoneRenderable**: Draws a regular polygon.
+- **PolygoneRenderable**: Draws a regular polygon with an optional outline.
   ```json
   "PolygoneRenderable": {
       "radius": 50.0,
-      "sides": 5,
-      "rotation": 0.0,
-      "color": { "r": 255, "g": 255, "b": 255, "a": 255 }
+      "point_count": 5,
+      "fill_color": { "r": 255, "g": 255, "b": 255, "a": 255 },
+      "outline_color": { "r": 0, "g": 0, "b": 0, "a": 255 },
+      "outline_thickness": 2.0
   }
   ```
 
 - **LigneRenderable**: Draws a line segment between two points.
   ```json
   "LigneRenderable": {
-      "start_x": 0.0,
-      "start_y": 0.0,
-      "end_x": 100.0,
-      "end_y": 100.0,
-      "thick": 2.0,
+      "position_x1": 0.0,
+      "position_y1": 0.0,
+      "position_x2": 100.0,
+      "position_y2": 100.0,
+      "thickness": 2.0,
       "color": { "r": 255, "g": 255, "b": 255, "a": 255 }
   }
   ```
@@ -240,6 +245,10 @@ Below is the complete dictionary of components available for use inside `scenes`
       "name": "texture_name_from_resources",
       "width": 100.0,
       "height": 100.0,
+      "source_x": 0.0,
+      "source_y": 0.0,
+      "source_width": 100.0,
+      "source_height": 100.0,
       "tint": { "r": 255, "g": 255, "b": 255, "a": 255 },
       "flip_x": false,
       "flip_y": false
