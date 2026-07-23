@@ -221,6 +221,7 @@ void resource_module_t::deserialize_resource(flecs::entity resource_entity, cons
     resource_component.instance = nullptr;
     resource_component.properties_handle = configs.get_raw();
     resource_entity.set<Resource>(resource_component);
+
     configs.release();
 }
 

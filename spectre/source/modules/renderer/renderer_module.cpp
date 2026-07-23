@@ -388,12 +388,9 @@ static void deserialize_text_renderable(ecs_world_t* world, ecs_entity_t entity,
     flecs::entity e(flecs_world, entity);
     spectre_text_renderable_t comp = {};
     
-    sandbox::modules::logs::info(flecs_world, "[Renderer Module] Deserializing TextRenderable for entity {}", e.name().c_str());
-    
     std::string content;
     if (props.get<std::string>("content", content)) {
         comp.content = strdup(content.c_str());
-        sandbox::modules::logs::info(flecs_world, "[Renderer Module] Parsed text content: {}", content.c_str());
     } else {
         comp.content = nullptr;
     }
@@ -409,7 +406,6 @@ static void deserialize_text_renderable(ecs_world_t* world, ecs_entity_t entity,
         ecs_entity_t resource_entity = spectre::modules::resources::find_resource(flecs_world, name.c_str());
         if (resource_entity) {
             e.add<spectre_use_resource_relation_t>(resource_entity);
-            sandbox::modules::logs::info(flecs_world, "[Renderer Module] Found font resource: {}", name.c_str());
         } else {
             sandbox::modules::logs::error(flecs_world, "[Renderer Module] Font resource '{}' not found", name.c_str());
         }
@@ -862,8 +858,6 @@ void renderer_module_t::render(flecs::entity entity_to_render) {
                     }
                     
                     Vector2 origin = { 0.0f, 0.0f };
-                    
-                    sandbox::modules::logs::info(m_world, "[Renderer Module] Drawing text: {}", text_comp->content);
                     
                     if (text_comp->bold) {
                         DrawTextEx(*font, text_comp->content, Vector2{1.0f, 0.0f}, text_comp->font_size, text_comp->spacing, to_raylib_color(actual_tint));
