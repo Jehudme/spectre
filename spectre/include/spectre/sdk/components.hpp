@@ -2,14 +2,14 @@
 #include <spectre/services/components_service.h>
 
 #ifdef __cplusplus
-#include <flecs.h>
+#    include <flecs.h>
 
 namespace spectre::modules {
 class components {
   public:
     static void register_component(const flecs::world& entity_world, const char* name,
                                    spectre_component_registration_fn_t registration_fn,
-                                   spectre_serializer_component serializer);
+                                   spectre_serializer_component serializer = spectre_serializer_component{});
 
     static ecs_entity_t find_component(const flecs::world& entity_world, const char* name);
 

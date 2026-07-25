@@ -895,4 +895,24 @@ flecs::query<> renderer_module_t::find_renderable() const {
     return m_world.query<spectre_renderable_t>();
 }
 
+void renderer_module_t::import_configuration(std::string_view file_path) {
+    if (sandbox::modules::filesystem::exists(m_world, std::string(file_path).c_str())) {
+        std::string content = sandbox::modules::filesystem::read_all_text(m_world, std::string(file_path).c_str());
+        sandbox::properties props(content, sandbox::properties::Format::JSON);
+        register_renderer(std::move(props));
+        sandbox::modules::logs::trace(m_world, "[Renderer Module] Imported renderer config from {}.", file_path);
+    } else {
+        sandbox::modules::logs::warn(m_world, "[Renderer Module] Config missing at {}", file_path);
+    }
+}
+
+void renderer_module_t::export_configuration(std::string_view file_path) {
+    if (is_renderer()) {
+        sandbox::properties props = serialize_renderer(m_renderer);
+        std::string content = props.dump(sandbox::properties::Format::JSON);
+        sandbox::modules::filesystem::write_all(m_world, std::string(file_path).c_str(), content.c_str(), content.size(), true);
+        sandbox::modules::logs::trace(m_world, "[Renderer Module] Exported renderer config to {}.", file_path);
+    }
+}
+
 } // namespace spectre::modules

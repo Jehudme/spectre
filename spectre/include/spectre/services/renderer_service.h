@@ -12,6 +12,8 @@ typedef struct spectre_renderer_api_t {
     sandbox_properties_handle_t (*serialize_renderer)(ecs_world_t* world, ecs_entity_t renderer);
     void (*register_renderer)(ecs_world_t* world, sandbox_properties_handle_t props);
     bool (*is_renderer)(ecs_world_t* world);
+    void (*import_configuration)(ecs_world_t* world, const char* path);
+    void (*export_configuration)(ecs_world_t* world, const char* path);
 } spectre_renderer_api_t;
 
 SANDBOX_DECLARE_SERVICE(spectre_renderer_service_t, spectre_renderer_api_t,
@@ -32,6 +34,10 @@ SANDBOX_API
 void spectre_renderer_register_renderer(ecs_world_t* world, sandbox_properties_handle_t props);
 SANDBOX_API
 bool spectre_renderer_is_renderer(ecs_world_t* world);
+SANDBOX_API
+void spectre_renderer_import_configuration(ecs_world_t* world, const char* path);
+SANDBOX_API
+void spectre_renderer_export_configuration(ecs_world_t* world, const char* path);
 
 #ifdef __cplusplus
 }

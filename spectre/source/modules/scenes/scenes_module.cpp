@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include "spectre/sdk/scenes.hpp"
+#include "sandbox/sdk/filesystem.hpp"
 #include "spectre/sdk/components.hpp"
 
 namespace spectre::modules {
@@ -504,4 +505,55 @@ flecs::entity scenes_module_t::create_scene(std::string_view scene_name) {
     ::spectre::modules::scripts::execute_on_create(scene_instance);
     return scene_instance;
 }
+void scenes_module_t::import_configuration(std::string_view directory_path) {
+    if (!sandbox::modules::filesystem::exists(m_world, std::string(directory_path).c_str())) {
+        sandbox::modules::logs::warn(m_world, "[Scenes Module] Directory {} does not exist.", directory_path);
+        return;
+    }
+    std::string states_file = std::string(directory_path) + "/states.json";
+    std::string scenes_file = std::string(directory_path) + "/scenes.json";
+
+    if (sandbox::modules::filesystem::exists(m_world, states_file.c_str())) {
+        std::string content = sandbox::modules::filesystem::read_all_text(m_world, states_file.c_str());
+        sandbox::properties props(content, sandbox::properties::Format::JSON);
+        register_state(std::move(props));
+        sandbox::modules::logs::trace(m_world, "[Scenes Module] Imported states from {}.", states_file);
+    }
+    if (sandbox::modules::filesystem::exists(m_world, scenes_file.c_str())) {
+        std::string content = sandbox::modules::filesystem::read_all_text(m_world, scenes_file.c_str());
+        sandbox::properties props(content, sandbox::properties::Format::JSON);
+        register_scene(std::move(props));
+        sandbox::modules::logs::trace(m_world, "[Scenes Module] Imported scenes from {}.", scenes_file);
+    }
+}
+
+void scenes_module_t::export_configuration(std::string_view directory_path) {
+    // Collect all states
+    sandbox::properties states_props;
+    m_states_root.children([&](flecs::entity child) {
+        if (is_state(child)) {
+            states_props.merge(std::string(child.name().c_str()), serialize_state(child));
+        }
+    });
+
+    // Collect all scenes
+    sandbox::properties scenes_props;
+    m_scenes_root.children([&](flecs::entity child) {
+        if (is_scene(child)) {
+            scenes_props.merge(std::string(child.name().c_str()), serialize_scene(child));
+        }
+    });
+
+    std::string states_file = std::string(directory_path) + "/states.json";
+    std::string scenes_file = std::string(directory_path) + "/scenes.json";
+    
+    std::string states_content = states_props.dump(sandbox::properties::Format::JSON);
+    sandbox::modules::filesystem::write_all(m_world, states_file.c_str(), states_content.c_str(), states_content.size(), true);
+    
+    std::string scenes_content = scenes_props.dump(sandbox::properties::Format::JSON);
+    sandbox::modules::filesystem::write_all(m_world, scenes_file.c_str(), scenes_content.c_str(), scenes_content.size(), true);
+    
+    sandbox::modules::logs::trace(m_world, "[Scenes Module] Exported configs to {}.", directory_path);
+}
+
 } // namespace spectre::modules

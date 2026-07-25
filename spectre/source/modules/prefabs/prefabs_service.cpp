@@ -12,6 +12,8 @@ static ecs_entity_t prefabs_find_prefab(ecs_world_t* entity_world, const char* n
 static ecs_entity_t prefabs_create_entity_from_props(ecs_world_t* entity_world, sandbox_properties_handle_t props);
 static ecs_entity_t prefabs_create_entity_from_prefab(ecs_world_t* entity_world, ecs_entity_t prefab);
 static ecs_entity_t prefabs_create_entity_from_name(ecs_world_t* entity_world, const char* name);
+static void prefabs_import_configuration(ecs_world_t* entity_world, const char* directory_path);
+static void prefabs_export_configuration(ecs_world_t* entity_world, const char* directory_path);
 
 spectre_prefabs_api_t g_prefabs_api = {
     .serialize_entity = prefabs_serialize_entity,
@@ -23,6 +25,8 @@ spectre_prefabs_api_t g_prefabs_api = {
     .create_entity_from_props = prefabs_create_entity_from_props,
     .create_entity_from_prefab = prefabs_create_entity_from_prefab,
     .create_entity_from_name = prefabs_create_entity_from_name,
+    .import_configuration = prefabs_import_configuration,
+    .export_configuration = prefabs_export_configuration,
 };
 
 SANDBOX_DEFINE_SERVICE(spectre_prefabs_service_t, spectre_prefabs_api_t, &g_prefabs_api)
@@ -135,6 +139,24 @@ static ecs_entity_t prefabs_create_entity_from_name(ecs_world_t* entity_world, c
     if (module)
         return module->create_entity(std::string_view(name)).id();
     return 0;
+}
+
+static void prefabs_import_configuration(ecs_world_t* entity_world, const char* directory_path) {
+    if (!entity_world || !directory_path) return;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.lookup("spectre::modules::prefabs_module_t").is_valid()
+                       ? flecs_world.try_get_mut<spectre::modules::prefabs_module_t>()
+                       : nullptr;
+    if (module) module->import_configuration(directory_path);
+}
+
+static void prefabs_export_configuration(ecs_world_t* entity_world, const char* directory_path) {
+    if (!entity_world || !directory_path) return;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.lookup("spectre::modules::prefabs_module_t").is_valid()
+                       ? flecs_world.try_get_mut<spectre::modules::prefabs_module_t>()
+                       : nullptr;
+    if (module) module->export_configuration(directory_path);
 }
 
 // --- Public C API Implementations ---
@@ -282,6 +304,40 @@ ecs_entity_t spectre_prefabs_create_entity_from_name(ecs_world_t* world, const c
         sandbox::modules::logs::error(flecs_world, "[Prefabs Module] Service not initialized!");
     }
     return prefabs_create_entity_from_name(world, name);
+}
+
+void spectre_prefabs_import_configuration(ecs_world_t* world, const char* directory_path) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_prefabs_service_t* service = flecs_world.try_get<spectre_prefabs_service_t>();
+#else
+    const spectre_prefabs_service_t* service = (const spectre_prefabs_service_t*)ecs_singleton_get(
+        world, spectre_prefabs_service_t);
+#endif
+    if (service && service->api && service->api->import_configuration) {
+        service->api->import_configuration(world, directory_path);
+        return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Prefabs Module] Service not initialized!");
+    }
+    prefabs_import_configuration(world, directory_path);
+}
+
+void spectre_prefabs_export_configuration(ecs_world_t* world, const char* directory_path) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_prefabs_service_t* service = flecs_world.try_get<spectre_prefabs_service_t>();
+#else
+    const spectre_prefabs_service_t* service = (const spectre_prefabs_service_t*)ecs_singleton_get(
+        world, spectre_prefabs_service_t);
+#endif
+    if (service && service->api && service->api->export_configuration) {
+        service->api->export_configuration(world, directory_path);
+        return;
+    } else {
+        sandbox::modules::logs::error(flecs_world, "[Prefabs Module] Service not initialized!");
+    }
+    prefabs_export_configuration(world, directory_path);
 }
 
 // --- SDK Implementations ---

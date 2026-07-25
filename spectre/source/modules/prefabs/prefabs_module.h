@@ -16,8 +16,6 @@ class prefabs_module_t {
 
     sandbox::properties serialize_entity(flecs::entity entity);
 
-    // We only allow deserialize_entity with a specific target_entity to avoid
-    // ambiguity
     flecs::entity deserialize_entity(flecs::entity target_entity, sandbox::properties properties);
 
     void register_prefab(std::string_view name, sandbox::properties props);
@@ -28,6 +26,9 @@ class prefabs_module_t {
     flecs::entity create_entity(sandbox::properties props);
     flecs::entity create_entity(flecs::entity prefab);
     flecs::entity create_entity(std::string_view name);
+
+    void import_configuration(std::string_view directory_path);
+    void export_configuration(std::string_view directory_path);
 
   private:
     flecs::world m_world;

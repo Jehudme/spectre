@@ -1,6 +1,7 @@
 #pragma once
 #include <flecs.h>
 #include <stack>
+#include <string_view>
 
 #include "sandbox/sdk/properties.hpp"
 #include "spectre/spectre.h"
@@ -41,6 +42,9 @@ class scenes_module_t {
     void pop_state();
 
     void execute_recursive(flecs::entity entity, spectre_recursive_callback_t callback, void* payload);
+
+    void import_configuration(std::string_view directory_path);
+    void export_configuration(std::string_view directory_path);
 
   private:
     flecs::entity create_state(std::string_view name);

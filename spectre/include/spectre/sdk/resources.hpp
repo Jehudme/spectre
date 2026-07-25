@@ -32,6 +32,10 @@ class resources {
     static void free_resource(const flecs::world& entity_world, ecs_entity_t resourceEntity);
 
     static void* get_resource(const flecs::world& entity_world, ecs_entity_t resourceEntity);
+    
+    static void import_configuration(const flecs::world& entity_world, const char* path);
+
+    static void export_configuration(const flecs::world& entity_world, const char* path);
 };
 } // namespace spectre::modules
 #endif

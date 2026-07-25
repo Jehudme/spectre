@@ -20,6 +20,9 @@ static ecs_query_t* scenes_find_current_scenes(ecs_world_t* entity_world);
 static void scenes_push_state(ecs_world_t* entity_world, ecs_entity_t state);
 static void scenes_pop_state(ecs_world_t* entity_world);
 
+static void scenes_import_configuration(ecs_world_t* entity_world, const char* path);
+static void scenes_export_configuration(ecs_world_t* entity_world, const char* path);
+
 spectre_scenes_api_t g_scenes_api = {
     .serialize_state = scenes_serialize_state,
     .deserialize_state = scenes_deserialize_state,
@@ -37,6 +40,8 @@ spectre_scenes_api_t g_scenes_api = {
     .find_current_scenes = scenes_find_current_scenes,
     .push_state = scenes_push_state,
     .pop_state = scenes_pop_state,
+    .import_configuration = scenes_import_configuration,
+    .export_configuration = scenes_export_configuration,
 };
 
 SANDBOX_DEFINE_SERVICE(spectre_scenes_service_t, spectre_scenes_api_t, &g_scenes_api)
@@ -586,3 +591,51 @@ void scenes::execute_recursive(const flecs::world& entity_world, ecs_entity_t en
     spectre_scenes_execute_recursive(entity_world.c_ptr(), entity, callback, payload);
 }
 } // namespace spectre::modules
+
+static void scenes_import_configuration(ecs_world_t* entity_world, const char* path) {
+    if (!entity_world || !path) return;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid()
+                       ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>()
+                       : nullptr;
+    if (module) module->import_configuration(path);
+}
+
+static void scenes_export_configuration(ecs_world_t* entity_world, const char* path) {
+    if (!entity_world || !path) return;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid()
+                       ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>()
+                       : nullptr;
+    if (module) module->export_configuration(path);
+}
+
+void spectre_scenes_import_configuration(ecs_world_t* world, const char* path) {
+    flecs::world flecs_world(world);
+    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
+    if (service && service->api && service->api->import_configuration) {
+        service->api->import_configuration(world, path);
+        return;
+    }
+    scenes_import_configuration(world, path);
+}
+
+void spectre_scenes_export_configuration(ecs_world_t* world, const char* path) {
+    flecs::world flecs_world(world);
+    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
+    if (service && service->api && service->api->export_configuration) {
+        service->api->export_configuration(world, path);
+        return;
+    }
+    scenes_export_configuration(world, path);
+}
+
+namespace spectre::modules {
+void scenes::import_configuration(const flecs::world& entity_world, const char* path) {
+    spectre_scenes_import_configuration(entity_world.c_ptr(), path);
+}
+
+void scenes::export_configuration(const flecs::world& entity_world, const char* path) {
+    spectre_scenes_export_configuration(entity_world.c_ptr(), path);
+}
+}

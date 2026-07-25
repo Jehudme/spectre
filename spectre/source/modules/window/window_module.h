@@ -4,6 +4,7 @@
 #include "sandbox/sdk/properties.hpp"
 #include "spectre/components/window_component.h"
 #include <flecs.h>
+#include <string_view>
 
 namespace spectre::modules {
 using input_state_t = spectre_input_state_t;
@@ -80,6 +81,9 @@ class window_module_t {
     float get_mouse_delta_y() const;
 
     void apply_window_change();
+
+    void import_configuration(std::string_view file_path);
+    void export_configuration(std::string_view file_path);
 
   private:
     void begin_input_frame();

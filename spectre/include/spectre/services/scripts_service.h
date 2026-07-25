@@ -22,6 +22,7 @@ typedef struct spectre_scripts_api_t {
     void (*execute_on_update)(ecs_world_t* world, ecs_entity_t entity);
     void (*execute_on_enter)(ecs_world_t* world, ecs_entity_t entity);
     void (*execute_on_exit)(ecs_world_t* world, ecs_entity_t entity);
+    void (*import_configuration)(ecs_world_t* world, const char* directory_path);
 } spectre_scripts_api_t;
 
 SANDBOX_DECLARE_SERVICE(spectre_scripts_service_t, spectre_scripts_api_t, {
@@ -61,6 +62,8 @@ SANDBOX_API
 void spectre_scripts_execute_on_enter(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API
 void spectre_scripts_execute_on_exit(ecs_world_t* world, ecs_entity_t entity);
+SANDBOX_API
+void spectre_scripts_import_configuration(ecs_world_t* world, const char* directory_path);
 
 #ifdef __cplusplus
 }

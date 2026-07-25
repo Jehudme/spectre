@@ -9,11 +9,16 @@ static sandbox_properties_handle_t renderer_serialize_renderer(ecs_world_t* enti
 static void renderer_register_renderer(ecs_world_t* entity_world, sandbox_properties_handle_t props);
 static bool renderer_is_renderer(ecs_world_t* entity_world);
 
+static void renderer_import_configuration(ecs_world_t* entity_world, const char* path);
+static void renderer_export_configuration(ecs_world_t* entity_world, const char* path);
+
 spectre_renderer_api_t g_renderer_api = {
     .deserialize_renderer = renderer_deserialize_renderer,
     .serialize_renderer = renderer_serialize_renderer,
     .register_renderer = renderer_register_renderer,
     .is_renderer = renderer_is_renderer,
+    .import_configuration = renderer_import_configuration,
+    .export_configuration = renderer_export_configuration,
 };
 
 SANDBOX_DEFINE_SERVICE(spectre_renderer_service_t, spectre_renderer_api_t, &g_renderer_api)
@@ -155,3 +160,51 @@ bool renderer::is_renderer(const flecs::world& entity_world) {
     return spectre_renderer_is_renderer(entity_world.c_ptr());
 }
 } // namespace spectre::modules
+
+static void renderer_import_configuration(ecs_world_t* entity_world, const char* path) {
+    if (!entity_world || !path) return;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.lookup("spectre::modules::renderer_module_t").is_valid()
+                       ? flecs_world.try_get_mut<spectre::modules::renderer_module_t>()
+                       : nullptr;
+    if (module) module->import_configuration(path);
+}
+
+static void renderer_export_configuration(ecs_world_t* entity_world, const char* path) {
+    if (!entity_world || !path) return;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.lookup("spectre::modules::renderer_module_t").is_valid()
+                       ? flecs_world.try_get_mut<spectre::modules::renderer_module_t>()
+                       : nullptr;
+    if (module) module->export_configuration(path);
+}
+
+void spectre_renderer_import_configuration(ecs_world_t* world, const char* path) {
+    flecs::world flecs_world(world);
+    const spectre_renderer_service_t* service = flecs_world.try_get<spectre_renderer_service_t>();
+    if (service && service->api && service->api->import_configuration) {
+        service->api->import_configuration(world, path);
+        return;
+    }
+    renderer_import_configuration(world, path);
+}
+
+void spectre_renderer_export_configuration(ecs_world_t* world, const char* path) {
+    flecs::world flecs_world(world);
+    const spectre_renderer_service_t* service = flecs_world.try_get<spectre_renderer_service_t>();
+    if (service && service->api && service->api->export_configuration) {
+        service->api->export_configuration(world, path);
+        return;
+    }
+    renderer_export_configuration(world, path);
+}
+
+namespace spectre::modules {
+void renderer::import_configuration(const flecs::world& entity_world, const char* path) {
+    spectre_renderer_import_configuration(entity_world.c_ptr(), path);
+}
+
+void renderer::export_configuration(const flecs::world& entity_world, const char* path) {
+    spectre_renderer_export_configuration(entity_world.c_ptr(), path);
+}
+}

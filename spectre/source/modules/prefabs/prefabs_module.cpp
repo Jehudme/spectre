@@ -1,4 +1,5 @@
 #include "prefabs_module.h"
+#include <sandbox/sdk/filesystem.hpp>
 #include "sandbox/sdk/logs.hpp"
 #include "spectre/sdk/scripts.hpp"
 #include "spectre/sdk/serializer.hpp"
@@ -148,9 +149,6 @@ sandbox::properties prefabs_module_t::serialize_entity(flecs::entity entity_to_s
     return result_properties;
 }
 
-// We inject components directly into the target entity to avoid complex merging
-// logic We also link scripts directly to the entity instead of using a child
-// entity for cleaner architecture
 flecs::entity prefabs_module_t::deserialize_entity(flecs::entity target_entity, sandbox::properties properties) {
     if (!properties.is_valid() || !target_entity.is_valid())
         return target_entity;
@@ -187,9 +185,9 @@ flecs::entity prefabs_module_t::deserialize_entity(flecs::entity target_entity, 
                     if (comp_entity.is_valid()) {
                         target_entity.add(comp_entity);
                     } else {
-                        sandbox::modules::logs::warn(m_world,
-                                                     "[Prefabs Module] Failed to find component '{}' during deserialization. It may be misspelled or unregistered.",
-                                                     component_name);
+                        sandbox::modules::logs::warn(
+                            m_world, "[Prefabs Module] Failed to find component '{}' during deserialization. It may be misspelled or unregistered.",
+                            component_name);
                     }
                 }
             }
@@ -302,6 +300,45 @@ flecs::entity prefabs_module_t::create_entity(std::string_view name) {
     flecs::entity created_entity = m_world.entity().is_a(prefab);
     run_on_create_scripts(created_entity, m_world);
     return created_entity;
+}
+
+void prefabs_module_t::import_configuration(std::string_view directory_path) {
+    if (directory_path.empty()) return;
+    
+    if (sandbox::modules::filesystem::exists(m_world, directory_path.data())) {
+        std::vector<std::string> files = sandbox::modules::filesystem::list_files(m_world, directory_path.data(), true);
+        for (const auto& file : files) {
+            if (file.size() > 5 && file.substr(file.size() - 5) == ".json") {
+                std::string content = sandbox::modules::filesystem::read_all_text(m_world, file.c_str());
+                sandbox::properties props(content, sandbox::properties::Format::JSON);
+                
+                std::string prefab_name;
+                if (!props.get<std::string>("name", prefab_name)) {
+                    // Use filename without extension if name property is missing
+                    size_t last_slash = file.find_last_of('/');
+                    size_t name_start = (last_slash == std::string::npos) ? 0 : last_slash + 1;
+                    prefab_name = file.substr(name_start, file.size() - 5 - name_start);
+                }
+                
+                register_prefab(prefab_name, std::move(props));
+            }
+        }
+    }
+}
+
+void prefabs_module_t::export_configuration(std::string_view directory_path) {
+    if (directory_path.empty()) return;
+    
+    m_prefabs_root.children([&](flecs::entity prefab) {
+        if (!is_prefab(prefab)) return;
+        
+        sandbox::properties props = serialize_entity(prefab);
+        if (props.is_valid()) {
+            std::string content = props.dump(sandbox::properties::Format::JSON);
+            std::string file_path = std::string(directory_path) + "/" + std::string(prefab.name()) + ".json";
+            sandbox::modules::filesystem::write_all(m_world, file_path.c_str(), content.c_str(), content.size(), true);
+        }
+    });
 }
 
 } // namespace spectre::modules

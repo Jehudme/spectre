@@ -41,6 +41,10 @@ class scenes {
 
     static void execute_recursive(const flecs::world& entity_world, ecs_entity_t entity,
                                   spectre_recursive_callback_t callback, void* payload);
+                                  
+    static void import_configuration(const flecs::world& entity_world, const char* directory_path);
+
+    static void export_configuration(const flecs::world& entity_world, const char* directory_path);
 };
 } // namespace spectre::modules
 #endif

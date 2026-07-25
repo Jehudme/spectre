@@ -153,10 +153,22 @@ static void scripts_execute_on_exit(ecs_world_t* world, ecs_entity_t entity) {
         module->execute_on_exit(fw.entity(entity));
 }
 
+static void scripts_import_configuration(ecs_world_t* world, const char* directory_path) {
+    if (!world || !directory_path)
+        return;
+    flecs::world fw(world);
+    auto* module = fw.lookup("spectre::modules::script_module_t").is_valid()
+                       ? fw.try_get_mut<spectre::modules::script_module_t>()
+                       : nullptr;
+    if (module)
+        module->import_scripts(directory_path);
+}
+
 static spectre_scripts_api_t api = {scripts_has_script,          scripts_is_script,         scripts_find_script,
                                     scripts_include_code,        scripts_execute_script,    scripts_serialize_scripts,
                                     scripts_deserialize_scripts, scripts_execute_on_create, scripts_execute_on_destroy,
-                                    scripts_execute_on_update,   scripts_execute_on_enter,  scripts_execute_on_exit};
+                                    scripts_execute_on_update,   scripts_execute_on_enter,  scripts_execute_on_exit,
+                                    scripts_import_configuration};
 
 SANDBOX_DEFINE_SERVICE(spectre_scripts_service_t, spectre_scripts_api_t, &api)
 
@@ -199,4 +211,7 @@ void spectre_scripts_execute_on_enter(ecs_world_t* world, ecs_entity_t entity) {
 }
 void spectre_scripts_execute_on_exit(ecs_world_t* world, ecs_entity_t entity) {
     scripts_execute_on_exit(world, entity);
+}
+void spectre_scripts_import_configuration(ecs_world_t* world, const char* directory_path) {
+    scripts_import_configuration(world, directory_path);
 }

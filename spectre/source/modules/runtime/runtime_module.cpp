@@ -7,6 +7,7 @@
 #include <sandbox/services/runtime_service.h>
 #include <spectre/sdk/prefabs.hpp>
 #include <spectre/sdk/renderer.hpp>
+#include <spectre/sdk/resources.hpp>
 #include <spectre/sdk/scenes.hpp>
 #include <spectre/sdk/scripts.hpp>
 #include <spectre/sdk/window.hpp>
@@ -36,71 +37,18 @@ void runtime_module_t::main_loop(flecs::world& entity_world) {
     sandbox::modules::logs::info(entity_world, "[Runtime Module] Runtime loop stopped");
 }
 
-static void register_scripts_from_directory(flecs::world& world, const char* virtual_path) {
-    if (!sandbox::modules::filesystem::exists(world, virtual_path))
-        return;
-    auto files = sandbox::modules::filesystem::list_files(world, virtual_path, true);
-    for (const auto& file : files) {
-        sandbox::modules::logs::trace(world, "[Runtime Module] Registering script: {}", file);
-        spectre::modules::scripts::include_code(world, file);
-    }
-}
+bool runtime_module_t::import_configuration(flecs::world& entity_world) {
+    sandbox::modules::logs::info(entity_world, "[Runtime Module] Importing configurations...");
 
-static void register_prefabs_from_directory(flecs::world& world, const char* virtual_path) {
-    if (!sandbox::modules::filesystem::exists(world, virtual_path))
-        return;
-    auto files = sandbox::modules::filesystem::list_files(world, virtual_path, true);
-    for (const auto& file : files) {
-        sandbox::modules::logs::trace(world, "[Runtime Module] Registering prefab: {}", file);
-        std::string content = sandbox::modules::filesystem::read_all_text(world, file.c_str());
-        if (!content.empty()) {
-            sandbox::properties props(content, sandbox::properties::Format::JSON);
-            std::string prefab_name = props.get<std::string>("name").value_or(file);
-            spectre::modules::prefabs::register_prefab(world, prefab_name.c_str(), props.get_raw());
-        }
-    }
-}
-
-static void register_scenes_from_directory(flecs::world& world, const char* virtual_path) {
-    if (!sandbox::modules::filesystem::exists(world, virtual_path))
-        return;
-    auto files = sandbox::modules::filesystem::list_files(world, virtual_path, true);
-    for (const auto& file : files) {
-        sandbox::modules::logs::trace(world, "[Runtime Module] Registering scene: {}", file);
-        std::string content = sandbox::modules::filesystem::read_all_text(world, file.c_str());
-        if (!content.empty()) {
-            sandbox::properties props(content, sandbox::properties::Format::JSON);
-            spectre::modules::scenes::register_scene(world, props.get_raw());
-        }
-    }
-}
-
-static void register_states_from_directory(flecs::world& world, const char* virtual_path) {
-    if (!sandbox::modules::filesystem::exists(world, virtual_path))
-        return;
-    auto files = sandbox::modules::filesystem::list_files(world, virtual_path, true);
-    for (const auto& file : files) {
-        sandbox::modules::logs::trace(world, "[Runtime Module] Registering state: {}", file);
-        std::string content = sandbox::modules::filesystem::read_all_text(world, file.c_str());
-        if (!content.empty()) {
-            sandbox::properties props(content, sandbox::properties::Format::JSON);
-            spectre::modules::scenes::register_state(world, props.get_raw());
-        }
-    }
-}
-
-bool runtime_module_t::initialize(flecs::world& entity_world) {
-    sandbox::modules::logs::info(entity_world, "[Runtime Module] Initializing runtime resources...");
-
-    register_scripts_from_directory(entity_world, "app://resources/scripts");
-    register_prefabs_from_directory(entity_world, "app://scenes/prefabs");
-    register_scenes_from_directory(entity_world, "app://scenes/scenes");
-    register_states_from_directory(entity_world, "app://scenes/states");
+    spectre::modules::scripts::import_configuration(entity_world, "app://resources/scripts");
+    spectre::modules::prefabs::import_configuration(entity_world, "app://scenes/prefabs");
+    spectre::modules::scenes::import_configuration(entity_world, "app://scenes/scenes");
+    spectre::modules::scenes::import_configuration(entity_world, "app://scenes/states");
+    spectre::modules::resources::import_configuration(entity_world, "app://configs/resources.json");
 
     // Window Registration
     if (sandbox::modules::filesystem::exists(entity_world, "app://configs/window.json")) {
-        std::string content = sandbox::modules::filesystem::read_all_text(entity_world,
-                                                                          "app://configs/window.json");
+        std::string content = sandbox::modules::filesystem::read_all_text(entity_world, "app://configs/window.json");
         sandbox::properties props(content, sandbox::properties::Format::JSON);
         spectre::modules::window::register_window(entity_world, props.get_raw());
         sandbox::modules::logs::trace(entity_world, "[Runtime Module] Registered window config.");
@@ -110,21 +58,11 @@ bool runtime_module_t::initialize(flecs::world& entity_world) {
     }
 
     // Renderer Registration
-    if (sandbox::modules::filesystem::exists(entity_world, "app://configs/renderer.json")) {
-        std::string content = sandbox::modules::filesystem::read_all_text(entity_world,
-                                                                          "app://configs/renderer.json");
-        sandbox::properties props(content, sandbox::properties::Format::JSON);
-        spectre::modules::renderer::register_renderer(entity_world, props.get_raw());
-        sandbox::modules::logs::trace(entity_world, "[Runtime Module] Registered renderer config.");
-    } else {
-        sandbox::modules::logs::warn(entity_world, "[Runtime Module] Renderer configuration missing at "
-                                                   "app://configs/renderer.json");
-    }
+    spectre::modules::renderer::import_configuration(entity_world, "app://configs/renderer.json");
 
     // Default State Stack
     if (sandbox::modules::filesystem::exists(entity_world, "app://configs/startup.json")) {
-        std::string content = sandbox::modules::filesystem::read_all_text(entity_world,
-                                                                          "app://configs/startup.json");
+        std::string content = sandbox::modules::filesystem::read_all_text(entity_world, "app://configs/startup.json");
         sandbox::properties props(content, sandbox::properties::Format::JSON);
         std::vector<std::string> startup_states;
         if (props.get_array<std::string>("states", startup_states)) {
@@ -148,7 +86,7 @@ void runtime_module_t::run(flecs::world& entity_world) {
         sandbox::modules::logs::warn(entity_world, "[Runtime Module] Runtime is already running in a thread.");
         return;
     }
-    initialize(entity_world);
+    import_configuration(entity_world);
     m_running->store(true);
     main_loop(entity_world);
 }
@@ -159,7 +97,7 @@ void runtime_module_t::start(flecs::world& entity_world) {
         return;
     }
 
-    initialize(entity_world);
+    import_configuration(entity_world);
     m_running->store(true);
     m_thread = std::make_unique<std::thread>(&runtime_module_t::main_loop, this, std::ref(entity_world));
 }

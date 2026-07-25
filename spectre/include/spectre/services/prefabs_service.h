@@ -17,6 +17,8 @@ typedef struct spectre_prefabs_api_t {
     ecs_entity_t (*create_entity_from_props)(ecs_world_t* world, sandbox_properties_handle_t props);
     ecs_entity_t (*create_entity_from_prefab)(ecs_world_t* world, ecs_entity_t prefab);
     ecs_entity_t (*create_entity_from_name)(ecs_world_t* world, const char* name);
+    void (*import_configuration)(ecs_world_t* world, const char* directory_path);
+    void (*export_configuration)(ecs_world_t* world, const char* directory_path);
 } spectre_prefabs_api_t;
 
 SANDBOX_DECLARE_SERVICE(spectre_prefabs_service_t, spectre_prefabs_api_t,
@@ -47,6 +49,10 @@ SANDBOX_API
 ecs_entity_t spectre_prefabs_create_entity_from_prefab(ecs_world_t* world, ecs_entity_t prefab);
 SANDBOX_API
 ecs_entity_t spectre_prefabs_create_entity_from_name(ecs_world_t* world, const char* name);
+SANDBOX_API
+void spectre_prefabs_import_configuration(ecs_world_t* world, const char* directory_path);
+SANDBOX_API
+void spectre_prefabs_export_configuration(ecs_world_t* world, const char* directory_path);
 
 #ifdef __cplusplus
 }

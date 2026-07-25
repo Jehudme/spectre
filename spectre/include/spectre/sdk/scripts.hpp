@@ -62,6 +62,10 @@ class scripts {
     static void execute_on_exit(flecs::entity entity) {
         spectre_scripts_execute_on_exit(entity.world().c_ptr(), entity.id());
     }
+
+    static void import_configuration(const flecs::world& entity_world, const std::string& directory_path) {
+        spectre_scripts_import_configuration(entity_world.c_ptr(), directory_path.c_str());
+    }
 };
 
 } // namespace spectre::modules

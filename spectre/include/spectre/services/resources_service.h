@@ -21,6 +21,8 @@ typedef struct spectre_resources_api_t {
     void (*load_resource)(ecs_world_t* world, ecs_entity_t resourceEntity);
     void (*free_resource)(ecs_world_t* world, ecs_entity_t resourceEntity);
     void* (*get_resource)(ecs_world_t* world, ecs_entity_t resourceEntity);
+    void (*import_configuration)(ecs_world_t* world, const char* path);
+    void (*export_configuration)(ecs_world_t* world, const char* path);
 } spectre_resources_api_t;
 
 SANDBOX_DECLARE_SERVICE(spectre_resources_service_t, spectre_resources_api_t,
@@ -60,6 +62,10 @@ SANDBOX_API
 void spectre_resources_free_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
 SANDBOX_API
 void* spectre_resources_get_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
+SANDBOX_API
+void spectre_resources_import_configuration(ecs_world_t* world, const char* path);
+SANDBOX_API
+void spectre_resources_export_configuration(ecs_world_t* world, const char* path);
 
 #ifdef __cplusplus
 }

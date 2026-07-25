@@ -13,6 +13,10 @@ class renderer {
     static void register_renderer(const flecs::world& entity_world, sandbox_properties_handle_t props);
 
     static bool is_renderer(const flecs::world& entity_world);
+
+    static void import_configuration(const flecs::world& entity_world, const char* path);
+
+    static void export_configuration(const flecs::world& entity_world, const char* path);
 };
 } // namespace spectre::modules
 #endif

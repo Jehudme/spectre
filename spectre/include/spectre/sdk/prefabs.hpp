@@ -23,6 +23,14 @@ class prefabs {
     static ecs_entity_t create_entity_from_prefab(const flecs::world& entity_world, ecs_entity_t prefab);
 
     static ecs_entity_t create_entity_from_name(const flecs::world& entity_world, const char* name);
+
+    static void import_configuration(const flecs::world& entity_world, const char* directory_path) {
+        spectre_prefabs_import_configuration(entity_world.c_ptr(), directory_path);
+    }
+    
+    static void export_configuration(const flecs::world& entity_world, const char* directory_path) {
+        spectre_prefabs_export_configuration(entity_world.c_ptr(), directory_path);
+    }
 };
 } // namespace spectre::modules
 #endif

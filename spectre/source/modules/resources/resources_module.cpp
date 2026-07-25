@@ -100,16 +100,10 @@ resource_module_t::resource_module_t(flecs::world& world) : m_world(world) {
     spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
     spectre_serializer_component resource_comp_serializer = {deserialize_resource_comp_cb, serialize_resource_comp_cb};
 
-    spectre::modules::components::register_component(m_world, "Resource", register_resource_component,
-                                                     resource_comp_serializer);
-
-    spectre::modules::components::register_component(m_world, "ResourceLoader", register_resource_loader_component,
-                                                     empty_serializer);
-
-    spectre::modules::components::register_component(m_world, "UseLoaderRelation", register_use_loader_relation,
-                                                     empty_serializer);
-
-    spectre::modules::components::register_component(m_world, "ResourceFlag", register_resource_flag, empty_serializer);
+    spectre::modules::components::register_component(m_world, "Resource", register_resource_component);
+    spectre::modules::components::register_component(m_world, "ResourceLoader", register_resource_loader_component);
+    spectre::modules::components::register_component(m_world, "UseLoaderRelation", register_use_loader_relation);
+    spectre::modules::components::register_component(m_world, "ResourceFlag", register_resource_flag);
 
     // Create roots
     m_resources_root = m_world.entity("::resources");
@@ -117,24 +111,16 @@ resource_module_t::resource_module_t(flecs::world& world) : m_world(world) {
     m_resource_prefab = m_world.prefab("::resources::prefab").add<Resource>();
 
     // Register serializer
-    spectre_serializer_component resource_serializer = {};
-    resource_serializer.deserialize = deserialize_resource_cb;
-    resource_serializer.serialize = serialize_resource_cb;
+    spectre_serializer_component resource_serializer = {
+        .deserialize = deserialize_resource_cb,
+        .serialize = serialize_resource_cb,
+    };
+
     spectre::modules::serializer::register_serializer(m_world, "resources", &resource_serializer);
 
     m_resources_serializer = m_world.entity(spectre::modules::serializer::find_serializer(m_world, "resources"));
 
-    if (sandbox::modules::filesystem::exists(m_world, "app://configs/resources.json")) {
-        std::string content = sandbox::modules::filesystem::read_all_text(m_world, "app://configs/resources.json");
-        sandbox::properties props(content, sandbox::properties::Format::JSON);
-        register_resource(props);
-        sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world),
-                                      "[Resources Module] Registered resources from config.");
-    } else {
-        sandbox::modules::logs::warn(
-            const_cast<flecs::world&>(m_world),
-            "[Resources Module] Resources configuration missing at app://configs/resources.json");
-    }
+
 
     sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Resources Module] Initialized successfully.");
 }
@@ -347,4 +333,31 @@ void* resource_module_t::get_resource(flecs::entity resource_entity) {
         return resource_component->instance;
     return nullptr;
 }
+void resource_module_t::import_configuration(std::string_view file_path) {
+    if (sandbox::modules::filesystem::exists(m_world, std::string(file_path).c_str())) {
+        std::string content = sandbox::modules::filesystem::read_all_text(m_world, std::string(file_path).c_str());
+        sandbox::properties props(content, sandbox::properties::Format::JSON);
+        register_resource(std::move(props));
+        sandbox::modules::logs::trace(m_world,
+                                      "[Resources Module] Imported resources config from {}.", file_path);
+    } else {
+        sandbox::modules::logs::warn(
+            m_world,
+            "[Resources Module] Resources configuration missing at {}", file_path);
+    }
+}
+
+void resource_module_t::export_configuration(std::string_view file_path) {
+    sandbox::properties props;
+    m_resources_root.children([&](flecs::entity child) {
+        if (is_resource(child)) {
+            sandbox::properties child_props = serialize_resource(child);
+            props.merge(std::string(child.name().c_str()), child_props);
+        }
+    });
+    std::string content = props.dump(sandbox::properties::Format::JSON);
+    sandbox::modules::filesystem::write_all(m_world, std::string(file_path).c_str(), content.c_str(), content.size(), true);
+    sandbox::modules::logs::trace(m_world, "[Resources Module] Exported resources config to {}.", file_path);
+}
+
 } // namespace spectre::modules

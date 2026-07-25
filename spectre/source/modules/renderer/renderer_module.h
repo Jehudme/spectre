@@ -20,6 +20,10 @@ class renderer_module_t {
     void register_renderer(const sandbox::properties& props);
     bool is_renderer() const;
 
+    void import_configuration(std::string_view file_path);
+
+    void export_configuration(std::string_view file_path);
+
   private:
     void render_frame();
     void render(flecs::entity entity);

@@ -25,44 +25,48 @@ SANDBOX_DECLARE_MODULE(components_module_t, {.name = "components",
 components_module_t::components_module_t(flecs::world& world) : m_world(world) {
     m_components_root = m_world.entity("components");
     sandbox::modules::logs::trace(m_world, "[Components Module] Initializing...");
-    
+
     sandbox::modules::logs::info(m_world, "[Components Module] Initialized successfully.");
 }
 
-components_module_t::~components_module_t() {
-}
+components_module_t::~components_module_t() {}
 
-void components_module_t::register_component(std::string_view name, spectre_component_registration_fn_t registration_fn, spectre_serializer_component serializer) {
+void components_module_t::register_component(std::string_view name, spectre_component_registration_fn_t registration_fn,
+                                             spectre_serializer_component serializer) {
     if (name.empty()) {
         sandbox::modules::logs::error(m_world, "[Components Module] Cannot register a component with an empty name.");
         return;
     }
 
     if (has_component(name)) {
-        sandbox::modules::logs::trace(m_world, "[Components Module] Component '{}' is already registered. Overriding.", name.data());
+        sandbox::modules::logs::trace(m_world, "[Components Module] Component '{}' is already registered. Overriding.",
+                                      name.data());
     }
 
     ecs_entity_t comp_id = registration_fn(m_world.c_ptr());
     flecs::entity comp(m_world, comp_id);
     comp.child_of(m_components_root);
     comp.set<spectre_serializer_component>(serializer);
-    
+
     spectre::modules::serializer::register_serializer(m_world, name.data(), &serializer);
 
     sandbox::modules::logs::trace(m_world, "[Components Module] Registered component '{}'.", name.data());
 }
 
 flecs::entity components_module_t::find_component(std::string_view name) const {
-    if (name.empty()) return flecs::entity::null();
+    if (name.empty())
+        return flecs::entity::null();
     flecs::entity comp = m_components_root.lookup(name.data());
     if (!comp.is_valid()) {
-        sandbox::modules::logs::error(const_cast<flecs::world&>(m_world), "[Components Module] Could not find component '{}'.", name.data());
+        sandbox::modules::logs::error(const_cast<flecs::world&>(m_world),
+                                      "[Components Module] Could not find component '{}'.", name.data());
     }
     return comp;
 }
 
 bool components_module_t::has_component(std::string_view name) const {
-    if (name.empty()) return false;
+    if (name.empty())
+        return false;
     return m_components_root.lookup(name.data()).is_valid();
 }
 

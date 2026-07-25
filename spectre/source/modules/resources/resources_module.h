@@ -40,6 +40,10 @@ class resource_module_t {
     void free_resource(flecs::entity resourceEntity);
     void* get_resource(flecs::entity resourceEntity);
 
+    void import_configuration(std::string_view file_path);
+
+    void export_configuration(std::string_view file_path);
+
   private:
     flecs::world m_world;
     flecs::entity m_resources_root;
