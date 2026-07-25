@@ -40,11 +40,10 @@ void runtime_module_t::main_loop(flecs::world& entity_world) {
 bool runtime_module_t::import_configuration(flecs::world& entity_world) {
     sandbox::modules::logs::info(entity_world, "[Runtime Module] Importing configurations...");
 
+    spectre::modules::resources::import_configuration(entity_world, "app://configs/resources.json");
     spectre::modules::scripts::import_configuration(entity_world, "app://resources/scripts");
     spectre::modules::prefabs::import_configuration(entity_world, "app://scenes/prefabs");
-    spectre::modules::scenes::import_configuration(entity_world, "app://scenes/scenes");
-    spectre::modules::scenes::import_configuration(entity_world, "app://scenes/states");
-    spectre::modules::resources::import_configuration(entity_world, "app://configs/resources.json");
+    spectre::modules::scenes::import_configuration(entity_world, "app://scenes");
 
     // Window Registration
     if (sandbox::modules::filesystem::exists(entity_world, "app://configs/window.json")) {

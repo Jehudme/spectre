@@ -506,53 +506,58 @@ flecs::entity scenes_module_t::create_scene(std::string_view scene_name) {
     return scene_instance;
 }
 void scenes_module_t::import_configuration(std::string_view directory_path) {
-    if (!sandbox::modules::filesystem::exists(m_world, std::string(directory_path).c_str())) {
-        sandbox::modules::logs::warn(m_world, "[Scenes Module] Directory {} does not exist.", directory_path);
-        return;
-    }
-    std::string states_file = std::string(directory_path) + "/states.json";
-    std::string scenes_file = std::string(directory_path) + "/scenes.json";
+    std::string base_dir(directory_path);
+    std::string states_dir = base_dir + "/states";
+    std::string scenes_dir = base_dir + "/scenes";
 
-    if (sandbox::modules::filesystem::exists(m_world, states_file.c_str())) {
-        std::string content = sandbox::modules::filesystem::read_all_text(m_world, states_file.c_str());
-        sandbox::properties props(content, sandbox::properties::Format::JSON);
-        register_state(std::move(props));
-        sandbox::modules::logs::trace(m_world, "[Scenes Module] Imported states from {}.", states_file);
+    if (sandbox::modules::filesystem::exists(m_world, scenes_dir.c_str())) {
+        auto files = sandbox::modules::filesystem::list_files(m_world, scenes_dir.c_str(), true);
+        for (const auto& file : files) {
+            if (file.size() > 5 && file.substr(file.size() - 5) == ".json") {
+                std::string content = sandbox::modules::filesystem::read_all_text(m_world, file.c_str());
+                sandbox::properties props(content, sandbox::properties::Format::JSON);
+                register_scene(std::move(props));
+                sandbox::modules::logs::trace(m_world, "[Scenes Module] Imported scene from {}.", file);
+            }
+        }
     }
-    if (sandbox::modules::filesystem::exists(m_world, scenes_file.c_str())) {
-        std::string content = sandbox::modules::filesystem::read_all_text(m_world, scenes_file.c_str());
-        sandbox::properties props(content, sandbox::properties::Format::JSON);
-        register_scene(std::move(props));
-        sandbox::modules::logs::trace(m_world, "[Scenes Module] Imported scenes from {}.", scenes_file);
+
+    if (sandbox::modules::filesystem::exists(m_world, states_dir.c_str())) {
+        auto files = sandbox::modules::filesystem::list_files(m_world, states_dir.c_str(), true);
+        for (const auto& file : files) {
+            if (file.size() > 5 && file.substr(file.size() - 5) == ".json") {
+                std::string content = sandbox::modules::filesystem::read_all_text(m_world, file.c_str());
+                sandbox::properties props(content, sandbox::properties::Format::JSON);
+                register_state(std::move(props));
+                sandbox::modules::logs::trace(m_world, "[Scenes Module] Imported state from {}.", file);
+            }
+        }
     }
 }
 
 void scenes_module_t::export_configuration(std::string_view directory_path) {
-    // Collect all states
-    sandbox::properties states_props;
+    std::string base_dir(directory_path);
+    std::string states_dir = base_dir + "/states";
+    std::string scenes_dir = base_dir + "/scenes";
+
     m_states_root.children([&](flecs::entity child) {
         if (is_state(child)) {
-            states_props.merge(std::string(child.name().c_str()), serialize_state(child));
+            sandbox::properties props = serialize_state(child);
+            std::string content = props.dump(sandbox::properties::Format::JSON);
+            std::string file_path = states_dir + "/" + child.name().c_str() + ".json";
+            sandbox::modules::filesystem::write_all(m_world, file_path.c_str(), content.c_str(), content.size(), true);
         }
     });
 
-    // Collect all scenes
-    sandbox::properties scenes_props;
     m_scenes_root.children([&](flecs::entity child) {
         if (is_scene(child)) {
-            scenes_props.merge(std::string(child.name().c_str()), serialize_scene(child));
+            sandbox::properties props = serialize_scene(child);
+            std::string content = props.dump(sandbox::properties::Format::JSON);
+            std::string file_path = scenes_dir + "/" + child.name().c_str() + ".json";
+            sandbox::modules::filesystem::write_all(m_world, file_path.c_str(), content.c_str(), content.size(), true);
         }
     });
 
-    std::string states_file = std::string(directory_path) + "/states.json";
-    std::string scenes_file = std::string(directory_path) + "/scenes.json";
-    
-    std::string states_content = states_props.dump(sandbox::properties::Format::JSON);
-    sandbox::modules::filesystem::write_all(m_world, states_file.c_str(), states_content.c_str(), states_content.size(), true);
-    
-    std::string scenes_content = scenes_props.dump(sandbox::properties::Format::JSON);
-    sandbox::modules::filesystem::write_all(m_world, scenes_file.c_str(), scenes_content.c_str(), scenes_content.size(), true);
-    
     sandbox::modules::logs::trace(m_world, "[Scenes Module] Exported configs to {}.", directory_path);
 }
 

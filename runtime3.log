@@ -1,0 +1,462 @@
+[2026-07-25 16:12:14.308] [sandbox] [info] Filesystem Module: Found 1 mounts in configuration.
+[2026-07-25 16:12:14.308] [sandbox] [info] Mounting physical include '/home/jehud/CLionProjects/spectre/demo/resources/asteroid' to 'app://' (readonly: true)
+[2026-07-25 16:12:14.309] [sandbox] [info] [Components Module] Initialized successfully.
+[2026-07-25 16:12:14.309] [sandbox] [info] Registered serializer for type: 'Serializer'.
+[2026-07-25 16:12:14.309] [sandbox] [info] [Serializer Module] Initialized successfully.
+[2026-07-25 16:12:14.309] [sandbox] [info] Registered serializer for type: 'entity'.
+[2026-07-25 16:12:14.309] [sandbox] [info] [Prefabs Module] Initialized successfully.
+[2026-07-25 16:12:14.309] [sandbox] [info] [Scenes Module] Initializing...
+[2026-07-25 16:12:14.310] [sandbox] [info] Registered serializer for type: 'Scene'.
+[2026-07-25 16:12:14.310] [sandbox] [info] Registered serializer for type: 'State'.
+[2026-07-25 16:12:14.310] [sandbox] [info] Registered serializer for type: 'StateUseSceneRelation'.
+[2026-07-25 16:12:14.310] [sandbox] [info] Registered serializer for type: 'StateContext'.
+[2026-07-25 16:12:14.310] [sandbox] [info] Registered serializer for type: 'SceneContext'.
+[2026-07-25 16:12:14.310] [sandbox] [info] Registered serializer for type: 'DisableRendering'.
+[2026-07-25 16:12:14.310] [sandbox] [info] Registered serializer for type: 'state'.
+[2026-07-25 16:12:14.310] [sandbox] [info] Registered serializer for type: 'scene'.
+[2026-07-25 16:12:14.310] [sandbox] [warning] [Scenes Module] Could not find 'scripts' serializer. Serialization might be incomplete.
+[2026-07-25 16:12:14.311] [sandbox] [info] [Scenes Module] Initialized successfully.
+[2026-07-25 16:12:14.311] [sandbox] [info] Registered serializer for type: 'Script'.
+[2026-07-25 16:12:14.311] [sandbox] [info] Registered serializer for type: 'UseScriptOnCreateRelation'.
+[2026-07-25 16:12:14.311] [sandbox] [info] Registered serializer for type: 'UseScriptOnDestroyRelation'.
+[2026-07-25 16:12:14.311] [sandbox] [info] Registered serializer for type: 'UseScriptOnUpdateRelation'.
+[2026-07-25 16:12:14.311] [sandbox] [info] Registered serializer for type: 'UseScriptOnEnterRelation'.
+[2026-07-25 16:12:14.311] [sandbox] [info] Registered serializer for type: 'UseScriptOnExitRelation'.
+[2026-07-25 16:12:14.311] [sandbox] [info] Registered serializer for type: 'UseScriptOnRenderRelation'.
+[2026-07-25 16:12:14.312] [sandbox] [info] Registered serializer for type: 'scripts'.
+[2026-07-25 16:12:14.312] [sandbox] [info] [Scripts Module] Initialized successfully.
+[2026-07-25 16:12:14.312] [sandbox] [error] Failed to register serializer 'Resource': missing serialize or deserialize function pointers.
+[2026-07-25 16:12:14.312] [sandbox] [error] Failed to register serializer 'ResourceLoader': missing serialize or deserialize function pointers.
+[2026-07-25 16:12:14.312] [sandbox] [error] Failed to register serializer 'UseLoaderRelation': missing serialize or deserialize function pointers.
+[2026-07-25 16:12:14.312] [sandbox] [error] Failed to register serializer 'ResourceFlag': missing serialize or deserialize function pointers.
+[2026-07-25 16:12:14.312] [sandbox] [info] Registered serializer for type: 'resources'.
+[2026-07-25 16:12:14.312] [sandbox] [info] [Resources Module] Initialized successfully.
+[2026-07-25 16:12:14.312] [sandbox] [info] [Window Module] Initializing...
+[2026-07-25 16:12:14.312] [sandbox] [info] Registered serializer for type: 'Window'.
+[2026-07-25 16:12:14.312] [sandbox] [info] Registered serializer for type: 'InputState'.
+[2026-07-25 16:12:14.313] [sandbox] [info] Registered serializer for type: 'window'.
+[2026-07-25 16:12:14.313] [sandbox] [info] [Window Module] Initialized successfully.
+[2026-07-25 16:12:14.313] [sandbox] [info] Starting Application Module
+[2026-07-25 16:12:14.313] [sandbox] [info] Mounting physical include '/tmp/SandboxEngine/plugin_cache' to 'cache://' (readonly: false)
+[2026-07-25 16:12:14.313] [sandbox] [info] Mounting physical include '/home/jehud/.local/share/SandboxEngine/saves' to 'save://' (readonly: false)
+[2026-07-25 16:12:14.313] [sandbox] [info] Ingested app://configuration.json
+[2026-07-25 16:12:14.313] [sandbox] [warning] Path does not exist or is not a directory: /home/jehud/CLionProjects/spectre/demo/resources/asteroid/plugins
+[2026-07-25 16:12:14.313] [sandbox] [info] Application Module Initialized
+[2026-07-25 16:12:14.313] [sandbox] [info] Registered serializer for type: 'renderer'.
+[2026-07-25 16:12:14.313] [sandbox] [info] Registered serializer for type: 'Renderable'.
+[2026-07-25 16:12:14.314] [sandbox] [info] Registered serializer for type: 'Transform2D'.
+[2026-07-25 16:12:14.314] [sandbox] [info] Registered serializer for type: 'RectangleRenderable'.
+[2026-07-25 16:12:14.314] [sandbox] [info] Registered serializer for type: 'CircleRenderable'.
+[2026-07-25 16:12:14.314] [sandbox] [info] Registered serializer for type: 'PolygoneRenderable'.
+[2026-07-25 16:12:14.315] [sandbox] [info] Registered serializer for type: 'CustomPolygoneRenderable'.
+[2026-07-25 16:12:14.315] [sandbox] [info] Registered serializer for type: 'LigneRenderable'.
+[2026-07-25 16:12:14.315] [sandbox] [info] Registered serializer for type: 'TextureRenderable'.
+[2026-07-25 16:12:14.315] [sandbox] [info] Registered serializer for type: 'TextRenderable'.
+[2026-07-25 16:12:14.316] [sandbox] [info] [Renderer Module] Initialized successfully.
+[2026-07-25 16:12:14.316] [sandbox] [info] [Runtime Module] Importing configurations...
+[2026-07-25 16:12:14.321] [sandbox] [error] File does not exist or is not a regular file: /home/jehud/CLionProjects/spectre/demo/resources/asteroid/resources/scripts/externals/externals.spectre.lua
+[2026-07-25 16:12:14.321] [sandbox] [error] ABI filesystem_read_all_bytes error: File does not exist on disk
+[2026-07-25 16:12:14.321] [sandbox] [error] File does not exist or is not a regular file: /home/jehud/CLionProjects/spectre/demo/resources/asteroid/resources/scripts/externals.spectre.lua
+[2026-07-25 16:12:14.321] [sandbox] [error] ABI filesystem_read_all_bytes error: File does not exist on disk
+[2026-07-25 16:12:14.322] [sandbox] [error] File does not exist or is not a regular file: /home/jehud/CLionProjects/spectre/demo/resources/asteroid/resources/scripts/externals/externals.sandbox.lua
+[2026-07-25 16:12:14.322] [sandbox] [error] ABI filesystem_read_all_bytes error: File does not exist on disk
+[2026-07-25 16:12:14.323] [sandbox] [error] File does not exist or is not a regular file: /home/jehud/CLionProjects/spectre/demo/resources/asteroid/resources/scripts/externals.sandbox.lua
+[2026-07-25 16:12:14.323] [sandbox] [error] ABI filesystem_read_all_bytes error: File does not exist on disk
+[2026-07-25 16:12:14.324] [sandbox] [info] [Scripts Module] Successfully evaluated script: app://resources/scripts/TestScript.lua
+Properties tests passed.
+Filesystem service unavailable, skipping...
+Components tests passed.
+[2026-07-25 16:12:14.324] [sandbox] [info] Lua API info test
+[2026-07-25 16:12:14.324] [sandbox] [warning] Lua API warn test
+[2026-07-25 16:12:14.324] [sandbox] [error] Lua API error test
+Sandbox basic APIs tests passed.
+Spectre basic APIs tests passed.
+[2026-07-25 16:12:14.325] [sandbox] [info] [Scripts Module] Successfully evaluated script: app://resources/scripts/api_tests.lua
+[2026-07-25 16:12:14.326] [sandbox] [info] [Scripts Module] Successfully evaluated script: app://resources/scripts/externals/spectre.lua
+[2026-07-25 16:12:14.328] [sandbox] [info] [Scripts Module] Successfully evaluated script: app://resources/scripts/externals/ecs.lua
+[2026-07-25 16:12:14.329] [sandbox] [info] [Scripts Module] Successfully evaluated script: app://resources/scripts/externals/sandbox.lua
+deserialize_color parsed: r=255, g=255, b=255, a=255
+[2026-07-25 16:12:14.330] [sandbox] [info] [Prefabs Module] Registered prefab: 'RectanglePrefab'
+deserialize_color parsed: r=255, g=50, b=50, a=255
+[2026-07-25 16:12:14.330] [sandbox] [info] [Prefabs Module] Registered prefab: 'TextPrefab'
+[2026-07-25 16:12:14.331] [sandbox] [info] [Scenes Module] Registered scene 'MainScene'.
+[2026-07-25 16:12:14.331] [sandbox] [info] [Scenes Module] Attached scene 'MainScene' to state.
+[2026-07-25 16:12:14.331] [sandbox] [info] [Scenes Module] Registered state 'MainState'.
+INFO: Initializing raylib 5.0
+INFO: Platform backend: DESKTOP (GLFW)
+INFO: Supported raylib modules:
+INFO:     > rcore:..... loaded (mandatory)
+INFO:     > rlgl:...... loaded (mandatory)
+INFO:     > rshapes:... loaded (optional)
+INFO:     > rtextures:. loaded (optional)
+INFO:     > rtext:..... loaded (optional)
+INFO:     > rmodels:... loaded (optional)
+INFO:     > raudio:.... loaded (optional)
+INFO: DISPLAY: Trying to enable VSYNC
+INFO: DISPLAY: Device initialized successfully
+INFO:     > Display size: 1920 x 1080
+INFO:     > Screen size:  800 x 600
+INFO:     > Render size:  800 x 600
+INFO:     > Viewport offsets: 0, 0
+INFO: GLAD: OpenGL extensions loaded successfully
+INFO: GL: Supported extensions count: 384
+INFO: GL: OpenGL device information:
+INFO:     > Vendor:   NVIDIA Corporation
+INFO:     > Renderer: NVIDIA GeForce GTX 970/PCIe/SSE2
+INFO:     > Version:  3.3.0 NVIDIA 535.309.01
+INFO:     > GLSL:     3.30 NVIDIA via Cg compiler
+INFO: GL: VAO extension detected, VAO functions loaded successfully
+INFO: GL: NPOT textures extension detected, full NPOT textures supported
+INFO: GL: DXT compressed textures supported
+INFO: GL: ETC2/EAC compressed textures supported
+INFO: PLATFORM: DESKTOP (GLFW): Initialized successfully
+INFO: TEXTURE: [ID 1] Texture loaded successfully (1x1 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 1] Default texture loaded successfully
+INFO: SHADER: [ID 1] Vertex shader compiled successfully
+INFO: SHADER: [ID 2] Fragment shader compiled successfully
+INFO: SHADER: [ID 3] Program shader loaded successfully
+INFO: SHADER: [ID 3] Default shader loaded successfully
+INFO: RLGL: Render batch vertex buffers loaded successfully in RAM (CPU)
+INFO: RLGL: Render batch vertex buffers loaded successfully in VRAM (GPU)
+INFO: RLGL: Default OpenGL state initialized successfully
+INFO: TEXTURE: [ID 2] Texture loaded successfully (128x128 | GRAY_ALPHA | 1 mipmaps)
+INFO: FONT: Default font loaded successfully (224 glyphs)
+[2026-07-25 16:12:14.505] [sandbox] [info] [Window Module] Window registered and created.
+[2026-07-25 16:12:14.505] [sandbox] [info] [Scenes Module] Pushed state 'MainState'.
+[2026-07-25 16:12:14.505] [sandbox] [info] [Runtime Module] Runtime initialization complete.
+[2026-07-25 16:12:14.505] [sandbox] [info] [Runtime Module] Runtime loop started
+INFO: IMAGE: Data loaded successfully (500x500 | R8G8B8 | 1 mipmaps)
+INFO: TEXTURE: [ID 3] Texture loaded successfully (500x500 | R8G8B8 | 1 mipmaps)
+[2026-07-25 16:12:14.563] [sandbox] [info] [Renderer Module] Applied filtering point to texture app://resources/textures/unknow.png
+[2026-07-25 16:12:14.563] [sandbox] [info] [Renderer Module] Applied wrap mode repeat to texture app://resources/textures/unknow.png
+INFO: TEXTURE: [ID 4] Texture loaded successfully (1024x512 | GRAY_ALPHA | 1 mipmaps)
+INFO: FONT: Data loaded successfully (64 pixel size | 95 glyphs)
+[2026-07-25 16:12:14.570] [sandbox] [info] [Renderer Module] Applied filtering point to font app://resources/fonts/Super Bouncer.ttf
+[2026-07-25 16:12:14.574] [sandbox] [info] [TestScript] Player Position: X=325, Y=225
+[2026-07-25 16:12:14.574] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.580] [sandbox] [info] [TestScript] Player Position: X=325.00100708008, Y=225
+[2026-07-25 16:12:14.580] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.596] [sandbox] [info] [TestScript] Player Position: X=325.00201416016, Y=225
+[2026-07-25 16:12:14.597] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.613] [sandbox] [info] [TestScript] Player Position: X=325.00302124023, Y=225
+[2026-07-25 16:12:14.613] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.630] [sandbox] [info] [TestScript] Player Position: X=325.00402832031, Y=225
+[2026-07-25 16:12:14.630] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.646] [sandbox] [info] [TestScript] Player Position: X=325.00503540039, Y=225
+[2026-07-25 16:12:14.647] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.664] [sandbox] [info] [TestScript] Player Position: X=325.00604248047, Y=225
+[2026-07-25 16:12:14.664] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.680] [sandbox] [info] [TestScript] Player Position: X=325.00704956055, Y=225
+[2026-07-25 16:12:14.680] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.696] [sandbox] [info] [TestScript] Player Position: X=325.00805664063, Y=225
+[2026-07-25 16:12:14.696] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.713] [sandbox] [info] [TestScript] Player Position: X=325.0090637207, Y=225
+[2026-07-25 16:12:14.713] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.730] [sandbox] [info] [TestScript] Player Position: X=325.01007080078, Y=225
+[2026-07-25 16:12:14.730] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.746] [sandbox] [info] [TestScript] Player Position: X=325.01107788086, Y=225
+[2026-07-25 16:12:14.747] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.763] [sandbox] [info] [TestScript] Player Position: X=325.01208496094, Y=225
+[2026-07-25 16:12:14.763] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.780] [sandbox] [info] [TestScript] Player Position: X=325.01309204102, Y=225
+[2026-07-25 16:12:14.780] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.796] [sandbox] [info] [TestScript] Player Position: X=325.01409912109, Y=225
+[2026-07-25 16:12:14.796] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.813] [sandbox] [info] [TestScript] Player Position: X=325.01510620117, Y=225
+[2026-07-25 16:12:14.813] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.830] [sandbox] [info] [TestScript] Player Position: X=325.01611328125, Y=225
+[2026-07-25 16:12:14.830] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.846] [sandbox] [info] [TestScript] Player Position: X=325.01712036133, Y=225
+[2026-07-25 16:12:14.846] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.864] [sandbox] [info] [TestScript] Player Position: X=325.01812744141, Y=225
+[2026-07-25 16:12:14.864] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.880] [sandbox] [info] [TestScript] Player Position: X=325.01913452148, Y=225
+[2026-07-25 16:12:14.880] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.896] [sandbox] [info] [TestScript] Player Position: X=325.02014160156, Y=225
+[2026-07-25 16:12:14.896] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.913] [sandbox] [info] [TestScript] Player Position: X=325.02114868164, Y=225
+[2026-07-25 16:12:14.913] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.930] [sandbox] [info] [TestScript] Player Position: X=325.02215576172, Y=225
+[2026-07-25 16:12:14.930] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.947] [sandbox] [info] [TestScript] Player Position: X=325.0231628418, Y=225
+[2026-07-25 16:12:14.947] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.963] [sandbox] [info] [TestScript] Player Position: X=325.02416992188, Y=225
+[2026-07-25 16:12:14.963] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.980] [sandbox] [info] [TestScript] Player Position: X=325.02517700195, Y=225
+[2026-07-25 16:12:14.980] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:14.996] [sandbox] [info] [TestScript] Player Position: X=325.02618408203, Y=225
+[2026-07-25 16:12:14.996] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.013] [sandbox] [info] [TestScript] Player Position: X=325.02719116211, Y=225
+[2026-07-25 16:12:15.013] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.030] [sandbox] [info] [TestScript] Player Position: X=325.02819824219, Y=225
+[2026-07-25 16:12:15.030] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.047] [sandbox] [info] [TestScript] Player Position: X=325.02920532227, Y=225
+[2026-07-25 16:12:15.047] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.063] [sandbox] [info] [TestScript] Player Position: X=325.03021240234, Y=225
+[2026-07-25 16:12:15.063] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.080] [sandbox] [info] [TestScript] Player Position: X=325.03121948242, Y=225
+[2026-07-25 16:12:15.080] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.097] [sandbox] [info] [TestScript] Player Position: X=325.0322265625, Y=225
+[2026-07-25 16:12:15.097] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.113] [sandbox] [info] [TestScript] Player Position: X=325.03323364258, Y=225
+[2026-07-25 16:12:15.113] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.130] [sandbox] [info] [TestScript] Player Position: X=325.03424072266, Y=225
+[2026-07-25 16:12:15.130] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.150] [sandbox] [info] [TestScript] Player Position: X=325.03524780273, Y=225
+[2026-07-25 16:12:15.150] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.163] [sandbox] [info] [TestScript] Player Position: X=325.03625488281, Y=225
+[2026-07-25 16:12:15.163] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.180] [sandbox] [info] [TestScript] Player Position: X=325.03726196289, Y=225
+[2026-07-25 16:12:15.180] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.197] [sandbox] [info] [TestScript] Player Position: X=325.03826904297, Y=225
+[2026-07-25 16:12:15.197] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.213] [sandbox] [info] [TestScript] Player Position: X=325.03927612305, Y=225
+[2026-07-25 16:12:15.213] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.230] [sandbox] [info] [TestScript] Player Position: X=325.04028320313, Y=225
+[2026-07-25 16:12:15.230] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.247] [sandbox] [info] [TestScript] Player Position: X=325.0412902832, Y=225
+[2026-07-25 16:12:15.247] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.263] [sandbox] [info] [TestScript] Player Position: X=325.04229736328, Y=225
+[2026-07-25 16:12:15.263] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.280] [sandbox] [info] [TestScript] Player Position: X=325.04330444336, Y=225
+[2026-07-25 16:12:15.280] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.297] [sandbox] [info] [TestScript] Player Position: X=325.04431152344, Y=225
+[2026-07-25 16:12:15.297] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.313] [sandbox] [info] [TestScript] Player Position: X=325.04531860352, Y=225
+[2026-07-25 16:12:15.313] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.330] [sandbox] [info] [TestScript] Player Position: X=325.04632568359, Y=225
+[2026-07-25 16:12:15.330] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.347] [sandbox] [info] [TestScript] Player Position: X=325.04733276367, Y=225
+[2026-07-25 16:12:15.347] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.364] [sandbox] [info] [TestScript] Player Position: X=325.04833984375, Y=225
+[2026-07-25 16:12:15.364] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.380] [sandbox] [info] [TestScript] Player Position: X=325.04934692383, Y=225
+[2026-07-25 16:12:15.380] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.397] [sandbox] [info] [TestScript] Player Position: X=325.05035400391, Y=225
+[2026-07-25 16:12:15.397] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.413] [sandbox] [info] [TestScript] Player Position: X=325.05136108398, Y=225
+[2026-07-25 16:12:15.413] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.430] [sandbox] [info] [TestScript] Player Position: X=325.05236816406, Y=225
+[2026-07-25 16:12:15.430] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.447] [sandbox] [info] [TestScript] Player Position: X=325.05337524414, Y=225
+[2026-07-25 16:12:15.447] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.467] [sandbox] [info] [TestScript] Player Position: X=325.05438232422, Y=225
+[2026-07-25 16:12:15.467] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.480] [sandbox] [info] [TestScript] Player Position: X=325.0553894043, Y=225
+[2026-07-25 16:12:15.481] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.497] [sandbox] [info] [TestScript] Player Position: X=325.05639648438, Y=225
+[2026-07-25 16:12:15.497] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.513] [sandbox] [info] [TestScript] Player Position: X=325.05740356445, Y=225
+[2026-07-25 16:12:15.513] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.530] [sandbox] [info] [TestScript] Player Position: X=325.05841064453, Y=225
+[2026-07-25 16:12:15.530] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.546] [sandbox] [info] [TestScript] Player Position: X=325.05941772461, Y=225
+[2026-07-25 16:12:15.546] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.563] [sandbox] [info] [TestScript] Player Position: X=325.06042480469, Y=225
+[2026-07-25 16:12:15.563] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.580] [sandbox] [info] [TestScript] Player Position: X=325.06143188477, Y=225
+[2026-07-25 16:12:15.580] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.596] [sandbox] [info] [TestScript] Player Position: X=325.06243896484, Y=225
+[2026-07-25 16:12:15.597] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.613] [sandbox] [info] [TestScript] Player Position: X=325.06344604492, Y=225
+[2026-07-25 16:12:15.613] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.630] [sandbox] [info] [TestScript] Player Position: X=325.064453125, Y=225
+[2026-07-25 16:12:15.630] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.647] [sandbox] [info] [TestScript] Player Position: X=325.06546020508, Y=225
+[2026-07-25 16:12:15.647] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.663] [sandbox] [info] [TestScript] Player Position: X=325.06646728516, Y=225
+[2026-07-25 16:12:15.663] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.680] [sandbox] [info] [TestScript] Player Position: X=325.06747436523, Y=225
+[2026-07-25 16:12:15.680] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.697] [sandbox] [info] [TestScript] Player Position: X=325.06848144531, Y=225
+[2026-07-25 16:12:15.697] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.713] [sandbox] [info] [TestScript] Player Position: X=325.06948852539, Y=225
+[2026-07-25 16:12:15.713] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.730] [sandbox] [info] [TestScript] Player Position: X=325.07049560547, Y=225
+[2026-07-25 16:12:15.730] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.747] [sandbox] [info] [TestScript] Player Position: X=325.07150268555, Y=225
+[2026-07-25 16:12:15.747] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.763] [sandbox] [info] [TestScript] Player Position: X=325.07250976563, Y=225
+[2026-07-25 16:12:15.763] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.780] [sandbox] [info] [TestScript] Player Position: X=325.0735168457, Y=225
+[2026-07-25 16:12:15.780] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.796] [sandbox] [info] [TestScript] Player Position: X=325.07452392578, Y=225
+[2026-07-25 16:12:15.796] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.813] [sandbox] [info] [TestScript] Player Position: X=325.07553100586, Y=225
+[2026-07-25 16:12:15.813] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.830] [sandbox] [info] [TestScript] Player Position: X=325.07653808594, Y=225
+[2026-07-25 16:12:15.830] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.847] [sandbox] [info] [TestScript] Player Position: X=325.07754516602, Y=225
+[2026-07-25 16:12:15.847] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.863] [sandbox] [info] [TestScript] Player Position: X=325.07855224609, Y=225
+[2026-07-25 16:12:15.864] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.880] [sandbox] [info] [TestScript] Player Position: X=325.07955932617, Y=225
+[2026-07-25 16:12:15.880] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.897] [sandbox] [info] [TestScript] Player Position: X=325.08056640625, Y=225
+[2026-07-25 16:12:15.897] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.913] [sandbox] [info] [TestScript] Player Position: X=325.08157348633, Y=225
+[2026-07-25 16:12:15.914] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.930] [sandbox] [info] [TestScript] Player Position: X=325.08258056641, Y=225
+[2026-07-25 16:12:15.931] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.947] [sandbox] [info] [TestScript] Player Position: X=325.08358764648, Y=225
+[2026-07-25 16:12:15.947] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.963] [sandbox] [info] [TestScript] Player Position: X=325.08459472656, Y=225
+[2026-07-25 16:12:15.964] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.980] [sandbox] [info] [TestScript] Player Position: X=325.08560180664, Y=225
+[2026-07-25 16:12:15.980] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:15.997] [sandbox] [info] [TestScript] Player Position: X=325.08660888672, Y=225
+[2026-07-25 16:12:15.997] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.013] [sandbox] [info] [TestScript] Player Position: X=325.0876159668, Y=225
+[2026-07-25 16:12:16.013] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.030] [sandbox] [info] [TestScript] Player Position: X=325.08862304688, Y=225
+[2026-07-25 16:12:16.030] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.046] [sandbox] [info] [TestScript] Player Position: X=325.08963012695, Y=225
+[2026-07-25 16:12:16.047] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.064] [sandbox] [info] [TestScript] Player Position: X=325.09063720703, Y=225
+[2026-07-25 16:12:16.064] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.087] [sandbox] [info] [TestScript] Player Position: X=325.09164428711, Y=225
+[2026-07-25 16:12:16.087] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.097] [sandbox] [info] [TestScript] Player Position: X=325.09265136719, Y=225
+[2026-07-25 16:12:16.097] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.116] [sandbox] [info] [TestScript] Player Position: X=325.09365844727, Y=225
+[2026-07-25 16:12:16.117] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.131] [sandbox] [info] [TestScript] Player Position: X=325.09466552734, Y=225
+[2026-07-25 16:12:16.131] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.147] [sandbox] [info] [TestScript] Player Position: X=325.09567260742, Y=225
+[2026-07-25 16:12:16.147] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.163] [sandbox] [info] [TestScript] Player Position: X=325.0966796875, Y=225
+[2026-07-25 16:12:16.163] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.180] [sandbox] [info] [TestScript] Player Position: X=325.09768676758, Y=225
+[2026-07-25 16:12:16.180] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.197] [sandbox] [info] [TestScript] Player Position: X=325.09869384766, Y=225
+[2026-07-25 16:12:16.197] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.214] [sandbox] [info] [TestScript] Player Position: X=325.09970092773, Y=225
+[2026-07-25 16:12:16.214] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.230] [sandbox] [info] [TestScript] Player Position: X=325.10070800781, Y=225
+[2026-07-25 16:12:16.230] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.247] [sandbox] [info] [TestScript] Player Position: X=325.10171508789, Y=225
+[2026-07-25 16:12:16.247] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.263] [sandbox] [info] [TestScript] Player Position: X=325.10272216797, Y=225
+[2026-07-25 16:12:16.264] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.280] [sandbox] [info] [TestScript] Player Position: X=325.10372924805, Y=225
+[2026-07-25 16:12:16.280] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.297] [sandbox] [info] [TestScript] Player Position: X=325.10473632813, Y=225
+[2026-07-25 16:12:16.297] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.313] [sandbox] [info] [TestScript] Player Position: X=325.1057434082, Y=225
+[2026-07-25 16:12:16.313] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.330] [sandbox] [info] [TestScript] Player Position: X=325.10675048828, Y=225
+[2026-07-25 16:12:16.330] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.347] [sandbox] [info] [TestScript] Player Position: X=325.10775756836, Y=225
+[2026-07-25 16:12:16.347] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.363] [sandbox] [info] [TestScript] Player Position: X=325.10876464844, Y=225
+[2026-07-25 16:12:16.363] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.380] [sandbox] [info] [TestScript] Player Position: X=325.10977172852, Y=225
+[2026-07-25 16:12:16.380] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.397] [sandbox] [info] [TestScript] Player Position: X=325.11077880859, Y=225
+[2026-07-25 16:12:16.397] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.413] [sandbox] [info] [TestScript] Player Position: X=325.11178588867, Y=225
+[2026-07-25 16:12:16.413] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.430] [sandbox] [info] [TestScript] Player Position: X=325.11279296875, Y=225
+[2026-07-25 16:12:16.430] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.447] [sandbox] [info] [TestScript] Player Position: X=325.11380004883, Y=225
+[2026-07-25 16:12:16.447] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.463] [sandbox] [info] [TestScript] Player Position: X=325.11480712891, Y=225
+[2026-07-25 16:12:16.463] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.480] [sandbox] [info] [TestScript] Player Position: X=325.11581420898, Y=225
+[2026-07-25 16:12:16.480] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.497] [sandbox] [info] [TestScript] Player Position: X=325.11682128906, Y=225
+[2026-07-25 16:12:16.497] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.513] [sandbox] [info] [TestScript] Player Position: X=325.11782836914, Y=225
+[2026-07-25 16:12:16.513] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.530] [sandbox] [info] [TestScript] Player Position: X=325.11883544922, Y=225
+[2026-07-25 16:12:16.530] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.547] [sandbox] [info] [TestScript] Player Position: X=325.1198425293, Y=225
+[2026-07-25 16:12:16.547] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.563] [sandbox] [info] [TestScript] Player Position: X=325.12084960938, Y=225
+[2026-07-25 16:12:16.564] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.580] [sandbox] [info] [TestScript] Player Position: X=325.12185668945, Y=225
+[2026-07-25 16:12:16.580] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.597] [sandbox] [info] [TestScript] Player Position: X=325.12286376953, Y=225
+[2026-07-25 16:12:16.597] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.613] [sandbox] [info] [TestScript] Player Position: X=325.12387084961, Y=225
+[2026-07-25 16:12:16.613] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.630] [sandbox] [info] [TestScript] Player Position: X=325.12487792969, Y=225
+[2026-07-25 16:12:16.630] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.647] [sandbox] [info] [TestScript] Player Position: X=325.12588500977, Y=225
+[2026-07-25 16:12:16.647] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.663] [sandbox] [info] [TestScript] Player Position: X=325.12689208984, Y=225
+[2026-07-25 16:12:16.664] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.680] [sandbox] [info] [TestScript] Player Position: X=325.12789916992, Y=225
+[2026-07-25 16:12:16.680] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.697] [sandbox] [info] [TestScript] Player Position: X=325.12890625, Y=225
+[2026-07-25 16:12:16.697] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.713] [sandbox] [info] [TestScript] Player Position: X=325.12991333008, Y=225
+[2026-07-25 16:12:16.713] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.730] [sandbox] [info] [TestScript] Player Position: X=325.13092041016, Y=225
+[2026-07-25 16:12:16.730] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.747] [sandbox] [info] [TestScript] Player Position: X=325.13192749023, Y=225
+[2026-07-25 16:12:16.747] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.763] [sandbox] [info] [TestScript] Player Position: X=325.13293457031, Y=225
+[2026-07-25 16:12:16.763] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.780] [sandbox] [info] [TestScript] Player Position: X=325.13394165039, Y=225
+[2026-07-25 16:12:16.780] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.797] [sandbox] [info] [TestScript] Player Position: X=325.13494873047, Y=225
+[2026-07-25 16:12:16.797] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.813] [sandbox] [info] [TestScript] Player Position: X=325.13595581055, Y=225
+[2026-07-25 16:12:16.813] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.830] [sandbox] [info] [TestScript] Player Position: X=325.13696289063, Y=225
+[2026-07-25 16:12:16.830] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.847] [sandbox] [info] [TestScript] Player Position: X=325.1379699707, Y=225
+[2026-07-25 16:12:16.847] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.864] [sandbox] [info] [TestScript] Player Position: X=325.13897705078, Y=225
+[2026-07-25 16:12:16.864] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.880] [sandbox] [info] [TestScript] Player Position: X=325.13998413086, Y=225
+[2026-07-25 16:12:16.880] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.897] [sandbox] [info] [TestScript] Player Position: X=325.14099121094, Y=225
+[2026-07-25 16:12:16.897] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.913] [sandbox] [info] [TestScript] Player Position: X=325.14199829102, Y=225
+[2026-07-25 16:12:16.913] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.930] [sandbox] [info] [TestScript] Player Position: X=325.14300537109, Y=225
+[2026-07-25 16:12:16.930] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.946] [sandbox] [info] [TestScript] Player Position: X=325.14401245117, Y=225
+[2026-07-25 16:12:16.947] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.963] [sandbox] [info] [TestScript] Player Position: X=325.14501953125, Y=225
+[2026-07-25 16:12:16.963] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.980] [sandbox] [info] [TestScript] Player Position: X=325.14602661133, Y=225
+[2026-07-25 16:12:16.980] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:16.997] [sandbox] [info] [TestScript] Player Position: X=325.14703369141, Y=225
+[2026-07-25 16:12:16.997] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:17.013] [sandbox] [info] [TestScript] Player Position: X=325.14804077148, Y=225
+[2026-07-25 16:12:17.013] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:17.030] [sandbox] [info] [TestScript] Player Position: X=325.14904785156, Y=225
+[2026-07-25 16:12:17.030] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:17.046] [sandbox] [info] [TestScript] Player Position: X=325.15005493164, Y=225
+[2026-07-25 16:12:17.046] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:17.063] [sandbox] [info] [TestScript] Player Position: X=325.15106201172, Y=225
+[2026-07-25 16:12:17.063] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:17.080] [sandbox] [info] [TestScript] Player Position: X=325.1520690918, Y=225
+[2026-07-25 16:12:17.080] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:17.097] [sandbox] [info] [TestScript] Player Position: X=325.15307617188, Y=225
+[2026-07-25 16:12:17.097] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:17.113] [sandbox] [info] [TestScript] Player Position: X=325.15408325195, Y=225
+[2026-07-25 16:12:17.113] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:17.130] [sandbox] [info] [TestScript] Player Position: X=325.15509033203, Y=225
+[2026-07-25 16:12:17.130] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:17.146] [sandbox] [info] [TestScript] Player Position: X=325.15609741211, Y=225
+[2026-07-25 16:12:17.147] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:17.163] [sandbox] [info] [TestScript] Player Position: X=325.15710449219, Y=225
+[2026-07-25 16:12:17.163] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:17.181] [sandbox] [info] [TestScript] Player Position: X=325.15811157227, Y=225
+[2026-07-25 16:12:17.182] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:17.196] [sandbox] [info] [TestScript] Player Position: X=325.15911865234, Y=225
+[2026-07-25 16:12:17.197] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:17.216] [sandbox] [info] [TestScript] Player Position: X=325.16012573242, Y=225
+[2026-07-25 16:12:17.216] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:17.230] [sandbox] [info] [TestScript] Player Position: X=325.1611328125, Y=225
+[2026-07-25 16:12:17.230] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:17.246] [sandbox] [info] [TestScript] Player Position: X=325.16213989258, Y=225
+[2026-07-25 16:12:17.246] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:17.263] [sandbox] [info] [TestScript] Player Position: X=325.16314697266, Y=225
+[2026-07-25 16:12:17.263] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0
+[2026-07-25 16:12:17.280] [sandbox] [info] [TestScript] Player Position: X=325.16415405273, Y=225
+[2026-07-25 16:12:17.280] [sandbox] [info] [TestScript] Player Velocity: X=0.0010000000474975, Y=0

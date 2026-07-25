@@ -674,8 +674,10 @@ void script_module_t::import_scripts(std::string_view directory_path) {
     
     auto files = sandbox::modules::filesystem::list_files(m_world, dir_str.c_str(), true);
     for (const auto& file : files) {
-        sandbox::modules::logs::trace(m_world, "[Scripts Module] Registering script: {}", file);
-        include_code(file);
+        if (file.size() > 4 && file.substr(file.size() - 4) == ".lua") {
+            sandbox::modules::logs::trace(m_world, "[Scripts Module] Registering script: {}", file);
+            include_code(file);
+        }
     }
 }
 
