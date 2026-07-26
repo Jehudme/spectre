@@ -13,19 +13,19 @@
 
 namespace spectre::modules {
 
-static sandbox_properties_handle_t serialize_state_cb(ecs_world_t* world, ecs_entity_t entity_id) {
+static sandbox_properties_handle_t serialize_state_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity_id) {
     return spectre::modules::scenes::serialize_state(flecs::world(world), entity_id);
 }
 
-static void deserialize_state_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle) {
+static void deserialize_state_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t properties_handle) {
     spectre::modules::scenes::deserialize_state(flecs::world(world), entity, properties_handle);
 }
 
-static sandbox_properties_handle_t serialize_scene_cb(ecs_world_t* world, ecs_entity_t entity_id) {
+static sandbox_properties_handle_t serialize_scene_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity_id) {
     return spectre::modules::scenes::serialize_scene(flecs::world(world), entity_id);
 }
 
-static void deserialize_scene_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle) {
+static void deserialize_scene_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t properties_handle) {
     spectre::modules::scenes::deserialize_scene(flecs::world(world), entity, properties_handle);
 }
 
@@ -74,8 +74,8 @@ scenes_module_t::scenes_module_t(flecs::world& world) : m_world(world) {
     m_scenes_root = m_world.entity("::scenes");
 
     // Register components
-    auto deserialize_empty = [](ecs_world_t*, ecs_entity_t, sandbox_properties_handle_t) {};
-    auto serialize_empty = [](ecs_world_t*, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
+    auto deserialize_empty = [](ecs_world_t*, ecs_entity_t, ecs_entity_t, sandbox_properties_handle_t) {};
+    auto serialize_empty = [](ecs_world_t*, ecs_entity_t, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
     spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
     spectre::modules::components::register_component(m_world, "Scene", register_scene_component, empty_serializer);
     spectre::modules::components::register_component(m_world, "State", register_state_component, empty_serializer);

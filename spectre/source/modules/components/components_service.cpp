@@ -12,7 +12,10 @@ spectre_components_api_t g_components_api = {
     .register_component = spectre_components_register_component,
     .find_component = spectre_components_find_component,
     .has_component = spectre_components_has_component,
-    .is_component = spectre_components_is_component
+    .is_component = spectre_components_is_component,
+    .register_dynamic_component = spectre_components_register_dynamic_component,
+    .import_configuration = spectre_components_import_configuration,
+    .export_configuration = spectre_components_export_configuration
 };
 
 SANDBOX_DEFINE_SERVICE(spectre_components_service_t, spectre_components_api_t, &g_components_api)
@@ -58,6 +61,34 @@ bool spectre_components_is_component(ecs_world_t* world, ecs_entity_t entity) {
     return false;
 }
 
+void spectre_components_register_dynamic_component(ecs_world_t* world, const char* name, sandbox_properties_handle_t properties) {
+    if (!world || !name) return;
+    flecs::world flecs_world(world);
+    auto* mod = flecs_world.try_get_mut<spectre::modules::components_module_t>();
+    if (mod) {
+        sandbox::properties props(properties, false);
+        mod->register_component(name, std::move(props));
+    }
+}
+
+void spectre_components_import_configuration(ecs_world_t* world, const char* directory_path) {
+    if (!world || !directory_path) return;
+    flecs::world flecs_world(world);
+    auto* mod = flecs_world.try_get_mut<spectre::modules::components_module_t>();
+    if (mod) {
+        mod->import_configuration(directory_path);
+    }
+}
+
+void spectre_components_export_configuration(ecs_world_t* world, const char* directory_path) {
+    if (!world || !directory_path) return;
+    flecs::world flecs_world(world);
+    auto* mod = flecs_world.try_get_mut<spectre::modules::components_module_t>();
+    if (mod) {
+        mod->export_configuration(directory_path);
+    }
+}
+
 #ifdef __cplusplus
 namespace spectre::modules {
 
@@ -77,6 +108,18 @@ bool components::has_component(const flecs::world& entity_world, const char* nam
 
 bool components::is_component(const flecs::world& entity_world, flecs::entity entity) {
     return spectre_components_is_component(entity_world.c_ptr(), entity.id());
+}
+
+void components::register_component(const flecs::world& entity_world, const char* name, sandbox::properties properties) {
+    spectre_components_register_dynamic_component(entity_world.c_ptr(), name, properties.get_raw());
+}
+
+void components::import_configuration(const flecs::world& entity_world, const char* directory_path) {
+    spectre_components_import_configuration(entity_world.c_ptr(), directory_path);
+}
+
+void components::export_configuration(const flecs::world& entity_world, const char* directory_path) {
+    spectre_components_export_configuration(entity_world.c_ptr(), directory_path);
 }
 
 } // namespace spectre::modules

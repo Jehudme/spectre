@@ -12,8 +12,8 @@
 
 namespace spectre::modules {
 
-static void deserialize_entity_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle);
-static sandbox_properties_handle_t serialize_entity_cb(ecs_world_t* world, ecs_entity_t entity_id);
+static void deserialize_entity_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t properties_handle);
+static sandbox_properties_handle_t serialize_entity_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity_id);
 
 static sandbox_requirement_info_t prefabs_requirements[] = {{.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
                                                              .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
@@ -69,11 +69,11 @@ prefabs_module_t::prefabs_module_t(flecs::world& world) : m_world(world) {
 
 prefabs_module_t::~prefabs_module_t() = default;
 
-static void deserialize_entity_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t properties_handle) {
+static void deserialize_entity_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t properties_handle) {
     spectre::modules::prefabs::deserialize_entity(flecs::world(world), entity, properties_handle);
 }
 
-static sandbox_properties_handle_t serialize_entity_cb(ecs_world_t* world, ecs_entity_t entity_id) {
+static sandbox_properties_handle_t serialize_entity_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity_id) {
     return spectre::modules::prefabs::serialize_entity(flecs::world(world), entity_id);
 }
 

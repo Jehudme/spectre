@@ -41,8 +41,8 @@ TEST_CASE("Serializer Module: Registration and Queries", "[serializers module te
 
     SECTION("register_serializer correctly registers and finds serializer") {
         spectre_serializer_component valid_serializer{};
-        valid_serializer.serialize = [](ecs_world_t*, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
-        valid_serializer.deserialize = [](ecs_world_t*, ecs_entity_t, sandbox_properties_handle_t) {};
+        valid_serializer.serialize = [](ecs_world_t*, ecs_entity_t, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
+        valid_serializer.deserialize = [](ecs_world_t*, ecs_entity_t, ecs_entity_t, sandbox_properties_handle_t) {};
 
         serializer_mod->register_serializer("test_serializer", valid_serializer);
 
@@ -62,14 +62,14 @@ TEST_CASE("Serializer Module: Serialization and Deserialization", "[serializers 
 
     // Setup a valid dummy serializer
     spectre_serializer_component valid_serializer{};
-    valid_serializer.serialize = [](ecs_world_t*, ecs_entity_t entity) -> sandbox_properties_handle_t {
+    valid_serializer.serialize = [](ecs_world_t* , ecs_entity_t serializer_entity, ecs_entity_t entity) -> sandbox_properties_handle_t {
         sandbox::properties p;
         p.set<uint64_t>("serialized_id", entity);
         sandbox_properties_handle_t handle = p.get_raw();
         p.release(); // Relinquish ownership so it doesn't get destroyed
         return handle;
     };
-    valid_serializer.deserialize = [](ecs_world_t* w, ecs_entity_t target, sandbox_properties_handle_t props_handle) {
+    valid_serializer.deserialize = [](ecs_world_t* w, ecs_entity_t serializer_entity, ecs_entity_t target, sandbox_properties_handle_t props_handle) {
         sandbox::properties p(props_handle, false); // Don't own it, just read
         uint64_t id = 0;
         if (p.get<uint64_t>("serialized_id", id)) {

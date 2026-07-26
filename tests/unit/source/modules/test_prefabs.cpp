@@ -29,7 +29,7 @@ TEST_CASE("Prefabs Module: Serialization and Deserialization", "[prefabs module 
 
     // Setup transform serializer
     spectre_serializer_component transform_serializer{};
-    transform_serializer.serialize = [](ecs_world_t* w, ecs_entity_t entity) -> sandbox_properties_handle_t {
+    transform_serializer.serialize = [](ecs_world_t* w, ecs_entity_t serializer_entity, ecs_entity_t entity) -> sandbox_properties_handle_t {
         flecs::world fw(w);
         flecs::entity ent = fw.entity(entity);
         const auto* transform = ent.try_get<spectre_2D_transform_component_t>();
@@ -44,7 +44,7 @@ TEST_CASE("Prefabs Module: Serialization and Deserialization", "[prefabs module 
         return handle;
     };
 
-    transform_serializer.deserialize = [](ecs_world_t* w, ecs_entity_t target, sandbox_properties_handle_t props_handle) {
+    transform_serializer.deserialize = [](ecs_world_t* w, ecs_entity_t serializer_entity, ecs_entity_t target, sandbox_properties_handle_t props_handle) {
         flecs::world fw(w);
         sandbox::properties p(props_handle, false);
 

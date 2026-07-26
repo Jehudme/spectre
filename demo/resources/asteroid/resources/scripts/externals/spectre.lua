@@ -506,15 +506,15 @@ end
 ---@param world ecs_world_t
 ---@param type string
 ---@return integer
-function spectre.serializer.find_serializer(world, type)
-    return ffi.C.spectre_serializer_find_serializer((type(world) == "table" and world.ptr) and world.ptr or world, type)
+function spectre.serializer.find_serializer(world, type_name)
+    return ffi.C.spectre_serializer_find_serializer((type(world) == "table" and world.ptr) and world.ptr or world, type_name)
 end
 
 ---@param world ecs_world_t
 ---@param type string
 ---@param serializer integer
-function spectre.serializer.register_serializer(world, type, serializer)
-    return ffi.C.spectre_serializer_register_serializer((type(world) == "table" and world.ptr) and world.ptr or world, type, serializer)
+function spectre.serializer.register_serializer(world, type_name, serializer)
+    return ffi.C.spectre_serializer_register_serializer((type(world) == "table" and world.ptr) and world.ptr or world, type_name, serializer)
 end
 
 ---@param world ecs_world_t

@@ -40,8 +40,8 @@ serializer_module::serializer_module(flecs::world& world) : m_world(world) {
 
     m_serializable_prefab = m_world.prefab("::serializers::prefab").set<serializer_t>({});
 
-    auto deserialize_empty = [](ecs_world_t*, ecs_entity_t, sandbox_properties_handle_t) {};
-    auto serialize_empty = [](ecs_world_t*, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
+    auto deserialize_empty = [](ecs_world_t*, ecs_entity_t, ecs_entity_t, sandbox_properties_handle_t) {};
+    auto serialize_empty = [](ecs_world_t*, ecs_entity_t, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
     spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
     spectre::modules::components::register_component(m_world, "Serializer", register_serializer_comp, empty_serializer);
 
@@ -131,7 +131,7 @@ sandbox::properties serializer_module::serialize_entity(flecs::entity serializer
         return sandbox::properties({0}, false);
     }
 
-    sandbox::properties serialized_properties{serializer_component->serialize(m_world.c_ptr(), target_entity.id())};
+    sandbox::properties serialized_properties{serializer_component->serialize(m_world.c_ptr(), serializer_entity.id(), target_entity.id())};
 
     if (!serialized_properties.is_valid()) {
         sandbox::modules::logs::warn(m_world, "Serialization of entity {} returned invalid properties.",
@@ -179,7 +179,7 @@ void serializer_module::deserialize_entity(flecs::entity serializer_entity, flec
         return;
     }
 
-    serializer_component->deserialize(m_world.c_ptr(), target_entity.id(), properties.get_raw());
+    serializer_component->deserialize(m_world.c_ptr(), serializer_entity.id(), target_entity.id(), properties.get_raw());
 
     sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "Successfully deserialized entity {}.",
                                   target_entity.id());

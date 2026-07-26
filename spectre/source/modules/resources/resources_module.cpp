@@ -12,12 +12,12 @@
 
 namespace spectre::modules {
 
-static void deserialize_resource_cb(ecs_world_t* world, ecs_entity_t entity,
+static void deserialize_resource_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity,
                                     sandbox_properties_handle_t properties_handle);
-static sandbox_properties_handle_t serialize_resource_cb(ecs_world_t* world, ecs_entity_t entity_id);
+static sandbox_properties_handle_t serialize_resource_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity_id);
 
 // Serializers for resource component
-static sandbox_properties_handle_t serialize_resource_comp_cb(ecs_world_t* world, ecs_entity_t entity) {
+static sandbox_properties_handle_t serialize_resource_comp_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
     if (!world || !entity)
         return {0};
     flecs::world flecs_world(world);
@@ -30,7 +30,7 @@ static sandbox_properties_handle_t serialize_resource_comp_cb(ecs_world_t* world
     props.release();
     return handle;
 }
-static void deserialize_resource_comp_cb(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+static void deserialize_resource_comp_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t handle) {
     if (!world)
         return;
     sandbox::properties props(handle, false);
@@ -95,8 +95,8 @@ resource_module_t::resource_module_t(flecs::world& world) : m_world(world) {
     sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Resources Module] Initializing...");
 
     // Register components and relations
-    auto deserialize_empty = [](ecs_world_t*, ecs_entity_t, sandbox_properties_handle_t) {};
-    auto serialize_empty = [](ecs_world_t*, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
+    auto deserialize_empty = [](ecs_world_t*, ecs_entity_t, ecs_entity_t, sandbox_properties_handle_t) {};
+    auto serialize_empty = [](ecs_world_t*, ecs_entity_t, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
     spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
     spectre_serializer_component resource_comp_serializer = {deserialize_resource_comp_cb, serialize_resource_comp_cb};
 
@@ -127,14 +127,14 @@ resource_module_t::resource_module_t(flecs::world& world) : m_world(world) {
 
 resource_module_t::~resource_module_t() = default;
 
-static void deserialize_resource_cb(ecs_world_t* world, ecs_entity_t entity,
+static void deserialize_resource_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity,
                                     sandbox_properties_handle_t properties_handle) {
     auto* module = flecs::world(world).try_get_mut<resource_module_t>();
     if (module)
         module->deserialize_resource(flecs::world(world).entity(entity), sandbox::properties(properties_handle, false));
 }
 
-static sandbox_properties_handle_t serialize_resource_cb(ecs_world_t* world, ecs_entity_t entity_id) {
+static sandbox_properties_handle_t serialize_resource_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity_id) {
     return spectre::modules::resources::serialize_resource(flecs::world(world), entity_id);
 }
 

@@ -47,12 +47,12 @@ SANDBOX_DECLARE_MODULE(renderer_module_t, {.name = "renderer",
                                            .requirements = renderer_requirements,
                                            .requirement_count = 2})
 
-static void deserialize_renderer_cb(ecs_world_t* world, ecs_entity_t entity,
+static void deserialize_renderer_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity,
                                     sandbox_properties_handle_t properties_handle) {
     spectre::modules::renderer::deserialize_renderer(flecs::world(world), entity, properties_handle);
 }
 
-static sandbox_properties_handle_t serialize_renderer_cb(ecs_world_t* world, ecs_entity_t entity_id) {
+static sandbox_properties_handle_t serialize_renderer_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity_id) {
     return spectre::modules::renderer::serialize_renderer(flecs::world(world), entity_id);
 }
 
@@ -158,7 +158,7 @@ static spectre_color_t deserialize_color(sandbox::properties props) {
 }
 
 // Serializers
-static sandbox_properties_handle_t serialize_rectangle_renderable(ecs_world_t* world, ecs_entity_t entity) {
+static sandbox_properties_handle_t serialize_rectangle_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
     if (!world || !entity)
         return {0};
     flecs::world flecs_world(world);
@@ -175,7 +175,7 @@ static sandbox_properties_handle_t serialize_rectangle_renderable(ecs_world_t* w
     props.release();
     return handle;
 }
-static void deserialize_rectangle_renderable(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+static void deserialize_rectangle_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t handle) {
     if (!world)
         return;
     sandbox::properties props(handle, false);
@@ -203,7 +203,7 @@ static ecs_entity_t register_circle_comp(ecs_world_t* world) {
         .id();
 }
 
-static sandbox_properties_handle_t serialize_circle_renderable(ecs_world_t* world, ecs_entity_t entity) {
+static sandbox_properties_handle_t serialize_circle_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
     if (!world || !entity)
         return {0};
     flecs::world flecs_world(world);
@@ -220,7 +220,7 @@ static sandbox_properties_handle_t serialize_circle_renderable(ecs_world_t* worl
     return handle;
 }
 
-static void deserialize_circle_renderable(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+static void deserialize_circle_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t handle) {
     if (!world)
         return;
     sandbox::properties props(handle, false);
@@ -234,7 +234,7 @@ static void deserialize_circle_renderable(ecs_world_t* world, ecs_entity_t entit
     e.set<spectre_circle_renderable_t>(comp);
 }
 
-static sandbox_properties_handle_t serialize_polygon_renderable(ecs_world_t* world, ecs_entity_t entity) {
+static sandbox_properties_handle_t serialize_polygon_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
     if (!world || !entity)
         return {0};
     flecs::world flecs_world(world);
@@ -251,7 +251,7 @@ static sandbox_properties_handle_t serialize_polygon_renderable(ecs_world_t* wor
     props.release();
     return handle;
 }
-static void deserialize_polygon_renderable(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+static void deserialize_polygon_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t handle) {
     if (!world)
         return;
     sandbox::properties props(handle, false);
@@ -266,7 +266,7 @@ static void deserialize_polygon_renderable(ecs_world_t* world, ecs_entity_t enti
     e.set<spectre_polygone_renderable_t>(comp);
 }
 
-static sandbox_properties_handle_t serialize_line_renderable(ecs_world_t* world, ecs_entity_t entity) {
+static sandbox_properties_handle_t serialize_line_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
     if (!world || !entity)
         return {0};
     flecs::world flecs_world(world);
@@ -284,7 +284,7 @@ static sandbox_properties_handle_t serialize_line_renderable(ecs_world_t* world,
     props.release();
     return handle;
 }
-static void deserialize_line_renderable(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+static void deserialize_line_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t handle) {
     if (!world)
         return;
     sandbox::properties props(handle, false);
@@ -300,7 +300,7 @@ static void deserialize_line_renderable(ecs_world_t* world, ecs_entity_t entity,
     e.set<spectre_ligne_renderable_t>(comp);
 }
 
-static sandbox_properties_handle_t serialize_texture_renderable(ecs_world_t* world, ecs_entity_t entity) {
+static sandbox_properties_handle_t serialize_texture_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
     if (!world || !entity)
         return {0};
     flecs::world flecs_world(world);
@@ -327,7 +327,7 @@ static sandbox_properties_handle_t serialize_texture_renderable(ecs_world_t* wor
     props.release();
     return handle;
 }
-static void deserialize_texture_renderable(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+static void deserialize_texture_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t handle) {
     if (!world)
         return;
     sandbox::properties props(handle, false);
@@ -370,7 +370,7 @@ static ecs_entity_t register_text_comp(ecs_world_t* world) {
         .id();
 }
 
-static sandbox_properties_handle_t serialize_text_renderable(ecs_world_t* world, ecs_entity_t entity) {
+static sandbox_properties_handle_t serialize_text_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
     if (!world || !entity)
         return {0};
     flecs::world flecs_world(world);
@@ -395,7 +395,7 @@ static sandbox_properties_handle_t serialize_text_renderable(ecs_world_t* world,
     return handle;
 }
 
-static void deserialize_text_renderable(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+static void deserialize_text_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t handle) {
     if (!world) return;
     sandbox::properties props(handle, false);
     flecs::world flecs_world(world);
@@ -431,15 +431,13 @@ struct spectre_renderer_update_marker_t {
     char dummy;
 };
 
-static sandbox_properties_handle_t serialize_empty(ecs_world_t*, ecs_entity_t) {
-    return {0};
-}
-static void deserialize_empty(ecs_world_t*, ecs_entity_t, sandbox_properties_handle_t) {}
+static sandbox_properties_handle_t serialize_empty(ecs_world_t*, ecs_entity_t, ecs_entity_t) { return {0}; }
+static void deserialize_empty(ecs_world_t*, ecs_entity_t, ecs_entity_t, sandbox_properties_handle_t) {}
 
-static sandbox_properties_handle_t serialize_renderable(ecs_world_t* world, ecs_entity_t entity) {
+static sandbox_properties_handle_t serialize_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
     return {0};
 }
-static void deserialize_renderable(ecs_world_t* world, ecs_entity_t entity, sandbox_properties_handle_t) {
+static void deserialize_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t) {
     if (world && entity) {
         flecs::world flecs_world(world);
         flecs_world.entity(entity).add<spectre_renderable_t>();
@@ -459,7 +457,7 @@ static ecs_entity_t register_transform2d_comp(ecs_world_t* world) {
         .id();
 }
 
-static sandbox_properties_handle_t serialize_2D_transform_component(ecs_world_t* world, ecs_entity_t entity) {
+static sandbox_properties_handle_t serialize_2D_transform_component(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
     if (!world || !entity)
         return {0};
     flecs::world flecs_world(world);
@@ -479,7 +477,7 @@ static sandbox_properties_handle_t serialize_2D_transform_component(ecs_world_t*
     props.release();
     return handle;
 }
-static void deserialize_2D_transform_component(ecs_world_t* world, ecs_entity_t entity,
+static void deserialize_2D_transform_component(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity,
                                                sandbox_properties_handle_t handle) {
     if (!world)
         return;

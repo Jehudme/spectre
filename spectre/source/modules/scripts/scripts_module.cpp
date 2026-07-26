@@ -11,9 +11,9 @@
 
 namespace spectre::modules {
 
-static void deserialize_script_args_cb(ecs_world_t* world, ecs_entity_t entity,
+static void deserialize_script_args_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity,
                                        sandbox_properties_handle_t properties_handle);
-static sandbox_properties_handle_t serialize_script_args_cb(ecs_world_t* world, ecs_entity_t entity_id);
+static sandbox_properties_handle_t serialize_script_args_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity_id);
 
 static sandbox_requirement_info_t scripts_requirements[] = {{.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
                                                              .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
@@ -149,8 +149,8 @@ script_module_t::script_module_t(flecs::world& world) : m_world(world), m_ffi_in
 
     luaL_dostring(m_lua, "local ffi = require('ffi')");
 
-    auto deserialize_empty = [](ecs_world_t*, ecs_entity_t, sandbox_properties_handle_t) {};
-    auto serialize_empty = [](ecs_world_t*, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
+    auto deserialize_empty = [](ecs_world_t*, ecs_entity_t, ecs_entity_t, sandbox_properties_handle_t) {};
+    auto serialize_empty = [](ecs_world_t*, ecs_entity_t, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
     spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
 
     spectre::modules::components::register_component(m_world, "Script", register_script_component, empty_serializer);
@@ -175,7 +175,7 @@ script_module_t::script_module_t(flecs::world& world) : m_world(world), m_ffi_in
     sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scripts Module] Initialized successfully.");
 }
 
-static void deserialize_script_args_cb(ecs_world_t* world, ecs_entity_t entity,
+static void deserialize_script_args_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity,
                                        sandbox_properties_handle_t properties_handle) {
     const auto* module_ptr = flecs::world(world).try_get<script_module_t>();
     if (module_ptr)
@@ -300,7 +300,7 @@ void script_module_t::deserialize_scripts(flecs::entity target_entity, sandbox::
     deserialize_relation("on_exit", spectre_use_script_on_exit_relation_t{});
 }
 
-static sandbox_properties_handle_t serialize_script_args_cb(ecs_world_t* world, ecs_entity_t entity_id) {
+static sandbox_properties_handle_t serialize_script_args_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity_id) {
     return spectre_scripts_serialize_scripts(world, entity_id);
 }
 

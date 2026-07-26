@@ -3,6 +3,7 @@
 
 #ifdef __cplusplus
 #    include <flecs.h>
+#    include <sandbox/sdk/properties.hpp>
 
 namespace spectre::modules {
 class components {
@@ -16,6 +17,10 @@ class components {
     static bool has_component(const flecs::world& entity_world, const char* name);
 
     static bool is_component(const flecs::world& entity_world, flecs::entity entity);
+
+    static void register_component(const flecs::world& entity_world, const char* name, sandbox::properties properties);
+    static void import_configuration(const flecs::world& entity_world, const char* directory_path);
+    static void export_configuration(const flecs::world& entity_world, const char* directory_path);
 };
 } // namespace spectre::modules
 #endif
