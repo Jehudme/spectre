@@ -23,3 +23,24 @@ set_target_properties(demo_launcher PROPERTIES ENABLE_EXPORTS ON)
 
 # Use the same PCH as spectre
 target_precompile_headers(demo_launcher PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_SOURCE_DIR}/spectre/source/pch.h>")
+
+add_executable(editor_launcher
+    source/main.cpp
+)
+
+target_compile_definitions(editor_launcher PRIVATE
+    APP_RESOURCES_DIR="${CMAKE_CURRENT_SOURCE_DIR}/resources/editor"
+)
+
+target_link_libraries(editor_launcher
+    PRIVATE
+        sandbox::library
+        -Wl,--whole-archive
+        spectre::plugin_static
+        sandbox::plugins_static
+        $<TARGET_FILE:flecs_static> 
+        -Wl,--no-whole-archive
+)
+
+set_target_properties(editor_launcher PROPERTIES ENABLE_EXPORTS ON)
+target_precompile_headers(editor_launcher PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_SOURCE_DIR}/spectre/source/pch.h>")

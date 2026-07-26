@@ -40,8 +40,18 @@ class resource_module_t {
     void free_resource(flecs::entity resourceEntity);
     void* get_resource(flecs::entity resourceEntity);
 
+    // TODO: Implement this function to return a list of all resources.
+    // TODO: Make a service function, an SDK function, and a Lua script wrapper function.
+    std::vector<flecs::entity> list_resources() const;
+
+    // TODO: Implement this function to return a list of all resource loaders.
+    // TODO: Make a service function, an SDK function, and a Lua script wrapper function.
+    std::vector<flecs::entity> list_resource_loaders() const;
+
+    // TODO: Make a service function, an SDK function, and a Lua script wrapper function.
     void import_configuration(std::string_view file_path);
 
+    // TODO: Make a service function, an SDK function, and a Lua script wrappeer function.
     void export_configuration(std::string_view file_path);
 
   private:

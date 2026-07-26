@@ -1,4 +1,5 @@
 #pragma once
+#include "flecs/addons/cpp/entity.hpp"
 #include "sandbox/sdk/detail/bootstrapper.inl"
 #include "sandbox/sdk/properties.hpp"
 #include <flecs.h>
@@ -23,11 +24,18 @@ class prefabs_module_t {
     bool is_prefab(flecs::entity entity) const;
     flecs::entity find_prefab(std::string_view name);
 
+    // TODO: Implement this function to return a list of all registered prefabs.
+    // TODO: Make an service function, an sdk function and an lua script wrapper function.
+    std::vector<flecs::entity> list_prefabs() const;
+
     flecs::entity create_entity(sandbox::properties props);
     flecs::entity create_entity(flecs::entity prefab);
     flecs::entity create_entity(std::string_view name);
 
+    // TODO: Make an service function, an sdk function and an lua script wrapper function.
     void import_configuration(std::string_view directory_path);
+
+    // TODO: Make an service function, an sdk function and an lua script wrapper function.
     void export_configuration(std::string_view directory_path);
 
   private:

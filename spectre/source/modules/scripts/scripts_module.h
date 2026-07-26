@@ -13,8 +13,7 @@ using script_argument_t = spectre_script_argument_t;
 using script_argument_type_t = spectre_script_argument_type_t;
 using script_arguments_t = std::vector<spectre_script_argument_t>;
 
-struct native_script_component_t {
-};
+struct native_script_component_t {};
 
 using script_t = spectre_script_t;
 
@@ -49,7 +48,12 @@ class script_module_t {
     void execute_on_enter(flecs::entity entity);
     void execute_on_exit(flecs::entity entity);
 
+    // TODO: Make an sure there an service, an sdk, an lua wrapper function
     void import_scripts(std::string_view directory_path);
+
+    // TODO: Implemente this function to return a list of all scripts
+    // TODO: Make an sure there an service, an sdk, an lua wrapper function
+    std::vector<flecs::entity> list_scripts() const;
 
   private:
     void init_ffi_if_needed();

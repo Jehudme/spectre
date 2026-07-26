@@ -20,8 +20,10 @@ class renderer_module_t {
     void register_renderer(const sandbox::properties& props);
     bool is_renderer() const;
 
+    // TODO: Make an service function, an sdk function and an lua script wrapper function.
     void import_configuration(std::string_view file_path);
 
+    // TODO: Make an service function, an sdk function and an lua script wrapper function.
     void export_configuration(std::string_view file_path);
 
   private:

@@ -43,7 +43,14 @@ class scenes_module_t {
 
     void execute_recursive(flecs::entity entity, spectre_recursive_callback_t callback, void* payload);
 
+    // TODO: Implement this function to return a list of all registered states.
+    // TODO: Make a service function, an SDK function, and a Lua script wrapper function.
+    std::vector<flecs::entity> list_states() const;
+
+    // TODO: Make a service function, an SDK function, and a Lua script wrapper function.
     void import_configuration(std::string_view directory_path);
+
+    // TODO: Make a service function, an SDK function, and a Lua script wrapper function.
     void export_configuration(std::string_view directory_path);
 
   private:
