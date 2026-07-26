@@ -8,6 +8,7 @@
 #include <cstring>
 #include <iostream>
 #include <raylib.h>
+#include <rlImGui.h>
 
 #include "spectre/sdk/components.hpp"
 
@@ -78,6 +79,7 @@ window_module_t::window_module_t(flecs::world& world) : m_world(world) {
 
 window_module_t::~window_module_t() {
     if (IsWindowReady()) {
+        rlImGuiShutdown();
         CloseWindow();
     }
 }
@@ -210,6 +212,7 @@ void window_module_t::register_window(const sandbox::properties& properties) {
             SetConfigFlags(flags);
 
             InitWindow(component->width, component->height, component->title ? component->title : "Spectre Engine");
+            rlImGuiSetup(true);
 
             if (component->min_width > 0 && component->min_height > 0) {
                 SetWindowMinSize(component->min_width, component->min_height);

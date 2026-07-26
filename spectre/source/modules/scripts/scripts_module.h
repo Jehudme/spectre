@@ -13,6 +13,9 @@ using script_argument_t = spectre_script_argument_t;
 using script_argument_type_t = spectre_script_argument_type_t;
 using script_arguments_t = std::vector<spectre_script_argument_t>;
 
+struct native_script_component_t {
+};
+
 using script_t = spectre_script_t;
 
 class script_module_t {

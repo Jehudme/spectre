@@ -25,6 +25,7 @@ class renderer_module_t {
     void export_configuration(std::string_view file_path);
 
   private:
+    void begin_frame();
     void render_frame();
     void render(flecs::entity entity);
 

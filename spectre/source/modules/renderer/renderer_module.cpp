@@ -1,3 +1,4 @@
+#include <rlImGui.h>
 #include "renderer_module.h"
 #include "spectre/components/renderer_component.h"
 #include "spectre/sdk/scenes.hpp"
@@ -6,6 +7,7 @@
 #include "sandbox/sdk/logs.hpp"
 #include "spectre/sdk/components.hpp"
 #include "spectre/sdk/serializer.hpp"
+#include "spectre/services/scenes_service.h"
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -655,8 +657,12 @@ sandbox::properties renderer_module_t::serialize_renderer(flecs::entity renderer
 void renderer_module_t::register_renderer(const sandbox::properties& properties) {
     m_renderer = m_world.entity("::renderer").add<spectre_renderer_update_marker_t>();
 
+    m_world.system<spectre_renderer_update_marker_t>("RendererSystemBegin")
+        .kind(flecs::PreUpdate)
+        .each([this](flecs::entity entity, spectre_renderer_update_marker_t&) { this->begin_frame(); });
+
     m_world.system<spectre_renderer_update_marker_t>("RendererSystem")
-        .kind(flecs::OnUpdate)
+        .kind(flecs::PostUpdate)
         .each([this](flecs::entity entity, spectre_renderer_update_marker_t&) { this->render_frame(); });
 
     deserialize_renderer(m_renderer, properties);
@@ -666,9 +672,13 @@ bool renderer_module_t::is_renderer() const {
     return m_renderer.is_valid();
 }
 
-void renderer_module_t::render_frame() {
+void renderer_module_t::begin_frame() {
     BeginDrawing();
+    rlImGuiBegin();
     ClearBackground(RAYWHITE); // Or any default color, let's use a standard default
+}
+
+void renderer_module_t::render_frame() {
 
     ecs_entity_t current_state_id = spectre::modules::scenes::find_current_state(m_world);
     flecs::entity current_state = m_world.entity(current_state_id);
@@ -676,6 +686,7 @@ void renderer_module_t::render_frame() {
     if (!current_state.is_valid()) {
         auto renderable_query = m_world.query<spectre_renderable_t>();
         renderable_query.each([this](flecs::entity entity, spectre_renderable_t& renderable) { this->render(entity); });
+        rlImGuiEnd();
         EndDrawing();
         return;
     }
@@ -719,6 +730,7 @@ void renderer_module_t::render_frame() {
     static int frame_count = 0;
     if (frame_count++ == 0) {}
 
+    rlImGuiEnd();
     EndDrawing();
 }
 
