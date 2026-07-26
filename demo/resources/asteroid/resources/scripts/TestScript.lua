@@ -1,7 +1,7 @@
 local ecs = require("ecs")
 local spectre = require("externals.spectre")
 local sandbox = require("externals.sandbox")
-
+local imgui = require("externals.imgui")
 local world = ecs.from_ptr(g_world)
 
 -- Initialize spectre components
@@ -34,6 +34,13 @@ function TestScript.on_update(self_id, scene_id, state_id)
 
     world:set(self_id, spectre.Transform2D, transform)
   end
+
+  imgui.Begin("Test ImGui Window from Lua", nil, 0)
+  imgui.Text("Hello from LuaJIT and statically linked cimgui!")
+  if imgui.Button("Click Me!", imgui.ImVec2(120, 30)) then
+      sandbox.logs.info(world, "[TestScript] ImGui Button Clicked!")
+  end
+  imgui.End()
 end
 
 return {
