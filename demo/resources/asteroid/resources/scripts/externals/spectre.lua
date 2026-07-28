@@ -199,6 +199,8 @@ pcall(function() ffi.cdef[[
     bool spectre_resources_has_resource_loader(ecs_world_t* world, const char* type);
     bool spectre_resources_has_resource(ecs_world_t* world, const char* name);
     bool spectre_resources_is_resource(ecs_world_t* world, ecs_entity_t entity);
+    ecs_entity_t* spectre_resources_list_resources(ecs_world_t* world, size_t* count);
+    ecs_entity_t* spectre_resources_list_resource_loaders(ecs_world_t* world, size_t* count);
     ecs_entity_t spectre_resources_find_resource_loader(ecs_world_t* world, const char* type);
     ecs_entity_t spectre_resources_find_resource(ecs_world_t* world, const char* name);
     bool spectre_resources_is_resource_loaded(ecs_world_t* world, ecs_entity_t resource);
@@ -228,6 +230,7 @@ pcall(function() ffi.cdef[[
     bool spectre_scenes_has_scene(ecs_world_t* world, const char* name);
     bool spectre_scenes_is_state(ecs_world_t* world, ecs_entity_t entity);
     bool spectre_scenes_is_scene(ecs_world_t* world, ecs_entity_t entity);
+    ecs_entity_t* spectre_scenes_list_states(ecs_world_t* world, size_t* count);
     ecs_entity_t spectre_scenes_find_current_state(ecs_world_t* world);
     ecs_query_t* spectre_scenes_find_current_scenes(ecs_world_t* world);
     void spectre_scenes_push_state(ecs_world_t* world, ecs_entity_t state);
@@ -283,8 +286,10 @@ pcall(function() ffi.cdef[[
     ecs_entity_t spectre_components_find_component(ecs_world_t* world, const char* name);
     bool spectre_components_has_component(ecs_world_t* world, const char* name);
     bool spectre_components_is_component(ecs_world_t* world, ecs_entity_t entity);
+    ecs_entity_t* spectre_components_list_components(ecs_world_t* world, size_t* count);
     void spectre_components_register_component(ecs_world_t* world, const char* name, spectre_component_registration_fn_t registration_fn, spectre_serializer_component serializer);
     bool spectre_scripts_is_script(ecs_world_t* world, ecs_entity_t entity);
+    ecs_entity_t* spectre_scripts_list_scripts(ecs_world_t* world, size_t* count);
     ecs_entity_t spectre_scripts_find_script(ecs_world_t* world, const char* function_name);
     void spectre_scripts_include_code(ecs_world_t* world, const char* path);
     sandbox_properties_handle_t spectre_scripts_serialize_scripts(ecs_world_t* world, ecs_entity_t entity);
@@ -301,6 +306,7 @@ pcall(function() ffi.cdef[[
     void spectre_prefabs_register_prefab(ecs_world_t* world, const char* name, sandbox_properties_handle_t props);
     bool spectre_prefabs_has_prefab(ecs_world_t* world, const char* name);
     bool spectre_prefabs_is_prefab(ecs_world_t* world, ecs_entity_t entity);
+    ecs_entity_t* spectre_prefabs_list_prefabs(ecs_world_t* world, size_t* count);
     ecs_entity_t spectre_prefabs_find_prefab(ecs_world_t* world, const char* name);
     ecs_entity_t spectre_prefabs_create_entity_from_props(ecs_world_t* world, sandbox_properties_handle_t props);
     ecs_entity_t spectre_prefabs_create_entity_from_prefab(ecs_world_t* world, ecs_entity_t prefab);

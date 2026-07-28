@@ -8,6 +8,8 @@ static void prefabs_deserialize_entity(ecs_world_t* entity_world, ecs_entity_t t
 static void prefabs_register_prefab(ecs_world_t* entity_world, const char* name, sandbox_properties_handle_t props);
 static bool prefabs_has_prefab(ecs_world_t* entity_world, const char* name);
 static bool prefabs_is_prefab(ecs_world_t* entity_world, ecs_entity_t entity);
+static ecs_entity_t* prefabs_list_prefabs(ecs_world_t* entity_world, size_t* count);
+
 static ecs_entity_t prefabs_find_prefab(ecs_world_t* entity_world, const char* name);
 static ecs_entity_t prefabs_create_entity_from_props(ecs_world_t* entity_world, sandbox_properties_handle_t props);
 static ecs_entity_t prefabs_create_entity_from_prefab(ecs_world_t* entity_world, ecs_entity_t prefab);
@@ -21,6 +23,7 @@ spectre_prefabs_api_t g_prefabs_api = {
     .register_prefab = prefabs_register_prefab,
     .has_prefab = prefabs_has_prefab,
     .is_prefab = prefabs_is_prefab,
+    .list_prefabs = prefabs_list_prefabs,
     .find_prefab = prefabs_find_prefab,
     .create_entity_from_props = prefabs_create_entity_from_props,
     .create_entity_from_prefab = prefabs_create_entity_from_prefab,
@@ -91,6 +94,35 @@ static bool prefabs_is_prefab(ecs_world_t* entity_world, ecs_entity_t entity) {
     if (module)
         return module->is_prefab(flecs_world.entity(entity));
     return false;
+}
+
+static ecs_entity_t* prefabs_list_prefabs(ecs_world_t* entity_world, size_t* count) {
+    static std::vector<ecs_entity_t> result;
+    result.clear();
+    *count = 0;
+    if (!entity_world) return nullptr;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.lookup("spectre::modules::prefabs_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::prefabs_module_t>() : nullptr;
+    if (module) {
+        auto entities = module->list_prefabs();
+        for (auto& e : entities) result.push_back(e.id());
+    }
+    *count = result.size();
+    return result.empty() ? nullptr : result.data();
+}
+
+ecs_entity_t* spectre_prefabs_list_prefabs(ecs_world_t* world, size_t* count) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_prefabs_service_t* service = flecs_world.try_get<spectre_prefabs_service_t>();
+#else
+    const spectre_prefabs_service_t* service = (const spectre_prefabs_service_t*)ecs_get(world, ecs_id(spectre_prefabs_service_t));
+#endif
+    if (service && service->api && service->api->list_prefabs) {
+        return service->api->list_prefabs(world, count);
+    }
+    *count = 0;
+    return nullptr;
 }
 
 static ecs_entity_t prefabs_find_prefab(ecs_world_t* entity_world, const char* name) {

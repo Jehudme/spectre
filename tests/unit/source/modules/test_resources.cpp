@@ -1,3 +1,4 @@
+#include <spectre/sdk/resources.hpp>
 #include "flecs.h"
 #include "modules/resources/resources_module.h"
 #include "modules/serializer/serializer_module.h"
@@ -94,4 +95,13 @@ TEST_CASE("Resources Module: Registration and Lifecycle", "[resources]") {
         REQUIRE(instance == (void*)0x1234);
         REQUIRE(resources_mod->is_resource_loaded(res_ent) == true);
     }
+
+    SECTION("Can list resources and loaders") {
+        auto loaders = spectre::modules::resources::list_resource_loaders(world);
+        auto resources = spectre::modules::resources::list_resources(world);
+        // just make sure it doesn't crash and returns vectors
+        REQUIRE(loaders.size() >= 0);
+        REQUIRE(resources.size() >= 0);
+    }
+
 }

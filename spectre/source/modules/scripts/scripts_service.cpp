@@ -32,6 +32,35 @@ static bool scripts_is_script(ecs_world_t* world, ecs_entity_t entity) {
     return module->is_script(fw.entity(entity));
 }
 
+static ecs_entity_t* scripts_list_scripts(ecs_world_t* world, size_t* count) {
+    static std::vector<ecs_entity_t> result;
+    result.clear();
+    *count = 0;
+    if (!world) return nullptr;
+    flecs::world fw(world);
+    auto* module = fw.lookup("spectre::modules::script_module_t").is_valid() ? fw.try_get_mut<spectre::modules::script_module_t>() : nullptr;
+    if (module) {
+        auto entities = module->list_scripts();
+        for (auto& e : entities) result.push_back(e.id());
+    }
+    *count = result.size();
+    return result.empty() ? nullptr : result.data();
+}
+
+ecs_entity_t* spectre_scripts_list_scripts(ecs_world_t* world, size_t* count) {
+#ifdef __cplusplus
+    flecs::world fw(world);
+    const spectre_scripts_service_t* service = fw.try_get<spectre_scripts_service_t>();
+#else
+    const spectre_scripts_service_t* service = (const spectre_scripts_service_t*)ecs_get(world, ecs_id(spectre_scripts_service_t));
+#endif
+    if (service && service->api && service->api->list_scripts) {
+        return service->api->list_scripts(world, count);
+    }
+    *count = 0;
+    return nullptr;
+}
+
 static ecs_entity_t scripts_find_script(ecs_world_t* world, const char* function_name) {
     if (!world || !function_name)
         return 0;
@@ -164,7 +193,7 @@ static void scripts_import_configuration(ecs_world_t* world, const char* directo
         module->import_scripts(directory_path);
 }
 
-static spectre_scripts_api_t api = {scripts_has_script,          scripts_is_script,         scripts_find_script,
+static spectre_scripts_api_t api = {scripts_has_script,          scripts_is_script, scripts_list_scripts, scripts_find_script,
                                     scripts_include_code,        scripts_execute_script,    scripts_serialize_scripts,
                                     scripts_deserialize_scripts, scripts_execute_on_create, scripts_execute_on_destroy,
                                     scripts_execute_on_update,   scripts_execute_on_enter,  scripts_execute_on_exit,

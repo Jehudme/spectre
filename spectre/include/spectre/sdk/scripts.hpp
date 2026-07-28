@@ -1,3 +1,4 @@
+#include <vector>
 #pragma once
 #include "spectre/services/scripts_service.h"
 #include "spectre/spectre.h"
@@ -66,6 +67,20 @@ class scripts {
     static void import_configuration(const flecs::world& entity_world, const std::string& directory_path) {
         spectre_scripts_import_configuration(entity_world.c_ptr(), directory_path.c_str());
     }
+    static std::vector<flecs::entity> list_scripts(const flecs::world& entity_world) {
+        size_t count = 0;
+        ecs_entity_t* entities = spectre_scripts_list_scripts(entity_world.c_ptr(), &count);
+        std::vector<flecs::entity> list;
+        if (entities && count > 0) {
+            list.reserve(count);
+            for (size_t i = 0; i < count; ++i) {
+                list.push_back(entity_world.entity(entities[i]));
+            }
+        }
+        return list;
+    }
+
+
 };
 
 } // namespace spectre::modules

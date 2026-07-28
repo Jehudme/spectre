@@ -20,6 +20,7 @@ typedef struct spectre_scenes_api_t {
     bool (*has_scene)(ecs_world_t* world, const char* name);
     bool (*is_state)(ecs_world_t* world, ecs_entity_t entity);
     bool (*is_scene)(ecs_world_t* world, ecs_entity_t entity);
+    ecs_entity_t* (*list_states)(ecs_world_t* world, size_t* count);
     ecs_entity_t (*find_current_state)(ecs_world_t* world);
     ecs_query_t* (*find_current_scenes)(ecs_world_t* world);
     void (*push_state)(ecs_world_t* world, ecs_entity_t state);
@@ -64,6 +65,8 @@ SANDBOX_API
 bool spectre_scenes_is_state(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API
 bool spectre_scenes_is_scene(ecs_world_t* world, ecs_entity_t entity);
+SANDBOX_API
+ecs_entity_t* spectre_scenes_list_states(ecs_world_t* world, size_t* count);
 SANDBOX_API
 ecs_entity_t spectre_scenes_find_current_state(ecs_world_t* world);
 SANDBOX_API

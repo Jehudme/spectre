@@ -534,6 +534,14 @@ void scenes_module_t::import_configuration(std::string_view directory_path) {
         }
     }
 }
+std::vector<flecs::entity> scenes_module_t::list_states() const {
+    std::vector<flecs::entity> list;
+    m_states_root.children([&](flecs::entity e) {
+        list.push_back(e);
+    });
+    return list;
+}
+
 
 void scenes_module_t::export_configuration(std::string_view directory_path) {
     std::string base_dir(directory_path);

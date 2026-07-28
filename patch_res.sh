@@ -1,0 +1,2 @@
+sed -i '/void resource_module_t::export_configuration/i \
+std::vector<flecs::entity> resource_module_t::list_resources() const {\n    std::vector<flecs::entity> list;\n    m_resources_root.children([&](flecs::entity e) {\n        list.push_back(e);\n    });\n    return list;\n}\n\nstd::vector<flecs::entity> resource_module_t::list_resource_loaders() const {\n    std::vector<flecs::entity> list;\n    m_loaders_root.children([&](flecs::entity e) {\n        list.push_back(e);\n    });\n    return list;\n}\n' spectre/source/modules/resources/resources_module.cpp

@@ -9,6 +9,7 @@ static sandbox_properties_handle_t scenes_serialize_scene(ecs_world_t* entity_wo
 static void scenes_deserialize_scene(ecs_world_t* entity_world, ecs_entity_t target, sandbox_properties_handle_t props);
 static void scenes_register_state(ecs_world_t* entity_world, sandbox_properties_handle_t props);
 static void scenes_register_scene(ecs_world_t* entity_world, sandbox_properties_handle_t props);
+static ecs_entity_t* scenes_list_states(ecs_world_t* entity_world, size_t* count);
 static ecs_entity_t scenes_find_state(ecs_world_t* entity_world, const char* name);
 static ecs_entity_t scenes_find_scene(ecs_world_t* entity_world, const char* name);
 static bool scenes_has_state(ecs_world_t* entity_world, const char* name);
@@ -36,6 +37,7 @@ spectre_scenes_api_t g_scenes_api = {
     .has_scene = scenes_has_scene,
     .is_state = scenes_is_state,
     .is_scene = scenes_is_scene,
+    .list_states = scenes_list_states,
     .find_current_state = scenes_find_current_state,
     .find_current_scenes = scenes_find_current_scenes,
     .push_state = scenes_push_state,
@@ -122,6 +124,7 @@ static void scenes_register_scene(ecs_world_t* entity_world, sandbox_properties_
         module->register_scene(sandbox::properties(props, false));
 }
 
+static ecs_entity_t* scenes_list_states(ecs_world_t* entity_world, size_t* count);
 static ecs_entity_t scenes_find_state(ecs_world_t* entity_world, const char* name) {
     if (!entity_world)
         return 0;
@@ -239,6 +242,35 @@ static void scenes_pop_state(ecs_world_t* entity_world) {
                        : nullptr;
     if (module)
         module->pop_state();
+}
+
+static ecs_entity_t* scenes_list_states(ecs_world_t* entity_world, size_t* count) {
+    static std::vector<ecs_entity_t> result;
+    result.clear();
+    *count = 0;
+    if (!entity_world) return nullptr;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.lookup("spectre::modules::scenes_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::scenes_module_t>() : nullptr;
+    if (module) {
+        auto entities = module->list_states();
+        for (auto& e : entities) result.push_back(e.id());
+    }
+    *count = result.size();
+    return result.empty() ? nullptr : result.data();
+}
+
+ecs_entity_t* spectre_scenes_list_states(ecs_world_t* world, size_t* count) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_scenes_service_t* service = flecs_world.try_get<spectre_scenes_service_t>();
+#else
+    const spectre_scenes_service_t* service = (const spectre_scenes_service_t*)ecs_get(world, ecs_id(spectre_scenes_service_t));
+#endif
+    if (service && service->api && service->api->list_states) {
+        return service->api->list_states(world, count);
+    }
+    *count = 0;
+    return nullptr;
 }
 
 // --- Public C API Implementations ---
@@ -637,5 +669,18 @@ void scenes::import_configuration(const flecs::world& entity_world, const char* 
 
 void scenes::export_configuration(const flecs::world& entity_world, const char* path) {
     spectre_scenes_export_configuration(entity_world.c_ptr(), path);
+}
+
+std::vector<flecs::entity> scenes::list_states(const flecs::world& entity_world) {
+    size_t count = 0;
+    ecs_entity_t* entities = spectre_scenes_list_states(entity_world.c_ptr(), &count);
+    std::vector<flecs::entity> list;
+    if (entities && count > 0) {
+        list.reserve(count);
+        for (size_t i = 0; i < count; ++i) {
+            list.push_back(entity_world.entity(entities[i]));
+        }
+    }
+    return list;
 }
 }

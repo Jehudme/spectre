@@ -128,5 +128,11 @@ TEST_CASE("Components Module: SDK and Registration", "[components module]") {
         REQUIRE(out_props.get<int32_t>("health").value_or(0) == 42);
         REQUIRE(out_props.get<float>("speed").value_or(0.0f) == 3.14f);
     }
+
+    SECTION("Can list components") {
+        auto list = spectre::modules::components::list_components(world);
+        REQUIRE(list.size() > 0); // we registered dummy above, plus default ones
+    }
+
 }
 

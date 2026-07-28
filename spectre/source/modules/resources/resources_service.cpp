@@ -13,6 +13,9 @@ static bool resources_has_resource_loader(ecs_world_t* entity_world, const char*
 static bool resources_has_resource(ecs_world_t* entity_world, const char* name);
 static bool resources_is_resource(ecs_world_t* entity_world, ecs_entity_t entity);
 static ecs_entity_t resources_find_resource_loader(ecs_world_t* entity_world, const char* type);
+static ecs_entity_t* resources_list_resources(ecs_world_t* entity_world, size_t* count);
+static ecs_entity_t* resources_list_resource_loaders(ecs_world_t* entity_world, size_t* count);
+
 static ecs_entity_t resources_find_resource(ecs_world_t* entity_world, const char* name);
 static bool resources_is_resource_loaded(ecs_world_t* entity_world, ecs_entity_t resource);
 static void resources_load_resource(ecs_world_t* entity_world, ecs_entity_t resourceEntity);
@@ -31,6 +34,8 @@ spectre_resources_api_t g_resources_api = {
     .has_resource = resources_has_resource,
     .is_resource = resources_is_resource,
     .find_resource_loader = resources_find_resource_loader,
+    .list_resources = resources_list_resources,
+    .list_resource_loaders = resources_list_resource_loaders,
     .find_resource = resources_find_resource,
     .is_resource_loaded = resources_is_resource_loaded,
     .load_resource = resources_load_resource,
@@ -137,6 +142,64 @@ static ecs_entity_t resources_find_resource_loader(ecs_world_t* entity_world, co
     if (module)
         return module->find_resource_loader(type).id();
     return 0;
+}
+
+static ecs_entity_t* resources_list_resources(ecs_world_t* entity_world, size_t* count) {
+    static std::vector<ecs_entity_t> result;
+    result.clear();
+    *count = 0;
+    if (!entity_world) return nullptr;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.lookup("spectre::modules::resource_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::resource_module_t>() : nullptr;
+    if (module) {
+        auto entities = module->list_resources();
+        for (auto& e : entities) result.push_back(e.id());
+    }
+    *count = result.size();
+    return result.empty() ? nullptr : result.data();
+}
+
+static ecs_entity_t* resources_list_resource_loaders(ecs_world_t* entity_world, size_t* count) {
+    static std::vector<ecs_entity_t> result;
+    result.clear();
+    *count = 0;
+    if (!entity_world) return nullptr;
+    flecs::world flecs_world(entity_world);
+    auto* module = flecs_world.lookup("spectre::modules::resource_module_t").is_valid() ? flecs_world.try_get_mut<spectre::modules::resource_module_t>() : nullptr;
+    if (module) {
+        auto entities = module->list_resource_loaders();
+        for (auto& e : entities) result.push_back(e.id());
+    }
+    *count = result.size();
+    return result.empty() ? nullptr : result.data();
+}
+
+ecs_entity_t* spectre_resources_list_resources(ecs_world_t* world, size_t* count) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
+#else
+    const spectre_resources_service_t* service = (const spectre_resources_service_t*)ecs_get(world, ecs_id(spectre_resources_service_t));
+#endif
+    if (service && service->api && service->api->list_resources) {
+        return service->api->list_resources(world, count);
+    }
+    *count = 0;
+    return nullptr;
+}
+
+ecs_entity_t* spectre_resources_list_resource_loaders(ecs_world_t* world, size_t* count) {
+#ifdef __cplusplus
+    flecs::world flecs_world(world);
+    const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
+#else
+    const spectre_resources_service_t* service = (const spectre_resources_service_t*)ecs_get(world, ecs_id(spectre_resources_service_t));
+#endif
+    if (service && service->api && service->api->list_resource_loaders) {
+        return service->api->list_resource_loaders(world, count);
+    }
+    *count = 0;
+    return nullptr;
 }
 
 static ecs_entity_t resources_find_resource(ecs_world_t* entity_world, const char* name) {
@@ -508,6 +571,32 @@ void spectre_resources_export_configuration(ecs_world_t* world, const char* path
 }
 
 namespace spectre::modules {
+std::vector<flecs::entity> resources::list_resources(const flecs::world& entity_world) {
+    size_t count = 0;
+    ecs_entity_t* entities = spectre_resources_list_resources(entity_world.c_ptr(), &count);
+    std::vector<flecs::entity> list;
+    if (entities && count > 0) {
+        list.reserve(count);
+        for (size_t i = 0; i < count; ++i) {
+            list.push_back(entity_world.entity(entities[i]));
+        }
+    }
+    return list;
+}
+
+std::vector<flecs::entity> resources::list_resource_loaders(const flecs::world& entity_world) {
+    size_t count = 0;
+    ecs_entity_t* entities = spectre_resources_list_resource_loaders(entity_world.c_ptr(), &count);
+    std::vector<flecs::entity> list;
+    if (entities && count > 0) {
+        list.reserve(count);
+        for (size_t i = 0; i < count; ++i) {
+            list.push_back(entity_world.entity(entities[i]));
+        }
+    }
+    return list;
+}
+
 void resources::import_configuration(const flecs::world& entity_world, const char* path) {
     spectre_resources_import_configuration(entity_world.c_ptr(), path);
 }

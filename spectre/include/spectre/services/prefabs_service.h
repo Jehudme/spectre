@@ -13,6 +13,7 @@ typedef struct spectre_prefabs_api_t {
     void (*register_prefab)(ecs_world_t* world, const char* name, sandbox_properties_handle_t props);
     bool (*has_prefab)(ecs_world_t* world, const char* name);
     bool (*is_prefab)(ecs_world_t* world, ecs_entity_t entity);
+    ecs_entity_t* (*list_prefabs)(ecs_world_t* world, size_t* count);
     ecs_entity_t (*find_prefab)(ecs_world_t* world, const char* name);
     ecs_entity_t (*create_entity_from_props)(ecs_world_t* world, sandbox_properties_handle_t props);
     ecs_entity_t (*create_entity_from_prefab)(ecs_world_t* world, ecs_entity_t prefab);
@@ -41,6 +42,10 @@ SANDBOX_API
 bool spectre_prefabs_has_prefab(ecs_world_t* world, const char* name);
 SANDBOX_API
 bool spectre_prefabs_is_prefab(ecs_world_t* world, ecs_entity_t entity);
+SANDBOX_API
+ecs_entity_t* spectre_prefabs_list_prefabs(ecs_world_t* world, size_t* count);
+SANDBOX_API
+ecs_entity_t* spectre_prefabs_list_prefabs(ecs_world_t* world, size_t* count);
 SANDBOX_API
 ecs_entity_t spectre_prefabs_find_prefab(ecs_world_t* world, const char* name);
 SANDBOX_API

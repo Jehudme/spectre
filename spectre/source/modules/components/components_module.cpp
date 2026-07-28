@@ -10,7 +10,7 @@ namespace spectre::modules {
 
 struct spectre_dynamic_field_t {
     std::string name;
-    components_module_t::spectre_dynamic_type_t type;
+    spectre_dynamic_type_t type;
     size_t offset;
     size_t count;
 };
@@ -53,19 +53,19 @@ static void generic_dynamic_deserialize(ecs_world_t* world, ecs_entity_t seriali
     
     sandbox::properties input(props, false);
     for (const auto& field : schema->fields) {
-        if (field.type == components_module_t::SPECTRE_DYNAMIC_TYPE_INT) {
+        if (field.type == SPECTRE_DYNAMIC_TYPE_INT) {
             int32_t val = input.get<int32_t>(field.name).value_or(0);
             memcpy(base + field.offset, &val, sizeof(int32_t));
-        } else if (field.type == components_module_t::SPECTRE_DYNAMIC_TYPE_FLOAT) {
+        } else if (field.type == SPECTRE_DYNAMIC_TYPE_FLOAT) {
             float val = input.get<float>(field.name).value_or(0.0f);
             memcpy(base + field.offset, &val, sizeof(float));
-        } else if (field.type == components_module_t::SPECTRE_DYNAMIC_TYPE_DOUBLE) {
+        } else if (field.type == SPECTRE_DYNAMIC_TYPE_DOUBLE) {
             double val = input.get<double>(field.name).value_or(0.0);
             memcpy(base + field.offset, &val, sizeof(double));
-        } else if (field.type == components_module_t::SPECTRE_DYNAMIC_TYPE_BOOL) {
+        } else if (field.type == SPECTRE_DYNAMIC_TYPE_BOOL) {
             bool val = input.get<bool>(field.name).value_or(false);
             memcpy(base + field.offset, &val, sizeof(bool));
-        } else if (field.type == components_module_t::SPECTRE_DYNAMIC_TYPE_STRING) {
+        } else if (field.type == SPECTRE_DYNAMIC_TYPE_STRING) {
             std::string val = input.get<std::string>(field.name).value_or("");
             char** ptr = reinterpret_cast<char**>(base + field.offset);
             if (*ptr) free(*ptr);
@@ -101,19 +101,19 @@ static sandbox_properties_handle_t generic_dynamic_serialize(ecs_world_t* world,
     const uint8_t* base = static_cast<const uint8_t*>(comp_data) + sizeof(spectre_dynamic_component_header_t);
     
     for (const auto& field : schema->fields) {
-        if (field.type == components_module_t::SPECTRE_DYNAMIC_TYPE_INT) {
+        if (field.type == SPECTRE_DYNAMIC_TYPE_INT) {
             int32_t val = *reinterpret_cast<const int32_t*>(base + field.offset);
             out.set(field.name, val);
-        } else if (field.type == components_module_t::SPECTRE_DYNAMIC_TYPE_FLOAT) {
+        } else if (field.type == SPECTRE_DYNAMIC_TYPE_FLOAT) {
             float val = *reinterpret_cast<const float*>(base + field.offset);
             out.set(field.name, val);
-        } else if (field.type == components_module_t::SPECTRE_DYNAMIC_TYPE_DOUBLE) {
+        } else if (field.type == SPECTRE_DYNAMIC_TYPE_DOUBLE) {
             double val = *reinterpret_cast<const double*>(base + field.offset);
             out.set(field.name, val);
-        } else if (field.type == components_module_t::SPECTRE_DYNAMIC_TYPE_BOOL) {
+        } else if (field.type == SPECTRE_DYNAMIC_TYPE_BOOL) {
             bool val = *reinterpret_cast<const bool*>(base + field.offset);
             out.set(field.name, val);
-        } else if (field.type == components_module_t::SPECTRE_DYNAMIC_TYPE_STRING) {
+        } else if (field.type == SPECTRE_DYNAMIC_TYPE_STRING) {
             char* val = *reinterpret_cast<char* const*>(base + field.offset);
             if (val) out.set(field.name, std::string(val));
         }
@@ -267,6 +267,14 @@ bool components_module_t::has_component(std::string_view name) const {
 
 bool components_module_t::is_component(flecs::entity entity) const {
     return entity.has<flecs::Component>() || entity.has<spectre_component_dynamic_flag_t>();
+}
+
+std::vector<flecs::entity> components_module_t::list_components() const {
+    std::vector<flecs::entity> list;
+    m_components_root.children([&](flecs::entity e) {
+        list.push_back(e);
+    });
+    return list;
 }
 
 void components_module_t::import_configuration(std::string_view directory_path) {

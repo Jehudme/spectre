@@ -347,6 +347,22 @@ void resource_module_t::import_configuration(std::string_view file_path) {
     }
 }
 
+std::vector<flecs::entity> resource_module_t::list_resources() const {
+    std::vector<flecs::entity> list;
+    m_resources_root.children([&](flecs::entity e) {
+        list.push_back(e);
+    });
+    return list;
+}
+
+std::vector<flecs::entity> resource_module_t::list_resource_loaders() const {
+    std::vector<flecs::entity> list;
+    m_loaders_root.children([&](flecs::entity e) {
+        list.push_back(e);
+    });
+    return list;
+}
+
 void resource_module_t::export_configuration(std::string_view file_path) {
     sandbox::properties props;
     m_resources_root.children([&](flecs::entity child) {

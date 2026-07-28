@@ -13,7 +13,8 @@ namespace spectre::modules {
 
 static void deserialize_script_args_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity,
                                        sandbox_properties_handle_t properties_handle);
-static sandbox_properties_handle_t serialize_script_args_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity_id);
+static sandbox_properties_handle_t serialize_script_args_cb(ecs_world_t* world, ecs_entity_t serializer_entity,
+                                                            ecs_entity_t entity_id);
 
 static sandbox_requirement_info_t scripts_requirements[] = {{.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
                                                              .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
@@ -300,7 +301,8 @@ void script_module_t::deserialize_scripts(flecs::entity target_entity, sandbox::
     deserialize_relation("on_exit", spectre_use_script_on_exit_relation_t{});
 }
 
-static sandbox_properties_handle_t serialize_script_args_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity_id) {
+static sandbox_properties_handle_t serialize_script_args_cb(ecs_world_t* world, ecs_entity_t serializer_entity,
+                                                            ecs_entity_t entity_id) {
     return spectre_scripts_serialize_scripts(world, entity_id);
 }
 
@@ -651,7 +653,8 @@ void script_module_t::execute_on_exit(flecs::entity target_entity) {
         scripts_entity = target_entity;
     scripts_entity.each<spectre_use_script_on_exit_relation_t>([&](flecs::entity script_entity) {
         const auto* relation = scripts_entity.try_get<spectre_use_script_on_exit_relation_t>(script_entity);
-        if (relation) execute_script_with_target(target_entity, script_entity, relation->arguments, relation->argument_count);
+        if (relation)
+            execute_script_with_target(target_entity, script_entity, relation->arguments, relation->argument_count);
     });
 }
 
@@ -668,10 +671,12 @@ void script_module_t::execute_script(std::string_view function_name, script_argu
 }
 
 void script_module_t::import_scripts(std::string_view directory_path) {
-    if (directory_path.empty()) return;
+    if (directory_path.empty())
+        return;
     std::string dir_str(directory_path);
-    if (!sandbox::modules::filesystem::exists(m_world, dir_str.c_str())) return;
-    
+    if (!sandbox::modules::filesystem::exists(m_world, dir_str.c_str()))
+        return;
+
     auto files = sandbox::modules::filesystem::list_files(m_world, dir_str.c_str(), true);
     for (const auto& file : files) {
         if (file.size() > 4 && file.substr(file.size() - 4) == ".lua") {
@@ -679,6 +684,14 @@ void script_module_t::import_scripts(std::string_view directory_path) {
             include_code(file);
         }
     }
+}
+
+std::vector<flecs::entity> script_module_t::list_scripts() const {
+    std::vector<flecs::entity> list;
+    m_scripts_root.children([&](flecs::entity e) {
+        list.push_back(e);
+    });
+    return list;
 }
 
 } // namespace spectre::modules

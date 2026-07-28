@@ -17,6 +17,7 @@ class components {
     static bool has_component(const flecs::world& entity_world, const char* name);
 
     static bool is_component(const flecs::world& entity_world, flecs::entity entity);
+    static std::vector<flecs::entity> list_components(const flecs::world& entity_world);
 
     static void register_component(const flecs::world& entity_world, const char* name, sandbox::properties properties);
     static void import_configuration(const flecs::world& entity_world, const char* directory_path);

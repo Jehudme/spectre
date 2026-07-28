@@ -13,6 +13,7 @@ spectre_components_api_t g_components_api = {
     .find_component = spectre_components_find_component,
     .has_component = spectre_components_has_component,
     .is_component = spectre_components_is_component,
+    .list_components = spectre_components_list_components,
     .register_dynamic_component = spectre_components_register_dynamic_component,
     .import_configuration = spectre_components_import_configuration,
     .export_configuration = spectre_components_export_configuration
@@ -59,6 +60,21 @@ bool spectre_components_is_component(ecs_world_t* world, ecs_entity_t entity) {
         return mod->is_component(flecs_world.entity(entity));
     }
     return false;
+}
+
+ecs_entity_t* spectre_components_list_components(ecs_world_t* world, size_t* count) {
+    static std::vector<ecs_entity_t> result;
+    result.clear();
+    *count = 0;
+    if (!world) return nullptr;
+    flecs::world flecs_world(world);
+    auto* mod = flecs_world.try_get_mut<spectre::modules::components_module_t>();
+    if (mod) {
+        auto entities = mod->list_components();
+        for (auto& e : entities) result.push_back(e.id());
+    }
+    *count = result.size();
+    return result.empty() ? nullptr : result.data();
 }
 
 void spectre_components_register_dynamic_component(ecs_world_t* world, const char* name, sandbox_properties_handle_t properties) {
@@ -108,6 +124,19 @@ bool components::has_component(const flecs::world& entity_world, const char* nam
 
 bool components::is_component(const flecs::world& entity_world, flecs::entity entity) {
     return spectre_components_is_component(entity_world.c_ptr(), entity.id());
+}
+
+std::vector<flecs::entity> components::list_components(const flecs::world& entity_world) {
+    size_t count = 0;
+    ecs_entity_t* entities = spectre_components_list_components(entity_world.c_ptr(), &count);
+    std::vector<flecs::entity> list;
+    if (entities && count > 0) {
+        list.reserve(count);
+        for (size_t i = 0; i < count; ++i) {
+            list.push_back(entity_world.entity(entities[i]));
+        }
+    }
+    return list;
 }
 
 void components::register_component(const flecs::world& entity_world, const char* name, sandbox::properties properties) {

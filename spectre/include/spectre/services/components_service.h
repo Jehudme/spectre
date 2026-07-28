@@ -9,12 +9,26 @@ extern "C" {
 
 typedef ecs_entity_t (*spectre_component_registration_fn_t)(ecs_world_t* world);
 
+typedef enum spectre_dynamic_type_t {
+    SPECTRE_DYNAMIC_TYPE_UNKNOWN,
+    SPECTRE_DYNAMIC_TYPE_INT,
+    SPECTRE_DYNAMIC_TYPE_FLOAT,
+    SPECTRE_DYNAMIC_TYPE_DOUBLE,
+    SPECTRE_DYNAMIC_TYPE_BOOL,
+    SPECTRE_DYNAMIC_TYPE_STRING,
+    SPECTRE_DYNAMIC_TYPE_ARRAY_INT,
+    SPECTRE_DYNAMIC_TYPE_ARRAY_FLOAT,
+    SPECTRE_DYNAMIC_TYPE_ARRAY_DOUBLE,
+    SPECTRE_DYNAMIC_TYPE_ARRAY_STRING
+} spectre_dynamic_type_t;
+
 typedef struct spectre_components_api_t {
     void (*register_component)(ecs_world_t* world, const char* name, spectre_component_registration_fn_t registration_fn,
                                spectre_serializer_component serializer);
     ecs_entity_t (*find_component)(ecs_world_t* world, const char* name);
     bool (*has_component)(ecs_world_t* world, const char* name);
     bool (*is_component)(ecs_world_t* world, ecs_entity_t entity);
+    ecs_entity_t* (*list_components)(ecs_world_t* world, size_t* count);
     void (*register_dynamic_component)(ecs_world_t* world, const char* name, sandbox_properties_handle_t properties);
     void (*import_configuration)(ecs_world_t* world, const char* directory_path);
     void (*export_configuration)(ecs_world_t* world, const char* directory_path);
@@ -43,6 +57,9 @@ bool spectre_components_has_component(ecs_world_t* world, const char* name);
 
 SANDBOX_API
 bool spectre_components_is_component(ecs_world_t* world, ecs_entity_t entity);
+
+SANDBOX_API
+ecs_entity_t* spectre_components_list_components(ecs_world_t* world, size_t* count);
 
 SANDBOX_API
 void spectre_components_register_dynamic_component(ecs_world_t* world, const char* name, sandbox_properties_handle_t properties);

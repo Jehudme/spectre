@@ -1,3 +1,4 @@
+#include <spectre/sdk/prefabs.hpp>
 #include "../../../../spectre/source/modules/scripts/scripts_module.h"
 #include "modules/prefabs/prefabs_module.h"
 #include "modules/serializer/serializer_module.h"
@@ -233,4 +234,15 @@ return {
         instance.destruct();
 
         world.quit();}
+
+    SECTION("Can list prefabs") {
+        
+        auto list = spectre::modules::prefabs::list_prefabs(world);
+        bool found = false;
+        for (auto e : list) {
+            if (e.name() == "TestPrefabList") found = true;
+        }
+        REQUIRE(found == true);
+    }
+
 }

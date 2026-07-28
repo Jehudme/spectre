@@ -326,6 +326,16 @@ void prefabs_module_t::import_configuration(std::string_view directory_path) {
     }
 }
 
+std::vector<flecs::entity> prefabs_module_t::list_prefabs() const {
+    std::vector<flecs::entity> list;
+    m_prefabs_root.children([&](flecs::entity e) {
+        if (is_prefab(e)) {
+            list.push_back(e);
+        }
+    });
+    return list;
+}
+
 void prefabs_module_t::export_configuration(std::string_view directory_path) {
     if (directory_path.empty()) return;
     

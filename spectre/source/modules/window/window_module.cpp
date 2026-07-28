@@ -1,3 +1,4 @@
+#include "sandbox/sdk/filesystem.hpp"
 #include "window_module.h"
 #include "spectre/sdk/serializer.hpp"
 #include "spectre/services/window_service.h"
@@ -781,6 +782,22 @@ void window_module_t::set_mouse_delta(float delta_x, float delta_y) {
     sandbox::modules::logs::warn(const_cast<flecs::world&>(m_world),
                                  "[Window Module] set_mouse_delta is not supported natively. Input is "
                                  "managed by Raylib.");
+}
+
+void window_module_t::import_configuration(std::string_view file_path) {
+    if (sandbox::modules::filesystem::exists(m_world, std::string(file_path).c_str())) {
+        std::string content = sandbox::modules::filesystem::read_all_text(m_world, std::string(file_path).c_str());
+        sandbox::properties props(content, sandbox::properties::Format::JSON);
+        register_window(props);
+    } else {
+        sandbox::modules::logs::warn(m_world, "[Window Module] Window configuration missing at {}", file_path);
+    }
+}
+
+void window_module_t::export_configuration(std::string_view file_path) {
+    sandbox::properties props = serialize_window(m_window_entity);
+    std::string content = props.dump(sandbox::properties::Format::JSON);
+    sandbox::modules::filesystem::write_all(m_world, std::string(file_path).c_str(), content.c_str(), content.size(), true);
 }
 
 } // namespace spectre::modules

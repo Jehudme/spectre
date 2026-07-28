@@ -31,6 +31,8 @@ class scenes {
 
     static bool is_scene(const flecs::world& entity_world, ecs_entity_t entity);
 
+    static std::vector<flecs::entity> list_states(const flecs::world& entity_world);
+
     static ecs_entity_t find_current_state(const flecs::world& entity_world);
 
     static ecs_query_t* find_current_scenes(const flecs::world& entity_world);

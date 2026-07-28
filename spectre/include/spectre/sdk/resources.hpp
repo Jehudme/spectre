@@ -23,6 +23,8 @@ class resources {
 
     static ecs_entity_t find_resource_loader(const flecs::world& entity_world, const char* type);
 
+    static std::vector<flecs::entity> list_resources(const flecs::world& entity_world);
+    static std::vector<flecs::entity> list_resource_loaders(const flecs::world& entity_world);
     static ecs_entity_t find_resource(const flecs::world& entity_world, const char* name);
 
     static bool is_resource_loaded(const flecs::world& entity_world, ecs_entity_t resource);

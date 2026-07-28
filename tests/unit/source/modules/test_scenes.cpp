@@ -1,3 +1,4 @@
+#include <spectre/sdk/scenes.hpp>
 #include "../../../../spectre/source/modules/scripts/scripts_module.h"
 #include "modules/prefabs/prefabs_module.h"
 #include "modules/scenes/scenes_module.h"
@@ -95,4 +96,11 @@ return {
         scenes_module->pop_state();
         REQUIRE(!scenes_module->find_current_state().is_valid());
     }
+
+    SECTION("Can list states") {
+        
+        auto list = spectre::modules::scenes::list_states(world);
+        REQUIRE(list.size() > 0);
+    }
+
 }

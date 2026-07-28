@@ -16,6 +16,8 @@ typedef struct spectre_resources_api_t {
     bool (*has_resource)(ecs_world_t* world, const char* name);
     bool (*is_resource)(ecs_world_t* world, ecs_entity_t entity);
     ecs_entity_t (*find_resource_loader)(ecs_world_t* world, const char* type);
+    ecs_entity_t* (*list_resources)(ecs_world_t* world, size_t* count);
+    ecs_entity_t* (*list_resource_loaders)(ecs_world_t* world, size_t* count);
     ecs_entity_t (*find_resource)(ecs_world_t* world, const char* name);
     bool (*is_resource_loaded)(ecs_world_t* world, ecs_entity_t resource);
     void (*load_resource)(ecs_world_t* world, ecs_entity_t resourceEntity);
@@ -51,15 +53,21 @@ bool spectre_resources_has_resource(ecs_world_t* world, const char* name);
 SANDBOX_API
 bool spectre_resources_is_resource(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API
+SANDBOX_API
+ecs_entity_t* spectre_resources_list_resources(ecs_world_t* world, size_t* count);
+SANDBOX_API
+ecs_entity_t* spectre_resources_list_resource_loaders(ecs_world_t* world, size_t* count);
+
 ecs_entity_t spectre_resources_find_resource_loader(ecs_world_t* world, const char* type);
 SANDBOX_API
+SANDBOX_API
+ecs_entity_t* spectre_resources_list_resources(ecs_world_t* world, size_t* count);
+SANDBOX_API
+ecs_entity_t* spectre_resources_list_resource_loaders(ecs_world_t* world, size_t* count);
+
 ecs_entity_t spectre_resources_find_resource(ecs_world_t* world, const char* name);
 SANDBOX_API
 bool spectre_resources_is_resource_loaded(ecs_world_t* world, ecs_entity_t resource);
-SANDBOX_API
-void spectre_resources_load_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
-SANDBOX_API
-void spectre_resources_free_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
 SANDBOX_API
 void* spectre_resources_get_resource(ecs_world_t* world, ecs_entity_t resourceEntity);
 SANDBOX_API

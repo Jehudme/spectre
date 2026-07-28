@@ -82,7 +82,10 @@ class window_module_t {
 
     void apply_window_change();
 
+    // TODO: Make sure there is a service, an sdk, and a lua wrapper function for importing/exporting configuration
     void import_configuration(std::string_view file_path);
+
+    // TODO: Make sure there is a service, an sdk, and a lua wrapper function for importing/exporting configuration
     void export_configuration(std::string_view file_path);
 
   private:

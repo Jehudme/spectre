@@ -11,6 +11,7 @@ typedef struct spectre_scripts_api_t {
     bool (*has_script)(ecs_world_t* world, const char* function_name, const spectre_script_argument_type_t* arg_types,
                        size_t arg_count);
     bool (*is_script)(ecs_world_t* world, ecs_entity_t entity);
+    ecs_entity_t* (*list_scripts)(ecs_world_t* world, size_t* count);
     ecs_entity_t (*find_script)(ecs_world_t* world, const char* function_name);
     void (*include_code)(ecs_world_t* world, const char* path);
     void (*execute_script)(ecs_world_t* world, const char* function_name, spectre_script_argument_t* args,
@@ -42,6 +43,9 @@ bool spectre_scripts_has_script(ecs_world_t* world, const char* function_name,
 SANDBOX_API
 bool spectre_scripts_is_script(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API
+SANDBOX_API
+ecs_entity_t* spectre_scripts_list_scripts(ecs_world_t* world, size_t* count);
+
 ecs_entity_t spectre_scripts_find_script(ecs_world_t* world, const char* function_name);
 SANDBOX_API
 void spectre_scripts_include_code(ecs_world_t* world, const char* path);

@@ -1,3 +1,4 @@
+#include <spectre/sdk/scripts.hpp>
 #include "../../../../spectre/source/modules/scripts/scripts_module.h"
 #include "modules/serializer/serializer_module.h"
 #include "spectre/spectre.h"
@@ -127,4 +128,10 @@ return {
 
         scripts_mod->execute_on_update(target_entity);
     }
+
+    SECTION("Can list scripts") {
+        auto list = spectre::modules::scripts::list_scripts(world);
+        REQUIRE(list.size() >= 0);
+    }
+
 }
