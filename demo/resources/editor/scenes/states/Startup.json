@@ -1,6 +1,5 @@
 {
-    "name": "MainState",
-    "scenes": [
-        "MainScene"
-    ]
+  "name": "Startup",
+  "scenes": ["Menu"],
+  "components": {}
 }

@@ -1,6 +1,0 @@
-sed -i '/static std::vector<flecs::entity> list_scripts(const flecs::world& entity_world);/c \
-    static std::vector<flecs::entity> list_scripts(const flecs::world& entity_world) {\n        size_t count = 0;\n        ecs_entity_t* entities = spectre_scripts_list_scripts(entity_world.c_ptr(), &count);\n        std::vector<flecs::entity> list;\n        if (entities && count > 0) {\n            list.reserve(count);\n            for (size_t i = 0; i < count; ++i) {\n                list.push_back(entity_world.entity(entities[i]));\n            }\n        }\n        return list;\n    }\n' spectre/include/spectre/sdk/scripts.hpp
-
-sed -i '/static std::vector<flecs::entity> list_prefabs(const flecs::world& entity_world);/c \
-    static std::vector<flecs::entity> list_prefabs(const flecs::world& entity_world) {\n        size_t count = 0;\n        ecs_entity_t* entities = spectre_prefabs_list_prefabs(entity_world.c_ptr(), &count);\n        std::vector<flecs::entity> list;\n        if (entities && count > 0) {\n            list.reserve(count);\n            for (size_t i = 0; i < count; ++i) {\n                list.push_back(entity_world.entity(entities[i]));\n            }\n        }\n        return list;\n    }\n' spectre/include/spectre/sdk/prefabs.hpp
-

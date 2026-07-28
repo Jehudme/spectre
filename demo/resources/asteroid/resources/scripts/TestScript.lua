@@ -35,6 +35,8 @@ function TestScript.on_update(self_id, scene_id, state_id)
 		world:set(self_id, spectre.Transform2D, transform)
 	end
 
+	sandbox.logs.error(world, "scene_id=" .. scene_id)
+
 	local PlayerStats = spectre.components.find_component(world, "PlayerStats")
 	sandbox.logs.info(world, "[TestScript] PlayerStats ID: " .. tostring(PlayerStats))
 	if PlayerStats and PlayerStats ~= 0 then

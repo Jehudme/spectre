@@ -239,19 +239,41 @@ void script_module_t::deserialize_scripts(flecs::entity target_entity, sandbox::
 
             size_t argument_count = script_component->argument_count;
             spectre_script_argument_t* script_arguments = nullptr;
+            bool missing_argument = false;
+
             if (argument_count > 0) {
                 script_arguments = new spectre_script_argument_t[argument_count];
-                sandbox::properties arguments_properties = script_item.sub("arguments");
+                sandbox::properties arguments_properties;
+                if (script_item.has("arguments")) {
+                    arguments_properties = script_item.sub("arguments");
+                }
+
                 for (size_t index = 0; index < argument_count; ++index) {
                     const char* argument_name = script_component->arguments_name[index];
+                    
+                    if (!arguments_properties.is_valid() || !arguments_properties.has(argument_name)) {
+                        sandbox::modules::logs::error(const_cast<flecs::world&>(m_world),
+                                                      "[Scripts Module] Missing required argument '{}' for script '{}' "
+                                                      "in relation '{}'.",
+                                                      argument_name, function_name, relation_name);
+                        missing_argument = true;
+                        break;
+                    }
+
                     spectre_script_argument_type_t argument_type = script_component->argument_types[index];
                     script_arguments[index].type = argument_type;
 
                     switch (argument_type) {
                         case SPECTRE_SCRIPT_ARGUMENT_TYPE_NUMBER: {
-                            double number_value = 0.0;
-                            arguments_properties.get<double>(argument_name, number_value);
-                            script_arguments[index].value.number_value = number_value;
+                            std::string str_val;
+                            if (arguments_properties.get<std::string>(argument_name, str_val)) {
+                                flecs::entity resolved = resolve_entity_argument(target_entity, str_val);
+                                script_arguments[index].value.number_value = static_cast<double>(resolved.id());
+                            } else {
+                                double number_value = 0.0;
+                                arguments_properties.get<double>(argument_name, number_value);
+                                script_arguments[index].value.number_value = number_value;
+                            }
                             break;
                         }
                         case SPECTRE_SCRIPT_ARGUMENT_TYPE_INTEGER: {
@@ -282,6 +304,11 @@ void script_module_t::deserialize_scripts(flecs::entity target_entity, sandbox::
                             break;
                     }
                 }
+            }
+
+            if (missing_argument) {
+                if (script_arguments) delete[] script_arguments;
+                continue;
             }
 
             using RelationType = decltype(relation_type);
