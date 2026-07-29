@@ -20,18 +20,30 @@ end
 
 function project.create(name)
     local dest = "projects://" .. name
-    return sandbox.filesystem.copy(world, "app://templates/new_app", dest, false, true)
+    local res = sandbox.filesystem.copy(world, "app://templates/new_app", dest, false, true)
+    if not res then
+        sandbox.logs.error(world, "[project.lua] Failed to create project '" .. name .. "' (copy failed from app://templates/new_app)")
+    end
+    return res
 end
 
 function project.delete(name)
     local target = "projects://" .. name
-    return sandbox.filesystem.remove_directory(world, target)
+    local res = sandbox.filesystem.remove_directory(world, target)
+    if not res then
+        sandbox.logs.error(world, "[project.lua] Failed to delete project '" .. name .. "'")
+    end
+    return res
 end
 
 function project.rename(old_name, new_name)
     local old_dir = "projects://" .. old_name
     local new_dir = "projects://" .. new_name
-    return sandbox.filesystem.move(world, old_dir, new_dir, false, true)
+    local res = sandbox.filesystem.move(world, old_dir, new_dir, false, true)
+    if not res then
+        sandbox.logs.error(world, "[project.lua] Failed to rename project '" .. old_name .. "' to '" .. new_name .. "'")
+    end
+    return res
 end
 
 function project.list()
@@ -60,7 +72,11 @@ function project.duplicate(original)
         idx = idx + 1
         new_name = original .. tostring(idx)
     end
-    return sandbox.filesystem.copy(world, "projects://" .. original, "projects://" .. new_name, false, true)
+    local res = sandbox.filesystem.copy(world, "projects://" .. original, "projects://" .. new_name, false, true)
+    if not res then
+        sandbox.logs.error(world, "[project.lua] Failed to duplicate project '" .. original .. "'")
+    end
+    return res
 end
 
 function project.mount(name)
