@@ -26,7 +26,7 @@ local type_current_idx = ffi.new("int[1]", 0)
 
 -- Configuration properties
 local config_props = nil
-local config_path = "app://configs/resources.json"
+local config_path = "project://configs/resources.json"
 local cached_resources_list = {}
 
 local function update_cached_resources()
@@ -52,10 +52,22 @@ local current_resource_state = {}
 local function write_all_bytes(w, path, data)
 	local handle = sandbox.filesystem.open_write(w, path, false, true)
 	if handle and handle.token ~= 0 then
-		-- Cast the string to void* to pass to write
 		local c_str = ffi.cast("const void*", data)
-		sandbox.filesystem.write(w, handle, c_str, #data)
+		local written = sandbox.filesystem.write(w, handle, c_str, #data)
+		sandbox.logs.info(w, "[Resources] Wrote " .. tostring(written) .. " bytes to " .. path)
 		sandbox.filesystem.close_handle(w, handle)
+	else
+		local phys = sandbox.filesystem.resolve_physical_path(w, path)
+		if phys then
+			local f = io.open(phys, "w")
+			if f then
+				f:write(data)
+				f:close()
+				sandbox.logs.info(w, "[Resources] io.open successfully wrote to " .. phys)
+				return
+			end
+		end
+		sandbox.logs.error(w, "[Resources] Failed to open for writing: " .. path)
 	end
 end
 
