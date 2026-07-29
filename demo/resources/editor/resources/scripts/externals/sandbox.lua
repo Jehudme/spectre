@@ -308,19 +308,37 @@ end
 ---@param world ecs_world_t
 ---@param virtual_path string
 ---@param recursive boolean
----@param out_files any
----@param out_count any
-function sandbox.filesystem.list_files(world, virtual_path, recursive, out_files, out_count)
-    return ffi.C.sandbox_filesystem_list_files((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, recursive, out_files, out_count)
+---@return table
+function sandbox.filesystem.list_files(world, virtual_path, recursive)
+    local out_files = ffi.new("char**[1]")
+    local out_count = ffi.new("size_t[1]")
+    local success = ffi.C.sandbox_filesystem_list_files((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, recursive, out_files, out_count)
+    local result = {}
+    if success and tonumber(out_count[0]) > 0 then
+        for i = 0, tonumber(out_count[0]) - 1 do
+            table.insert(result, ffi.string(out_files[0][i]))
+        end
+        ffi.C.sandbox_filesystem_free_file_list((type(world) == "table" and world.ptr) and world.ptr or world, out_files[0], out_count[0])
+    end
+    return result
 end
 
 ---@param world ecs_world_t
 ---@param virtual_path string
 ---@param recursive boolean
----@param out_dirs any
----@param out_count any
-function sandbox.filesystem.list_directories(world, virtual_path, recursive, out_dirs, out_count)
-    return ffi.C.sandbox_filesystem_list_directories((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, recursive, out_dirs, out_count)
+---@return table
+function sandbox.filesystem.list_directories(world, virtual_path, recursive)
+    local out_dirs = ffi.new("char**[1]")
+    local out_count = ffi.new("size_t[1]")
+    local success = ffi.C.sandbox_filesystem_list_directories((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, recursive, out_dirs, out_count)
+    local result = {}
+    if success and tonumber(out_count[0]) > 0 then
+        for i = 0, tonumber(out_count[0]) - 1 do
+            table.insert(result, ffi.string(out_dirs[0][i]))
+        end
+        ffi.C.sandbox_filesystem_free_file_list((type(world) == "table" and world.ptr) and world.ptr or world, out_dirs[0], out_count[0])
+    end
+    return result
 end
 
 ---@param world ecs_world_t

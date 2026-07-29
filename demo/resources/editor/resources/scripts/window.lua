@@ -42,6 +42,8 @@ function styling_ui()
 end
 
 function menu.on_render(self_id, scene_id, state_id)
+	sandbox.logs.info(world, "[window.lua] on_render_menu called, ImGui is drawing!")
+	
 	if not projects_list then
 		projects_list = project.list()
 	end

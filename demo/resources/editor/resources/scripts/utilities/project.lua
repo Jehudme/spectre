@@ -35,27 +35,19 @@ function project.rename(old_name, new_name)
 end
 
 function project.list()
-    local ffi = require("ffi")
-    local out_dirs = ffi.new("char**[1]")
-    local out_count = ffi.new("size_t[1]")
-    
-    local success = sandbox.filesystem.list_directories(world, "projects://", false, out_dirs, out_count)
+    local dirs = sandbox.filesystem.list_directories(world, "projects://", false)
     local result = {}
     
-    if success and tonumber(out_count[0]) > 0 then
-        for i = 0, tonumber(out_count[0]) - 1 do
-            local path = ffi.string(out_dirs[0][i])
-            -- Ensure trailing slash is removed for pattern matching
-            local clean_path = path
-            if string.sub(clean_path, -1) == "/" then
-                clean_path = string.sub(clean_path, 1, -2)
-            end
-            local name = string.match(clean_path, "projects://(.+)")
-            if name then
-                table.insert(result, name)
-            end
+    for _, path in ipairs(dirs) do
+        -- Ensure trailing slash is removed for pattern matching
+        local clean_path = path
+        if string.sub(clean_path, -1) == "/" then
+            clean_path = string.sub(clean_path, 1, -2)
         end
-        sandbox.filesystem.free_file_list(world, out_dirs[0], out_count[0])
+        local name = string.match(clean_path, "projects://(.+)")
+        if name then
+            table.insert(result, name)
+        end
     end
     
     return result

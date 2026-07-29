@@ -1163,12 +1163,6 @@ function spectre.prefabs.list_prefabs(world)
     return result
 end
 
--- ========================================
--- Resources API
--- ========================================
----@class spectre.resources
-spectre.resources = {}
-
 ---@param world ecs_world_t
 ---@return table
 function spectre.resources.list_resources(world)
@@ -1197,12 +1191,6 @@ function spectre.resources.list_resource_loaders(world)
     return result
 end
 
--- ========================================
--- Scenes API
--- ========================================
----@class spectre.scenes
-spectre.scenes = {}
-
 ---@param world ecs_world_t
 ---@return table
 function spectre.scenes.list_states(world)
@@ -1216,12 +1204,6 @@ function spectre.scenes.list_states(world)
     end
     return result
 end
-
--- ========================================
--- Components API
--- ========================================
----@class spectre.components
-spectre.components = {}
 
 ---@param world ecs_world_t
 ---@return table
