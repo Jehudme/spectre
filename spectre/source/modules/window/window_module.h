@@ -99,5 +99,6 @@ class window_module_t {
     input_state_t m_input_state;
     flecs::entity m_window_entity;
     flecs::world m_world;
+    std::string m_imgui_ini_path;
 };
 } // namespace spectre::modules

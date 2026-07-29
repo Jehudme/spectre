@@ -1,15 +1,19 @@
 #include "sandbox/sdk/filesystem.hpp"
 #include "window_module.h"
 #include "spectre/sdk/serializer.hpp"
-#include "spectre/services/window_service.h"
-
 #include "sandbox/sdk/logs.hpp"
+#include "sandbox/services/filesystem_service.h"
+#include "spectre/sdk/window.hpp"
+#include "spectre/services/window_service.h"
+#include <GLFW/glfw3.h>
+#include <imgui.h>
+#include <raylib.h>
+#include <rlImGui.h>
+
 #include "sandbox/sdk/runtime.hpp"
 #include <algorithm>
 #include <cstring>
 #include <iostream>
-#include <raylib.h>
-#include <rlImGui.h>
 
 #include "spectre/sdk/components.hpp"
 
@@ -214,6 +218,13 @@ void window_module_t::register_window(const sandbox::properties& properties) {
 
             InitWindow(component->width, component->height, component->title ? component->title : "Spectre Engine");
             rlImGuiSetup(true);
+
+            char* phys_path = nullptr;
+            if (sandbox_filesystem_resolve_physical_path(m_world.c_ptr(), "cache://spectre-editor/imgui.ini", &phys_path)) {
+                m_imgui_ini_path = phys_path;
+                free(phys_path);
+                ImGui::GetIO().IniFilename = m_imgui_ini_path.c_str();
+            }
 
             if (component->min_width > 0 && component->min_height > 0) {
                 SetWindowMinSize(component->min_width, component->min_height);

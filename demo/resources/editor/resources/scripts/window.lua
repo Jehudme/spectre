@@ -37,8 +37,8 @@ function styling_ui()
 end
 
 function menu.on_render(self_id, scene_id, state_id)
-	sandbox.logs.info(world, "[window.lua] on_render_menu called, ImGui is drawing!")
-	
+	-- sandbox.logs.info(world, "[window.lua] on_render_menu called, ImGui is drawing!")
+
 	if not projects_list then
 		projects_list = project.list()
 	end
@@ -181,7 +181,7 @@ end
 local current_module = nil
 
 function edit.on_render()
-	sandbox.logs.info(world, "[window.lua] on_render_edit called, Editor ImGui is drawing!")
+	-- sandbox.logs.info(world, "[window.lua] on_render_edit called, Editor ImGui is drawing!")
 	if imgui.BeginMainMenuBar() then
 		if imgui.BeginMenu("File") then
 			if imgui.MenuItem("Save") then
@@ -198,7 +198,7 @@ function edit.on_render()
 			end
 			imgui.EndMenu()
 		end
-		
+
 		-- Dynamic modules menu
 		if imgui.BeginMenu("Modules") then
 			for mod_name, mod_table in pairs(_G.modules) do
@@ -240,5 +240,5 @@ return {
 	on_style_imgui = ecs.Script.define(styling_ui),
 	on_init_menu = ecs.Script.define(project.initialize),
 	on_render_menu = ecs.Script.define(menu.on_render, "self_id:integer", "scene_id:integer", "state_id:integer"),
-	on_render_edit = ecs.Script.define(edit.on_render)
+	on_render_edit = ecs.Script.define(edit.on_render),
 }
