@@ -1,16 +1,10 @@
 local ecs = require("ecs")
 local spectre = require("spectre")
 local sandbox = require("sandbox")
-local imgui = require("imgui")
-local project = require("utilities.project")
 local ffi = require("ffi")
 
-pcall(function() ffi.cdef[[
-    void igPushStyleColor_Vec4(int idx, const ImVec4 col);
-    void igPushStyleVar_Vec2(int idx, const ImVec2 val);
-    bool igBeginListBox(const char* label, const ImVec2 size);
-    void igEndListBox(void);
-]] end)
+local imgui = require("imgui")
+local project = require("utilities.project")
 
 local world = ecs.from_ptr(g_world)
 
@@ -36,10 +30,10 @@ function menu.on_render(self_id, scene_id, state_id)
     imgui.SetNextWindowSize(ffi.new("ImVec2", screen_w, screen_h), 1) -- ImGuiCond_Always
     
     -- Dark background for the main window
-    ffi.C.igPushStyleColor_Vec4(2, ffi.new("ImVec4", 0.1, 0.1, 0.12, 1.0)) -- ImGuiCol_WindowBg
+    imgui.PushStyleColor(2, ffi.new("ImVec4", 0.1, 0.1, 0.12, 1.0)) -- ImGuiCol_WindowBg
     local window_flags = bit.bor(1, 32, 2, 4, 8192, 524288) -- NoTitleBar, NoCollapse, NoResize, NoMove, NoBringToFrontOnFocus, NoNavFocus
     
-    ffi.C.igPushStyleVar_Vec2(2, ffi.new("ImVec2", 0, 0)) -- ImGuiStyleVar_WindowPadding
+    imgui.PushStyleVar(2, ffi.new("ImVec2", 0, 0)) -- ImGuiStyleVar_WindowPadding
     imgui.Begin("Project Manager##Main", nil, window_flags)
     imgui.PopStyleVar()
     
@@ -48,10 +42,10 @@ function menu.on_render(self_id, scene_id, state_id)
     imgui.SetNextWindowSize(ffi.new("ImVec2", 700, 500), 4) -- ImGuiCond_FirstUseEver
     
     -- Inner window style
-    ffi.C.igPushStyleColor_Vec4(2, ffi.new("ImVec4", 0.15, 0.15, 0.18, 1.0)) -- ImGuiCol_WindowBg
-    ffi.C.igPushStyleColor_Vec4(10, ffi.new("ImVec4", 0.2, 0.2, 0.25, 1.0)) -- ImGuiCol_TitleBg
-    ffi.C.igPushStyleColor_Vec4(11, ffi.new("ImVec4", 0.25, 0.25, 0.35, 1.0)) -- ImGuiCol_TitleBgActive
-    ffi.C.igPushStyleVar_Vec2(2, ffi.new("ImVec2", 20, 20)) -- ImGuiStyleVar_WindowPadding
+    imgui.PushStyleColor(2, ffi.new("ImVec4", 0.15, 0.15, 0.18, 1.0)) -- ImGuiCol_WindowBg
+    imgui.PushStyleColor(10, ffi.new("ImVec4", 0.2, 0.2, 0.25, 1.0)) -- ImGuiCol_TitleBg
+    imgui.PushStyleColor(11, ffi.new("ImVec4", 0.25, 0.25, 0.35, 1.0)) -- ImGuiCol_TitleBgActive
+    imgui.PushStyleVar(2, ffi.new("ImVec2", 20, 20)) -- ImGuiStyleVar_WindowPadding
     
     imgui.Begin("Spectre Editor - Project Hub", nil, 32) -- ImGuiWindowFlags_NoCollapse
     
@@ -60,8 +54,8 @@ function menu.on_render(self_id, scene_id, state_id)
     imgui.Spacing()
     
     -- Toolbar
-    ffi.C.igPushStyleColor_Vec4(22, ffi.new("ImVec4", 0.2, 0.6, 0.3, 1.0)) -- ImGuiCol_Button
-    ffi.C.igPushStyleColor_Vec4(23, ffi.new("ImVec4", 0.3, 0.7, 0.4, 1.0)) -- ImGuiCol_ButtonHovered
+    imgui.PushStyleColor(22, ffi.new("ImVec4", 0.2, 0.6, 0.3, 1.0)) -- ImGuiCol_Button
+    imgui.PushStyleColor(23, ffi.new("ImVec4", 0.3, 0.7, 0.4, 1.0)) -- ImGuiCol_ButtonHovered
     if imgui.Button("  + New Project  ", ffi.new("ImVec2", 150, 40)) then
         show_new_project_popup = true
         ffi.copy(new_project_name, "MyProject")
@@ -74,8 +68,8 @@ function menu.on_render(self_id, scene_id, state_id)
     imgui.TextColored(ffi.new("ImVec4", 0.6, 0.6, 0.6, 1.0), "Recent Projects")
     
     -- Project List
-    ffi.C.igPushStyleColor_Vec4(7, ffi.new("ImVec4", 0.12, 0.12, 0.14, 1.0)) -- ImGuiCol_FrameBg
-    if ffi.C.igBeginListBox("##Projects", ffi.new("ImVec2", -1, -1)) then
+    imgui.PushStyleColor(7, ffi.new("ImVec4", 0.12, 0.12, 0.14, 1.0)) -- ImGuiCol_FrameBg
+    if imgui.BeginListBox("##Projects", ffi.new("ImVec2", -1, -1)) then
         for i, proj_name in ipairs(projects_list) do
             imgui.PushID_Str(proj_name)
             imgui.Spacing()
@@ -114,7 +108,7 @@ function menu.on_render(self_id, scene_id, state_id)
                     projects_list = project.list()
                 end
                 imgui.Separator()
-                ffi.C.igPushStyleColor_Vec4(0, ffi.new("ImVec4", 1.0, 0.4, 0.4, 1.0)) -- ImGuiCol_Text
+                imgui.PushStyleColor(0, ffi.new("ImVec4", 1.0, 0.4, 0.4, 1.0)) -- ImGuiCol_Text
                 if imgui.MenuItem("Delete") then
                     project.delete(proj_name)
                     projects_list = project.list()
@@ -126,7 +120,7 @@ function menu.on_render(self_id, scene_id, state_id)
             imgui.Spacing()
             imgui.PopID()
         end
-        ffi.C.igEndListBox()
+        imgui.EndListBox()
     end
     imgui.PopStyleColor() -- FrameBg
     
