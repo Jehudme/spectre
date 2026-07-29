@@ -184,6 +184,7 @@ function menu.on_render(self_id, scene_id, state_id)
 end
 
 function edit.on_render()
+	sandbox.logs.info(world, "[window.lua] on_render_edit called, Editor ImGui is drawing!")
 	if imgui.BeginMainMenuBar() then
 		if imgui.BeginMenu("File") then
 			if imgui.MenuItem("Save") then
