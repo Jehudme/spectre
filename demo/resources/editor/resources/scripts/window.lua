@@ -15,12 +15,7 @@ menu = {}
 edit = {}
 _G.modules = {}
 
-require("modules.Components")
-require("modules.Prefabs")
-require("modules.Renderer")
-require("modules.Resources")
-require("modules.Scenes")
-require("modules.Window")
+require("modules")
 
 local projects_list = nil
 local show_new_project_popup = false
@@ -183,6 +178,8 @@ function menu.on_render(self_id, scene_id, state_id)
 	imgui.End() -- End Main background window
 end
 
+local current_module = nil
+
 function edit.on_render()
 	sandbox.logs.info(world, "[window.lua] on_render_edit called, Editor ImGui is drawing!")
 	if imgui.BeginMainMenuBar() then
@@ -207,7 +204,13 @@ function edit.on_render()
 			for mod_name, mod_table in pairs(_G.modules) do
 				if imgui.MenuItem(mod_name) then
 					sandbox.logs.info(world, "[Menu] Module -> " .. mod_name .. " clicked")
-					-- Future: trigger module-specific logic or run mod_table.on_render
+					if current_module and current_module.on_exit then
+						current_module.on_exit()
+					end
+					current_module = mod_table
+					if current_module and current_module.on_enter then
+						current_module.on_enter()
+					end
 				end
 			end
 			imgui.EndMenu()
@@ -226,6 +229,10 @@ function edit.on_render()
 			imgui.EndMenu()
 		end
 		imgui.EndMainMenuBar()
+	end
+
+	if current_module and current_module.on_update then
+		current_module.on_update()
 	end
 end
 
