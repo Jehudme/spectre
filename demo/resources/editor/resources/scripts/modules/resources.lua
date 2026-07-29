@@ -50,24 +50,11 @@ local c_type_names = nil
 local current_resource_state = {}
 
 local function write_all_bytes(w, path, data)
-	local handle = sandbox.filesystem.open_write(w, path, false, true)
-	if handle and handle.token ~= 0 then
-		local c_str = ffi.cast("const void*", data)
-		local written = sandbox.filesystem.write(w, handle, c_str, #data)
-		sandbox.logs.info(w, "[Resources] Wrote " .. tostring(written) .. " bytes to " .. path)
-		sandbox.filesystem.close_handle(w, handle)
+	local c_str = ffi.cast("const void*", data)
+	if sandbox.filesystem.write_all_bytes(w, path, c_str, #data) then
+		sandbox.logs.info(w, "[Resources] successfully wrote to " .. path)
 	else
-		local phys = sandbox.filesystem.resolve_physical_path(w, path)
-		if phys then
-			local f = io.open(phys, "w")
-			if f then
-				f:write(data)
-				f:close()
-				sandbox.logs.info(w, "[Resources] io.open successfully wrote to " .. phys)
-				return
-			end
-		end
-		sandbox.logs.error(w, "[Resources] Failed to open for writing: " .. path)
+		sandbox.logs.error(w, "[Resources] Failed to write bytes to: " .. path)
 	end
 end
 

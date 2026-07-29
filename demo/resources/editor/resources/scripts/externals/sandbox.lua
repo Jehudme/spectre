@@ -41,6 +41,7 @@ pcall(function() ffi.cdef[[
     bool sandbox_filesystem_list_directories(ecs_world_t* ecs, const char* virtual_path, bool recursive, char*** out_dirs, size_t* out_count);
     void sandbox_filesystem_free_file_list(ecs_world_t* ecs, char** files, size_t count);
     bool sandbox_filesystem_read_all_bytes(ecs_world_t* ecs, const char* virtual_path, uint8_t** out_data, size_t* out_size);
+    bool sandbox_filesystem_write_all_bytes(ecs_world_t* ecs, const char* virtual_path, const void* data, size_t size);
     void sandbox_filesystem_free_bytes(ecs_world_t* ecs, uint8_t* data);
     bool sandbox_filesystem_resolve_physical_path(ecs_world_t* ecs, const char* virtual_path, char** out_path);
     void sandbox_filesystem_free_string(ecs_world_t* ecs, char* str);
@@ -355,6 +356,15 @@ end
 ---@return string
 function sandbox.filesystem.read_all_bytes(world, virtual_path, out_data, out_size)
     return ffi.C.sandbox_filesystem_read_all_bytes((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, out_data, out_size)
+end
+
+---@param world ecs_world_t
+---@param virtual_path string
+---@param data string
+---@param size integer
+---@return boolean
+function sandbox.filesystem.write_all_bytes(world, virtual_path, data, size)
+    return ffi.C.sandbox_filesystem_write_all_bytes((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, data, size)
 end
 
 ---@param world ecs_world_t
