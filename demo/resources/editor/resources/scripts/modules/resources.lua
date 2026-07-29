@@ -13,8 +13,11 @@ _G.modules["Resources"] = Resources
 local search_buffer = ffi.new("char[256]")
 local vpath_buffer = ffi.new("char[256]")
 local add_name_buffer = ffi.new("char[256]")
+local rename_name_buffer = ffi.new("char[256]")
 local selected_resource = nil
 local show_add_popup = false
+local show_rename_popup = false
+local rename_target = ""
 
 -- Resource loaders (types)
 local resource_types = {}
@@ -24,12 +27,27 @@ local type_current_idx = ffi.new("int[1]", 0)
 -- Configuration properties
 local config_props = nil
 local config_path = "app://configs/resources.json"
+local cached_resources_list = {}
+
+local function update_cached_resources()
+	if config_props then
+		cached_resources_list = config_props:keys("") or {}
+	end
+end
 
 local texture_filtering_modes = { "point", "bilinear", "trilinear" }
 local texture_filtering_idx = ffi.new("int[1]", 0)
+local c_filt = ffi.new("const char*[?]", #texture_filtering_modes)
+for i, v in ipairs(texture_filtering_modes) do c_filt[i-1] = v end
+
 local texture_wrap_modes = { "repeat", "clamp", "mirror_repeat", "mirror_clamp" }
 local texture_wrap_idx = ffi.new("int[1]", 0)
+local c_wrap = ffi.new("const char*[?]", #texture_wrap_modes)
+for i, v in ipairs(texture_wrap_modes) do c_wrap[i-1] = v end
+
 local font_size_val = ffi.new("int[1]", 32)
+local c_type_names = nil
+local current_resource_state = {}
 
 local function write_all_bytes(w, path, data)
 	local handle = sandbox.filesystem.open_write(w, path, false, true)
@@ -45,12 +63,15 @@ local function save_configuration()
 	if config_props then
 		local dumped = config_props:dump(0) -- SANDBOX_FORMAT_JSON
 		if dumped then
+			sandbox.logs.info(world, "[Resources] Exporting configuration to " .. config_path .. "\nDumped content: " .. dumped)
 			write_all_bytes(world, config_path, dumped)
 		end
+		update_cached_resources()
 	end
 end
 
 local function load_configuration()
+	sandbox.logs.info(world, "[Resources] Loading configuration from " .. config_path)
 	if config_props then
 		config_props:destroy()
 	end
@@ -65,13 +86,47 @@ local function load_configuration()
 	if sandbox.filesystem.read_all_bytes(world, config_path, out_data, out_size) then
 		if tonumber(out_size[0]) > 0 and out_data[0] ~= nil then
 			local content = ffi.string(out_data[0], tonumber(out_size[0]))
+			sandbox.logs.info(world, "[Resources] Loaded content: " .. content)
 			config_props:load(content, 0)
 			sandbox.filesystem.free_bytes(world, out_data[0])
 		end
 	end
+	update_cached_resources()
+end
+
+local function copy_resource_fields(old_name, new_name)
+    local old_sub = config_props:sub(old_name)
+    local new_sub = config_props:sub(new_name)
+    
+    new_sub:set_string("type", old_sub:read_string("type") or "")
+    new_sub:set_string("path", old_sub:read_string("path") or "")
+    
+    local old_config = old_sub:sub("configurations")
+    local new_config = new_sub:sub("configurations")
+    
+    local f_size = old_config:get_int64("font_size")
+    if f_size then new_config:set_int64("font_size", f_size) end
+    
+    local filtering = old_config:read_string("filtering")
+    if filtering then new_config:set_string("filtering", filtering) end
+    
+    local wrap = old_config:read_string("wrap_mode")
+    if wrap then new_config:set_string("wrap_mode", wrap) end
+end
+
+local function duplicate_resource(old_name)
+    local new_name = old_name .. "_copy"
+    local i = 1
+    while config_props:has(new_name) do
+        new_name = old_name .. "_copy" .. tostring(i)
+        i = i + 1
+    end
+    copy_resource_fields(old_name, new_name)
+    save_configuration()
 end
 
 function Resources.on_enter()
+	selected_resource = nil
 	-- Fetch available resource types
 	resource_types = spectre.resources.list_resource_loaders(world)
 	resource_type_names = {}
@@ -82,6 +137,11 @@ function Resources.on_enter()
 		else
 			table.insert(resource_type_names, "unknown_" .. tostring(loader_id))
 		end
+	end
+	
+	c_type_names = ffi.new("const char*[?]", #resource_type_names)
+	for i, v in ipairs(resource_type_names) do
+		c_type_names[i-1] = v
 	end
 	
 	load_configuration()
@@ -111,29 +171,41 @@ function Resources.on_update()
 	imgui.Separator()
 	
 	local search_str = ffi.string(search_buffer)
-	local resources_list = config_props and config_props:keys("") or {}
 	
-	for _, res_name in ipairs(resources_list) do
+	for _, res_name in ipairs(cached_resources_list) do
 		if search_str == "" or string.find(res_name:lower(), search_str:lower(), 1, true) then
 			if imgui.Selectable(res_name, selected_resource == res_name) then
-				selected_resource = res_name
-				local vp = config_props:read_string(res_name .. ".path")
-				if vp then
-					ffi.copy(vpath_buffer, vp)
-				else
-					vpath_buffer[0] = 0
+				if selected_resource ~= res_name then
+					selected_resource = res_name
+					local res_sub = config_props:sub(res_name)
+					local res_config = res_sub:sub("configurations")
+					
+					current_resource_state.path = res_sub:read_string("path") or ""
+					current_resource_state.type = res_sub:read_string("type") or ""
+					current_resource_state.filtering = res_config:read_string("filtering") or "point"
+					current_resource_state.wrap_mode = res_config:read_string("wrap_mode") or "repeat"
+					current_resource_state.font_size = res_config:get_int64("font_size") or 32
+					
+					ffi.copy(vpath_buffer, current_resource_state.path)
 				end
 			end
 			
 			if imgui.BeginPopupContextItem() then
 				if imgui.MenuItem("Rename") then
 					sandbox.logs.info(world, "Rename clicked on " .. res_name)
+					show_rename_popup = true
+					rename_target = res_name
+					ffi.copy(rename_name_buffer, res_name)
 				end
 				if imgui.MenuItem("Duplicate") then
 					sandbox.logs.info(world, "Duplicate clicked on " .. res_name)
+					duplicate_resource(res_name)
 				end
 				if imgui.MenuItem("Delete") then
 					sandbox.logs.info(world, "Delete clicked on " .. res_name)
+					config_props:clear(res_name)
+					if selected_resource == res_name then selected_resource = nil end
+					save_configuration()
 				end
 				imgui.EndPopup()
 			end
@@ -151,10 +223,13 @@ function Resources.on_update()
 		
 		imgui.Text("Configuration for: " .. res_name)
 		imgui.Separator()
+		local res_sub = config_props:sub(res_name)
+		local res_config = res_sub:sub("configurations")
 		
 		imgui.Text("Virtual Path:")
 		if imgui.InputText("##VirtualPath", vpath_buffer, 256) then
-			config_props:set_string(res_name .. ".path", ffi.string(vpath_buffer))
+			current_resource_state.path = ffi.string(vpath_buffer)
+			res_sub:set_string("path", current_resource_state.path)
 			save_configuration()
 		end
 		
@@ -163,11 +238,8 @@ function Resources.on_update()
 			imgui.TextColored(ffi.new("ImVec4", 1.0, 0.0, 0.0, 1.0), "Error: Virtual path does not exist!")
 		end
 		
-		-- Fetch resource type from config
-		local current_type = config_props:read_string(res_name .. ".type")
-		if not current_type then current_type = "" end
+		local current_type = current_resource_state.type
 		
-		-- Match current_type to index
 		local match_idx = 0
 		for i, v in ipairs(resource_type_names) do
 			if v == current_type then match_idx = i - 1 end
@@ -175,43 +247,42 @@ function Resources.on_update()
 		type_current_idx[0] = match_idx
 		
 		imgui.Text("Type:")
-		-- Convert Lua table to array of C strings for ImGui Combo
-		local c_type_names = ffi.new("const char*[?]", #resource_type_names)
-		for i, v in ipairs(resource_type_names) do
-			c_type_names[i-1] = v
+		
+		if not c_type_names and #resource_type_names > 0 then
+			c_type_names = ffi.new("const char*[?]", #resource_type_names)
+			for i, v in ipairs(resource_type_names) do
+				c_type_names[i-1] = v
+			end
 		end
 		
-		if imgui.Combo("##TypeCombo", type_current_idx, c_type_names, #resource_type_names) then
+		if c_type_names and imgui.Combo("##TypeCombo", type_current_idx, c_type_names, #resource_type_names) then
 			local new_type = resource_type_names[type_current_idx[0] + 1]
-			config_props:set_string(res_name .. ".type", new_type)
+			current_resource_state.type = new_type
+			res_sub:set_string("type", new_type)
 			save_configuration()
 		end
-		
-		current_type = config_props:read_string(res_name .. ".type")
 		
 		if current_type == "texture" then
 			imgui.Separator()
 			imgui.Text("Texture Options:")
 			
-			local current_filtering = config_props:read_string(res_name .. ".properties.filtering") or "point"
+			local current_filtering = current_resource_state.filtering
 			for i, v in ipairs(texture_filtering_modes) do if v == current_filtering then texture_filtering_idx[0] = i - 1 end end
 			
-			local c_filt = ffi.new("const char*[?]", #texture_filtering_modes)
-			for i, v in ipairs(texture_filtering_modes) do c_filt[i-1] = v end
-			
 			if imgui.Combo("Filtering", texture_filtering_idx, c_filt, #texture_filtering_modes) then
-				config_props:set_string(res_name .. ".properties.filtering", texture_filtering_modes[texture_filtering_idx[0] + 1])
+				local new_filt = texture_filtering_modes[texture_filtering_idx[0] + 1]
+				current_resource_state.filtering = new_filt
+				res_config:set_string("filtering", new_filt)
 				save_configuration()
 			end
 			
-			local current_wrap = config_props:read_string(res_name .. ".properties.wrap_mode") or "repeat"
+			local current_wrap = current_resource_state.wrap_mode
 			for i, v in ipairs(texture_wrap_modes) do if v == current_wrap then texture_wrap_idx[0] = i - 1 end end
 			
-			local c_wrap = ffi.new("const char*[?]", #texture_wrap_modes)
-			for i, v in ipairs(texture_wrap_modes) do c_wrap[i-1] = v end
-			
 			if imgui.Combo("Wrap Mode", texture_wrap_idx, c_wrap, #texture_wrap_modes) then
-				config_props:set_string(res_name .. ".properties.wrap_mode", texture_wrap_modes[texture_wrap_idx[0] + 1])
+				local new_wrap = texture_wrap_modes[texture_wrap_idx[0] + 1]
+				current_resource_state.wrap_mode = new_wrap
+				res_config:set_string("wrap_mode", new_wrap)
 				save_configuration()
 			end
 			
@@ -219,20 +290,20 @@ function Resources.on_update()
 			imgui.Separator()
 			imgui.Text("Font Options:")
 			
-			font_size_val[0] = config_props:get_int64(res_name .. ".properties.font_size") or 32
+			font_size_val[0] = current_resource_state.font_size
 			if imgui.InputInt("Font Size", font_size_val) then
-				config_props:set_int64(res_name .. ".properties.font_size", font_size_val[0])
+				current_resource_state.font_size = font_size_val[0]
+				res_config:set_int64("font_size", font_size_val[0])
 				save_configuration()
 			end
 			
-			local current_filtering = config_props:read_string(res_name .. ".properties.filtering") or "point"
+			local current_filtering = current_resource_state.filtering
 			for i, v in ipairs(texture_filtering_modes) do if v == current_filtering then texture_filtering_idx[0] = i - 1 end end
 			
-			local c_filt = ffi.new("const char*[?]", #texture_filtering_modes)
-			for i, v in ipairs(texture_filtering_modes) do c_filt[i-1] = v end
-			
 			if imgui.Combo("Filtering", texture_filtering_idx, c_filt, #texture_filtering_modes) then
-				config_props:set_string(res_name .. ".properties.filtering", texture_filtering_modes[texture_filtering_idx[0] + 1])
+				local new_filt = texture_filtering_modes[texture_filtering_idx[0] + 1]
+				current_resource_state.filtering = new_filt
+				res_config:set_string("filtering", new_filt)
 				save_configuration()
 			end
 		end
@@ -252,10 +323,36 @@ function Resources.on_update()
 		
 		if imgui.Button("Create") then
 			local new_name = ffi.string(add_name_buffer)
-			if new_name ~= "" then
-				-- We add it to the configuration (it might not be an entity immediately until runtime reads it, or we can create the entity)
-				config_props:set_string(new_name .. ".type", "texture")
-				config_props:set_string(new_name .. ".path", "")
+			if new_name ~= "" and not config_props:has(new_name) then
+				local new_sub = config_props:sub(new_name)
+				new_sub:set_string("type", "texture")
+				new_sub:set_string("path", "")
+				save_configuration()
+			end
+			imgui.CloseCurrentPopup()
+		end
+		imgui.SameLine()
+		if imgui.Button("Cancel") then
+			imgui.CloseCurrentPopup()
+		end
+		imgui.EndPopup()
+	end
+	
+	if show_rename_popup then
+		imgui.OpenPopup("Rename Resource")
+	end
+	
+	if imgui.BeginPopupModal("Rename Resource", nil, 64) then
+		show_rename_popup = false
+		imgui.Text("New Name:")
+		imgui.InputText("##RenameResourceName", rename_name_buffer, 256)
+		
+		if imgui.Button("Rename") then
+			local new_name = ffi.string(rename_name_buffer)
+			if new_name ~= "" and new_name ~= rename_target and not config_props:has(new_name) then
+				copy_resource_fields(rename_target, new_name)
+				config_props:clear(rename_target)
+				if selected_resource == rename_target then selected_resource = new_name end
 				save_configuration()
 			end
 			imgui.CloseCurrentPopup()
