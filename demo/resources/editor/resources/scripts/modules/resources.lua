@@ -31,11 +31,21 @@ local texture_wrap_modes = { "repeat", "clamp", "mirror_repeat", "mirror_clamp" 
 local texture_wrap_idx = ffi.new("int[1]", 0)
 local font_size_val = ffi.new("int[1]", 32)
 
+local function write_all_bytes(w, path, data)
+	local handle = sandbox.filesystem.open_write(w, path, false, true)
+	if handle and handle.token ~= 0 then
+		-- Cast the string to void* to pass to write
+		local c_str = ffi.cast("const void*", data)
+		sandbox.filesystem.write(w, handle, c_str, #data)
+		sandbox.filesystem.close_handle(w, handle)
+	end
+end
+
 local function save_configuration()
 	if config_props then
 		local dumped = config_props:dump(0) -- SANDBOX_FORMAT_JSON
 		if dumped then
-			sandbox.filesystem.write_all_bytes(world, config_path, dumped)
+			write_all_bytes(world, config_path, dumped)
 		end
 	end
 end
@@ -47,16 +57,17 @@ local function load_configuration()
 	config_props = sandbox.Properties.new()
 	
 	if not sandbox.filesystem.exists(world, config_path) then
-		sandbox.filesystem.write_all_bytes(world, config_path, "{}")
+		write_all_bytes(world, config_path, "{}")
 	end
 	
-	local content = sandbox.filesystem.read_all_bytes(world, config_path)
-	if content and #content > 0 then
-		local data = ""
-		for i=1, #content do
-			data = data .. string.char(content[i])
+	local out_data = ffi.new("uint8_t*[1]")
+	local out_size = ffi.new("size_t[1]")
+	if sandbox.filesystem.read_all_bytes(world, config_path, out_data, out_size) then
+		if tonumber(out_size[0]) > 0 and out_data[0] ~= nil then
+			local content = ffi.string(out_data[0], tonumber(out_size[0]))
+			config_props:load(content, 0)
+			sandbox.filesystem.free_bytes(world, out_data[0])
 		end
-		config_props:load(data, 0)
 	end
 end
 
@@ -99,16 +110,13 @@ function Resources.on_update()
 	
 	imgui.Separator()
 	
-	local resources_list = spectre.resources.list_resources(world)
 	local search_str = ffi.string(search_buffer)
+	local resources_list = config_props and config_props:keys("") or {}
 	
-	for _, res_id in ipairs(resources_list) do
-		local name_ptr = ffi.C.ecs_get_name((type(world) == "table" and world.ptr) and world.ptr or world, res_id)
-		local res_name = name_ptr ~= nil and ffi.string(name_ptr) or tostring(res_id)
-		
+	for _, res_name in ipairs(resources_list) do
 		if search_str == "" or string.find(res_name:lower(), search_str:lower(), 1, true) then
-			if imgui.Selectable(res_name, selected_resource == res_id) then
-				selected_resource = res_id
+			if imgui.Selectable(res_name, selected_resource == res_name) then
+				selected_resource = res_name
 				local vp = config_props:read_string(res_name .. ".path")
 				if vp then
 					ffi.copy(vpath_buffer, vp)
@@ -139,8 +147,7 @@ function Resources.on_update()
 	-- Center Panel for configuration
 	imgui.BeginChild("ResourceConfig", ffi.new("ImVec2", 0, 0), true)
 	if selected_resource then
-		local name_ptr = ffi.C.ecs_get_name((type(world) == "table" and world.ptr) and world.ptr or world, selected_resource)
-		local res_name = name_ptr ~= nil and ffi.string(name_ptr) or tostring(selected_resource)
+		local res_name = selected_resource
 		
 		imgui.Text("Configuration for: " .. res_name)
 		imgui.Separator()
