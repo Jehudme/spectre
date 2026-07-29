@@ -38,12 +38,9 @@ pcall(function() ffi.cdef[[
     size_t sandbox_filesystem_file_size(ecs_world_t* ecs, const char* virtual_path);
     int64_t sandbox_filesystem_last_modified(ecs_world_t* ecs, const char* virtual_path);
     bool sandbox_filesystem_list_files(ecs_world_t* ecs, const char* virtual_path, bool recursive, char*** out_files, size_t* out_count);
-    bool sandbox_filesystem_list_directories(ecs_world_t* ecs, const char* virtual_path, bool recursive, char*** out_dirs, size_t* out_count);
     void sandbox_filesystem_free_file_list(ecs_world_t* ecs, char** files, size_t count);
     bool sandbox_filesystem_read_all_bytes(ecs_world_t* ecs, const char* virtual_path, uint8_t** out_data, size_t* out_size);
     void sandbox_filesystem_free_bytes(ecs_world_t* ecs, uint8_t* data);
-    bool sandbox_filesystem_resolve_physical_path(ecs_world_t* ecs, const char* virtual_path, char** out_path);
-    void sandbox_filesystem_free_string(ecs_world_t* ecs, char* str);
     sandbox_properties_handle_t sandbox_configuration_get_properties(ecs_world_t* ecs);
     void sandbox_logs_trace(ecs_world_t* ecs, const char* msg);
     void sandbox_logs_debug(ecs_world_t* ecs, const char* msg);
@@ -315,15 +312,6 @@ function sandbox.filesystem.list_files(world, virtual_path, recursive, out_files
 end
 
 ---@param world ecs_world_t
----@param virtual_path string
----@param recursive boolean
----@param out_dirs any
----@param out_count any
-function sandbox.filesystem.list_directories(world, virtual_path, recursive, out_dirs, out_count)
-    return ffi.C.sandbox_filesystem_list_directories((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, recursive, out_dirs, out_count)
-end
-
----@param world ecs_world_t
 ---@param files any
 ---@param count integer
 function sandbox.filesystem.free_file_list(world, files, count)
@@ -343,21 +331,6 @@ end
 ---@param data string
 function sandbox.filesystem.free_bytes(world, data)
     return ffi.C.sandbox_filesystem_free_bytes((type(world) == "table" and world.ptr) and world.ptr or world, data)
-end
-
----@param world ecs_world_t
----@param virtual_path string
----@return string|nil
-function sandbox.filesystem.resolve_physical_path(world, virtual_path)
-    local out_path = ffi.new("char*[1]")
-    if ffi.C.sandbox_filesystem_resolve_physical_path((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, out_path) then
-        if out_path[0] ~= nil then
-            local res = ffi.string(out_path[0])
-            ffi.C.sandbox_filesystem_free_string((type(world) == "table" and world.ptr) and world.ptr or world, out_path[0])
-            return res
-        end
-    end
-    return nil
 end
 
 -- ========================================

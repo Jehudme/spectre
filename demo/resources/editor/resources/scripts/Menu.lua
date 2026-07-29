@@ -16,6 +16,7 @@ menu = {}
 local projects_list = nil
 local show_new_project_popup = false
 local new_project_name = ffi.new("char[256]")
+local show_rename_popup = false
 local rename_target = nil
 local new_rename_name = ffi.new("char[256]")
 
@@ -100,6 +101,7 @@ function menu.on_render(self_id, scene_id, state_id)
                     end
                 end
                 if imgui.MenuItem("Rename") then
+                    show_rename_popup = true
                     rename_target = proj_name
                     ffi.copy(new_rename_name, proj_name)
                 end
@@ -130,10 +132,12 @@ function menu.on_render(self_id, scene_id, state_id)
     
     if show_new_project_popup then
         imgui.OpenPopup("Create New Project")
+        show_new_project_popup = false
     end
     
-    if rename_target then
+    if show_rename_popup then
         imgui.OpenPopup("Rename Project")
+        show_rename_popup = false
     end
     
     if imgui.BeginPopupModal("Create New Project", nil, 64) then -- ImGuiWindowFlags_AlwaysAutoResize

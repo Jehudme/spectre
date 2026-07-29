@@ -77,6 +77,10 @@ typedef struct spectre_text_renderable_t {
     bool italic;
 } spectre_text_renderable_t;
 
+typedef struct spectre_material_component_t {
+    char shader_resource_name[64];
+} spectre_material_component_t;
+
 #ifdef __cplusplus
 }
 #endif

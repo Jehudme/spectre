@@ -182,12 +182,17 @@ void scenes_module_t::deserialize_state(flecs::entity state_entity, sandbox::pro
         state_entity.set_name(state_name.c_str());
     }
 
-    state_entity.add<spectre_state_t>();
-
+    if (m_script_args_serializer == 0) {
+        m_script_args_serializer = m_world.entity(spectre::modules::serializer::find_serializer(m_world, "scripts"));
+    }
+    sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scenes Module] For state '{}', has(scripts)={}, serializer={}", state_name.c_str(), properties.has("scripts"), m_script_args_serializer.id());
     if (properties.has("scripts") && m_script_args_serializer != 0) {
+        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scenes Module] Found scripts in state properties for '{}'", state_name.c_str());
         sandbox::properties scripts_node = properties.sub("scripts");
         spectre::modules::serializer::deserialize_entity(m_world, m_script_args_serializer, state_entity.id(),
                                                          scripts_node.get_raw());
+    } else {
+        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scenes Module] No scripts found in state properties for '{}'", state_name.c_str());
     }
 
     if (properties.has("scenes")) {
@@ -265,6 +270,9 @@ void scenes_module_t::deserialize_scene(flecs::entity scene_entity, sandbox::pro
 
     scene_entity.add<spectre_scene_t>();
 
+    if (m_script_args_serializer == 0) {
+        m_script_args_serializer = m_world.entity(spectre::modules::serializer::find_serializer(m_world, "scripts"));
+    }
     if (properties.has("scripts") && m_script_args_serializer != 0) {
         sandbox::properties scripts_node = properties.sub("scripts");
         spectre::modules::serializer::deserialize_entity(m_world, m_script_args_serializer, scene_entity.id(),
@@ -299,7 +307,7 @@ void scenes_module_t::register_state(sandbox::properties properties) {
                                       "[Scenes Module] Cannot register state with empty name.");
         return;
     }
-
+    sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scenes Module] register_state JSON: {}", properties.dump(sandbox::properties::Format::JSON).c_str());
     flecs::entity state_prefab = find_state(state_name);
     if (!state_prefab.is_valid()) {
         state_prefab = m_world.prefab(state_name.c_str()).child_of(m_states_root).add<spectre_state_t>();

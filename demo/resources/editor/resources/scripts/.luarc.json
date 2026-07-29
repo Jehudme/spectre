@@ -2,20 +2,21 @@
   "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
   "runtime": {
     "version": "LuaJIT",
-    "path": [
-      "?.lua",
-      "?/init.lua",
-      "externals/?.lua",
-      "externals/?/init.lua"
-    ]
+    "path": ["?.lua", "?/init.lua", "externals/?.lua", "externals/?/init.lua"]
   },
   "workspace": {
-    "library": [
-      "externals"
-    ],
-    "checkThirdParty": false
+    "library": ["externals"],
+    "checkThirdParty": true
   },
   "diagnostics": {
-    "globals": ["g_world", "ffi", "ecs", "sandbox", "spectre", "imgui"]
+    "globals": [
+      "g_world",
+      "ffi",
+      "ecs",
+      "sandbox",
+      "spectre",
+      "imgui",
+      "project"
+    ]
   }
 }

@@ -51,15 +51,19 @@ static int custom_vfs_loader(lua_State* L) {
     uint8_t* data = nullptr;
     size_t data_size = 0;
 
-    if (!sandbox_filesystem_read_all_bytes(world, path1.c_str(), &data, &data_size)) {
-        if (!sandbox_filesystem_read_all_bytes(world, path2.c_str(), &data, &data_size)) {
-            std::string modpath = modname;
-            std::replace(modpath.begin(), modpath.end(), '.', '/');
-            std::string path3 = std::string("app://resources/scripts/") + modpath + ".lua";
-            if (!sandbox_filesystem_read_all_bytes(world, path3.c_str(), &data, &data_size)) {
-                lua_pushstring(L, "\n\tno file found in sandbox VFS");
-                return 1;
-            }
+    if (sandbox_filesystem_exists(world, path1.c_str())) {
+        sandbox_filesystem_read_all_bytes(world, path1.c_str(), &data, &data_size);
+    } else if (sandbox_filesystem_exists(world, path2.c_str())) {
+        sandbox_filesystem_read_all_bytes(world, path2.c_str(), &data, &data_size);
+    } else {
+        std::string modpath = modname;
+        std::replace(modpath.begin(), modpath.end(), '.', '/');
+        std::string path3 = std::string("app://resources/scripts/") + modpath + ".lua";
+        if (sandbox_filesystem_exists(world, path3.c_str())) {
+            sandbox_filesystem_read_all_bytes(world, path3.c_str(), &data, &data_size);
+        } else {
+            lua_pushstring(L, "\n\tno file found in sandbox VFS");
+            return 1;
         }
     }
 
@@ -216,10 +220,13 @@ void script_module_t::deserialize_scripts(flecs::entity target_entity, sandbox::
     auto deserialize_relation = [&](const char* relation_name, auto relation_type) {
         if (!properties.has(relation_name))
             return;
-        sandbox::properties relation_properties = properties.sub(relation_name);
-        std::vector<std::string> item_indices = relation_properties.keys("");
-        for (const auto& index_str : item_indices) {
-            sandbox::properties script_item = relation_properties.sub(index_str);
+        std::vector<std::string> keys = properties.keys(relation_name);
+        sandbox::properties relation_node = properties.sub(relation_name);
+
+        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scripts Module] deserialize_relation '{}' on target '{}' (id: {}) with {} items", relation_name, target_entity.name().c_str() ? target_entity.name().c_str() : "null", target_entity.id(), keys.size());
+
+        for (const auto& key : keys) {
+            sandbox::properties script_item = relation_node.sub(key);
             std::string function_name;
             if (!script_item.get<std::string>("function", function_name))
                 continue;
@@ -316,6 +323,7 @@ void script_module_t::deserialize_scripts(flecs::entity target_entity, sandbox::
             relation_data.arguments = script_arguments;
             relation_data.argument_count = (int)argument_count;
 
+            sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scripts Module] Setting relation '{}' on '{}' (id: {}) for script '{}'", relation_name, target_entity.name().c_str() ? target_entity.name().c_str() : "null", target_entity.id(), script_entity.name().c_str());
             target_entity.set<RelationType>(script_entity, relation_data);
         }
     };
@@ -662,14 +670,28 @@ void script_module_t::execute_on_update(flecs::entity target_entity) {
 void script_module_t::execute_on_enter(flecs::entity target_entity) {
     if (!target_entity.is_valid())
         return;
+    sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scripts Module] execute_on_enter called on '{}'", target_entity.name().c_str());
     flecs::entity scripts_entity = target_entity.lookup("scripts");
     if (!scripts_entity.is_valid())
         scripts_entity = target_entity;
-    scripts_entity.each<spectre_use_script_on_enter_relation_t>([&](flecs::entity script_entity) {
-        const auto* relation = scripts_entity.try_get<spectre_use_script_on_enter_relation_t>(script_entity);
-        if (relation)
-            execute_script_with_target(target_entity, script_entity, relation->arguments, relation->argument_count);
-    });
+
+    auto iterate_scripts = [&](flecs::entity e) {
+        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scripts Module] iterate_scripts on '{}' (id: {})", e.name().c_str() ? e.name().c_str() : "null", e.id());
+        e.each<spectre_use_script_on_enter_relation_t>([&](flecs::entity script_entity) {
+            sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scripts Module] Found on_enter script '{}' for '{}'", script_entity.name().c_str(), target_entity.name().c_str());
+            const auto* relation = e.try_get<spectre_use_script_on_enter_relation_t>(script_entity);
+            if (relation)
+                execute_script_with_target(target_entity, script_entity, relation->arguments, relation->argument_count);
+        });
+    };
+
+    iterate_scripts(scripts_entity);
+    flecs::entity prefab = scripts_entity.target(flecs::IsA);
+    while (prefab.is_valid()) {
+        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scripts Module] checking IsA prefab '{}' (id: {})", prefab.name().c_str() ? prefab.name().c_str() : "null", prefab.id());
+        iterate_scripts(prefab);
+        prefab = prefab.target(flecs::IsA);
+    }
 }
 
 void script_module_t::execute_on_exit(flecs::entity target_entity) {
@@ -678,11 +700,21 @@ void script_module_t::execute_on_exit(flecs::entity target_entity) {
     flecs::entity scripts_entity = target_entity.lookup("scripts");
     if (!scripts_entity.is_valid())
         scripts_entity = target_entity;
-    scripts_entity.each<spectre_use_script_on_exit_relation_t>([&](flecs::entity script_entity) {
-        const auto* relation = scripts_entity.try_get<spectre_use_script_on_exit_relation_t>(script_entity);
-        if (relation)
-            execute_script_with_target(target_entity, script_entity, relation->arguments, relation->argument_count);
-    });
+
+    auto iterate_scripts = [&](flecs::entity e) {
+        e.each<spectre_use_script_on_exit_relation_t>([&](flecs::entity script_entity) {
+            const auto* relation = e.try_get<spectre_use_script_on_exit_relation_t>(script_entity);
+            if (relation)
+                execute_script_with_target(target_entity, script_entity, relation->arguments, relation->argument_count);
+        });
+    };
+
+    iterate_scripts(scripts_entity);
+    flecs::entity prefab = scripts_entity.target(flecs::IsA);
+    while (prefab.is_valid()) {
+        iterate_scripts(prefab);
+        prefab = prefab.target(flecs::IsA);
+    }
 }
 
 lua_State* script_module_t::get_lua() const {

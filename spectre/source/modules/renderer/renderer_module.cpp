@@ -125,6 +125,9 @@ static ecs_entity_t register_texture_comp(ecs_world_t* world) {
         .member<bool>("flip_y")
         .id();
 }
+static ecs_entity_t register_material_comp(ecs_world_t* world) {
+    return flecs::world(world).component<spectre_material_component_t>("Material").id();
+}
 
 // Helper functions for properties <-> spectre_color_t
 static sandbox::properties serialize_color(const spectre_color_t& color) {
@@ -427,6 +430,39 @@ static void deserialize_text_renderable(ecs_world_t* world, ecs_entity_t seriali
     e.set<spectre_text_renderable_t>(comp);
 }
 
+static sandbox_properties_handle_t serialize_material_component(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
+    if (!world || !entity) return {0};
+    flecs::world flecs_world(world);
+    const auto* comp = flecs_world.entity(entity).try_get<spectre_material_component_t>();
+    if (!comp) return {0};
+    sandbox::properties props;
+    props.set("shader_resource_name", std::string(comp->shader_resource_name));
+    sandbox_properties_handle_t handle = props.get_raw();
+    props.release();
+    return handle;
+}
+
+static void deserialize_material_component(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity,
+                                         sandbox_properties_handle_t properties_handle) {
+    if (!world || !entity) return;
+    flecs::world flecs_world(world);
+    auto e = flecs_world.entity(entity);
+    spectre_material_component_t comp = {};
+    if (const auto* existing = e.try_get<spectre_material_component_t>()) {
+        comp = *existing;
+    }
+    sandbox::properties props(properties_handle, false);
+    if (!props.is_valid()) return;
+
+    std::string name;
+    if (props.get<std::string>("shader_resource_name", name)) {
+        strncpy(comp.shader_resource_name, name.c_str(), sizeof(comp.shader_resource_name) - 1);
+        comp.shader_resource_name[sizeof(comp.shader_resource_name) - 1] = '\0';
+    }
+
+    e.set<spectre_material_component_t>(comp);
+}
+
 struct spectre_renderer_update_marker_t {
     char dummy;
 };
@@ -554,6 +590,39 @@ static void texture_free_fn(ecs_world_t* world, spectre_resource_component_t* re
 renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
     sandbox::modules::logs::trace(m_world, "[Renderer Module] Initializing...");
 
+    auto shader_load_fn = [](ecs_world_t* world, spectre_resource_component_t* resource) {
+        if (!world || !resource || !resource->path) return;
+        flecs::world w(world);
+        try {
+            std::vector<uint8_t> data = sandbox::modules::filesystem::read_all_bytes(w, resource->path);
+            if (data.empty()) return;
+
+            // Make sure the code is null-terminated for Raylib
+            data.push_back(0);
+            
+            Shader* shader = new Shader;
+            // Assuming it's a fragment shader for now
+            *shader = LoadShaderFromMemory(nullptr, reinterpret_cast<const char*>(data.data()));
+            resource->instance = shader;
+            sandbox::modules::logs::info(w, "[Renderer Module] Loaded shader {}", resource->path);
+        } catch (const std::exception& e) {
+            sandbox::modules::logs::error(w, "[Renderer Module] Failed to load shader {}: {}", resource->path, e.what());
+        }
+    };
+    
+    auto shader_free_fn = [](ecs_world_t* world, spectre_resource_component_t* resource) {
+        if (!resource || !resource->instance) return;
+        Shader* shader = static_cast<Shader*>(resource->instance);
+        UnloadShader(*shader);
+        delete shader;
+        resource->instance = nullptr;
+    };
+    
+    spectre_resource_loader_component_t shader_loader = {};
+    shader_loader.load_fn = shader_load_fn;
+    shader_loader.free_fn = shader_free_fn;
+    spectre::modules::resources::register_resource_loader(m_world, "shader", shader_loader);
+
     spectre_resource_loader_component_t tex_loader = {};
     tex_loader.load_fn = texture_load_fn;
     tex_loader.free_fn = texture_free_fn;
@@ -625,6 +694,7 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
     spectre_serializer_component circle_serializer = {deserialize_circle_renderable, serialize_circle_renderable};
     spectre_serializer_component texture_serializer = {deserialize_texture_renderable, serialize_texture_renderable};
     spectre_serializer_component text_serializer = {deserialize_text_renderable, serialize_text_renderable};
+    spectre_serializer_component material_serializer = {deserialize_material_component, serialize_material_component};
 
     spectre::modules::components::register_component(m_world, "Renderable", register_renderable_comp, renderable_serializer);
     spectre::modules::components::register_component(m_world, "Transform2D", register_transform2d_comp, transform_serializer);
@@ -635,6 +705,7 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
     spectre::modules::components::register_component(m_world, "LigneRenderable", register_line_comp, line_serializer);
     spectre::modules::components::register_component(m_world, "TextureRenderable", register_texture_comp, texture_serializer);
     spectre::modules::components::register_component(m_world, "TextRenderable", register_text_comp, text_serializer);
+    spectre::modules::components::register_component(m_world, "Material", register_material_comp, material_serializer);
 
     flecs::entity on_renderer_phase = m_world.entity("on_renderer").add(flecs::Phase).depends_on(flecs::OnUpdate);
 
@@ -758,6 +829,22 @@ void renderer_module_t::render(flecs::entity entity_to_render) {
     rlRotatef(rotation, 0.0f, 0.0f, 1.0f);
     rlScalef(scale_x, scale_y, 1.0f);
     rlTranslatef(-origin_x, -origin_y, 0.0f);
+
+    bool using_shader = false;
+    if (entity_to_render.has<spectre_material_component_t>()) {
+        const auto* mat = entity_to_render.try_get<spectre_material_component_t>();
+        if (mat && mat->shader_resource_name[0] != '\0') {
+            flecs::entity resource_entity = m_world.lookup(mat->shader_resource_name);
+            if (resource_entity.is_valid() && spectre::modules::resources::is_resource_loaded(m_world, resource_entity.id())) {
+                void* instance = spectre::modules::resources::get_resource(m_world, resource_entity.id());
+                if (instance) {
+                    Shader* shader = static_cast<Shader*>(instance);
+                    BeginShaderMode(*shader);
+                    using_shader = true;
+                }
+            }
+        }
+    }
 
     auto to_raylib_color = [](const spectre_color_t& c) {
         return Color{(unsigned char)c.r, (unsigned char)c.g, (unsigned char)c.b, (unsigned char)c.a};
@@ -898,6 +985,9 @@ void renderer_module_t::render(flecs::entity entity_to_render) {
         }
     }
 
+    if (using_shader) {
+        EndShaderMode();
+    }
     rlPopMatrix();
 }
 

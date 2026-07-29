@@ -44,12 +44,7 @@ bool runtime_module_t::import_configuration(flecs::world& entity_world) {
     spectre::modules::resources::import_configuration(entity_world, "app://configs/resources.json");
     spectre::modules::components::import_configuration(entity_world, "app://scenes/components");
     
-    flecs::entity ps = entity_world.lookup("PlayerStats");
-    if (ps.is_valid()) {
-        sandbox::modules::logs::info(entity_world, "[Runtime Module] Verified PlayerStats exists with ID: {}", ps.id());
-    } else {
-        sandbox::modules::logs::error(entity_world, "[Runtime Module] PlayerStats not found in C++ after import!");
-    }
+
 
     spectre::modules::scripts::import_configuration(entity_world, "app://resources/scripts");
     spectre::modules::prefabs::import_configuration(entity_world, "app://scenes/prefabs");
