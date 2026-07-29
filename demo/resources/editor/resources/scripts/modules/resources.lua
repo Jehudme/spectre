@@ -94,24 +94,15 @@ local function load_configuration()
 	update_cached_resources()
 end
 
-local function copy_resource_fields(old_name, new_name)
-    local old_sub = config_props:sub(old_name)
-    local new_sub = config_props:sub(new_name)
-    
-    new_sub:set_string("type", old_sub:read_string("type") or "")
-    new_sub:set_string("path", old_sub:read_string("path") or "")
-    
-    local old_config = old_sub:sub("configurations")
-    local new_config = new_sub:sub("configurations")
-    
-    local f_size = old_config:get_int64("font_size")
-    if f_size then new_config:set_int64("font_size", f_size) end
-    
-    local filtering = old_config:read_string("filtering")
-    if filtering then new_config:set_string("filtering", filtering) end
-    
-    local wrap = old_config:read_string("wrap_mode")
-    if wrap then new_config:set_string("wrap_mode", wrap) end
+local function rename_resource(old_name, new_name)
+    local dumped_sub = config_props:sub(old_name):dump(0)
+    if dumped_sub then
+        local new_json = string.format('{"%s": %s}', new_name, dumped_sub)
+        config_props:load(new_json, 0)
+        config_props:clear(old_name)
+        if selected_resource == old_name then selected_resource = new_name end
+        save_configuration()
+    end
 end
 
 local function duplicate_resource(old_name)
@@ -121,8 +112,13 @@ local function duplicate_resource(old_name)
         new_name = old_name .. "_copy" .. tostring(i)
         i = i + 1
     end
-    copy_resource_fields(old_name, new_name)
-    save_configuration()
+    
+    local dumped_sub = config_props:sub(old_name):dump(0)
+    if dumped_sub then
+        local new_json = string.format('{"%s": %s}', new_name, dumped_sub)
+        config_props:load(new_json, 0)
+        save_configuration()
+    end
 end
 
 function Resources.on_enter()
@@ -324,9 +320,8 @@ function Resources.on_update()
 		if imgui.Button("Create") then
 			local new_name = ffi.string(add_name_buffer)
 			if new_name ~= "" and not config_props:has(new_name) then
-				local new_sub = config_props:sub(new_name)
-				new_sub:set_string("type", "texture")
-				new_sub:set_string("path", "")
+				local new_json = string.format('{"%s": {"type": "texture", "path": "", "configurations": {}}}', new_name)
+				config_props:load(new_json, 0)
 				save_configuration()
 			end
 			imgui.CloseCurrentPopup()
@@ -350,10 +345,7 @@ function Resources.on_update()
 		if imgui.Button("Rename") then
 			local new_name = ffi.string(rename_name_buffer)
 			if new_name ~= "" and new_name ~= rename_target and not config_props:has(new_name) then
-				copy_resource_fields(rename_target, new_name)
-				config_props:clear(rename_target)
-				if selected_resource == rename_target then selected_resource = new_name end
-				save_configuration()
+				rename_resource(rename_target, new_name)
 			end
 			imgui.CloseCurrentPopup()
 		end
