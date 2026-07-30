@@ -10,7 +10,11 @@ class components {
   public:
     static void register_component(const flecs::world& entity_world, const char* name,
                                    spectre_component_registration_fn_t registration_fn,
-                                   spectre_serializer_component serializer = spectre_serializer_component{});
+                                   spectre_serializer_component serializer,
+                                   sandbox::properties schema_properties);
+
+    static bool is_static(const flecs::world& entity_world, const char* name);
+    static sandbox::properties find_schema(const flecs::world& entity_world, const char* name);
 
     static ecs_entity_t find_component(const flecs::world& entity_world, const char* name);
 

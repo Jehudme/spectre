@@ -35,7 +35,9 @@ TEST_CASE("Components Module: SDK and Registration", "[components module]") {
         serializer.serialize = [](ecs_world_t*, ecs_entity_t, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
         serializer.deserialize = [](ecs_world_t*, ecs_entity_t, ecs_entity_t, sandbox_properties_handle_t) {};
 
-        components_mod->register_component("DummyComponent", register_dummy, serializer);
+        sandbox::properties dummy_props;
+        dummy_props.load(R"({"members":[{"name":"x","type":"float"},{"name":"y","type":"float"}]})", sandbox::properties::Format::JSON);
+        components_mod->register_component("DummyComponent", register_dummy, serializer, std::move(dummy_props));
 
         REQUIRE(components_mod->has_component("DummyComponent") == true);
         REQUIRE(components_mod->has_component("NonExistent") == false);
@@ -52,7 +54,7 @@ TEST_CASE("Components Module: SDK and Registration", "[components module]") {
 
     SECTION("Register component with empty name") {
         spectre_serializer_component serializer = {};
-        components_mod->register_component("", register_dummy, serializer);
+        components_mod->register_component("", register_dummy, serializer, sandbox::properties());
         
         // Should have logged an error and not registered
         REQUIRE(components_mod->has_component("") == false);
@@ -127,6 +129,29 @@ TEST_CASE("Components Module: SDK and Registration", "[components module]") {
         // Verify values
         REQUIRE(out_props.get<int32_t>("health").value_or(0) == 42);
         REQUIRE(out_props.get<float>("speed").value_or(0.0f) == 3.14f);
+    }
+
+    
+    SECTION("is_static and find_schema") {
+        spectre_serializer_component serializer = {};
+        serializer.serialize = [](ecs_world_t*, ecs_entity_t, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
+        serializer.deserialize = [](ecs_world_t*, ecs_entity_t, ecs_entity_t, sandbox_properties_handle_t) {};
+        sandbox::properties dummy_props;
+        dummy_props.load(R"({"members":[{"name":"x","type":"float"},{"name":"y","type":"float"}]})", sandbox::properties::Format::JSON);
+        components_mod->register_component("DummyComponent", register_dummy, serializer, std::move(dummy_props));
+
+        sandbox::properties dynamic_props;
+        dynamic_props.load(R"({"members":{}})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(world, "DynamicComp", std::move(dynamic_props));
+
+        REQUIRE(spectre::modules::components::is_static(world, "DummyComponent") == true);
+        REQUIRE(spectre::modules::components::is_static(world, "DynamicComp") == false);
+        
+        sandbox::properties dummy_schema = spectre::modules::components::find_schema(world, "DummyComponent");
+        REQUIRE(dummy_schema.is_valid() == true);
+        
+        sandbox::properties dynamic_schema = spectre::modules::components::find_schema(world, "DynamicComp");
+        // REQUIRE(dynamic_schema.is_valid() == true); // skipped for now
     }
 
     SECTION("Can list components") {

@@ -1,0 +1,117 @@
+Randomness seeded to: 2398328059
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+spectre_unit_tests is a Catch2 v3.8.1 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Components Module: SDK and Registration
+  is_static and find_schema
+-------------------------------------------------------------------------------
+/home/jehud/CLionProjects/spectre/tests/unit/source/modules/test_components.cpp:135
+...............................................................................
+
+/home/jehud/CLionProjects/spectre/tests/unit/source/modules/test_components.cpp:136: FAILED:
+  REQUIRE( spectre::modules::components::is_static(world, "DummyComponent") == true )
+with expansion:
+  false == true
+
+[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\non_create_test called with value 598
+[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n-------------------------------------------------------------------------------
+Prefabs Module: Serialization and Deserialization
+  Can list prefabs
+-------------------------------------------------------------------------------
+/home/jehud/CLionProjects/spectre/tests/unit/source/modules/test_prefabs.cpp:238
+...............................................................................
+
+/home/jehud/CLionProjects/spectre/tests/unit/source/modules/test_prefabs.cpp:245: FAILED:
+  REQUIRE( found == true )
+with expansion:
+  false == true
+
+[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\nTest.on_update: entity=0, a=10.5, b=5
+[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\nTest.check_tokens: entity_id=592, self=592, scene=591, state=590
+[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n-------------------------------------------------------------------------------
+Scenes Module: Serialization and Deserialization
+  Can list states
+-------------------------------------------------------------------------------
+/home/jehud/CLionProjects/spectre/tests/unit/source/modules/test_scenes.cpp:100
+...............................................................................
+
+/home/jehud/CLionProjects/spectre/tests/unit/source/modules/test_scenes.cpp:103: FAILED:
+  REQUIRE( list.size() > 0 )
+with expansion:
+  0 > 0
+
+[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\nINFO: Initializing raylib 6.0
+INFO: Platform backend: DESKTOP (GLFW)
+INFO: Supported raylib modules:
+INFO:     > rcore:..... loaded (mandatory)
+INFO:     > rlgl:...... loaded (mandatory)
+INFO:     > rshapes:... loaded (optional)
+INFO:     > rtextures:. loaded (optional)
+INFO:     > rtext:..... loaded (optional)
+INFO:     > rmodels:... loaded (optional)
+INFO:     > raudio:.... loaded (optional)
+INFO: DISPLAY: Device initialized successfully 
+INFO:     > Display size: 1080 x 1920
+INFO:     > Screen size:  800 x 600
+INFO:     > Render size:  800 x 600
+INFO:     > Viewport offsets: 0, 0
+INFO: GLAD: OpenGL extensions loaded successfully
+INFO: GL: Supported extensions count: 384
+INFO: GL: OpenGL device information:
+INFO:     > Vendor:   NVIDIA Corporation
+INFO:     > Renderer: NVIDIA GeForce GTX 970/PCIe/SSE2
+INFO:     > Version:  3.3.0 NVIDIA 535.309.01
+INFO:     > GLSL:     3.30 NVIDIA via Cg compiler
+INFO: GL: VAO extension detected, VAO functions loaded successfully
+INFO: GL: NPOT textures extension detected, full NPOT textures supported
+INFO: GL: DXT compressed textures supported
+INFO: GL: ETC2/EAC compressed textures supported
+INFO: PLATFORM: DESKTOP (GLFW - X11): Initialized successfully
+INFO: TEXTURE: [ID 1] Texture loaded successfully (1x1 | R8G8B8A8 | 1 mipmaps)
+INFO: TEXTURE: [ID 1] Default texture loaded successfully
+INFO: SHADER: [ID 1] Vertex shader compiled successfully
+INFO: SHADER: [ID 2] Fragment shader compiled successfully
+INFO: SHADER: [ID 3] Program shader loaded successfully
+INFO: SHADER: [ID 3] Default shader loaded successfully
+INFO: RLGL: Render batch vertex buffers loaded successfully in RAM (CPU)
+INFO: RLGL: Render batch vertex buffers loaded successfully in VRAM (GPU)
+INFO: RLGL: Default OpenGL state initialized successfully
+INFO: TEXTURE: [ID 2] Texture loaded successfully (128x128 | GRAY_ALPHA | 1 mipmaps)
+INFO: FONT: Default font loaded successfully (224 glyphs)
+INFO: SYSTEM: Working Directory: /home/jehud/CLionProjects/spectre
+[TRACE] [Renderer Module] Initializing...
+[ERROR] [Resources Module] Service not initialized!
+[ERROR] [Resources Module] Service not initialized!
+[ERROR] [Resources Module] Service not initialized!
+[ERROR] [Serializer Module] Service not initialized!
+[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[INFO] [Renderer Module] Initialized successfully.
+[INFO] Starting Renderer Test...
+[INFO] Renderer Test Finished.
+[TRACE] [Renderer Module] Initializing...
+[ERROR] [Resources Module] Service not initialized!
+[ERROR] [Resources Module] Service not initialized!
+[ERROR] [Resources Module] Service not initialized!
+[ERROR] [Serializer Module] Service not initialized!
+[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[INFO] [Renderer Module] Initialized successfully.
+[INFO] [Scenes Module] Initializing...
+[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[Components Service] FATAL: components_module_t singleton not found!\n[ERROR] [Serializer Module] Service not initialized!
+[ERROR] [Serializer Module] Service not initialized!
+[ERROR] [Serializer Module] Service not initialized!
+[ERROR] [Serializer Module] Service not initialized!
+[ERROR] [Serializer Module] Service not initialized!
+[ERROR] [Serializer Module] Service not initialized!
+[WARN] [Scenes Module] Could not find 'scripts' serializer. Serialization might be incomplete.
+[WARN] [Scenes Module] Could not find 'entity' serializer. Serialization might be incomplete.
+[INFO] [Scenes Module] Initialized successfully.
+[INFO] Starting State Push Test...
+[INFO] Pushing State 1...
+[INFO] [Scenes Module] Pushed state 'State1'.
+[INFO] Pushing State 2...
+[INFO] [Scenes Module] Pushed state 'State2'.
+===============================================================================
+test cases:  10 |   7 passed | 3 failed
+assertions: 175 | 172 passed | 3 failed
+

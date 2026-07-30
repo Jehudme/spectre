@@ -88,7 +88,6 @@ local function test_filesystem()
 end
 
 local function test_components()
-    -- Create a component from C++ and check if Lua can see it
     local is_comp = spectre.components.is_component(g_world, 0)
     assert_eq(is_comp, false, "invalid component")
     
@@ -96,7 +95,17 @@ local function test_components()
     assert(transform_id ~= 0, "Transform2D component not found")
     
     assert_eq(spectre.components.has_component(g_world, "Transform2D"), true, "has Transform2D")
-    
+
+    local static_schema = spectre.components.find_schema(g_world, "Transform2D")
+    if static_schema then
+        sandbox.logs.info(g_world, "Transform2D schema found and is_static: " .. tostring(spectre.components.is_static(g_world, "Transform2D")))
+    end
+
+    local dyn_schema = spectre.components.find_schema(g_world, "PlayerStats")
+    if dyn_schema then
+        sandbox.logs.info(g_world, "PlayerStats schema found and is_static: " .. tostring(spectre.components.is_static(g_world, "PlayerStats")))
+    end
+
     print("Components tests passed.")
 end
 

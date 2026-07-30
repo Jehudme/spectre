@@ -4,6 +4,8 @@
 #include "spectre/components/renderer_component.h"
 #include "spectre/sdk/scenes.hpp"
 #include "spectre/services/renderer_service.h"
+#include "modules/components/components_module.h"
+#include "modules/serializer/serializer_module.h"
 #include <catch2/catch_test_macros.hpp>
 #include <flecs.h>
 
@@ -22,6 +24,8 @@ TEST_CASE("Renderer Module: Rendering and Logging", "[renderer]") {
     world.set<sandbox_logs_service_t>(logs_svc);
 
     // Import required modules
+    world.import<spectre::modules::serializer_module>();
+    world.import<spectre::modules::components_module_t>();
     world.import <spectre::modules::renderer_module_t>();
 
     SECTION("Entity with renderable component logs its rendering type") {

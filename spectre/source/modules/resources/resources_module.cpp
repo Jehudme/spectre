@@ -100,10 +100,26 @@ resource_module_t::resource_module_t(flecs::world& world) : m_world(world) {
     spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
     spectre_serializer_component resource_comp_serializer = {deserialize_resource_comp_cb, serialize_resource_comp_cb};
 
-    spectre::modules::components::register_component(m_world, "Resource", register_resource_component);
-    spectre::modules::components::register_component(m_world, "ResourceLoader", register_resource_loader_component);
-    spectre::modules::components::register_component(m_world, "UseLoaderRelation", register_use_loader_relation);
-    spectre::modules::components::register_component(m_world, "ResourceFlag", register_resource_flag);
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "Resource", register_resource_component, spectre_serializer_component{}, std::move(schema));
+    }
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "ResourceLoader", register_resource_loader_component, spectre_serializer_component{}, std::move(schema));
+    }
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "UseLoaderRelation", register_use_loader_relation, spectre_serializer_component{}, std::move(schema));
+    }
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "ResourceFlag", register_resource_flag, spectre_serializer_component{}, std::move(schema));
+    }
 
     // Create roots
     m_resources_root = m_world.entity("::resources");

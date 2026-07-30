@@ -696,16 +696,56 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
     spectre_serializer_component text_serializer = {deserialize_text_renderable, serialize_text_renderable};
     spectre_serializer_component material_serializer = {deserialize_material_component, serialize_material_component};
 
-    spectre::modules::components::register_component(m_world, "Renderable", register_renderable_comp, renderable_serializer);
-    spectre::modules::components::register_component(m_world, "Transform2D", register_transform2d_comp, transform_serializer);
-    spectre::modules::components::register_component(m_world, "RectangleRenderable", register_rectangle_comp, rect_serializer);
-    spectre::modules::components::register_component(m_world, "CircleRenderable", register_circle_comp, circle_serializer);
-    spectre::modules::components::register_component(m_world, "PolygoneRenderable", register_polygon_comp, poly_serializer);
-    spectre::modules::components::register_component(m_world, "CustomPolygoneRenderable", register_custom_polygon_comp, cpoly_serializer);
-    spectre::modules::components::register_component(m_world, "LigneRenderable", register_line_comp, line_serializer);
-    spectre::modules::components::register_component(m_world, "TextureRenderable", register_texture_comp, texture_serializer);
-    spectre::modules::components::register_component(m_world, "TextRenderable", register_text_comp, text_serializer);
-    spectre::modules::components::register_component(m_world, "Material", register_material_comp, material_serializer);
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "Renderable", register_renderable_comp, renderable_serializer, std::move(schema));
+    }
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[{"name":"position_x","type":"float"},{"name":"position_y","type":"float"},{"name":"position_z","type":"float"},{"name":"scale_x","type":"float"},{"name":"scale_y","type":"float"},{"name":"origin_x","type":"float"},{"name":"origin_y","type":"float"},{"name":"rotation","type":"float"}]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "Transform2D", register_transform2d_comp, transform_serializer, std::move(schema));
+    }
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[{"name":"width","type":"float"},{"name":"height","type":"float"},{"name":"outline_thickness","type":"float"}]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "RectangleRenderable", register_rectangle_comp, rect_serializer, std::move(schema));
+    }
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[{"name":"radius","type":"float"},{"name":"outline_thickness","type":"float"}]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "CircleRenderable", register_circle_comp, circle_serializer, std::move(schema));
+    }
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[{"name":"radius","type":"float"},{"name":"point_count","type":"int"},{"name":"outline_thickness","type":"float"}]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "PolygoneRenderable", register_polygon_comp, poly_serializer, std::move(schema));
+    }
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[{"name":"vertex_count","type":"int"},{"name":"outline_thickness","type":"float"}]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "CustomPolygoneRenderable", register_custom_polygon_comp, cpoly_serializer, std::move(schema));
+    }
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[{"name":"position_x1","type":"double"},{"name":"position_y1","type":"double"},{"name":"position_x2","type":"double"},{"name":"position_y2","type":"double"},{"name":"thickness","type":"float"}]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "LigneRenderable", register_line_comp, line_serializer, std::move(schema));
+    }
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[{"name":"width","type":"float"},{"name":"height","type":"float"},{"name":"source_x","type":"float"},{"name":"source_y","type":"float"},{"name":"source_width","type":"float"},{"name":"source_height","type":"float"},{"name":"flip_x","type":"bool"},{"name":"flip_y","type":"bool"}]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "TextureRenderable", register_texture_comp, texture_serializer, std::move(schema));
+    }
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[{"name":"content","type":"string"},{"name":"font_size","type":"float"},{"name":"spacing","type":"float"},{"name":"bold","type":"bool"},{"name":"italic","type":"bool"}]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "TextRenderable", register_text_comp, text_serializer, std::move(schema));
+    }
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[{"name":"shader_resource_name","type":"string"}]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "Material", register_material_comp, material_serializer, std::move(schema));
+    }
 
     flecs::entity on_renderer_phase = m_world.entity("on_renderer").add(flecs::Phase).depends_on(flecs::OnUpdate);
 

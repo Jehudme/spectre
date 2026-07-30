@@ -15,11 +15,12 @@ class components_module_t {
     components_module_t(const components_module_t&) = delete;
     components_module_t& operator=(const components_module_t&) = delete;
 
-    // NOTE: the compoenent name is the same as the serializer name
+    // TODO: In
     void register_component(std::string_view name, spectre_component_registration_fn_t registration_fn,
-                            spectre_serializer_component serializer);
+                            spectre_serializer_component serializer, sandbox::properties schema_properties);
 
-
+    bool is_static(std::string_view name) const;
+    sandbox::properties find_schema(std::string_view name) const;
 
     struct spectre_component_dynamic_flag_t {
         char dummy;
@@ -30,11 +31,9 @@ class components_module_t {
     flecs::entity find_component(std::string_view name) const;
     bool has_component(std::string_view name) const;
     bool is_component(flecs::entity entity) const;
-
     std::vector<flecs::entity> list_components() const;
 
     void import_configuration(std::string_view directory_path);
-
     void export_configuration(std::string_view directory_path);
 
   private:

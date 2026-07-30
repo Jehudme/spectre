@@ -158,19 +158,23 @@ script_module_t::script_module_t(flecs::world& world) : m_world(world), m_ffi_in
     auto serialize_empty = [](ecs_world_t*, ecs_entity_t, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
     spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
 
-    spectre::modules::components::register_component(m_world, "Script", register_script_component, empty_serializer);
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "Script", register_script_component, empty_serializer, std::move(schema));
+    }
     spectre::modules::components::register_component(m_world, "UseScriptOnCreateRelation",
-                                                     register_use_script_on_create_relation, empty_serializer);
+                                                     register_use_script_on_create_relation, empty_serializer, sandbox::properties());
     spectre::modules::components::register_component(m_world, "UseScriptOnDestroyRelation",
-                                                     register_use_script_on_destroy_relation, empty_serializer);
+                                                     register_use_script_on_destroy_relation, empty_serializer, sandbox::properties());
     spectre::modules::components::register_component(m_world, "UseScriptOnUpdateRelation",
-                                                     register_use_script_on_update_relation, empty_serializer);
+                                                     register_use_script_on_update_relation, empty_serializer, sandbox::properties());
     spectre::modules::components::register_component(m_world, "UseScriptOnEnterRelation",
-                                                     register_use_script_on_enter_relation, empty_serializer);
+                                                     register_use_script_on_enter_relation, empty_serializer, sandbox::properties());
     spectre::modules::components::register_component(m_world, "UseScriptOnExitRelation",
-                                                     register_use_script_on_exit_relation, empty_serializer);
+                                                     register_use_script_on_exit_relation, empty_serializer, sandbox::properties());
     spectre::modules::components::register_component(m_world, "UseScriptOnRenderRelation",
-                                                     register_use_script_on_render_relation, empty_serializer);
+                                                     register_use_script_on_render_relation, empty_serializer, sandbox::properties());
 
     spectre_serializer_component script_serializer = {};
     script_serializer.deserialize = deserialize_script_args_cb;

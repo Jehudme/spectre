@@ -19,6 +19,22 @@ function TestScript.on_update(self_id, scene_id, state_id)
 		world:set(self_id, Velocity, { x = 0.001, y = 0 })
 	end
 
+    local static_schema = spectre.components.find_schema(world, "Transform2D")
+    if static_schema then
+        sandbox.logs.info(world, "Transform2D schema found and is_static: " .. tostring(spectre.components.is_static(world, "Transform2D")))
+    end
+
+    local dyn_props = {
+        members = {
+            { name = "speed", type = "float" }
+        }
+    }
+    spectre.components.register_component(world, "AsteroidDynamicComp", nil, nil, dyn_props)
+    local dyn_schema = spectre.components.find_schema(world, "AsteroidDynamicComp")
+    if dyn_schema then
+        sandbox.logs.info(world, "AsteroidDynamicComp schema found and is_static: " .. tostring(spectre.components.is_static(world, "AsteroidDynamicComp")))
+    end
+
 	local transform = world:get(self_id, spectre.Transform2D)
 	local v = world:get(self_id, Velocity)
 

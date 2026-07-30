@@ -77,12 +77,36 @@ scenes_module_t::scenes_module_t(flecs::world& world) : m_world(world) {
     auto deserialize_empty = [](ecs_world_t*, ecs_entity_t, ecs_entity_t, sandbox_properties_handle_t) {};
     auto serialize_empty = [](ecs_world_t*, ecs_entity_t, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
     spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
-    spectre::modules::components::register_component(m_world, "Scene", register_scene_component, empty_serializer);
-    spectre::modules::components::register_component(m_world, "State", register_state_component, empty_serializer);
-    spectre::modules::components::register_component(m_world, "StateUseSceneRelation", register_state_use_scene_relation_component, empty_serializer);
-    spectre::modules::components::register_component(m_world, "StateContext", register_state_context_component, empty_serializer);
-    spectre::modules::components::register_component(m_world, "SceneContext", register_scene_context_component, empty_serializer);
-    spectre::modules::components::register_component(m_world, "DisableRendering", register_disable_rendering_component, empty_serializer);
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "Scene", register_scene_component, empty_serializer, std::move(schema));
+    }
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "State", register_state_component, empty_serializer, std::move(schema));
+    }
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[{"name":"layer_index","type":"int"}]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "StateUseSceneRelation", register_state_use_scene_relation_component, empty_serializer, std::move(schema));
+    }
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "StateContext", register_state_context_component, empty_serializer, std::move(schema));
+    }
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "SceneContext", register_scene_context_component, empty_serializer, std::move(schema));
+    }
+    {
+        sandbox::properties schema;
+        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "DisableRendering", register_disable_rendering_component, empty_serializer, std::move(schema));
+    }
 
     spectre_serializer_component state_serializer = {};
     state_serializer.serialize = serialize_state_cb;

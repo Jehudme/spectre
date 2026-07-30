@@ -3,13 +3,17 @@
 #include "components_module.h"
 #include <sandbox/abi/bootstrapper.h>
 
-void spectre_components_register_component(ecs_world_t* world, const char* name, spectre_component_registration_fn_t registration_fn, spectre_serializer_component serializer);
+void spectre_components_register_component(ecs_world_t* world, const char* name, spectre_component_registration_fn_t registration_fn, spectre_serializer_component serializer, sandbox_properties_handle_t schema_properties);
 ecs_entity_t spectre_components_find_component(ecs_world_t* world, const char* name);
 bool spectre_components_has_component(ecs_world_t* world, const char* name);
 bool spectre_components_is_component(ecs_world_t* world, ecs_entity_t entity);
+bool spectre_components_is_static(ecs_world_t* world, const char* name);
+sandbox_properties_handle_t spectre_components_find_schema(ecs_world_t* world, const char* name);
 
 spectre_components_api_t g_components_api = {
     .register_component = spectre_components_register_component,
+    .is_static = spectre_components_is_static,
+    .find_schema = spectre_components_find_schema,
     .find_component = spectre_components_find_component,
     .has_component = spectre_components_has_component,
     .is_component = spectre_components_is_component,
@@ -21,15 +25,49 @@ spectre_components_api_t g_components_api = {
 
 SANDBOX_DEFINE_SERVICE(spectre_components_service_t, spectre_components_api_t, &g_components_api)
 
-void spectre_components_register_component(ecs_world_t* world, const char* name, spectre_component_registration_fn_t registration_fn, spectre_serializer_component serializer) {
+void spectre_components_register_component(ecs_world_t* world, const char* name, spectre_component_registration_fn_t registration_fn, spectre_serializer_component serializer, sandbox_properties_handle_t schema_properties) {
     if (!world) return;
     flecs::world flecs_world(world);
     auto* mod = flecs_world.try_get_mut<spectre::modules::components_module_t>();
     if (mod) {
-        mod->register_component(name ? name : "", registration_fn, serializer);
+        mod->register_component(name ? name : "", registration_fn, serializer, std::move(sandbox::properties(schema_properties, false)));
     } else {
-        printf("[Components Service] FATAL: components_module_t singleton not found!\n");
+        printf("[Components Service] FATAL: components_module_t singleton not found!\\n");
     }
+}
+
+bool spectre_components_is_static(ecs_world_t* world, const char* name) {
+    if (!world || !name) return false;
+    flecs::world flecs_world(world);
+    auto* mod = flecs_world.try_get_mut<spectre::modules::components_module_t>();
+    if (mod) {
+        return mod->is_static(name);
+    }
+    return false;
+}
+
+sandbox_properties_handle_t spectre_components_find_schema(ecs_world_t* world, const char* name) {
+    sandbox_properties_handle_t null_handle = {0};
+    if (!world || !name) return null_handle;
+    flecs::world flecs_world(world);
+    auto* mod = flecs_world.try_get_mut<spectre::modules::components_module_t>();
+    if (mod) {
+        sandbox::properties schema = mod->find_schema(name);
+        if (!schema.is_valid()) return null_handle;
+        
+        sandbox::properties schema_copy;
+        schema_copy.merge("", schema);
+        
+        // Pass ownership of the copied handle to Lua
+        sandbox_properties_handle_t copy_handle = schema_copy.get_raw();
+        
+        // Release ownership from C++ schema_copy so it doesn't destroy it when returning
+        sandbox::properties release_copy(std::move(schema_copy));
+        release_copy.release(); // release the handle so destructor does not free it!
+        
+        return copy_handle;
+    }
+    return null_handle;
 }
 
 ecs_entity_t spectre_components_find_component(ecs_world_t* world, const char* name) {
@@ -110,8 +148,17 @@ namespace spectre::modules {
 
 void components::register_component(const flecs::world& entity_world, const char* name,
                                     spectre_component_registration_fn_t registration_fn,
-                                    spectre_serializer_component serializer) {
-    spectre_components_register_component(entity_world.c_ptr(), name, registration_fn, serializer);
+                                    spectre_serializer_component serializer,
+                                    sandbox::properties schema_properties) {
+    spectre_components_register_component(entity_world.c_ptr(), name, registration_fn, serializer, std::move(schema_properties).get_raw());
+}
+
+bool components::is_static(const flecs::world& entity_world, const char* name) {
+    return spectre_components_is_static(entity_world.c_ptr(), name);
+}
+
+sandbox::properties components::find_schema(const flecs::world& entity_world, const char* name) {
+    return sandbox::properties(spectre_components_find_schema(entity_world.c_ptr(), name), false);
 }
 
 ecs_entity_t components::find_component(const flecs::world& entity_world, const char* name) {
