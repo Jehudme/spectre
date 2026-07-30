@@ -2,14 +2,399 @@ local ecs = require("ecs")
 local spectre = require("spectre")
 local sandbox = require("sandbox")
 local imgui = require("imgui")
+local ffi = require("ffi")
 local world = ecs.from_ptr(g_world)
 
-Components = {}
-_G.modules = _G.modules or {}
-_G.modules["Components"] = Components
+ComponentsUI = {}
 
-function Components.on_enter() end
-function Components.on_update() end
-function Components.on_exit() end
+_G.modules = _G.modules or {}
+_G.modules["Components"] = ComponentsUI
+
+local search_buffer = ffi.new("char[256]")
+local add_name_buffer = ffi.new("char[256]")
+local rename_name_buffer = ffi.new("char[256]")
+local new_var_name_buffer = ffi.new("char[256]")
+
+local static_components = {}
+local dynamic_components = {}
+local selected_component = nil
+local selected_is_dynamic = false
+
+local show_add_popup = false
+local show_rename_popup = false
+local rename_target = ""
+local show_add_var_popup = false
+
+-- current dynamic schema
+local current_schema = nil
+local current_schema_keys = {}
+local schema_types_idx = {}
+local schema_keys_buffers = {}
+
+local var_types = { "int", "float", "double", "string", "bool" }
+local c_var_types = ffi.new("const char*[?]", #var_types)
+for i, v in ipairs(var_types) do c_var_types[i-1] = v end
+
+local function write_file(path, content)
+    local c_str = ffi.cast("const void*", content)
+    sandbox.filesystem.write_all_bytes(world, path, c_str, #content)
+end
+
+local function read_file(path)
+    if not sandbox.filesystem.exists(world, path) then return nil end
+    local out_data = ffi.new("uint8_t*[1]")
+    local out_size = ffi.new("size_t[1]")
+    if sandbox.filesystem.read_all_bytes(world, path, out_data, out_size) then
+        if tonumber(out_size[0]) > 0 and out_data[0] ~= nil then
+            local content = ffi.string(out_data[0], tonumber(out_size[0]))
+            sandbox.filesystem.free_bytes(world, out_data[0])
+            return content
+        end
+    end
+    return nil
+end
+
+local function get_dyn_path(name)
+    return "projects://scenes/components/" .. name .. ".json"
+end
+
+local function load_schema(name)
+    local path = get_dyn_path(name)
+    local content = read_file(path)
+    local props = sandbox.Properties.new()
+    if content then
+        props:load(content, 0)
+    else
+        props:load("{}", 0)
+    end
+    return props
+end
+
+local function save_schema(name, props)
+    if props then
+        local dumped = props:dump(0)
+        if dumped then
+            if not sandbox.filesystem.exists(world, "projects://scenes/components") then
+                sandbox.filesystem.create_directory(world, "projects://scenes/components", true)
+            end
+            write_file(get_dyn_path(name), dumped)
+        end
+    end
+end
+
+local function select_component(name, is_dynamic)
+    selected_component = name
+    selected_is_dynamic = is_dynamic
+    
+    if current_schema then
+        current_schema:destroy()
+        current_schema = nil
+    end
+    
+    if is_dynamic then
+        current_schema = load_schema(name)
+        current_schema_keys = current_schema:keys("") or {}
+        schema_types_idx = {}
+        schema_keys_buffers = {}
+        for _, k in ipairs(current_schema_keys) do
+            local t = current_schema:read_string(k)
+            local idx = 0
+            for i, v in ipairs(var_types) do
+                if v == t then idx = i - 1 end
+            end
+            schema_types_idx[k] = ffi.new("int[1]", idx)
+            local buf = ffi.new("char[256]")
+            ffi.copy(buf, k)
+            schema_keys_buffers[k] = buf
+        end
+    end
+end
+
+local function refresh_lists()
+    static_components = {}
+    local world_ptr = (type(world) == "table" and world.ptr) or world
+    local comp_ids = spectre.components.list_components(world)
+    for _, id in ipairs(comp_ids) do
+        local name_ptr = ffi.C.ecs_get_name(world_ptr, id)
+        if name_ptr ~= nil then
+            local name = ffi.string(name_ptr)
+            if spectre.components.is_static(world, name) then
+                table.insert(static_components, name)
+            end
+        end
+    end
+    table.sort(static_components)
+
+    dynamic_components = {}
+    if sandbox.filesystem.exists(world, "projects://scenes/components") then
+        local files = sandbox.filesystem.list_files(world, "projects://scenes/components", false)
+        for _, file in ipairs(files) do
+            if string.sub(file, -5) == ".json" then
+                local name = string.sub(file, 1, -6)
+                table.insert(dynamic_components, name)
+            end
+        end
+    end
+    table.sort(dynamic_components)
+end
+
+function ComponentsUI.on_enter()
+    refresh_lists()
+    if current_schema then
+        current_schema:destroy()
+        current_schema = nil
+    end
+    selected_component = nil
+end
+
+function ComponentsUI.on_update()
+    local screen_w = spectre.window.get_width(world)
+    local screen_h = spectre.window.get_height(world)
+    
+    imgui.SetNextWindowPos(ffi.new("ImVec2", 0, 20), 1)
+    imgui.SetNextWindowSize(ffi.new("ImVec2", screen_w, screen_h - 20), 1)
+    
+    local window_flags = bit.bor(1, 32, 2, 4, 8192, 524288)
+    imgui.Begin("Components Manager##Main", nil, window_flags)
+
+    imgui.BeginChild("ComponentsList", ffi.new("ImVec2", 300, 0), true)
+    
+    imgui.InputText("##Search", search_buffer, 256)
+    imgui.SameLine()
+    if imgui.Button("New") then
+        show_add_popup = true
+        add_name_buffer[0] = 0
+    end
+    
+    imgui.Separator()
+    
+    local search_str = ffi.string(search_buffer)
+    
+    local function draw_list(list, is_dynamic)
+        for _, name in ipairs(list) do
+            if search_str == "" or string.find(name:lower(), search_str:lower(), 1, true) then
+                local is_selected = (selected_component == name) and (selected_is_dynamic == is_dynamic)
+                if imgui.Selectable(name .. (is_dynamic and " [Dynamic]" or " [Static]"), is_selected) then
+                    if not is_selected then
+                        select_component(name, is_dynamic)
+                    end
+                end
+                
+                if is_dynamic and imgui.BeginPopupContextItem() then
+                    if imgui.MenuItem("Rename") then
+                        sandbox.logs.info(world, "Rename clicked on " .. name)
+                        show_rename_popup = true
+                        rename_target = name
+                        ffi.copy(rename_name_buffer, name)
+                    end
+                    if imgui.MenuItem("Duplicate") then
+                        sandbox.logs.info(world, "Duplicate clicked on " .. name)
+                        local old_path = get_dyn_path(name)
+                        local new_name = name .. "_copy"
+                        local i = 1
+                        while sandbox.filesystem.exists(world, get_dyn_path(new_name)) do
+                            new_name = name .. "_copy" .. tostring(i)
+                            i = i + 1
+                        end
+                        local new_path = get_dyn_path(new_name)
+                        sandbox.filesystem.copy(world, old_path, new_path, false, true)
+                        refresh_lists()
+                    end
+                    if imgui.MenuItem("Delete") then
+                        sandbox.logs.info(world, "Delete clicked on " .. name)
+                        sandbox.filesystem.remove_file(world, get_dyn_path(name))
+                        if selected_component == name and selected_is_dynamic then
+                            selected_component = nil
+                            if current_schema then
+                                current_schema:destroy()
+                                current_schema = nil
+                            end
+                        end
+                        refresh_lists()
+                    end
+                    imgui.EndPopup()
+                end
+            end
+        end
+    end
+    
+    imgui.Text("Static Components:")
+    draw_list(static_components, false)
+    imgui.Separator()
+    imgui.Text("Dynamic Components:")
+    draw_list(dynamic_components, true)
+    
+    imgui.EndChild()
+    
+    imgui.SameLine()
+    
+    imgui.BeginChild("ComponentConfig", ffi.new("ImVec2", 0, 0), true)
+    if selected_component then
+        imgui.Text("Schema for: " .. selected_component .. (selected_is_dynamic and " (Dynamic)" or " (Static)"))
+        imgui.Separator()
+        
+        if selected_is_dynamic and current_schema then
+            if imgui.Button("Add Variable") then
+                show_add_var_popup = true
+                new_var_name_buffer[0] = 0
+            end
+            
+            imgui.Separator()
+            
+            local keys_to_remove = {}
+            local key_to_rename = nil
+            local new_key_name = nil
+            
+            for _, k in ipairs(current_schema_keys) do
+                imgui.PushID(k)
+                
+                local buf = schema_keys_buffers[k]
+                if imgui.InputText("##Name", buf, 256) then
+                    local new_k = ffi.string(buf)
+                    if new_k ~= k and new_k ~= "" and not current_schema:has(new_k) then
+                        key_to_rename = k
+                        new_key_name = new_k
+                    end
+                end
+                
+                imgui.SameLine()
+                local idx = schema_types_idx[k]
+                if imgui.Combo("##Type", idx, c_var_types, #var_types) then
+                    local new_type = var_types[idx[0] + 1]
+                    current_schema:set_string(k, new_type)
+                    save_schema(selected_component, current_schema)
+                end
+                
+                imgui.SameLine()
+                if imgui.Button("Remove") then
+                    table.insert(keys_to_remove, k)
+                end
+                
+                imgui.PopID()
+            end
+            
+            if key_to_rename and new_key_name then
+                local t = current_schema:read_string(key_to_rename)
+                current_schema:set_string(new_key_name, t)
+                current_schema:clear(key_to_rename)
+                save_schema(selected_component, current_schema)
+                select_component(selected_component, true) -- reload
+            end
+            
+            for _, k in ipairs(keys_to_remove) do
+                current_schema:clear(k)
+                save_schema(selected_component, current_schema)
+                select_component(selected_component, true) -- reload
+            end
+        elseif not selected_is_dynamic then
+            local schema = spectre.components.find_schema(world, selected_component)
+            if schema then
+                local keys = schema:keys("") or {}
+                for _, k in ipairs(keys) do
+                    local t = schema:read_string(k)
+                    imgui.Text(k .. ": " .. tostring(t))
+                end
+            else
+                imgui.Text("No schema available or not implemented.")
+            end
+        end
+    else
+        imgui.Text("Select a component to view its schema.")
+    end
+    imgui.EndChild()
+    
+    if show_add_popup then
+        imgui.OpenPopup("New Component")
+    end
+    if imgui.BeginPopupModal("New Component", nil, 64) then
+        show_add_popup = false
+        imgui.Text("Component Name:")
+        imgui.InputText("##NewComponentName", add_name_buffer, 256)
+        
+        if imgui.Button("Create") then
+            local new_name = ffi.string(add_name_buffer)
+            if new_name ~= "" then
+                local new_path = get_dyn_path(new_name)
+                if not sandbox.filesystem.exists(world, new_path) then
+                    if not sandbox.filesystem.exists(world, "projects://scenes/components") then
+                        sandbox.filesystem.create_directory(world, "projects://scenes/components", true)
+                    end
+                    write_file(new_path, "{}")
+                    refresh_lists()
+                    select_component(new_name, true)
+                end
+            end
+            imgui.CloseCurrentPopup()
+        end
+        imgui.SameLine()
+        if imgui.Button("Cancel") then
+            imgui.CloseCurrentPopup()
+        end
+        imgui.EndPopup()
+    end
+    
+    if show_rename_popup then
+        imgui.OpenPopup("Rename Component")
+    end
+    if imgui.BeginPopupModal("Rename Component", nil, 64) then
+        show_rename_popup = false
+        imgui.Text("New Name:")
+        imgui.InputText("##RenameComponentName", rename_name_buffer, 256)
+        
+        if imgui.Button("Rename") then
+            local new_name = ffi.string(rename_name_buffer)
+            if new_name ~= "" and new_name ~= rename_target then
+                local old_path = get_dyn_path(rename_target)
+                local new_path = get_dyn_path(new_name)
+                if not sandbox.filesystem.exists(world, new_path) then
+                    sandbox.filesystem.move(world, old_path, new_path, false, true)
+                    if selected_component == rename_target and selected_is_dynamic then
+                        select_component(new_name, true)
+                    end
+                    refresh_lists()
+                end
+            end
+            imgui.CloseCurrentPopup()
+        end
+        imgui.SameLine()
+        if imgui.Button("Cancel") then
+            imgui.CloseCurrentPopup()
+        end
+        imgui.EndPopup()
+    end
+    
+    if show_add_var_popup then
+        imgui.OpenPopup("Add Variable")
+    end
+    if imgui.BeginPopupModal("Add Variable", nil, 64) then
+        show_add_var_popup = false
+        imgui.Text("Variable Name:")
+        imgui.InputText("##NewVarName", new_var_name_buffer, 256)
+        
+        if imgui.Button("Add") then
+            local new_var = ffi.string(new_var_name_buffer)
+            if new_var ~= "" and current_schema and not current_schema:has(new_var) then
+                current_schema:set_string(new_var, "int")
+                save_schema(selected_component, current_schema)
+                select_component(selected_component, true)
+            end
+            imgui.CloseCurrentPopup()
+        end
+        imgui.SameLine()
+        if imgui.Button("Cancel") then
+            imgui.CloseCurrentPopup()
+        end
+        imgui.EndPopup()
+    end
+    
+    imgui.End()
+end
+
+function ComponentsUI.on_exit()
+    if current_schema then
+        current_schema:destroy()
+        current_schema = nil
+    end
+end
 
 return {}
