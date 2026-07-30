@@ -188,7 +188,7 @@ function edit.on_render()
 				sandbox.logs.info(world, "[Menu] File -> Save clicked")
 			end
 			if imgui.MenuItem("Exit") then
-				spectre.window.set_should_close(world, true)
+				spectre.scenes.pop_state(world)
 			end
 			imgui.EndMenu()
 		end
