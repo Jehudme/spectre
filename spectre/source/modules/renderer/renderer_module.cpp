@@ -1,8 +1,8 @@
-#include <rlImGui.h>
 #include "renderer_module.h"
 #include "spectre/components/renderer_component.h"
 #include "spectre/sdk/scenes.hpp"
 #include "spectre/services/renderer_service.h"
+#include <rlImGui.h>
 
 #include "sandbox/sdk/logs.hpp"
 #include "spectre/sdk/components.hpp"
@@ -12,30 +12,28 @@
 #include <iostream>
 #include <vector>
 
+#include "sandbox/sdk/filesystem.hpp"
 #include "spectre/sdk/renderer.hpp"
 #include "spectre/sdk/resources.hpp"
-#include "sandbox/sdk/filesystem.hpp"
 #include <raylib.h>
 #include <rlgl.h>
 
 namespace spectre::modules {
 
-static sandbox_requirement_info_t renderer_requirements[] = {
-    {.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
-     .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
-     .name = "logs",
-     .architecture = "sandbox",
-     .version_major = 1,
-     .version_minor = 0,
-     .version_patch = -1},
-    {.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
-     .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
-     .name = "resources",
-     .architecture = "spectre",
-     .version_major = 1,
-     .version_minor = 0,
-     .version_patch = -1}
-};
+static sandbox_requirement_info_t renderer_requirements[] = {{.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+                                                              .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+                                                              .name = "logs",
+                                                              .architecture = "sandbox",
+                                                              .version_major = 1,
+                                                              .version_minor = 0,
+                                                              .version_patch = -1},
+                                                             {.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+                                                              .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+                                                              .name = "resources",
+                                                              .architecture = "spectre",
+                                                              .version_major = 1,
+                                                              .version_minor = 0,
+                                                              .version_patch = -1}};
 
 SANDBOX_DECLARE_MODULE(renderer_module_t, {.name = "renderer",
                                            .description = "Renderer Module",
@@ -52,7 +50,8 @@ static void deserialize_renderer_cb(ecs_world_t* world, ecs_entity_t serializer_
     spectre::modules::renderer::deserialize_renderer(flecs::world(world), entity, properties_handle);
 }
 
-static sandbox_properties_handle_t serialize_renderer_cb(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity_id) {
+static sandbox_properties_handle_t serialize_renderer_cb(ecs_world_t* world, ecs_entity_t serializer_entity,
+                                                         ecs_entity_t entity_id) {
     return spectre::modules::renderer::serialize_renderer(flecs::world(world), entity_id);
 }
 
@@ -161,7 +160,8 @@ static spectre_color_t deserialize_color(sandbox::properties props) {
 }
 
 // Serializers
-static sandbox_properties_handle_t serialize_rectangle_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
+static sandbox_properties_handle_t serialize_rectangle_renderable(ecs_world_t* world, ecs_entity_t serializer_entity,
+                                                                  ecs_entity_t entity) {
     if (!world || !entity)
         return {0};
     flecs::world flecs_world(world);
@@ -178,7 +178,8 @@ static sandbox_properties_handle_t serialize_rectangle_renderable(ecs_world_t* w
     props.release();
     return handle;
 }
-static void deserialize_rectangle_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+static void deserialize_rectangle_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity,
+                                             sandbox_properties_handle_t handle) {
     if (!world)
         return;
     sandbox::properties props(handle, false);
@@ -206,7 +207,8 @@ static ecs_entity_t register_circle_comp(ecs_world_t* world) {
         .id();
 }
 
-static sandbox_properties_handle_t serialize_circle_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
+static sandbox_properties_handle_t serialize_circle_renderable(ecs_world_t* world, ecs_entity_t serializer_entity,
+                                                               ecs_entity_t entity) {
     if (!world || !entity)
         return {0};
     flecs::world flecs_world(world);
@@ -223,7 +225,8 @@ static sandbox_properties_handle_t serialize_circle_renderable(ecs_world_t* worl
     return handle;
 }
 
-static void deserialize_circle_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+static void deserialize_circle_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity,
+                                          sandbox_properties_handle_t handle) {
     if (!world)
         return;
     sandbox::properties props(handle, false);
@@ -237,7 +240,8 @@ static void deserialize_circle_renderable(ecs_world_t* world, ecs_entity_t seria
     e.set<spectre_circle_renderable_t>(comp);
 }
 
-static sandbox_properties_handle_t serialize_polygon_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
+static sandbox_properties_handle_t serialize_polygon_renderable(ecs_world_t* world, ecs_entity_t serializer_entity,
+                                                                ecs_entity_t entity) {
     if (!world || !entity)
         return {0};
     flecs::world flecs_world(world);
@@ -254,7 +258,8 @@ static sandbox_properties_handle_t serialize_polygon_renderable(ecs_world_t* wor
     props.release();
     return handle;
 }
-static void deserialize_polygon_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+static void deserialize_polygon_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity,
+                                           sandbox_properties_handle_t handle) {
     if (!world)
         return;
     sandbox::properties props(handle, false);
@@ -269,7 +274,8 @@ static void deserialize_polygon_renderable(ecs_world_t* world, ecs_entity_t seri
     e.set<spectre_polygone_renderable_t>(comp);
 }
 
-static sandbox_properties_handle_t serialize_line_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
+static sandbox_properties_handle_t serialize_line_renderable(ecs_world_t* world, ecs_entity_t serializer_entity,
+                                                             ecs_entity_t entity) {
     if (!world || !entity)
         return {0};
     flecs::world flecs_world(world);
@@ -287,7 +293,8 @@ static sandbox_properties_handle_t serialize_line_renderable(ecs_world_t* world,
     props.release();
     return handle;
 }
-static void deserialize_line_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+static void deserialize_line_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity,
+                                        sandbox_properties_handle_t handle) {
     if (!world)
         return;
     sandbox::properties props(handle, false);
@@ -303,7 +310,8 @@ static void deserialize_line_renderable(ecs_world_t* world, ecs_entity_t seriali
     e.set<spectre_ligne_renderable_t>(comp);
 }
 
-static sandbox_properties_handle_t serialize_texture_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
+static sandbox_properties_handle_t serialize_texture_renderable(ecs_world_t* world, ecs_entity_t serializer_entity,
+                                                                ecs_entity_t entity) {
     if (!world || !entity)
         return {0};
     flecs::world flecs_world(world);
@@ -322,15 +330,15 @@ static sandbox_properties_handle_t serialize_texture_renderable(ecs_world_t* wor
     props.set("flip_y", comp->flip_y);
 
     flecs::entity e = flecs_world.entity(entity);
-    e.each<spectre_use_resource_relation_t>([&](flecs::entity resource_entity) {
-        props.set("name", std::string(resource_entity.name().c_str()));
-    });
+    e.each<spectre_use_resource_relation_t>(
+        [&](flecs::entity resource_entity) { props.set("name", std::string(resource_entity.name().c_str())); });
 
     sandbox_properties_handle_t handle = props.get_raw();
     props.release();
     return handle;
 }
-static void deserialize_texture_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t handle) {
+static void deserialize_texture_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity,
+                                           sandbox_properties_handle_t handle) {
     if (!world)
         return;
     sandbox::properties props(handle, false);
@@ -346,7 +354,7 @@ static void deserialize_texture_renderable(ecs_world_t* world, ecs_entity_t seri
     comp.tint = deserialize_color(props.sub("tint"));
     comp.flip_x = props.get<bool>("flip_x").value_or(false);
     comp.flip_y = props.get<bool>("flip_y").value_or(false);
-    
+
     std::string name;
     if (props.get<std::string>("name", name)) {
         ecs_entity_t resource_entity = spectre::modules::resources::find_resource(flecs_world, name.c_str());
@@ -373,7 +381,8 @@ static ecs_entity_t register_text_comp(ecs_world_t* world) {
         .id();
 }
 
-static sandbox_properties_handle_t serialize_text_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
+static sandbox_properties_handle_t serialize_text_renderable(ecs_world_t* world, ecs_entity_t serializer_entity,
+                                                             ecs_entity_t entity) {
     if (!world || !entity)
         return {0};
     flecs::world flecs_world(world);
@@ -381,7 +390,8 @@ static sandbox_properties_handle_t serialize_text_renderable(ecs_world_t* world,
     if (!comp)
         return {0};
     sandbox::properties props;
-    if (comp->content) props.set("content", std::string(comp->content));
+    if (comp->content)
+        props.set("content", std::string(comp->content));
     props.set("font_size", comp->font_size);
     props.set("spacing", comp->spacing);
     props.merge("tint", serialize_color(comp->tint));
@@ -389,35 +399,36 @@ static sandbox_properties_handle_t serialize_text_renderable(ecs_world_t* world,
     props.set("italic", comp->italic);
 
     flecs::entity e = flecs_world.entity(entity);
-    e.each<spectre_use_resource_relation_t>([&](flecs::entity resource_entity) {
-        props.set("name", std::string(resource_entity.name().c_str()));
-    });
+    e.each<spectre_use_resource_relation_t>(
+        [&](flecs::entity resource_entity) { props.set("name", std::string(resource_entity.name().c_str())); });
 
     sandbox_properties_handle_t handle = props.get_raw();
     props.release();
     return handle;
 }
 
-static void deserialize_text_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t handle) {
-    if (!world) return;
+static void deserialize_text_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity,
+                                        sandbox_properties_handle_t handle) {
+    if (!world)
+        return;
     sandbox::properties props(handle, false);
     flecs::world flecs_world(world);
     flecs::entity e(flecs_world, entity);
     spectre_text_renderable_t comp = {};
-    
+
     std::string content;
     if (props.get<std::string>("content", content)) {
         comp.content = strdup(content.c_str());
     } else {
         comp.content = nullptr;
     }
-    
+
     comp.font_size = props.get<float>("font_size").value_or(20.0f);
     comp.spacing = props.get<float>("spacing").value_or(1.0f);
     comp.tint = deserialize_color(props.sub("tint"));
     comp.bold = props.get<bool>("bold").value_or(false);
     comp.italic = props.get<bool>("italic").value_or(false);
-    
+
     std::string name;
     if (props.get<std::string>("name", name)) {
         ecs_entity_t resource_entity = spectre::modules::resources::find_resource(flecs_world, name.c_str());
@@ -430,11 +441,14 @@ static void deserialize_text_renderable(ecs_world_t* world, ecs_entity_t seriali
     e.set<spectre_text_renderable_t>(comp);
 }
 
-static sandbox_properties_handle_t serialize_material_component(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
-    if (!world || !entity) return {0};
+static sandbox_properties_handle_t serialize_material_component(ecs_world_t* world, ecs_entity_t serializer_entity,
+                                                                ecs_entity_t entity) {
+    if (!world || !entity)
+        return {0};
     flecs::world flecs_world(world);
     const auto* comp = flecs_world.entity(entity).try_get<spectre_material_component_t>();
-    if (!comp) return {0};
+    if (!comp)
+        return {0};
     sandbox::properties props;
     props.set("shader_resource_name", std::string(comp->shader_resource_name));
     sandbox_properties_handle_t handle = props.get_raw();
@@ -443,8 +457,9 @@ static sandbox_properties_handle_t serialize_material_component(ecs_world_t* wor
 }
 
 static void deserialize_material_component(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity,
-                                         sandbox_properties_handle_t properties_handle) {
-    if (!world || !entity) return;
+                                           sandbox_properties_handle_t properties_handle) {
+    if (!world || !entity)
+        return;
     flecs::world flecs_world(world);
     auto e = flecs_world.entity(entity);
     spectre_material_component_t comp = {};
@@ -452,7 +467,8 @@ static void deserialize_material_component(ecs_world_t* world, ecs_entity_t seri
         comp = *existing;
     }
     sandbox::properties props(properties_handle, false);
-    if (!props.is_valid()) return;
+    if (!props.is_valid())
+        return;
 
     std::string name;
     if (props.get<std::string>("shader_resource_name", name)) {
@@ -467,13 +483,17 @@ struct spectre_renderer_update_marker_t {
     char dummy;
 };
 
-static sandbox_properties_handle_t serialize_empty(ecs_world_t*, ecs_entity_t, ecs_entity_t) { return {0}; }
-static void deserialize_empty(ecs_world_t*, ecs_entity_t, ecs_entity_t, sandbox_properties_handle_t) {}
-
-static sandbox_properties_handle_t serialize_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
+static sandbox_properties_handle_t serialize_empty(ecs_world_t*, ecs_entity_t, ecs_entity_t) {
     return {0};
 }
-static void deserialize_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity, sandbox_properties_handle_t) {
+static void deserialize_empty(ecs_world_t*, ecs_entity_t, ecs_entity_t, sandbox_properties_handle_t) {}
+
+static sandbox_properties_handle_t serialize_renderable(ecs_world_t* world, ecs_entity_t serializer_entity,
+                                                        ecs_entity_t entity) {
+    return {0};
+}
+static void deserialize_renderable(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity,
+                                   sandbox_properties_handle_t) {
     if (world && entity) {
         flecs::world flecs_world(world);
         flecs_world.entity(entity).add<spectre_renderable_t>();
@@ -481,7 +501,8 @@ static void deserialize_renderable(ecs_world_t* world, ecs_entity_t serializer_e
 }
 
 static ecs_entity_t register_transform2d_comp(ecs_world_t* world) {
-    return flecs::world(world).component<spectre_2D_transform_component_t>("Transform2D")
+    return flecs::world(world)
+        .component<spectre_2D_transform_component_t>("Transform2D")
         .member<float>("position_x")
         .member<float>("position_y")
         .member<float>("position_z")
@@ -493,7 +514,8 @@ static ecs_entity_t register_transform2d_comp(ecs_world_t* world) {
         .id();
 }
 
-static sandbox_properties_handle_t serialize_2D_transform_component(ecs_world_t* world, ecs_entity_t serializer_entity, ecs_entity_t entity) {
+static sandbox_properties_handle_t serialize_2D_transform_component(ecs_world_t* world, ecs_entity_t serializer_entity,
+                                                                    ecs_entity_t entity) {
     if (!world || !entity)
         return {0};
     flecs::world flecs_world(world);
@@ -533,12 +555,14 @@ static void deserialize_2D_transform_component(ecs_world_t* world, ecs_entity_t 
 }
 
 static void texture_load_fn(ecs_world_t* world, spectre_resource_component_t* resource) {
-    if (!world || !resource || !resource->path) return;
+    if (!world || !resource || !resource->path)
+        return;
     flecs::world w(world);
     try {
         std::vector<uint8_t> data = sandbox::modules::filesystem::read_all_bytes(w, resource->path);
-        if (data.empty()) return;
-        
+        if (data.empty())
+            return;
+
         // Find extension
         std::string path_str(resource->path);
         std::string ext = ".png";
@@ -546,7 +570,7 @@ static void texture_load_fn(ecs_world_t* world, spectre_resource_component_t* re
         if (pos != std::string::npos) {
             ext = path_str.substr(pos);
         }
-        
+
         Image img = LoadImageFromMemory(ext.c_str(), data.data(), static_cast<int>(data.size()));
         if (img.data != nullptr) {
             Texture2D* tex = new Texture2D;
@@ -557,18 +581,27 @@ static void texture_load_fn(ecs_world_t* world, spectre_resource_component_t* re
             if (configs.is_valid()) {
                 std::string filtering;
                 if (configs.get<std::string>("filtering", filtering)) {
-                    if (filtering == "point") SetTextureFilter(*tex, TEXTURE_FILTER_POINT);
-                    else if (filtering == "bilinear") SetTextureFilter(*tex, TEXTURE_FILTER_BILINEAR);
-                    else if (filtering == "trilinear") SetTextureFilter(*tex, TEXTURE_FILTER_TRILINEAR);
-                    sandbox::modules::logs::info(w, "[Renderer Module] Applied filtering {} to texture {}", filtering.c_str(), resource->path);
+                    if (filtering == "point")
+                        SetTextureFilter(*tex, TEXTURE_FILTER_POINT);
+                    else if (filtering == "bilinear")
+                        SetTextureFilter(*tex, TEXTURE_FILTER_BILINEAR);
+                    else if (filtering == "trilinear")
+                        SetTextureFilter(*tex, TEXTURE_FILTER_TRILINEAR);
+                    sandbox::modules::logs::info(w, "[Renderer Module] Applied filtering {} to texture {}",
+                                                 filtering.c_str(), resource->path);
                 }
                 std::string wrap_mode;
                 if (configs.get<std::string>("wrap_mode", wrap_mode)) {
-                    if (wrap_mode == "repeat") SetTextureWrap(*tex, TEXTURE_WRAP_REPEAT);
-                    else if (wrap_mode == "clamp") SetTextureWrap(*tex, TEXTURE_WRAP_CLAMP);
-                    else if (wrap_mode == "mirror_repeat") SetTextureWrap(*tex, TEXTURE_WRAP_MIRROR_REPEAT);
-                    else if (wrap_mode == "mirror_clamp") SetTextureWrap(*tex, TEXTURE_WRAP_MIRROR_CLAMP);
-                    sandbox::modules::logs::info(w, "[Renderer Module] Applied wrap mode {} to texture {}", wrap_mode.c_str(), resource->path);
+                    if (wrap_mode == "repeat")
+                        SetTextureWrap(*tex, TEXTURE_WRAP_REPEAT);
+                    else if (wrap_mode == "clamp")
+                        SetTextureWrap(*tex, TEXTURE_WRAP_CLAMP);
+                    else if (wrap_mode == "mirror_repeat")
+                        SetTextureWrap(*tex, TEXTURE_WRAP_MIRROR_REPEAT);
+                    else if (wrap_mode == "mirror_clamp")
+                        SetTextureWrap(*tex, TEXTURE_WRAP_MIRROR_CLAMP);
+                    sandbox::modules::logs::info(w, "[Renderer Module] Applied wrap mode {} to texture {}",
+                                                 wrap_mode.c_str(), resource->path);
                 }
             }
 
@@ -580,7 +613,8 @@ static void texture_load_fn(ecs_world_t* world, spectre_resource_component_t* re
 }
 
 static void texture_free_fn(ecs_world_t* world, spectre_resource_component_t* resource) {
-    if (!resource || !resource->instance) return;
+    if (!resource || !resource->instance)
+        return;
     Texture2D* tex = static_cast<Texture2D*>(resource->instance);
     UnloadTexture(*tex);
     delete tex;
@@ -591,15 +625,17 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
     sandbox::modules::logs::trace(m_world, "[Renderer Module] Initializing...");
 
     auto shader_load_fn = [](ecs_world_t* world, spectre_resource_component_t* resource) {
-        if (!world || !resource || !resource->path) return;
+        if (!world || !resource || !resource->path)
+            return;
         flecs::world w(world);
         try {
             std::vector<uint8_t> data = sandbox::modules::filesystem::read_all_bytes(w, resource->path);
-            if (data.empty()) return;
+            if (data.empty())
+                return;
 
             // Make sure the code is null-terminated for Raylib
             data.push_back(0);
-            
+
             Shader* shader = new Shader;
             // Assuming it's a fragment shader for now
             *shader = LoadShaderFromMemory(nullptr, reinterpret_cast<const char*>(data.data()));
@@ -609,15 +645,16 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
             sandbox::modules::logs::error(w, "[Renderer Module] Failed to load shader {}: {}", resource->path, e.what());
         }
     };
-    
+
     auto shader_free_fn = [](ecs_world_t* world, spectre_resource_component_t* resource) {
-        if (!resource || !resource->instance) return;
+        if (!resource || !resource->instance)
+            return;
         Shader* shader = static_cast<Shader*>(resource->instance);
         UnloadShader(*shader);
         delete shader;
         resource->instance = nullptr;
     };
-    
+
     spectre_resource_loader_component_t shader_loader = {};
     shader_loader.load_fn = shader_load_fn;
     shader_loader.free_fn = shader_free_fn;
@@ -629,31 +666,39 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
     spectre::modules::resources::register_resource_loader(m_world, "texture", tex_loader);
 
     auto font_load_fn = [](ecs_world_t* world, spectre_resource_component_t* resource) {
-        if (!world || !resource || !resource->path) return;
+        if (!world || !resource || !resource->path)
+            return;
         flecs::world w(world);
         try {
             std::vector<uint8_t> data = sandbox::modules::filesystem::read_all_bytes(w, resource->path);
-            if (data.empty()) return;
-            
+            if (data.empty())
+                return;
+
             std::string path_str(resource->path);
             std::string ext = ".ttf";
             auto pos = path_str.find_last_of('.');
-            if (pos != std::string::npos) ext = path_str.substr(pos);
-            
+            if (pos != std::string::npos)
+                ext = path_str.substr(pos);
+
             sandbox::properties configs(resource->properties_handle, false);
             int font_size = 32;
-            if (configs.is_valid()) configs.get<int>("font_size", font_size);
-            
+            if (configs.is_valid())
+                configs.get<int>("font_size", font_size);
+
             Font* font = new Font;
             *font = LoadFontFromMemory(ext.c_str(), data.data(), static_cast<int>(data.size()), font_size, nullptr, 0);
-            
+
             if (configs.is_valid()) {
                 std::string filtering;
                 if (configs.get<std::string>("filtering", filtering)) {
-                    if (filtering == "point") SetTextureFilter(font->texture, TEXTURE_FILTER_POINT);
-                    else if (filtering == "bilinear") SetTextureFilter(font->texture, TEXTURE_FILTER_BILINEAR);
-                    else if (filtering == "trilinear") SetTextureFilter(font->texture, TEXTURE_FILTER_TRILINEAR);
-                    sandbox::modules::logs::info(w, "[Renderer Module] Applied filtering {} to font {}", filtering.c_str(), resource->path);
+                    if (filtering == "point")
+                        SetTextureFilter(font->texture, TEXTURE_FILTER_POINT);
+                    else if (filtering == "bilinear")
+                        SetTextureFilter(font->texture, TEXTURE_FILTER_BILINEAR);
+                    else if (filtering == "trilinear")
+                        SetTextureFilter(font->texture, TEXTURE_FILTER_TRILINEAR);
+                    sandbox::modules::logs::info(w, "[Renderer Module] Applied filtering {} to font {}",
+                                                 filtering.c_str(), resource->path);
                 }
             }
             resource->instance = font;
@@ -661,15 +706,16 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
             sandbox::modules::logs::error(w, "[Renderer Module] Failed to load font {}: {}", resource->path, e.what());
         }
     };
-    
+
     auto font_free_fn = [](ecs_world_t* world, spectre_resource_component_t* resource) {
-        if (!resource || !resource->instance) return;
+        if (!resource || !resource->instance)
+            return;
         Font* font = static_cast<Font*>(resource->instance);
         UnloadFont(*font);
         delete font;
         resource->instance = nullptr;
     };
-    
+
     spectre_resource_loader_component_t font_loader = {};
     font_loader.load_fn = font_load_fn;
     font_loader.free_fn = font_free_fn;
@@ -699,52 +745,77 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
     {
         sandbox::properties schema;
         schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
-        spectre::modules::components::register_component(m_world, "Renderable", register_renderable_comp, renderable_serializer, std::move(schema));
+        spectre::modules::components::register_component(m_world, "Renderable", register_renderable_comp,
+                                                         renderable_serializer, std::move(schema));
     }
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[{"name":"position_x","type":"float"},{"name":"position_y","type":"float"},{"name":"position_z","type":"float"},{"name":"scale_x","type":"float"},{"name":"scale_y","type":"float"},{"name":"origin_x","type":"float"},{"name":"origin_y","type":"float"},{"name":"rotation","type":"float"}]})", sandbox::properties::Format::JSON);
-        spectre::modules::components::register_component(m_world, "Transform2D", register_transform2d_comp, transform_serializer, std::move(schema));
+        schema.load(
+            R"({"members":[{"name":"position_x","type":"float"},{"name":"position_y","type":"float"},{"name":"position_z","type":"float"},{"name":"scale_x","type":"float"},{"name":"scale_y","type":"float"},{"name":"origin_x","type":"float"},{"name":"origin_y","type":"float"},{"name":"rotation","type":"float"}]})",
+            sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "Transform2D", register_transform2d_comp,
+                                                         transform_serializer, std::move(schema));
     }
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[{"name":"width","type":"float"},{"name":"height","type":"float"},{"name":"outline_thickness","type":"float"}]})", sandbox::properties::Format::JSON);
-        spectre::modules::components::register_component(m_world, "RectangleRenderable", register_rectangle_comp, rect_serializer, std::move(schema));
+        schema.load(
+            R"({"members":[{"name":"width","type":"float"},{"name":"height","type":"float"},{"name":"outline_thickness","type":"float"}]})",
+            sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "RectangleRenderable", register_rectangle_comp,
+                                                         rect_serializer, std::move(schema));
     }
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[{"name":"radius","type":"float"},{"name":"outline_thickness","type":"float"}]})", sandbox::properties::Format::JSON);
-        spectre::modules::components::register_component(m_world, "CircleRenderable", register_circle_comp, circle_serializer, std::move(schema));
+        schema.load(R"({"members":[{"name":"radius","type":"float"},{"name":"outline_thickness","type":"float"}]})",
+                    sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "CircleRenderable", register_circle_comp,
+                                                         circle_serializer, std::move(schema));
     }
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[{"name":"radius","type":"float"},{"name":"point_count","type":"int"},{"name":"outline_thickness","type":"float"}]})", sandbox::properties::Format::JSON);
-        spectre::modules::components::register_component(m_world, "PolygoneRenderable", register_polygon_comp, poly_serializer, std::move(schema));
+        schema.load(
+            R"({"members":[{"name":"radius","type":"float"},{"name":"point_count","type":"int"},{"name":"outline_thickness","type":"float"}]})",
+            sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "PolygoneRenderable", register_polygon_comp,
+                                                         poly_serializer, std::move(schema));
     }
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[{"name":"vertex_count","type":"int"},{"name":"outline_thickness","type":"float"}]})", sandbox::properties::Format::JSON);
-        spectre::modules::components::register_component(m_world, "CustomPolygoneRenderable", register_custom_polygon_comp, cpoly_serializer, std::move(schema));
+        schema.load(R"({"members":[{"name":"vertex_count","type":"int"},{"name":"outline_thickness","type":"float"}]})",
+                    sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(
+            m_world, "CustomPolygoneRenderable", register_custom_polygon_comp, cpoly_serializer, std::move(schema));
     }
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[{"name":"position_x1","type":"double"},{"name":"position_y1","type":"double"},{"name":"position_x2","type":"double"},{"name":"position_y2","type":"double"},{"name":"thickness","type":"float"}]})", sandbox::properties::Format::JSON);
-        spectre::modules::components::register_component(m_world, "LigneRenderable", register_line_comp, line_serializer, std::move(schema));
+        schema.load(
+            R"({"members":[{"name":"position_x1","type":"double"},{"name":"position_y1","type":"double"},{"name":"position_x2","type":"double"},{"name":"position_y2","type":"double"},{"name":"thickness","type":"float"}]})",
+            sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "LigneRenderable", register_line_comp,
+                                                         line_serializer, std::move(schema));
     }
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[{"name":"width","type":"float"},{"name":"height","type":"float"},{"name":"source_x","type":"float"},{"name":"source_y","type":"float"},{"name":"source_width","type":"float"},{"name":"source_height","type":"float"},{"name":"flip_x","type":"bool"},{"name":"flip_y","type":"bool"}]})", sandbox::properties::Format::JSON);
-        spectre::modules::components::register_component(m_world, "TextureRenderable", register_texture_comp, texture_serializer, std::move(schema));
+        schema.load(
+            R"({"members":[{"name":"width","type":"float"},{"name":"height","type":"float"},{"name":"source_x","type":"float"},{"name":"source_y","type":"float"},{"name":"source_width","type":"float"},{"name":"source_height","type":"float"},{"name":"flip_x","type":"bool"},{"name":"flip_y","type":"bool"}]})",
+            sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "TextureRenderable", register_texture_comp,
+                                                         texture_serializer, std::move(schema));
     }
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[{"name":"content","type":"string"},{"name":"font_size","type":"float"},{"name":"spacing","type":"float"},{"name":"bold","type":"bool"},{"name":"italic","type":"bool"}]})", sandbox::properties::Format::JSON);
-        spectre::modules::components::register_component(m_world, "TextRenderable", register_text_comp, text_serializer, std::move(schema));
+        schema.load(
+            R"({"members":[{"name":"content","type":"string"},{"name":"font_size","type":"float"},{"name":"spacing","type":"float"},{"name":"bold","type":"bool"},{"name":"italic","type":"bool"}]})",
+            sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "TextRenderable", register_text_comp, text_serializer,
+                                                         std::move(schema));
     }
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[{"name":"shader_resource_name","type":"string"}]})", sandbox::properties::Format::JSON);
-        spectre::modules::components::register_component(m_world, "Material", register_material_comp, material_serializer, std::move(schema));
+        schema.load(R"({"members":[{"name":"shader_resource_name","type":"string"}]})",
+                    sandbox::properties::Format::JSON);
+        spectre::modules::components::register_component(m_world, "Material", register_material_comp,
+                                                         material_serializer, std::move(schema));
     }
 
     flecs::entity on_renderer_phase = m_world.entity("on_renderer").add(flecs::Phase).depends_on(flecs::OnUpdate);
@@ -788,7 +859,6 @@ void renderer_module_t::begin_frame() {
 }
 
 void renderer_module_t::render_frame() {
-
     ecs_entity_t current_state_id = spectre::modules::scenes::find_current_state(m_world);
     flecs::entity current_state = m_world.entity(current_state_id);
 
@@ -844,7 +914,8 @@ void renderer_module_t::render_frame() {
 }
 
 void renderer_module_t::render(flecs::entity entity_to_render) {
-    sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Renderer Module] Rendering entity {}", entity_to_render.name().c_str());
+    sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Renderer Module] Rendering entity {}",
+                                  entity_to_render.name().c_str());
     // Setup transform
     float pos_x = 0.0f, pos_y = 0.0f;
     float scale_x = 1.0f, scale_y = 1.0f;
@@ -875,7 +946,8 @@ void renderer_module_t::render(flecs::entity entity_to_render) {
         const auto* mat = entity_to_render.try_get<spectre_material_component_t>();
         if (mat && mat->shader_resource_name[0] != '\0') {
             flecs::entity resource_entity = m_world.lookup(mat->shader_resource_name);
-            if (resource_entity.is_valid() && spectre::modules::resources::is_resource_loaded(m_world, resource_entity.id())) {
+            if (resource_entity.is_valid() &&
+                spectre::modules::resources::is_resource_loaded(m_world, resource_entity.id())) {
                 void* instance = spectre::modules::resources::get_resource(m_world, resource_entity.id());
                 if (instance) {
                     Shader* shader = static_cast<Shader*>(instance);
@@ -957,32 +1029,31 @@ void renderer_module_t::render(flecs::entity entity_to_render) {
     if (entity_to_render.has<spectre_texture_renderable_t>()) {
         const auto* tex_comp = entity_to_render.try_get<spectre_texture_renderable_t>();
         flecs::entity resource_entity = entity_to_render.target<spectre_use_resource_relation_t>();
-        
+
         if (resource_entity.is_valid()) {
             if (spectre::modules::resources::is_resource_loaded(m_world, resource_entity.id())) {
                 void* instance = spectre::modules::resources::get_resource(m_world, resource_entity.id());
                 if (instance && tex_comp) {
                     Texture2D* tex = static_cast<Texture2D*>(instance);
-                    Rectangle source = { 
-                        tex_comp->source_x, 
-                        tex_comp->source_y, 
-                        tex_comp->source_width > 0 ? tex_comp->source_width : (float)tex->width, 
-                        tex_comp->source_height > 0 ? tex_comp->source_height : (float)tex->height 
-                    };
-                    
-                    if (tex_comp->flip_x) source.width = -source.width;
-                    if (tex_comp->flip_y) source.height = -source.height;
+                    Rectangle source = {tex_comp->source_x, tex_comp->source_y,
+                                        tex_comp->source_width > 0 ? tex_comp->source_width : (float)tex->width,
+                                        tex_comp->source_height > 0 ? tex_comp->source_height : (float)tex->height};
 
-                    Rectangle dest = { 0.0f, 0.0f, tex_comp->width > 0 ? tex_comp->width : (float)tex->width, 
-                                       tex_comp->height > 0 ? tex_comp->height : (float)tex->height };
-                    Vector2 origin = { 0.0f, 0.0f };
-                    
+                    if (tex_comp->flip_x)
+                        source.width = -source.width;
+                    if (tex_comp->flip_y)
+                        source.height = -source.height;
+
+                    Rectangle dest = {0.0f, 0.0f, tex_comp->width > 0 ? tex_comp->width : (float)tex->width,
+                                      tex_comp->height > 0 ? tex_comp->height : (float)tex->height};
+                    Vector2 origin = {0.0f, 0.0f};
+
                     // If tint is completely 0 (default zero-init), treat it as white
                     spectre_color_t actual_tint = tex_comp->tint;
                     if (actual_tint.r == 0 && actual_tint.g == 0 && actual_tint.b == 0 && actual_tint.a == 0) {
                         actual_tint = {255.0f, 255.0f, 255.0f, 255.0f};
                     }
-                    
+
                     DrawTexturePro(*tex, source, dest, origin, 0.0f, to_raylib_color(actual_tint));
                 } else {
                     sandbox::modules::logs::trace(m_world, "[Renderer Module] Instance or tex_comp is null");
@@ -991,37 +1062,43 @@ void renderer_module_t::render(flecs::entity entity_to_render) {
                 spectre::modules::resources::load_resource(m_world, resource_entity.id());
             }
         } else {
-            sandbox::modules::logs::trace(m_world, "[Renderer Module] TextureRenderable found but resource_entity is invalid on entity {}", entity_to_render.name().c_str());
+            sandbox::modules::logs::trace(
+                m_world, "[Renderer Module] TextureRenderable found but resource_entity is invalid on entity {}",
+                entity_to_render.name().c_str());
         }
     }
 
     if (entity_to_render.has<spectre_text_renderable_t>()) {
         const auto* text_comp = entity_to_render.try_get<spectre_text_renderable_t>();
         flecs::entity resource_entity = entity_to_render.target<spectre_use_resource_relation_t>();
-        
+
         if (resource_entity.is_valid()) {
             if (spectre::modules::resources::is_resource_loaded(m_world, resource_entity.id())) {
                 void* instance = spectre::modules::resources::get_resource(m_world, resource_entity.id());
                 if (instance && text_comp && text_comp->content) {
                     Font* font = static_cast<Font*>(instance);
-                    
+
                     spectre_color_t actual_tint = text_comp->tint;
                     if (actual_tint.r == 0 && actual_tint.g == 0 && actual_tint.b == 0 && actual_tint.a == 0) {
                         actual_tint = {255.0f, 255.0f, 255.0f, 255.0f};
                     }
-                    
-                    Vector2 origin = { 0.0f, 0.0f };
-                    
+
+                    Vector2 origin = {0.0f, 0.0f};
+
                     if (text_comp->bold) {
-                        DrawTextEx(*font, text_comp->content, Vector2{1.0f, 0.0f}, text_comp->font_size, text_comp->spacing, to_raylib_color(actual_tint));
+                        DrawTextEx(*font, text_comp->content, Vector2{1.0f, 0.0f}, text_comp->font_size,
+                                   text_comp->spacing, to_raylib_color(actual_tint));
                     }
-                    DrawTextEx(*font, text_comp->content, origin, text_comp->font_size, text_comp->spacing, to_raylib_color(actual_tint));
+                    DrawTextEx(*font, text_comp->content, origin, text_comp->font_size, text_comp->spacing,
+                               to_raylib_color(actual_tint));
                 }
             } else {
                 spectre::modules::resources::load_resource(m_world, resource_entity.id());
             }
         } else {
-            sandbox::modules::logs::trace(m_world, "[Renderer Module] TextRenderable found but resource_entity is invalid on entity {}", entity_to_render.name().c_str());
+            sandbox::modules::logs::trace(
+                m_world, "[Renderer Module] TextRenderable found but resource_entity is invalid on entity {}",
+                entity_to_render.name().c_str());
         }
     }
 
@@ -1050,7 +1127,8 @@ void renderer_module_t::export_configuration(std::string_view file_path) {
     if (is_renderer()) {
         sandbox::properties props = serialize_renderer(m_renderer);
         std::string content = props.dump(sandbox::properties::Format::JSON);
-        sandbox::modules::filesystem::write_all(m_world, std::string(file_path).c_str(), content.c_str(), content.size(), true);
+        sandbox::modules::filesystem::write_all(m_world, std::string(file_path).c_str(), content.c_str(),
+                                                content.size(), true);
         sandbox::modules::logs::trace(m_world, "[Renderer Module] Exported renderer config to {}.", file_path);
     }
 }

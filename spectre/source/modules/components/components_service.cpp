@@ -30,7 +30,7 @@ void spectre_components_register_component(ecs_world_t* world, const char* name,
     flecs::world flecs_world(world);
     auto* mod = flecs_world.try_get_mut<spectre::modules::components_module_t>();
     if (mod) {
-        mod->register_component(name ? name : "", registration_fn, serializer, std::move(sandbox::properties(schema_properties, false)));
+        mod->register_component(name ? name : "", registration_fn, serializer, std::move(sandbox::properties(schema_properties, true)));
     } else {
         printf("[Components Service] FATAL: components_module_t singleton not found!\\n");
     }
@@ -150,7 +150,8 @@ void components::register_component(const flecs::world& entity_world, const char
                                     spectre_component_registration_fn_t registration_fn,
                                     spectre_serializer_component serializer,
                                     sandbox::properties schema_properties) {
-    spectre_components_register_component(entity_world.c_ptr(), name, registration_fn, serializer, std::move(schema_properties).get_raw());
+    spectre_components_register_component(entity_world.c_ptr(), name, registration_fn, serializer, schema_properties.get_raw());
+    schema_properties.release();
 }
 
 bool components::is_static(const flecs::world& entity_world, const char* name) {

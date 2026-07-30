@@ -201,7 +201,9 @@ void components_module_t::register_component(std::string_view name, spectre_comp
 
     flecs::entity serializer_entity = m_world.entity("::serializers").lookup(name.data());
     if (serializer_entity.is_valid()) {
-        spectre_component_schema_t schema_comp; schema_comp.schema = sandbox::properties(schema_properties.get_raw(), true); serializer_entity.set<spectre_component_schema_t>(std::move(schema_comp));
+        spectre_component_schema_t schema_comp; 
+        schema_comp.schema = std::move(schema_properties); 
+        serializer_entity.set<spectre_component_schema_t>(std::move(schema_comp));
     }
 
     sandbox::modules::logs::trace(m_world, "[Components Module] Registered component '{}'.", name.data());
