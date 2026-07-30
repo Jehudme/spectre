@@ -93,19 +93,27 @@ local function select_component(name, is_dynamic)
     
     if is_dynamic then
         current_schema = load_schema(name)
-        current_schema_keys = current_schema:keys("") or {}
+        current_schema_keys = {}
         schema_types_idx = {}
         schema_keys_buffers = {}
-        for _, k in ipairs(current_schema_keys) do
-            local t = current_schema:read_string(k)
-            local idx = 0
-            for i, v in ipairs(var_types) do
-                if v == t then idx = i - 1 end
+        
+        if current_schema:has("members") then
+            local mem_keys = current_schema:keys("members") or {}
+            for _, k in ipairs(mem_keys) do
+                local m_name = current_schema:read_string("members/" .. k .. "/name")
+                local m_type = current_schema:read_string("members/" .. k .. "/type")
+                if m_name and m_type then
+                    table.insert(current_schema_keys, m_name)
+                    local idx = 0
+                    for i, v in ipairs(var_types) do
+                        if v == m_type then idx = i - 1 end
+                    end
+                    schema_types_idx[m_name] = ffi.new("int[1]", idx)
+                    local buf = ffi.new("char[256]")
+                    ffi.copy(buf, m_name)
+                    schema_keys_buffers[m_name] = buf
+                end
             end
-            schema_types_idx[k] = ffi.new("int[1]", idx)
-            local buf = ffi.new("char[256]")
-            ffi.copy(buf, k)
-            schema_keys_buffers[k] = buf
         end
     end
 end
@@ -241,58 +249,65 @@ function ComponentsUI.on_update()
             
             imgui.Separator()
             
-            local keys_to_remove = {}
-            local key_to_rename = nil
-            local new_key_name = nil
-            
-            for _, k in ipairs(current_schema_keys) do
+            local has_changes = false
+            for i, k in ipairs(current_schema_keys) do
                 imgui.PushID(k)
                 
                 local buf = schema_keys_buffers[k]
                 if imgui.InputText("##Name", buf, 256) then
                     local new_k = ffi.string(buf)
-                    if new_k ~= k and new_k ~= "" and not current_schema:has(new_k) then
-                        key_to_rename = k
-                        new_key_name = new_k
+                    if new_k ~= k and new_k ~= "" then
+                        -- Name changed, we update the key name directly
+                        current_schema_keys[i] = new_k
+                        schema_keys_buffers[new_k] = schema_keys_buffers[k]
+                        schema_keys_buffers[k] = nil
+                        schema_types_idx[new_k] = schema_types_idx[k]
+                        schema_types_idx[k] = nil
+                        has_changes = true
                     end
                 end
                 
                 imgui.SameLine()
-                local idx = schema_types_idx[k]
-                if imgui.Combo("##Type", idx, c_var_types, #var_types) then
-                    local new_type = var_types[idx[0] + 1]
-                    current_schema:set_string(k, new_type)
-                    save_schema(selected_component, current_schema)
+                local idx_ptr = schema_types_idx[current_schema_keys[i]]
+                if idx_ptr and imgui.Combo("##Type", idx_ptr, c_var_types, #var_types) then
+                    has_changes = true
                 end
                 
                 imgui.SameLine()
                 if imgui.Button("Remove") then
-                    table.insert(keys_to_remove, k)
+                    table.remove(current_schema_keys, i)
+                    has_changes = true
                 end
                 
                 imgui.PopID()
             end
             
-            if key_to_rename and new_key_name then
-                local t = current_schema:read_string(key_to_rename)
-                current_schema:set_string(new_key_name, t)
-                current_schema:clear(key_to_rename)
+            if has_changes then
+                -- Rebuild the entire members list
+                current_schema:clear("members")
+                for i, k in ipairs(current_schema_keys) do
+                    local str_i = tostring(i - 1)
+                    current_schema:set_string("members/" .. str_i .. "/name", k)
+                    local t_val = var_types[schema_types_idx[k][0] + 1]
+                    current_schema:set_string("members/" .. str_i .. "/type", t_val)
+                end
                 save_schema(selected_component, current_schema)
-                select_component(selected_component, true) -- reload
-            end
-            
-            for _, k in ipairs(keys_to_remove) do
-                current_schema:clear(k)
-                save_schema(selected_component, current_schema)
-                select_component(selected_component, true) -- reload
+                select_component(selected_component, true) -- reload buffers safely
             end
         elseif not selected_is_dynamic then
             local schema = spectre.components.find_schema(world, selected_component)
             if schema then
-                local keys = schema:keys("") or {}
-                for _, k in ipairs(keys) do
-                    local t = schema:read_string(k)
-                    imgui.Text(k .. ": " .. tostring(t))
+                if schema:has("members") then
+                    local mem_keys = schema:keys("members") or {}
+                    for _, k in ipairs(mem_keys) do
+                        local m_name = schema:read_string("members/" .. k .. "/name")
+                        local m_type = schema:read_string("members/" .. k .. "/type")
+                        if m_name and m_type then
+                            imgui.Text(m_name .. ": " .. m_type)
+                        end
+                    end
+                else
+                    imgui.Text("No fields mapped in schema.")
                 end
             else
                 imgui.Text("No schema available or not implemented.")
@@ -373,10 +388,28 @@ function ComponentsUI.on_update()
         
         if imgui.Button("Add") then
             local new_var = ffi.string(new_var_name_buffer)
-            if new_var ~= "" and current_schema and not current_schema:has(new_var) then
-                current_schema:set_string(new_var, "int")
-                save_schema(selected_component, current_schema)
-                select_component(selected_component, true)
+            if new_var ~= "" and current_schema then
+                local exists = false
+                for _, k in ipairs(current_schema_keys) do
+                    if k == new_var then exists = true end
+                end
+                if not exists then
+                    table.insert(current_schema_keys, new_var)
+                    schema_types_idx[new_var] = ffi.new("int[1]", 0)
+                    local buf = ffi.new("char[256]")
+                    ffi.copy(buf, new_var)
+                    schema_keys_buffers[new_var] = buf
+                    
+                    current_schema:clear("members")
+                    for i, k in ipairs(current_schema_keys) do
+                        local str_i = tostring(i - 1)
+                        current_schema:set_string("members/" .. str_i .. "/name", k)
+                        local t_val = var_types[schema_types_idx[k][0] + 1]
+                        current_schema:set_string("members/" .. str_i .. "/type", t_val)
+                    end
+                    save_schema(selected_component, current_schema)
+                    select_component(selected_component, true)
+                end
             end
             imgui.CloseCurrentPopup()
         end
