@@ -55,7 +55,7 @@ local function read_file(path)
 end
 
 local function get_dyn_path(name)
-    return "projects://scenes/components/" .. name .. ".json"
+    return "project://scenes/components/" .. name .. ".json"
 end
 
 local function load_schema(name)
@@ -74,8 +74,8 @@ local function save_schema(name, props)
     if props then
         local dumped = props:dump(0)
         if dumped then
-            if not sandbox.filesystem.exists(world, "projects://scenes/components") then
-                sandbox.filesystem.create_directory(world, "projects://scenes/components", true)
+            if not sandbox.filesystem.exists(world, "project://scenes/components") then
+                sandbox.filesystem.create_directory(world, "project://scenes/components", true)
             end
             write_file(get_dyn_path(name), dumped)
         end
@@ -134,12 +134,15 @@ local function refresh_lists()
     table.sort(static_components)
 
     dynamic_components = {}
-    if sandbox.filesystem.exists(world, "projects://scenes/components") then
-        local files = sandbox.filesystem.list_files(world, "projects://scenes/components", false)
+    dynamic_components = {}
+    if sandbox.filesystem.exists(world, "project://scenes/components") then
+        local files = sandbox.filesystem.list_files(world, "project://scenes/components", false)
         for _, file in ipairs(files) do
             if string.sub(file, -5) == ".json" then
-                local name = string.sub(file, 1, -6)
-                table.insert(dynamic_components, name)
+                local name = string.match(file, "([^/\\]+)%.json$")
+                if name then
+                    table.insert(dynamic_components, name)
+                end
             end
         end
     end
@@ -174,6 +177,10 @@ function ComponentsUI.on_update()
         show_add_popup = true
         add_name_buffer[0] = 0
     end
+    imgui.SameLine()
+    if imgui.Button("Refresh") then
+        refresh_lists()
+    end
     
     imgui.Separator()
     
@@ -189,7 +196,7 @@ function ComponentsUI.on_update()
                     end
                 end
                 
-                if is_dynamic and imgui.BeginPopupContextItem() then
+                if is_dynamic and imgui.BeginPopupContextItem("ContextPopup_" .. name) then
                     if imgui.MenuItem("Rename") then
                         sandbox.logs.info(world, "Rename clicked on " .. name)
                         show_rename_popup = true
@@ -332,8 +339,8 @@ function ComponentsUI.on_update()
             if new_name ~= "" then
                 local new_path = get_dyn_path(new_name)
                 if not sandbox.filesystem.exists(world, new_path) then
-                    if not sandbox.filesystem.exists(world, "projects://scenes/components") then
-                        sandbox.filesystem.create_directory(world, "projects://scenes/components", true)
+                    if not sandbox.filesystem.exists(world, "project://scenes/components") then
+                        sandbox.filesystem.create_directory(world, "project://scenes/components", true)
                     end
                     write_file(new_path, "{}")
                     refresh_lists()
@@ -401,6 +408,7 @@ function ComponentsUI.on_update()
                     ffi.copy(buf, new_var)
                     schema_keys_buffers[new_var] = buf
                     
+                    -- force save
                     current_schema:clear("members")
                     for i, k in ipairs(current_schema_keys) do
                         local str_i = tostring(i - 1)
@@ -409,7 +417,6 @@ function ComponentsUI.on_update()
                         current_schema:set_string("members/" .. str_i .. "/type", t_val)
                     end
                     save_schema(selected_component, current_schema)
-                    select_component(selected_component, true)
                 end
             end
             imgui.CloseCurrentPopup()
