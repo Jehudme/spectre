@@ -33,10 +33,8 @@ class components_module_t {
 
     std::vector<flecs::entity> list_components() const;
 
-    // TODO: Make an service function, an sdk function and an lua script wrapper function.
     void import_configuration(std::string_view directory_path);
 
-    // TODO: Make an service function, an sdk function and an lua script wrapper function.
     void export_configuration(std::string_view directory_path);
 
   private:

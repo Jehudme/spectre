@@ -48,11 +48,8 @@ class script_module_t {
     void execute_on_enter(flecs::entity entity);
     void execute_on_exit(flecs::entity entity);
 
-    // TODO: Make an sure there an service, an sdk, an lua wrapper function
     void import_scripts(std::string_view directory_path);
 
-    // TODO: Implemente this function to return a list of all scripts
-    // TODO: Make an sure there an service, an sdk, an lua wrapper function
     std::vector<flecs::entity> list_scripts() const;
 
   private:
