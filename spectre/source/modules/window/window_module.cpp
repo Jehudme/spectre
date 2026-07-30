@@ -67,13 +67,13 @@ window_module_t::window_module_t(flecs::world& world) : m_world(world) {
 
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        schema.load(R"({"members":{}})", sandbox::properties::Format::JSON);
         spectre::modules::components::register_component(m_world, "Window", register_window_comp, empty_serializer, std::move(schema));
     }
 
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        schema.load(R"({"members":{}})", sandbox::properties::Format::JSON);
         spectre::modules::components::register_component(m_world, "InputState", register_input_state_comp, empty_serializer, std::move(schema));
     }
 

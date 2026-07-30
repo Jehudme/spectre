@@ -102,22 +102,22 @@ resource_module_t::resource_module_t(flecs::world& world) : m_world(world) {
 
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        schema.load(R"({"members":{}})", sandbox::properties::Format::JSON);
         spectre::modules::components::register_component(m_world, "Resource", register_resource_component, spectre_serializer_component{}, std::move(schema));
     }
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        schema.load(R"({"members":{}})", sandbox::properties::Format::JSON);
         spectre::modules::components::register_component(m_world, "ResourceLoader", register_resource_loader_component, spectre_serializer_component{}, std::move(schema));
     }
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        schema.load(R"({"members":{}})", sandbox::properties::Format::JSON);
         spectre::modules::components::register_component(m_world, "UseLoaderRelation", register_use_loader_relation, spectre_serializer_component{}, std::move(schema));
     }
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        schema.load(R"({"members":{}})", sandbox::properties::Format::JSON);
         spectre::modules::components::register_component(m_world, "ResourceFlag", register_resource_flag, spectre_serializer_component{}, std::move(schema));
     }
 

@@ -160,7 +160,7 @@ script_module_t::script_module_t(flecs::world& world) : m_world(world), m_ffi_in
 
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        schema.load(R"({"members":{}})", sandbox::properties::Format::JSON);
         spectre::modules::components::register_component(m_world, "Script", register_script_component, empty_serializer, std::move(schema));
     }
     spectre::modules::components::register_component(m_world, "UseScriptOnCreateRelation",

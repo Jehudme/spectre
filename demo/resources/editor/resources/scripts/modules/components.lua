@@ -156,6 +156,7 @@ function ComponentsUI.on_enter()
 end
 
 function ComponentsUI.on_update()
+    
     local screen_w = spectre.window.get_width(world)
     local screen_h = spectre.window.get_height(world)
     

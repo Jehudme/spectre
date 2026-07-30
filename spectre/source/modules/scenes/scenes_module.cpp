@@ -79,32 +79,32 @@ scenes_module_t::scenes_module_t(flecs::world& world) : m_world(world) {
     spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        schema.load(R"({"members":{}})", sandbox::properties::Format::JSON);
         spectre::modules::components::register_component(m_world, "Scene", register_scene_component, empty_serializer, std::move(schema));
     }
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        schema.load(R"({"members":{}})", sandbox::properties::Format::JSON);
         spectre::modules::components::register_component(m_world, "State", register_state_component, empty_serializer, std::move(schema));
     }
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[{"name":"layer_index","type":"int"}]})", sandbox::properties::Format::JSON);
+        schema.load(R"({"members":{"0":{"name":"layer_index","type":"int"}}})", sandbox::properties::Format::JSON);
         spectre::modules::components::register_component(m_world, "StateUseSceneRelation", register_state_use_scene_relation_component, empty_serializer, std::move(schema));
     }
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        schema.load(R"({"members":{}})", sandbox::properties::Format::JSON);
         spectre::modules::components::register_component(m_world, "StateContext", register_state_context_component, empty_serializer, std::move(schema));
     }
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        schema.load(R"({"members":{}})", sandbox::properties::Format::JSON);
         spectre::modules::components::register_component(m_world, "SceneContext", register_scene_context_component, empty_serializer, std::move(schema));
     }
     {
         sandbox::properties schema;
-        schema.load(R"({"members":[]})", sandbox::properties::Format::JSON);
+        schema.load(R"({"members":{}})", sandbox::properties::Format::JSON);
         spectre::modules::components::register_component(m_world, "DisableRendering", register_disable_rendering_component, empty_serializer, std::move(schema));
     }
 
