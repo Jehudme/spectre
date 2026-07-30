@@ -1018,8 +1018,9 @@ end
 function spectre.components.find_schema(world, name)
     local handle = ffi.C.spectre_components_find_schema((type(world) == "table" and world.ptr) and world.ptr or world, name)
     if handle == 0 then return nil end
+    local sandbox_module = require("sandbox")
     local props = { handle = handle }
-    setmetatable(props, sandbox.Properties)
+    setmetatable(props, sandbox_module.Properties)
     return props
 end
 
