@@ -593,63 +593,79 @@ function sandbox.Properties:get_bool(path)
     return nil
 end
 
+local _g_read_string_res = nil
+local _g_read_string_cb = ffi.cast("void (*)(const char*, void*)", function(val, ctx)
+    if val ~= nil then _g_read_string_res = ffi.string(val) end
+end)
+
 ---@param path string
 function sandbox.Properties:read_string(path)
-    local res = nil
-    local cb = ffi.cast("void (*)(const char*, void*)", function(val, ctx)
-        if val ~= nil then
-            res = ffi.string(val)
-        end
-    end)
-    ffi.C.sandbox_properties_read_string(self.handle, path, cb, nil)
-    cb:free()
+    _g_read_string_res = nil
+    ffi.C.sandbox_properties_read_string(self.handle, path, _g_read_string_cb, nil)
+    local res = _g_read_string_res
+    _g_read_string_res = nil
     return res
 end
+
+local _g_read_int64_array_res = nil
+local _g_read_int64_array_cb = ffi.cast("void (*)(int64_t, void*)", function(val, ctx) table.insert(_g_read_int64_array_res, tonumber(val)) end)
 
 ---@param path string
 function sandbox.Properties:read_int64_array(path)
-    local res = {}
-    local cb = ffi.cast("void (*)(int64_t, void*)", function(val, ctx) table.insert(res, tonumber(val)) end)
-    ffi.C.sandbox_properties_read_int64_array(self.handle, path, cb, nil)
-    cb:free()
+    _g_read_int64_array_res = {}
+    ffi.C.sandbox_properties_read_int64_array(self.handle, path, _g_read_int64_array_cb, nil)
+    local res = _g_read_int64_array_res
+    _g_read_int64_array_res = nil
     return res
 end
+
+local _g_read_uint64_array_res = nil
+local _g_read_uint64_array_cb = ffi.cast("void (*)(uint64_t, void*)", function(val, ctx) table.insert(_g_read_uint64_array_res, tonumber(val)) end)
 
 ---@param path string
 function sandbox.Properties:read_uint64_array(path)
-    local res = {}
-    local cb = ffi.cast("void (*)(uint64_t, void*)", function(val, ctx) table.insert(res, tonumber(val)) end)
-    ffi.C.sandbox_properties_read_uint64_array(self.handle, path, cb, nil)
-    cb:free()
+    _g_read_uint64_array_res = {}
+    ffi.C.sandbox_properties_read_uint64_array(self.handle, path, _g_read_uint64_array_cb, nil)
+    local res = _g_read_uint64_array_res
+    _g_read_uint64_array_res = nil
     return res
 end
+
+local _g_read_double_array_res = nil
+local _g_read_double_array_cb = ffi.cast("void (*)(double, void*)", function(val, ctx) table.insert(_g_read_double_array_res, tonumber(val)) end)
 
 ---@param path string
 function sandbox.Properties:read_double_array(path)
-    local res = {}
-    local cb = ffi.cast("void (*)(double, void*)", function(val, ctx) table.insert(res, tonumber(val)) end)
-    ffi.C.sandbox_properties_read_double_array(self.handle, path, cb, nil)
-    cb:free()
+    _g_read_double_array_res = {}
+    ffi.C.sandbox_properties_read_double_array(self.handle, path, _g_read_double_array_cb, nil)
+    local res = _g_read_double_array_res
+    _g_read_double_array_res = nil
     return res
 end
+
+local _g_read_bool_array_res = nil
+local _g_read_bool_array_cb = ffi.cast("void (*)(bool, void*)", function(val, ctx) table.insert(_g_read_bool_array_res, val) end)
 
 ---@param path string
 function sandbox.Properties:read_bool_array(path)
-    local res = {}
-    local cb = ffi.cast("void (*)(bool, void*)", function(val, ctx) table.insert(res, val) end)
-    ffi.C.sandbox_properties_read_bool_array(self.handle, path, cb, nil)
-    cb:free()
+    _g_read_bool_array_res = {}
+    ffi.C.sandbox_properties_read_bool_array(self.handle, path, _g_read_bool_array_cb, nil)
+    local res = _g_read_bool_array_res
+    _g_read_bool_array_res = nil
     return res
 end
 
+local _g_read_string_array_res = nil
+local _g_read_string_array_cb = ffi.cast("void (*)(const char*, void*)", function(val, ctx) 
+    if val ~= nil then table.insert(_g_read_string_array_res, ffi.string(val)) end 
+end)
+
 ---@param path string
 function sandbox.Properties:read_string_array(path)
-    local res = {}
-    local cb = ffi.cast("void (*)(const char*, void*)", function(val, ctx) 
-        if val ~= nil then table.insert(res, ffi.string(val)) end 
-    end)
-    ffi.C.sandbox_properties_read_string_array(self.handle, path, cb, nil)
-    cb:free()
+    _g_read_string_array_res = {}
+    ffi.C.sandbox_properties_read_string_array(self.handle, path, _g_read_string_array_cb, nil)
+    local res = _g_read_string_array_res
+    _g_read_string_array_res = nil
     return res
 end
 
@@ -730,12 +746,10 @@ end
 
 ---@param path string
 function sandbox.Properties:keys(path)
-    local res = {}
-    local cb = ffi.cast("void (*)(const char*, void*)", function(key, ctx) 
-        if key ~= nil then table.insert(res, ffi.string(key)) end 
-    end)
-    ffi.C.sandbox_properties_keys(self.handle, path, cb, nil)
-    cb:free()
+    _g_read_string_array_res = {}
+    ffi.C.sandbox_properties_keys(self.handle, path, _g_read_string_array_cb, nil)
+    local res = _g_read_string_array_res
+    _g_read_string_array_res = nil
     return res
 end
 
