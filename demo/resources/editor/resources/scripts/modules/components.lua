@@ -401,4 +401,70 @@ function ComponentsUI.on_exit()
     end
 end
 
+function ComponentsUI.list_dynamic_components()
+    local list = {}
+    if sandbox.filesystem.exists(world, "project://scenes/components") then
+        local files = sandbox.filesystem.list_files(world, "project://scenes/components", false)
+        for _, file in ipairs(files) do
+            if string.sub(file, -5) == ".json" then
+                local name = string.match(file, "([^/\\]+)%.json$")
+                if name then
+                    table.insert(list, name)
+                end
+            end
+        end
+    end
+    table.sort(list)
+    return list
+end
+
+function ComponentsUI.draw_dynamic_component(prefab_props, entity_path, comp_name)
+    local schema = load_schema(comp_name)
+    local modified = false
+    if schema:has("members") then
+        local mem_keys = schema:keys("members") or {}
+        for _, k in ipairs(mem_keys) do
+            local m_name = schema:read_string("members/" .. k .. "/name")
+            local m_type = schema:read_string("members/" .. k .. "/type")
+            if m_name and m_type then
+                local val_path = entity_path .. "/components/" .. comp_name .. "/" .. m_name
+                imgui.PushID(val_path)
+                if m_type == "int" then
+                    local val = prefab_props:get_int64(val_path) or 0
+                    local buf = ffi.new("int[1]", val)
+                    if imgui.InputInt(m_name, buf) then
+                        prefab_props:set_int64(val_path, buf[0])
+                        modified = true
+                    end
+                elseif m_type == "float" or m_type == "double" then
+                    local val = prefab_props:get_double(val_path) or 0.0
+                    local buf = ffi.new("float[1]", val)
+                    if imgui.InputFloat(m_name, buf) then
+                        prefab_props:set_double(val_path, buf[0])
+                        modified = true
+                    end
+                elseif m_type == "string" then
+                    local val = prefab_props:read_string(val_path) or ""
+                    local buf = ffi.new("char[256]")
+                    ffi.copy(buf, val)
+                    if imgui.InputText(m_name, buf, 256) then
+                        prefab_props:set_string(val_path, ffi.string(buf))
+                        modified = true
+                    end
+                elseif m_type == "bool" then
+                    local val = prefab_props:get_bool(val_path) or false
+                    local buf = ffi.new("bool[1]", val)
+                    if imgui.Checkbox(m_name, buf) then
+                        prefab_props:set_bool(val_path, buf[0])
+                        modified = true
+                    end
+                end
+                imgui.PopID()
+            end
+        end
+    end
+    schema:destroy()
+    return modified
+end
+
 return {}
