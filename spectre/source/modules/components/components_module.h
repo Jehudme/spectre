@@ -17,7 +17,7 @@ class components_module_t {
 
     // TODO: In
     void register_component(std::string_view name, spectre_component_registration_fn_t registration_fn,
-                            spectre_serializer_component serializer, sandbox::properties schema_properties);
+                            spectre_serializer_component serializer);
 
     bool is_static(std::string_view name) const;
     sandbox::properties find_schema(std::string_view name) const;

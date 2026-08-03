@@ -35,9 +35,7 @@ TEST_CASE("Components Module: SDK and Registration", "[components module]") {
         serializer.serialize = [](ecs_world_t*, ecs_entity_t, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
         serializer.deserialize = [](ecs_world_t*, ecs_entity_t, ecs_entity_t, sandbox_properties_handle_t) {};
 
-        sandbox::properties dummy_props;
-        dummy_props.load(R"({"members":[{"name":"x","type":"float"},{"name":"y","type":"float"}]})", sandbox::properties::Format::JSON);
-        components_mod->register_component("DummyComponent", register_dummy, serializer, std::move(dummy_props));
+        components_mod->register_component("DummyComponent", register_dummy, serializer);
 
         REQUIRE(components_mod->has_component("DummyComponent") == true);
         REQUIRE(components_mod->has_component("NonExistent") == false);
@@ -54,7 +52,7 @@ TEST_CASE("Components Module: SDK and Registration", "[components module]") {
 
     SECTION("Register component with empty name") {
         spectre_serializer_component serializer = {};
-        components_mod->register_component("", register_dummy, serializer, sandbox::properties());
+        components_mod->register_component("", register_dummy, serializer);
         
         // Should have logged an error and not registered
         REQUIRE(components_mod->has_component("") == false);
@@ -136,9 +134,7 @@ TEST_CASE("Components Module: SDK and Registration", "[components module]") {
         spectre_serializer_component serializer = {};
         serializer.serialize = [](ecs_world_t*, ecs_entity_t, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
         serializer.deserialize = [](ecs_world_t*, ecs_entity_t, ecs_entity_t, sandbox_properties_handle_t) {};
-        sandbox::properties dummy_props;
-        dummy_props.load(R"({"members":[{"name":"x","type":"float"},{"name":"y","type":"float"}]})", sandbox::properties::Format::JSON);
-        components_mod->register_component("DummyComponent", register_dummy, serializer, std::move(dummy_props));
+        components_mod->register_component("DummyComponent", register_dummy, serializer);
 
         sandbox::properties dynamic_props;
         dynamic_props.load(R"({"members":{}})", sandbox::properties::Format::JSON);

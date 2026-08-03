@@ -65,17 +65,9 @@ window_module_t::window_module_t(flecs::world& world) : m_world(world) {
     auto serialize_empty = [](ecs_world_t*, ecs_entity_t, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
     spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
 
-    {
-        sandbox::properties schema;
-        schema.load(R"({"members":{}})", sandbox::properties::Format::JSON);
-        spectre::modules::components::register_component(m_world, "Window", register_window_comp, empty_serializer, std::move(schema));
-    }
+    spectre::modules::components::register_component(m_world, "Window", register_window_comp, empty_serializer);
 
-    {
-        sandbox::properties schema;
-        schema.load(R"({"members":{}})", sandbox::properties::Format::JSON);
-        spectre::modules::components::register_component(m_world, "InputState", register_input_state_comp, empty_serializer, std::move(schema));
-    }
+    spectre::modules::components::register_component(m_world, "InputState", register_input_state_comp, empty_serializer);
 
     spectre_serializer_component window_serializer = {};
     window_serializer.deserialize = deserialize_window_cb;

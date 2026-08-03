@@ -181,7 +181,7 @@ components_module_t::components_module_t(flecs::world& world) : m_world(world) {
 components_module_t::~components_module_t() {}
 
 void components_module_t::register_component(std::string_view name, spectre_component_registration_fn_t registration_fn,
-                                             spectre_serializer_component serializer, sandbox::properties schema_properties) {
+                                             spectre_serializer_component serializer) {
     if (name.empty()) {
         sandbox::modules::logs::error(m_world, "[Components Module] Cannot register a component with an empty name.");
         return;
@@ -200,11 +200,6 @@ void components_module_t::register_component(std::string_view name, spectre_comp
     spectre::modules::serializer::register_serializer(m_world, name.data(), &serializer);
 
     flecs::entity serializer_entity = m_world.entity("::serializers").lookup(name.data());
-    if (serializer_entity.is_valid()) {
-        spectre_component_schema_t schema_comp; 
-        schema_comp.schema = std::move(schema_properties); 
-        serializer_entity.set<spectre_component_schema_t>(std::move(schema_comp));
-    }
 
     sandbox::modules::logs::trace(m_world, "[Components Module] Registered component '{}'.", name.data());
 }

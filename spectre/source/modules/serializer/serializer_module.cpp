@@ -43,11 +43,7 @@ serializer_module::serializer_module(flecs::world& world) : m_world(world) {
     auto deserialize_empty = [](ecs_world_t*, ecs_entity_t, ecs_entity_t, sandbox_properties_handle_t) {};
     auto serialize_empty = [](ecs_world_t*, ecs_entity_t, ecs_entity_t) -> sandbox_properties_handle_t { return {0}; };
     spectre_serializer_component empty_serializer = {deserialize_empty, serialize_empty};
-    {
-        sandbox::properties schema;
-        schema.load(R"({"members":{}})", sandbox::properties::Format::JSON);
-        spectre::modules::components::register_component(m_world, "Serializer", register_serializer_comp, empty_serializer, std::move(schema));
-    }
+    spectre::modules::components::register_component(m_world, "Serializer", register_serializer_comp, empty_serializer);
 
     sandbox::modules::logs::info(m_world, "[Serializer Module] Initialized successfully.");
 }

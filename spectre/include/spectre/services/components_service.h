@@ -24,7 +24,7 @@ typedef enum spectre_dynamic_type_t {
 
 typedef struct spectre_components_api_t {
     void (*register_component)(ecs_world_t* world, const char* name, spectre_component_registration_fn_t registration_fn,
-                               spectre_serializer_component serializer, sandbox_properties_handle_t schema_properties);
+                               spectre_serializer_component serializer);
     bool (*is_static)(ecs_world_t* world, const char* name);
     sandbox_properties_handle_t (*find_schema)(ecs_world_t* world, const char* name);
     ecs_entity_t (*find_component)(ecs_world_t* world, const char* name);
@@ -49,8 +49,7 @@ SANDBOX_DECLARE_SERVICE(spectre_components_service_t, spectre_components_api_t,
 SANDBOX_API
 void spectre_components_register_component(ecs_world_t* world, const char* name,
                                            spectre_component_registration_fn_t registration_fn,
-                                           spectre_serializer_component serializer,
-                                           sandbox_properties_handle_t schema_properties);
+                                           spectre_serializer_component serializer);
 
 SANDBOX_API
 bool spectre_components_is_static(ecs_world_t* world, const char* name);
