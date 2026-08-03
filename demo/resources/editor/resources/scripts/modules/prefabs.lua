@@ -123,25 +123,25 @@ function Prefabs.on_enter()
 end
 
 local function draw_hierarchy(props, path, name)
-    local flags = bit.bor(64) -- ImGuiTreeNodeFlags_OpenOnArrow
+    local flags = bit.bor(64, 2048) -- ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth
     if selected_entity == path then
         flags = bit.bor(flags, 1) -- ImGuiTreeNodeFlags_Selected
     end
     
-    local open = false
-    if has_children then
-        if selected_entity == path then
-            imgui.PushStyleColor(0, ffi.new("ImVec4", 0.4, 0.6, 0.8, 1))
-            open = imgui.CollapsingHeader(name)
-            imgui.PopStyleColor()
-        else
-            open = imgui.CollapsingHeader(name)
-        end
-    else
-        open = imgui.CollapsingHeader(name)
+    local children_path = path .. "/children"
+    local children_keys = {}
+    if props:has(children_path) then
+        children_keys = props:keys(children_path) or {}
+    end
+    local has_children = (#children_keys > 0)
+    
+    if not has_children then
+        flags = bit.bor(flags, 256, 16) -- ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet
     end
     
-    if imgui.IsItemClicked(0) then
+    local open = imgui.TreeNodeEx(name .. "##" .. path, flags)
+    
+    if imgui.IsItemClicked(0) and not imgui.IsItemToggledOpen() then
         selected_entity = path
     end
     
@@ -157,13 +157,14 @@ local function draw_hierarchy(props, path, name)
             ffi.copy(rename_entity_buffer, name)
         end
         if imgui.MenuItem("Duplicate") then
-            local parent_path = string.match(path, "(.*)/[^/]+")
+            local parent_path = string.match(path, "(.*)/[^/]+") or "entities"
             local new_name = name .. "_copy"
             local idx = 1
             while props:has(parent_path .. "/" .. new_name) do
                 new_name = name .. "_copy" .. tostring(idx)
                 idx = idx + 1
             end
+            -- Note: in a real implementation we would deep copy the property tree
             props:set_string(parent_path .. "/" .. new_name .. "/dummy", "0")
             props:clear(parent_path .. "/" .. new_name .. "/dummy")
             save_prefab(selected_prefab, props)
@@ -176,12 +177,14 @@ local function draw_hierarchy(props, path, name)
         imgui.EndPopup()
     end
     
-    if open then
-        if has_children then
-            for _, child_name in ipairs(children_keys) do
-                draw_hierarchy(props, children_path .. "/" .. child_name, child_name)
-            end
+    if open and has_children then
+        for _, child_name in ipairs(children_keys) do
+            draw_hierarchy(props, children_path .. "/" .. child_name, child_name)
         end
+    end
+    
+    if open and not bit.band(flags, 256) ~= 0 then
+        -- Only Pop if it was not a Leaf and it's open
         imgui.TreePop()
     end
 end

@@ -88,7 +88,6 @@ function menu.on_render(self_id, scene_id, state_id)
 					end
 				end
 			end
-
 			if imgui.IsItemHovered() then
 				imgui.SetTooltip("Double-click to open, Right-click for options")
 			end
