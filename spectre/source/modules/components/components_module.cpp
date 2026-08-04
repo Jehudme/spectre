@@ -47,6 +47,7 @@ static void generic_dynamic_deserialize(ecs_world_t* world, ecs_entity_t seriali
     }
 
     const auto* schema = schema_entity.try_get<spectre_dynamic_schema_component_t>();
+    sandbox::modules::logs::info(w, "Deserialize: Start for target_entity={}, comp_id={}", target_entity, comp_id.id());
     if (!schema) {
         sandbox::modules::logs::error(w, "schema is null");
         return;
@@ -63,6 +64,7 @@ static void generic_dynamic_deserialize(ecs_world_t* world, ecs_entity_t seriali
         return;
     }
 
+    sandbox::modules::logs::info(w, "Deserialize: type info size={}", ti->size);
     size_t comp_size = ti->size;
     void* temp_buffer = calloc(1, comp_size);
 
@@ -73,7 +75,7 @@ static void generic_dynamic_deserialize(ecs_world_t* world, ecs_entity_t seriali
 
     sandbox::properties input(props, false);
     for (const auto& field : schema->fields) {
-        // TODO: Add support for pointers
+        sandbox::modules::logs::info(w, "Deserialize: processing field {}", field.name);
         if (field.type == SPECTRE_DYNAMIC_TYPE_INT) {
             int32_t val = input.get<int32_t>(field.name).value_or(0);
             memcpy(base + field.offset, &val, sizeof(int32_t));
@@ -95,7 +97,9 @@ static void generic_dynamic_deserialize(ecs_world_t* world, ecs_entity_t seriali
         }
     }
 
+    sandbox::modules::logs::info(w, "Deserialize: Calling ecs_set_id");
     ecs_set_id(world, target_entity, comp_id.id(), comp_size, temp_buffer);
+    sandbox::modules::logs::info(w, "Deserialize: freeing temp_buffer");
     free(temp_buffer);
 }
 
@@ -213,7 +217,10 @@ void components_module_t::register_component(std::string_view name, sandbox::pro
     auto m_components_properties_root = m_world.entity("::components_properties");
 
     // 1. Create Schema Entity
-    flecs::entity schema_entity = m_world.entity(name.data()).child_of(m_components_properties_root);
+    flecs::entity schema_entity = m_components_properties_root.lookup(name.data());
+    if (!schema_entity.is_valid()) {
+        schema_entity = m_world.entity(name.data()).child_of(m_components_properties_root);
+    }
 
     spectre_dynamic_schema_component_t schema{};
     schema.raw_properties = std::move(properties);
@@ -274,6 +281,7 @@ void components_module_t::register_component(std::string_view name, sandbox::pro
     ecs_component_desc_t desc = {};
     ecs_entity_desc_t ent_desc = {};
     ent_desc.name = name.data();
+    ent_desc.parent = m_components_root.id(); // Ensure it finds existing component instead of creating a new one in root
     desc.entity = ecs_entity_init(m_world.c_ptr(), &ent_desc);
     desc.type.size = sizeof(spectre_dynamic_component_header_t) + schema.total_size;
     desc.type.alignment = (alignof(spectre_dynamic_component_header_t) > schema.alignment)
@@ -283,7 +291,9 @@ void components_module_t::register_component(std::string_view name, sandbox::pro
     ecs_entity_t comp_id = ecs_component_init(m_world.c_ptr(), &desc);
     flecs::entity comp(m_world, comp_id);
     comp.add<spectre_component_dynamic_flag_t>();
-    comp.child_of(m_components_root);
+    if (!m_components_root.lookup(name.data()).is_valid()) {
+        comp.child_of(m_components_root);
+    }
     comp.add<spectre_serializer_relation_t>(schema_entity);
 
     // 3. Register Serializer

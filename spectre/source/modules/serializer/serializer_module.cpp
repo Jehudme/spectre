@@ -66,10 +66,13 @@ void serializer_module::register_serializer(std::string_view serializer_type, co
         return;
     }
 
-    flecs::entity serializer_entity = m_world.entity(std::string(serializer_type).c_str())
-                                          .child_of(m_serializer)
-                                          .is_a(m_serializable_prefab)
-                                          .set<serializer_t>(serializer_component);
+    flecs::entity serializer_entity = m_serializer.lookup(std::string(serializer_type).c_str());
+    if (!serializer_entity.is_valid()) {
+        serializer_entity = m_world.entity(std::string(serializer_type).c_str()).child_of(m_serializer);
+    }
+    
+    serializer_entity.is_a(m_serializable_prefab)
+                     .set<serializer_t>(serializer_component);
 
     sandbox::modules::logs::info(m_world, "Registered serializer for type: '{}'.", serializer_type);
 }
