@@ -45,24 +45,45 @@ static int custom_vfs_loader(lua_State* L) {
     const char* modname = luaL_checkstring(L, 1);
     auto* world = static_cast<ecs_world_t*>(lua_touserdata(L, lua_upvalueindex(1)));
 
-    std::string path1 = std::string("app://resources/scripts/externals/") + modname + ".lua";
-    std::string path2 = std::string("app://resources/scripts/") + modname + ".lua";
-
     uint8_t* data = nullptr;
     size_t data_size = 0;
-
-    if (sandbox_filesystem_exists(world, path1.c_str())) {
-        sandbox_filesystem_read_all_bytes(world, path1.c_str(), &data, &data_size);
-    } else if (sandbox_filesystem_exists(world, path2.c_str())) {
-        sandbox_filesystem_read_all_bytes(world, path2.c_str(), &data, &data_size);
+    
+    std::string modname_str = modname;
+    
+    if (modname_str.find("://") != std::string::npos) {
+        if (sandbox_filesystem_exists(world, modname_str.c_str())) {
+            sandbox_filesystem_read_all_bytes(world, modname_str.c_str(), &data, &data_size);
+        } else {
+            lua_pushstring(L, (std::string("\n\tno file found at ") + modname_str).c_str());
+            return 1;
+        }
     } else {
+        std::string prefix = "app://";
+        lua_Debug ar;
+        if (lua_getstack(L, 2, &ar)) {
+            lua_getinfo(L, "S", &ar);
+            if (ar.source) {
+                std::string source = ar.source;
+                size_t pos = source.find("://");
+                if (pos != std::string::npos) {
+                    prefix = source.substr(0, pos + 3);
+                }
+            }
+        }
+        
         std::string modpath = modname;
         std::replace(modpath.begin(), modpath.end(), '.', '/');
-        std::string path3 = std::string("app://resources/scripts/") + modpath + ".lua";
-        if (sandbox_filesystem_exists(world, path3.c_str())) {
-            sandbox_filesystem_read_all_bytes(world, path3.c_str(), &data, &data_size);
+        
+        std::string path1 = prefix + "resources/scripts/externals/" + modpath + ".lua";
+        std::string path2 = prefix + "resources/scripts/" + modpath + ".lua";
+        
+        if (sandbox_filesystem_exists(world, path1.c_str())) {
+            sandbox_filesystem_read_all_bytes(world, path1.c_str(), &data, &data_size);
+        } else if (sandbox_filesystem_exists(world, path2.c_str())) {
+            sandbox_filesystem_read_all_bytes(world, path2.c_str(), &data, &data_size);
         } else {
-            lua_pushstring(L, "\n\tno file found in sandbox VFS");
+            std::string err = std::string("\n\tno file found at ") + path1 + " or " + path2;
+            lua_pushstring(L, err.c_str());
             return 1;
         }
     }
@@ -223,7 +244,10 @@ void script_module_t::deserialize_scripts(flecs::entity target_entity, sandbox::
         std::vector<std::string> keys = properties.keys(relation_name);
         sandbox::properties relation_node = properties.sub(relation_name);
 
-        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scripts Module] deserialize_relation '{}' on target '{}' (id: {}) with {} items", relation_name, target_entity.name().c_str() ? target_entity.name().c_str() : "null", target_entity.id(), keys.size());
+        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world),
+                                     "[Scripts Module] deserialize_relation '{}' on target '{}' (id: {}) with {} items",
+                                     relation_name, target_entity.name().c_str() ? target_entity.name().c_str() : "null",
+                                     target_entity.id(), keys.size());
 
         for (const auto& key : keys) {
             sandbox::properties script_item = relation_node.sub(key);
@@ -257,7 +281,7 @@ void script_module_t::deserialize_scripts(flecs::entity target_entity, sandbox::
 
                 for (size_t index = 0; index < argument_count; ++index) {
                     const char* argument_name = script_component->arguments_name[index];
-                    
+
                     if (!arguments_properties.is_valid() || !arguments_properties.has(argument_name)) {
                         sandbox::modules::logs::error(const_cast<flecs::world&>(m_world),
                                                       "[Scripts Module] Missing required argument '{}' for script '{}' "
@@ -314,7 +338,8 @@ void script_module_t::deserialize_scripts(flecs::entity target_entity, sandbox::
             }
 
             if (missing_argument) {
-                if (script_arguments) delete[] script_arguments;
+                if (script_arguments)
+                    delete[] script_arguments;
                 continue;
             }
 
@@ -323,7 +348,11 @@ void script_module_t::deserialize_scripts(flecs::entity target_entity, sandbox::
             relation_data.arguments = script_arguments;
             relation_data.argument_count = (int)argument_count;
 
-            sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scripts Module] Setting relation '{}' on '{}' (id: {}) for script '{}'", relation_name, target_entity.name().c_str() ? target_entity.name().c_str() : "null", target_entity.id(), script_entity.name().c_str());
+            sandbox::modules::logs::info(const_cast<flecs::world&>(m_world),
+                                         "[Scripts Module] Setting relation '{}' on '{}' (id: {}) for script '{}'",
+                                         relation_name,
+                                         target_entity.name().c_str() ? target_entity.name().c_str() : "null",
+                                         target_entity.id(), script_entity.name().c_str());
             target_entity.set<RelationType>(script_entity, relation_data);
         }
     };
@@ -670,15 +699,20 @@ void script_module_t::execute_on_update(flecs::entity target_entity) {
 void script_module_t::execute_on_enter(flecs::entity target_entity) {
     if (!target_entity.is_valid())
         return;
-    sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scripts Module] execute_on_enter called on '{}'", target_entity.name().c_str());
+    sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scripts Module] execute_on_enter called on '{}'",
+                                 target_entity.name().c_str());
     flecs::entity scripts_entity = target_entity.lookup("scripts");
     if (!scripts_entity.is_valid())
         scripts_entity = target_entity;
 
     auto iterate_scripts = [&](flecs::entity e) {
-        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scripts Module] iterate_scripts on '{}' (id: {})", e.name().c_str() ? e.name().c_str() : "null", e.id());
+        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world),
+                                     "[Scripts Module] iterate_scripts on '{}' (id: {})",
+                                     e.name().c_str() ? e.name().c_str() : "null", e.id());
         e.each<spectre_use_script_on_enter_relation_t>([&](flecs::entity script_entity) {
-            sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scripts Module] Found on_enter script '{}' for '{}'", script_entity.name().c_str(), target_entity.name().c_str());
+            sandbox::modules::logs::info(const_cast<flecs::world&>(m_world),
+                                         "[Scripts Module] Found on_enter script '{}' for '{}'",
+                                         script_entity.name().c_str(), target_entity.name().c_str());
             const auto* relation = e.try_get<spectre_use_script_on_enter_relation_t>(script_entity);
             if (relation)
                 execute_script_with_target(target_entity, script_entity, relation->arguments, relation->argument_count);
@@ -688,7 +722,9 @@ void script_module_t::execute_on_enter(flecs::entity target_entity) {
     iterate_scripts(scripts_entity);
     flecs::entity prefab = scripts_entity.target(flecs::IsA);
     while (prefab.is_valid()) {
-        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scripts Module] checking IsA prefab '{}' (id: {})", prefab.name().c_str() ? prefab.name().c_str() : "null", prefab.id());
+        sandbox::modules::logs::info(const_cast<flecs::world&>(m_world),
+                                     "[Scripts Module] checking IsA prefab '{}' (id: {})",
+                                     prefab.name().c_str() ? prefab.name().c_str() : "null", prefab.id());
         iterate_scripts(prefab);
         prefab = prefab.target(flecs::IsA);
     }
@@ -739,7 +775,7 @@ void script_module_t::import_scripts(std::string_view directory_path) {
     auto files = sandbox::modules::filesystem::list_files(m_world, dir_str.c_str(), true);
     for (const auto& file : files) {
         if (file.size() > 4 && file.substr(file.size() - 4) == ".lua") {
-            sandbox::modules::logs::trace(m_world, "[Scripts Module] Registering script: {}", file);
+            sandbox::modules::logs::info(m_world, "[Scripts Module] Registering script: {}", file);
             include_code(file);
         }
     }
@@ -747,9 +783,7 @@ void script_module_t::import_scripts(std::string_view directory_path) {
 
 std::vector<flecs::entity> script_module_t::list_scripts() const {
     std::vector<flecs::entity> list;
-    m_scripts_root.children([&](flecs::entity e) {
-        list.push_back(e);
-    });
+    m_scripts_root.children([&](flecs::entity e) { list.push_back(e); });
     return list;
 }
 
