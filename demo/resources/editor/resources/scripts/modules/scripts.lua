@@ -17,13 +17,21 @@ local function get_available_scripts()
     
     for _, file in ipairs(files) do
         if file:match("%.lua$") then
-            local path = "project://resources/scripts/" .. file
+            -- file already contains the full virtual path returned by list_files (or is relative, let's just use it safely)
+            -- if file doesn't start with project://, prepend it
+            local path = file
+            if not file:match("^project://") then
+                path = "project://resources/scripts/" .. file
+            end
+            
+            sandbox.logs.info(world, "[Scripts UI] Scanning file: " .. path)
             local out_data = ffi.new("uint8_t*[1]")
             local out_size = ffi.new("size_t[1]")
             if sandbox.filesystem.read_all_bytes(world, path, out_data, out_size) then
                 local code = ffi.string(out_data[0], out_size[0])
                 sandbox.filesystem.free_bytes(world, out_data[0])
                 
+                local found_scripts = 0
                 for func_name, args_str in code:gmatch("([%w_]+)%s*=%s*ecs%.Script%.define%s*%(%s*[^,%)]+([^%)]*)%)") do
                     local args = {}
                     for arg_def in args_str:gmatch('"(.-)"') do
@@ -32,9 +40,15 @@ local function get_available_scripts()
                             table.insert(args, name)
                         end
                     end
-                    sandbox.logs.info(world, "[Scripts UI] Parsed script: " .. func_name .. " with " .. #args .. " args from " .. file)
+                    sandbox.logs.info(world, "[Scripts UI] Parsed script: " .. func_name .. " with " .. #args .. " args from " .. path)
                     scripts_info[func_name] = args
+                    found_scripts = found_scripts + 1
                 end
+                if found_scripts == 0 then
+                    sandbox.logs.info(world, "[Scripts UI] No ecs.Script.define found in " .. path)
+                end
+            else
+                sandbox.logs.error(world, "[Scripts UI] Failed to read file: " .. path)
             end
         end
     end
