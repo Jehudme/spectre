@@ -18,6 +18,7 @@ _G.modules = {}
 require("modules")
 
 local projects_list = nil
+
 local show_new_project_popup = false
 local new_project_name = ffi.new("char[256]")
 local show_rename_popup = false
@@ -43,8 +44,9 @@ function menu.on_render(self_id, scene_id, state_id)
 		projects_list = project.list()
 	end
 
-	local screen_w = spectre.window.get_width(world)
-	local screen_h = spectre.window.get_height(world)
+    local screen_w = spectre.window.get_width(world)
+    local screen_h = spectre.window.get_height(world)
+    
 	imgui.SetNextWindowPos(ffi.new("ImVec2", 0, 0), 1) -- ImGuiCond_Always
 	imgui.SetNextWindowSize(ffi.new("ImVec2", screen_w, screen_h), 1) -- ImGuiCond_Always
 
