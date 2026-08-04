@@ -73,7 +73,7 @@ Drawers["scripts"] = function(props, path)
     for _, list_name in ipairs(lists) do
         local list_path = p .. "/" .. list_name
         
-        if imgui.TreeNode(list_name) then
+        if imgui.TreeNodeEx(list_name, 0) then
             if imgui.BeginPopupContextItem("Context_" .. list_name) then
                 if imgui.MenuItem("Add Script") then
                     add_script_popup = true
@@ -87,7 +87,7 @@ Drawers["scripts"] = function(props, path)
                 local script_path = list_path .. "/" .. key
                 local func_name = props:read_string(script_path .. "/function") or ""
                 imgui.PushID_Str(list_name .. "_" .. key)
-                if imgui.TreeNode(func_name ~= "" and func_name or "Unknown") then
+                if imgui.TreeNodeEx(func_name ~= "" and func_name or "Unknown", 0) then
                     if imgui.BeginPopupContextItem("Context_" .. key) then
                         if imgui.MenuItem("Remove") then
                             props:clear(script_path)
