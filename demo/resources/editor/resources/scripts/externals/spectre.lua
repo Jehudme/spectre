@@ -287,7 +287,8 @@ pcall(function() ffi.cdef[[
     bool spectre_components_has_component(ecs_world_t* world, const char* name);
     bool spectre_components_is_component(ecs_world_t* world, ecs_entity_t entity);
     ecs_entity_t* spectre_components_list_components(ecs_world_t* world, size_t* count);
-    void spectre_components_register_component(ecs_world_t* world, const char* name, spectre_component_registration_fn_t registration_fn, spectre_serializer_component serializer, sandbox_properties_handle_t schema_properties);
+    void spectre_components_register_dynamic_component(ecs_world_t* world, const char* name, sandbox_properties_handle_t properties);
+    void spectre_components_register_component(ecs_world_t* world, const char* name, spectre_component_registration_fn_t registration_fn, spectre_serializer_component serializer);
     bool spectre_components_is_static(ecs_world_t* world, const char* name);
     sandbox_properties_handle_t spectre_components_find_schema(ecs_world_t* world, const char* name);
     bool spectre_scripts_is_script(ecs_world_t* world, ecs_entity_t entity);
@@ -1001,13 +1002,16 @@ end
 ---@param registration_fn any
 ---@param serializer integer
 function spectre.components.register_component(world, name, registration_fn, serializer, schema_properties)
-    local schema_handle = 0
-    if type(schema_properties) == "table" then
-        schema_handle = sandbox.properties.from_table(schema_properties)
-    elseif schema_properties ~= nil then
-        schema_handle = schema_properties
+    if schema_properties ~= nil then
+        local schema_handle = 0
+        if type(schema_properties) == "table" and sandbox and sandbox.Properties then
+            schema_handle = sandbox.Properties.from_table(schema_properties)
+        elseif type(schema_properties) == "number" then
+            schema_handle = schema_properties
+        end
+        return ffi.C.spectre_components_register_dynamic_component((type(world) == "table" and world.ptr) and world.ptr or world, name, schema_handle)
     end
-    return ffi.C.spectre_components_register_component((type(world) == "table" and world.ptr) and world.ptr or world, name, registration_fn, serializer, schema_handle)
+    return ffi.C.spectre_components_register_component((type(world) == "table" and world.ptr) and world.ptr or world, name, registration_fn, serializer)
 end
 
 function spectre.components.is_static(world, name)

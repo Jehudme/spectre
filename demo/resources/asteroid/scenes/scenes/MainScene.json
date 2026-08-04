@@ -20,7 +20,9 @@
                 "0": {
                   "function": "on_update",
                   "arguments": {
-                    "self_id": "%self%"
+                    "self_id": "%self%",
+                    "scene_id": "%scene%",
+                    "state_id": "%state%"
                   }
                 }
               }

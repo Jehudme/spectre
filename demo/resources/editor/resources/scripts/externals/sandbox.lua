@@ -763,4 +763,35 @@ function sandbox.Properties:get_handle()
     return self.handle
 end
 
+local function table_to_json(v)
+    if type(v) == "string" then
+        return '"' .. v:gsub('"', '\\"') .. '"'
+    elseif type(v) == "number" or type(v) == "boolean" then
+        return tostring(v)
+    elseif type(v) == "table" then
+        local is_array = #v > 0
+        if is_array then
+            local parts = {}
+            for i = 1, #v do
+                table.insert(parts, table_to_json(v[i]))
+            end
+            return "[" .. table.concat(parts, ",") .. "]"
+        else
+            local parts = {}
+            for k, val in pairs(v) do
+                table.insert(parts, '"' .. tostring(k) .. '":' .. table_to_json(val))
+            end
+            return "{" .. table.concat(parts, ",") .. "}"
+        end
+    end
+    return "null"
+end
+
+function sandbox.Properties.from_table(tbl)
+    local props = sandbox.Properties.new()
+    local json_str = table_to_json(tbl)
+    props:load(json_str)
+    return props.handle
+end
+
 return sandbox
