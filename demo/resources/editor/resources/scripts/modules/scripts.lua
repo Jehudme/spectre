@@ -3,51 +3,41 @@ local spectre = require("spectre")
 local sandbox = require("sandbox")
 local imgui = require("imgui")
 local ffi = require("ffi")
-local scripts = require("spectre").scripts
-local world = ecs.from_ptr(g_world)
+local available_scripts_cache = nil
 
-pcall(ffi.cdef, [[
-    typedef enum {
-        SPECTRE_SCRIPT_ARGUMENT_TYPE_NIL = 0,
-        SPECTRE_SCRIPT_ARGUMENT_TYPE_BOOLEAN,
-        SPECTRE_SCRIPT_ARGUMENT_TYPE_NUMBER,
-        SPECTRE_SCRIPT_ARGUMENT_TYPE_INTEGER,
-        SPECTRE_SCRIPT_ARGUMENT_TYPE_STRING,
-        SPECTRE_SCRIPT_ARGUMENT_TYPE_TABLE,
-        SPECTRE_SCRIPT_ARGUMENT_TYPE_USERDATA
-    } spectre_script_argument_type_t;
-    typedef struct spectre_script_t {
-        int lua_function_ref;
-        const char** arguments_name;
-        const spectre_script_argument_type_t* argument_types;
-        uint32_t argument_count;
-    } spectre_script_t;
-]])
-
-local function get_script_args(func_name)
-    local script_ent = spectre.scripts.find_script(world, func_name)
-    if script_ent == 0 then return {} end
-    local ecs_type = ffi.C.ecs_get_type(world, script_ent)
-    local comp_id = 0
-    if ecs_type ~= nil then
-        for i = 0, tonumber(ecs_type.count) - 1 do
-            local id = ecs_type.array[i]
-            local name = ffi.C.ecs_get_name(world, id)
-            if name ~= nil and ffi.string(name) == "Script" then
-                comp_id = id
-                break
+local function get_available_scripts()
+    if available_scripts_cache then return available_scripts_cache end
+    
+    local files = sandbox.filesystem.list_files(world, "projects://resources/scripts", true)
+    local scripts_info = {}
+    
+    if not files then return scripts_info end
+    
+    for _, file in ipairs(files) do
+        if file:match("%.lua$") then
+            local path = "projects://resources/scripts/" .. file
+            local out_data = ffi.new("uint8_t*[1]")
+            local out_size = ffi.new("size_t[1]")
+            if sandbox.filesystem.read_all_bytes(world, path, out_data, out_size) then
+                local code = ffi.string(out_data[0], out_size[0])
+                sandbox.filesystem.free_bytes(world, out_data[0])
+                
+                for func_name, args_str in code:gmatch("([%w_]+)%s*=%s*ecs%.Script%.define%s*%(%s*[^,%)]+([^%)]*)%)") do
+                    local args = {}
+                    for arg_def in args_str:gmatch('"(.-)"') do
+                        local name, type = arg_def:match("^([%w_]+):([%w_]+)$")
+                        if name then
+                            table.insert(args, name)
+                        end
+                    end
+                    scripts_info[func_name] = args
+                end
             end
         end
     end
-    if comp_id == 0 then return {} end
-    local ptr = ffi.C.ecs_get_id(world, script_ent, comp_id)
-    if ptr == nil then return {} end
-    local script_data = ffi.cast("const spectre_script_t*", ptr)
-    local args = {}
-    for i = 0, tonumber(script_data.argument_count) - 1 do
-        table.insert(args, ffi.string(script_data.arguments_name[i]))
-    end
-    return args
+    
+    available_scripts_cache = scripts_info
+    return scripts_info
 end
 
 Scripts = {}
@@ -70,16 +60,27 @@ Drawers["scripts"] = function(props, path)
     local modified = false
     
     local lists = {"on_create", "on_update", "on_destroy", "on_enter", "on_exit", "on_render"}
+    
+    if imgui.Button("Refresh Available Scripts") then
+        available_scripts_cache = nil
+    end
+    
     for _, list_name in ipairs(lists) do
         local list_path = p .. "/" .. list_name
         
-        if imgui.TreeNodeEx(list_name, 0) then
+        imgui.Separator()
+        if imgui.TreeNodeEx(list_name, 34) then -- ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen
             if imgui.BeginPopupContextItem("Context_" .. list_name) then
                 if imgui.MenuItem("Add Script") then
                     add_script_popup = true
-                    add_script_target_list = list_path
+                    add_script_target_list = list_name
                 end
                 imgui.EndPopup()
+            end
+            
+            if imgui.Button("Add Script##" .. list_name) then
+                add_script_popup = true
+                add_script_target_list = list_name
             end
             
             local keys = props:keys(list_path) or {}
@@ -101,15 +102,16 @@ Drawers["scripts"] = function(props, path)
                                     local n = tonumber(k)
                                     if n and n >= max_k then max_k = n + 1 end
                                 end
-                                local new_json = string.format('{"%d": %s}', max_k, dumped)
-                                props:sub(list_path):load(new_json, 0)
+                                local new_json = string.format('{"scripts": {"%s": {"%d": %s}}}', list_name, max_k, dumped)
+                                props:sub(path .. "/components"):load(new_json, 0)
                                 modified = true
                             end
                         end
                         imgui.EndPopup()
                     end
                     
-                    local args = get_script_args(func_name)
+                    local scripts_info = get_available_scripts()
+                    local args = scripts_info[func_name] or {}
                     for _, arg_name in ipairs(args) do
                         local arg_val = props:read_string(script_path .. "/arguments/" .. arg_name) or ""
                         local buf = ffi.new("char[256]")
@@ -128,7 +130,7 @@ Drawers["scripts"] = function(props, path)
             if imgui.BeginPopupContextItem("Context_" .. list_name) then
                 if imgui.MenuItem("Add Script") then
                     add_script_popup = true
-                    add_script_target_list = list_path
+                    add_script_target_list = list_name
                 end
                 imgui.EndPopup()
             end
@@ -140,13 +142,10 @@ Drawers["scripts"] = function(props, path)
     end
     if imgui.BeginPopupModal("Add Script", nil, 64) then
         add_script_popup = false
-        local all_scripts = spectre.scripts.list_scripts(world)
+        local scripts_info = get_available_scripts()
         local script_names = {}
-        for _, id in ipairs(all_scripts) do
-            local name = ffi.C.ecs_get_name(world, id)
-            if name ~= nil then
-                table.insert(script_names, ffi.string(name))
-            end
+        for func_name, _ in pairs(scripts_info) do
+            table.insert(script_names, func_name)
         end
         table.sort(script_names)
         
@@ -161,15 +160,16 @@ Drawers["scripts"] = function(props, path)
         
         if selected_script_idx > 0 and selected_script_idx <= #script_names then
             local selected_name = script_names[selected_script_idx]
-            local args = get_script_args(selected_name)
+            local args = scripts_info[selected_name] or {}
             imgui.Text("Arguments:")
             for _, arg_name in ipairs(args) do
                 imgui.Text("- " .. arg_name)
             end
             
             if imgui.Button("Add") then
+                local list_path = p .. "/" .. add_script_target_list
                 local max_k = 0
-                for _, k in ipairs(props:keys(add_script_target_list) or {}) do
+                for _, k in ipairs(props:keys(list_path) or {}) do
                     local n = tonumber(k)
                     if n and n >= max_k then max_k = n + 1 end
                 end
@@ -180,10 +180,8 @@ Drawers["scripts"] = function(props, path)
                 end
                 local args_str = "{" .. table.concat(args_json, ",") .. "}"
                 
-                local new_json = string.format('{"%d": {"function": "%s", "arguments": %s}}', max_k, selected_name, args_str)
-                local list_name = string.match(add_script_target_list, "([^/]+)$")
-                local wrap_json = string.format('{"%s": %s}', list_name, new_json)
-                props:sub(p):load(wrap_json, 0)
+                local new_json = string.format('{"scripts": {"%s": {"%d": {"function": "%s", "arguments": %s}}}}', add_script_target_list, max_k, selected_name, args_str)
+                props:sub(path .. "/components"):load(new_json, 0)
                 modified = true
                 imgui.CloseCurrentPopup()
                 selected_script_idx = 0
