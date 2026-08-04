@@ -675,6 +675,7 @@ function Scenes.on_update()
         imgui.EndPopup()
     end
     
+    imgui.End()
 end
 
 return Scenes
