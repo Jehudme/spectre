@@ -1170,7 +1170,87 @@ end
 function spectre.prefabs.create_entity_from_prefab(world, prefab)
     return ffi.C.spectre_prefabs_create_entity_from_prefab((type(world) == "table" and world.ptr) and world.ptr or world, prefab)
 end
+---@param world ecs_world_t
+---@return table
+function spectre.prefabs.list_prefabs(world)
+    local out_count = ffi.new("size_t[1]")
+    local ptr = ffi.C.spectre_prefabs_list_prefabs((type(world) == "table" and world.ptr) and world.ptr or world, out_count)
+    local result = {}
+    if ptr ~= nil and tonumber(out_count[0]) > 0 then
+        for i = 0, tonumber(out_count[0]) - 1 do
+            table.insert(result, tonumber(ptr[i]))
+        end
+    end
+    return result
+end
 
+---@param world ecs_world_t
+---@return table
+function spectre.resources.list_resources(world)
+    local out_count = ffi.new("size_t[1]")
+    local ptr = ffi.C.spectre_resources_list_resources((type(world) == "table" and world.ptr) and world.ptr or world, out_count)
+    local result = {}
+    if ptr ~= nil and tonumber(out_count[0]) > 0 then
+        for i = 0, tonumber(out_count[0]) - 1 do
+            table.insert(result, tonumber(ptr[i]))
+        end
+    end
+    return result
+end
+
+---@param world ecs_world_t
+---@return table
+function spectre.resources.list_resource_loaders(world)
+    local out_count = ffi.new("size_t[1]")
+    local ptr = ffi.C.spectre_resources_list_resource_loaders((type(world) == "table" and world.ptr) and world.ptr or world, out_count)
+    local result = {}
+    if ptr ~= nil and tonumber(out_count[0]) > 0 then
+        for i = 0, tonumber(out_count[0]) - 1 do
+            table.insert(result, tonumber(ptr[i]))
+        end
+    end
+    return result
+end
+
+---@param world ecs_world_t
+---@return table
+function spectre.scenes.list_states(world)
+    local out_count = ffi.new("size_t[1]")
+    local ptr = ffi.C.spectre_scenes_list_states((type(world) == "table" and world.ptr) and world.ptr or world, out_count)
+    local result = {}
+    if ptr ~= nil and tonumber(out_count[0]) > 0 then
+        for i = 0, tonumber(out_count[0]) - 1 do
+            table.insert(result, tonumber(ptr[i]))
+        end
+    end
+    return result
+end
+
+---@param world ecs_world_t
+---@return table
+function spectre.components.list_components(world)
+    local out_count = ffi.new("size_t[1]")
+    local ptr = ffi.C.spectre_components_list_components((type(world) == "table" and world.ptr) and world.ptr or world, out_count)
+    local result = {}
+    if ptr ~= nil and tonumber(out_count[0]) > 0 then
+        for i = 0, tonumber(out_count[0]) - 1 do
+            table.insert(result, tonumber(ptr[i]))
+        end
+    end
+    return result
+end
+
+function spectre.scripts.list_scripts(world)
+    local out_count = ffi.new("size_t[1]")
+    local ptr = ffi.C.spectre_scripts_list_scripts((type(world) == "table" and world.ptr) and world.ptr or world, out_count)
+    local result = {}
+    if ptr ~= nil and tonumber(out_count[0]) > 0 then
+        for i = 0, tonumber(out_count[0]) - 1 do
+            table.insert(result, tonumber(ptr[i]))
+        end
+    end
+    return result
+end
 ---@param world ecs_world_t
 ---@param name string
 ---@return boolean

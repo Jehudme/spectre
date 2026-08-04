@@ -10,7 +10,7 @@ local function get_available_scripts()
     if available_scripts_cache then return available_scripts_cache end
     
     local world = ecs.from_ptr(g_world)
-    local files = sandbox.filesystem.list_files(world, "project://resources/scripts", true)
+    local files = sandbox.filesystem.list_files(world, "project://resources/scripts", false)
     local scripts_info = {}
     
     if not files then return scripts_info end
