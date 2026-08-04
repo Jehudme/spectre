@@ -118,8 +118,10 @@ Drawers["scripts"] = function(props, path)
                                     local n = tonumber(k)
                                     if n and n >= max_k then max_k = n + 1 end
                                 end
-                                local new_json = string.format('{"scripts": {"%s": {"%d": %s}}}', list_name, max_k, dumped)
-                                props:sub(path .. "/components"):load(new_json, 0)
+                                local new_script_path = list_path .. "/" .. max_k
+                                props:set_string(new_script_path .. "/dummy", "0")
+                                props:sub(new_script_path):load(dumped, 0)
+                                props:clear(new_script_path .. "/dummy")
                                 modified = true
                             end
                         end
@@ -155,6 +157,7 @@ Drawers["scripts"] = function(props, path)
     
     if add_script_popup then
         imgui.OpenPopup("Add Script")
+        imgui.SetNextWindowSize(imgui.ImVec2(500, 400), 0)
     end
     if imgui.BeginPopupModal("Add Script", nil, 64) then
         add_script_popup = false
@@ -190,14 +193,22 @@ Drawers["scripts"] = function(props, path)
                     if n and n >= max_k then max_k = n + 1 end
                 end
                 
-                local args_json = {}
-                for _, arg_name in ipairs(args) do
-                    table.insert(args_json, string.format('"%s": ""', arg_name))
-                end
-                local args_str = "{" .. table.concat(args_json, ",") .. "}"
+                local script_path = list_path .. "/" .. max_k
+                props:set_string(script_path .. "/function", selected_name)
                 
-                local new_json = string.format('{"scripts": {"%s": {"%d": {"function": "%s", "arguments": %s}}}}', add_script_target_list, max_k, selected_name, args_str)
-                props:sub(path .. "/components"):load(new_json, 0)
+                if #args > 0 then
+                    props:set_string(script_path .. "/arguments/dummy", "0")
+                    props:clear(script_path .. "/arguments/dummy")
+                    for _, arg_name in ipairs(args) do
+                        props:set_string(script_path .. "/arguments/" .. arg_name, "")
+                    end
+                else
+                    -- For zero arguments, ensure we at least have an empty arguments object if needed,
+                    -- but practically it's okay to omit it or just set a dummy and clear it.
+                    props:set_string(script_path .. "/arguments/dummy", "0")
+                    props:clear(script_path .. "/arguments/dummy")
+                end
+                
                 modified = true
                 imgui.CloseCurrentPopup()
                 selected_script_idx = 0

@@ -82,12 +82,19 @@ static int custom_vfs_loader(lua_State* L) {
         std::string path1 = prefix + "resources/scripts/externals/" + modpath + ".lua";
         std::string path2 = prefix + "resources/scripts/" + modpath + ".lua";
         
+        std::string app_path1 = "app://resources/scripts/externals/" + modpath + ".lua";
+        std::string app_path2 = "app://resources/scripts/" + modpath + ".lua";
+        
         if (sandbox_filesystem_exists(world, path1.c_str())) {
             sandbox_filesystem_read_all_bytes(world, path1.c_str(), &data, &data_size);
         } else if (sandbox_filesystem_exists(world, path2.c_str())) {
             sandbox_filesystem_read_all_bytes(world, path2.c_str(), &data, &data_size);
+        } else if (sandbox_filesystem_exists(world, app_path1.c_str())) {
+            sandbox_filesystem_read_all_bytes(world, app_path1.c_str(), &data, &data_size);
+        } else if (sandbox_filesystem_exists(world, app_path2.c_str())) {
+            sandbox_filesystem_read_all_bytes(world, app_path2.c_str(), &data, &data_size);
         } else {
-            std::string err = std::string("\n\tno file found at ") + path1 + " or " + path2;
+            std::string err = std::string("\n\tno file found at ") + path1 + " or " + app_path1;
             lua_pushstring(L, err.c_str());
             return 1;
         }
