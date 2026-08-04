@@ -18,5 +18,6 @@ function Main:init(world)
     if dyn_schema then
         sandbox.logs.info(world, "AsteroidDynamicComp schema found and is_static: " .. tostring(spectre.components.is_static(world, "AsteroidDynamicComp")))
     end
+end
 
 return Main

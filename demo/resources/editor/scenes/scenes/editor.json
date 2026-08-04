@@ -1,12 +1,22 @@
 {
   "name": "Editor",
-  "hierarchies": {
-    "EditorController": {
+  "entities": {
+    "Editor": {
       "components": {
-        "scripts": {
-          "on_update": {
-            "0": {
-              "function": "on_render_edit"
+        "Scene": {}
+      },
+      "children": {
+        "EditorController": {
+          "components": {
+            "scripts": {
+              "on_update": {
+                "0": {
+                  "function": "on_render_edit",
+                  "arguments": {
+                    "self_id": "%self%"
+                  }
+                }
+              }
             }
           }
         }

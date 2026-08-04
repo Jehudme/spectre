@@ -1,4 +1,13 @@
 {
   "name": "Edition",
-  "scenes": ["Editor"]
+  "entities": {
+    "Edition": {
+      "components": {
+        "State": {}
+      },
+      "prefabs": {
+        "Editor": {}
+      }
+    }
+  }
 }

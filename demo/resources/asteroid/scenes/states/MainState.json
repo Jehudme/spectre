@@ -1,6 +1,13 @@
 {
-    "name": "MainState",
-    "scenes": [
-        "MainScene"
-    ]
+  "name": "MainState",
+  "entities": {
+    "MainState": {
+      "components": {
+        "State": {}
+      },
+      "prefabs": {
+        "MainScene": {}
+      }
+    }
+  }
 }

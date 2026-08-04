@@ -197,7 +197,9 @@ void components_module_t::register_component(std::string_view name, spectre_comp
     comp.child_of(m_components_root);
     comp.set<spectre_serializer_component>(serializer);
 
-    spectre::modules::serializer::register_serializer(m_world, name.data(), &serializer);
+    if (serializer.serialize != nullptr && serializer.deserialize != nullptr) {
+        spectre::modules::serializer::register_serializer(m_world, name.data(), &serializer);
+    }
 
     flecs::entity serializer_entity = m_world.entity("::serializers").lookup(name.data());
 

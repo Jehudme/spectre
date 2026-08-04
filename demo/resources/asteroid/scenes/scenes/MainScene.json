@@ -1,28 +1,42 @@
 {
   "name": "MainScene",
-  "hierarchies": {
-    "TestRectangle": {
-      "prefabs": ["RectanglePrefab"],
+  "entities": {
+    "MainScene": {
       "components": {
-        "Transform2D": {
-          "position_x": 325.0,
-          "position_y": 225.0
-        },
-        "scripts": {
-          "on_update": {
-            "0": {
-              "function": "on_update"
+        "Scene": {}
+      },
+      "children": {
+        "TestRectangle": {
+          "prefabs": {
+            "RectanglePrefab": {}
+          },
+          "components": {
+            "Transform2D": {
+              "position_x": 325.0,
+              "position_y": 225.0
+            },
+            "scripts": {
+              "on_update": {
+                "0": {
+                  "function": "on_update",
+                  "arguments": {
+                    "self_id": "%self%"
+                  }
+                }
+              }
             }
           }
-        }
-      }
-    },
-    "TestText": {
-      "prefabs": ["TextPrefab"],
-      "components": {
-        "Transform2D": {
-          "position_x": 50.0,
-          "position_y": 50.0
+        },
+        "TestText": {
+          "prefabs": {
+            "TextPrefab": {}
+          },
+          "components": {
+            "Transform2D": {
+              "position_x": 50.0,
+              "position_y": 50.0
+            }
+          }
         }
       }
     }
