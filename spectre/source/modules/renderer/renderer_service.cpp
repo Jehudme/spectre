@@ -75,7 +75,7 @@ static bool renderer_is_renderer(ecs_world_t* entity_world) {
 }
 
 // --- Public C API Implementations ---
-void spectre_renderer_deserialize_renderer(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props) {
+SPECTRE_API void spectre_renderer_deserialize_renderer(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_renderer_service_t* service = flecs_world.try_get<spectre_renderer_service_t>();
@@ -92,7 +92,7 @@ void spectre_renderer_deserialize_renderer(ecs_world_t* world, ecs_entity_t targ
     renderer_deserialize_renderer(world, target, props);
 }
 
-sandbox_properties_handle_t spectre_renderer_serialize_renderer(ecs_world_t* world, ecs_entity_t renderer) {
+SPECTRE_API sandbox_properties_handle_t spectre_renderer_serialize_renderer(ecs_world_t* world, ecs_entity_t renderer) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_renderer_service_t* service = flecs_world.try_get<spectre_renderer_service_t>();
@@ -108,7 +108,7 @@ sandbox_properties_handle_t spectre_renderer_serialize_renderer(ecs_world_t* wor
     return renderer_serialize_renderer(world, renderer);
 }
 
-void spectre_renderer_register_renderer(ecs_world_t* world, sandbox_properties_handle_t props) {
+SPECTRE_API void spectre_renderer_register_renderer(ecs_world_t* world, sandbox_properties_handle_t props) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_renderer_service_t* service = flecs_world.try_get<spectre_renderer_service_t>();
@@ -125,7 +125,7 @@ void spectre_renderer_register_renderer(ecs_world_t* world, sandbox_properties_h
     renderer_register_renderer(world, props);
 }
 
-bool spectre_renderer_is_renderer(ecs_world_t* world) {
+SPECTRE_API bool spectre_renderer_is_renderer(ecs_world_t* world) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_renderer_service_t* service = flecs_world.try_get<spectre_renderer_service_t>();
@@ -179,7 +179,7 @@ static void renderer_export_configuration(ecs_world_t* entity_world, const char*
     if (module) module->export_configuration(path);
 }
 
-void spectre_renderer_import_configuration(ecs_world_t* world, const char* path) {
+SPECTRE_API void spectre_renderer_import_configuration(ecs_world_t* world, const char* path) {
     flecs::world flecs_world(world);
     const spectre_renderer_service_t* service = flecs_world.try_get<spectre_renderer_service_t>();
     if (service && service->api && service->api->import_configuration) {
@@ -189,7 +189,7 @@ void spectre_renderer_import_configuration(ecs_world_t* world, const char* path)
     renderer_import_configuration(world, path);
 }
 
-void spectre_renderer_export_configuration(ecs_world_t* world, const char* path) {
+SPECTRE_API void spectre_renderer_export_configuration(ecs_world_t* world, const char* path) {
     flecs::world flecs_world(world);
     const spectre_renderer_service_t* service = flecs_world.try_get<spectre_renderer_service_t>();
     if (service && service->api && service->api->export_configuration) {

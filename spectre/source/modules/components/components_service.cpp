@@ -3,12 +3,7 @@
 #include "components_module.h"
 #include <sandbox/abi/bootstrapper.h>
 
-void spectre_components_register_component(ecs_world_t* world, const char* name, spectre_component_registration_fn_t registration_fn, spectre_serializer_component serializer);
-ecs_entity_t spectre_components_find_component(ecs_world_t* world, const char* name);
-bool spectre_components_has_component(ecs_world_t* world, const char* name);
-bool spectre_components_is_component(ecs_world_t* world, ecs_entity_t entity);
-bool spectre_components_is_static(ecs_world_t* world, const char* name);
-sandbox_properties_handle_t spectre_components_find_schema(ecs_world_t* world, const char* name);
+extern "C" {
 
 spectre_components_api_t g_components_api = {
     .register_component = spectre_components_register_component,
@@ -25,18 +20,18 @@ spectre_components_api_t g_components_api = {
 
 SANDBOX_DEFINE_SERVICE(spectre_components_service_t, spectre_components_api_t, &g_components_api)
 
-void spectre_components_register_component(ecs_world_t* world, const char* name, spectre_component_registration_fn_t registration_fn, spectre_serializer_component serializer) {
+SPECTRE_API void spectre_components_register_component(ecs_world_t* world, const char* name, spectre_component_registration_fn_t registration_fn, spectre_serializer_component serializer) {
     if (!world) return;
     flecs::world flecs_world(world);
     auto* mod = flecs_world.try_get_mut<spectre::modules::components_module_t>();
     if (mod) {
         mod->register_component(name ? name : "", registration_fn, serializer);
     } else {
-        printf("[Components Service] FATAL: components_module_t singleton not found!\\n");
+        printf("[Components Service] FATAL: components_module_t singleton not found (try_get_mut returned NULL)! Check if ecs_id exists: %lu\n", flecs_world.id<spectre::modules::components_module_t>());
     }
 }
 
-bool spectre_components_is_static(ecs_world_t* world, const char* name) {
+SPECTRE_API bool spectre_components_is_static(ecs_world_t* world, const char* name) {
     if (!world || !name) return false;
     flecs::world flecs_world(world);
     auto* mod = flecs_world.try_get_mut<spectre::modules::components_module_t>();
@@ -46,7 +41,7 @@ bool spectre_components_is_static(ecs_world_t* world, const char* name) {
     return false;
 }
 
-sandbox_properties_handle_t spectre_components_find_schema(ecs_world_t* world, const char* name) {
+SPECTRE_API sandbox_properties_handle_t spectre_components_find_schema(ecs_world_t* world, const char* name) {
     sandbox_properties_handle_t null_handle = {0};
     if (!world || !name) return null_handle;
     flecs::world flecs_world(world);
@@ -70,7 +65,7 @@ sandbox_properties_handle_t spectre_components_find_schema(ecs_world_t* world, c
     return null_handle;
 }
 
-ecs_entity_t spectre_components_find_component(ecs_world_t* world, const char* name) {
+SPECTRE_API ecs_entity_t spectre_components_find_component(ecs_world_t* world, const char* name) {
     if (!world || !name) return 0;
     flecs::world flecs_world(world);
     auto* mod = flecs_world.try_get_mut<spectre::modules::components_module_t>();
@@ -80,7 +75,7 @@ ecs_entity_t spectre_components_find_component(ecs_world_t* world, const char* n
     return 0;
 }
 
-bool spectre_components_has_component(ecs_world_t* world, const char* name) {
+SPECTRE_API bool spectre_components_has_component(ecs_world_t* world, const char* name) {
     if (!world || !name) return false;
     flecs::world flecs_world(world);
     auto* mod = flecs_world.try_get_mut<spectre::modules::components_module_t>();
@@ -90,7 +85,7 @@ bool spectre_components_has_component(ecs_world_t* world, const char* name) {
     return false;
 }
 
-bool spectre_components_is_component(ecs_world_t* world, ecs_entity_t entity) {
+SPECTRE_API bool spectre_components_is_component(ecs_world_t* world, ecs_entity_t entity) {
     if (!world || !entity) return false;
     flecs::world flecs_world(world);
     auto* mod = flecs_world.try_get_mut<spectre::modules::components_module_t>();
@@ -100,7 +95,7 @@ bool spectre_components_is_component(ecs_world_t* world, ecs_entity_t entity) {
     return false;
 }
 
-ecs_entity_t* spectre_components_list_components(ecs_world_t* world, size_t* count) {
+SPECTRE_API ecs_entity_t* spectre_components_list_components(ecs_world_t* world, size_t* count) {
     static std::vector<ecs_entity_t> result;
     result.clear();
     *count = 0;
@@ -115,7 +110,7 @@ ecs_entity_t* spectre_components_list_components(ecs_world_t* world, size_t* cou
     return result.empty() ? nullptr : result.data();
 }
 
-void spectre_components_register_dynamic_component(ecs_world_t* world, const char* name, sandbox_properties_handle_t properties) {
+SPECTRE_API void spectre_components_register_dynamic_component(ecs_world_t* world, const char* name, sandbox_properties_handle_t properties) {
     if (!world || !name) return;
     flecs::world flecs_world(world);
     auto* mod = flecs_world.try_get_mut<spectre::modules::components_module_t>();
@@ -125,7 +120,7 @@ void spectre_components_register_dynamic_component(ecs_world_t* world, const cha
     }
 }
 
-void spectre_components_import_configuration(ecs_world_t* world, const char* directory_path) {
+SPECTRE_API void spectre_components_import_configuration(ecs_world_t* world, const char* directory_path) {
     if (!world || !directory_path) return;
     flecs::world flecs_world(world);
     auto* mod = flecs_world.try_get_mut<spectre::modules::components_module_t>();
@@ -134,7 +129,7 @@ void spectre_components_import_configuration(ecs_world_t* world, const char* dir
     }
 }
 
-void spectre_components_export_configuration(ecs_world_t* world, const char* directory_path) {
+SPECTRE_API void spectre_components_export_configuration(ecs_world_t* world, const char* directory_path) {
     if (!world || !directory_path) return;
     flecs::world flecs_world(world);
     auto* mod = flecs_world.try_get_mut<spectre::modules::components_module_t>();
@@ -143,6 +138,7 @@ void spectre_components_export_configuration(ecs_world_t* world, const char* dir
     }
 }
 
+} // extern "C"
 #ifdef __cplusplus
 namespace spectre::modules {
 

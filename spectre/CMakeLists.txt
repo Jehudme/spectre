@@ -108,13 +108,13 @@ target_include_directories(spectre_plugin_static PUBLIC
 
 # Link dependencies
 target_link_libraries(spectre_plugin PRIVATE
-    sandbox::library
+    sandbox::headers
     raylib
     ${LUAJIT_LIBRARIES}
 )
 
 target_link_libraries(spectre_plugin_static PRIVATE
-    sandbox::library
+    sandbox::headers
     raylib
     ${LUAJIT_LIBRARIES}
 )

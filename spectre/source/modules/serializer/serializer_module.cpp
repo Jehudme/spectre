@@ -16,7 +16,14 @@ static sandbox_requirement_info_t serializer_requirements[] = {{.kind = SANDBOX_
                                                                 .architecture = "sandbox",
                                                                 .version_major = 1,
                                                                 .version_minor = 0,
-                                                                .version_patch = -1}};
+                                                                .version_patch = -1},
+{.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+ .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+ .name = "components",
+ .architecture = "spectre",
+ .version_major = 1,
+ .version_minor = 0,
+ .version_patch = -1}};
 
 SANDBOX_DECLARE_MODULE(serializer_module, {.name = "serializer",
                                            .description = "Serializer Module",
@@ -26,7 +33,7 @@ SANDBOX_DECLARE_MODULE(serializer_module, {.name = "serializer",
                                            .version_patch = 0,
                                            .service = &spectre_serializer_service_t_info,
                                            .requirements = serializer_requirements,
-                                           .requirement_count = 1})
+                                           .requirement_count = 2})
 
 // Component Registration Callbacks
 static ecs_entity_t register_serializer_comp(ecs_world_t* world) {

@@ -174,7 +174,7 @@ static ecs_entity_t* resources_list_resource_loaders(ecs_world_t* entity_world, 
     return result.empty() ? nullptr : result.data();
 }
 
-ecs_entity_t* spectre_resources_list_resources(ecs_world_t* world, size_t* count) {
+SPECTRE_API ecs_entity_t* spectre_resources_list_resources(ecs_world_t* world, size_t* count) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
@@ -188,7 +188,7 @@ ecs_entity_t* spectre_resources_list_resources(ecs_world_t* world, size_t* count
     return nullptr;
 }
 
-ecs_entity_t* spectre_resources_list_resource_loaders(ecs_world_t* world, size_t* count) {
+SPECTRE_API ecs_entity_t* spectre_resources_list_resource_loaders(ecs_world_t* world, size_t* count) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
@@ -261,7 +261,7 @@ static void* resources_get_resource(ecs_world_t* entity_world, ecs_entity_t reso
 }
 
 // --- Public C API Implementations ---
-void spectre_resources_deserialize_resource(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props) {
+SPECTRE_API void spectre_resources_deserialize_resource(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
@@ -278,7 +278,7 @@ void spectre_resources_deserialize_resource(ecs_world_t* world, ecs_entity_t tar
     resources_deserialize_resource(world, target, props);
 }
 
-sandbox_properties_handle_t spectre_resources_serialize_resource(ecs_world_t* world, ecs_entity_t resourceEntity) {
+SPECTRE_API sandbox_properties_handle_t spectre_resources_serialize_resource(ecs_world_t* world, ecs_entity_t resourceEntity) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
@@ -294,7 +294,7 @@ sandbox_properties_handle_t spectre_resources_serialize_resource(ecs_world_t* wo
     return resources_serialize_resource(world, resourceEntity);
 }
 
-void spectre_resources_register_resource_loader(ecs_world_t* world, const char* type,
+SPECTRE_API void spectre_resources_register_resource_loader(ecs_world_t* world, const char* type,
                                                 spectre_resource_loader_component_t loader) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
@@ -312,7 +312,7 @@ void spectre_resources_register_resource_loader(ecs_world_t* world, const char* 
     resources_register_resource_loader(world, type, loader);
 }
 
-void spectre_resources_register_resource(ecs_world_t* world, sandbox_properties_handle_t props) {
+SPECTRE_API void spectre_resources_register_resource(ecs_world_t* world, sandbox_properties_handle_t props) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
@@ -329,7 +329,7 @@ void spectre_resources_register_resource(ecs_world_t* world, sandbox_properties_
     resources_register_resource(world, props);
 }
 
-bool spectre_resources_has_resource_loader(ecs_world_t* world, const char* type) {
+SPECTRE_API bool spectre_resources_has_resource_loader(ecs_world_t* world, const char* type) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
@@ -345,7 +345,7 @@ bool spectre_resources_has_resource_loader(ecs_world_t* world, const char* type)
     return resources_has_resource_loader(world, type);
 }
 
-bool spectre_resources_has_resource(ecs_world_t* world, const char* name) {
+SPECTRE_API bool spectre_resources_has_resource(ecs_world_t* world, const char* name) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
@@ -361,7 +361,7 @@ bool spectre_resources_has_resource(ecs_world_t* world, const char* name) {
     return resources_has_resource(world, name);
 }
 
-bool spectre_resources_is_resource(ecs_world_t* world, ecs_entity_t entity) {
+SPECTRE_API bool spectre_resources_is_resource(ecs_world_t* world, ecs_entity_t entity) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
@@ -377,7 +377,7 @@ bool spectre_resources_is_resource(ecs_world_t* world, ecs_entity_t entity) {
     return resources_is_resource(world, entity);
 }
 
-ecs_entity_t spectre_resources_find_resource_loader(ecs_world_t* world, const char* type) {
+SPECTRE_API ecs_entity_t spectre_resources_find_resource_loader(ecs_world_t* world, const char* type) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
@@ -393,7 +393,7 @@ ecs_entity_t spectre_resources_find_resource_loader(ecs_world_t* world, const ch
     return resources_find_resource_loader(world, type);
 }
 
-ecs_entity_t spectre_resources_find_resource(ecs_world_t* world, const char* name) {
+SPECTRE_API ecs_entity_t spectre_resources_find_resource(ecs_world_t* world, const char* name) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
@@ -409,7 +409,7 @@ ecs_entity_t spectre_resources_find_resource(ecs_world_t* world, const char* nam
     return resources_find_resource(world, name);
 }
 
-bool spectre_resources_is_resource_loaded(ecs_world_t* world, ecs_entity_t resource) {
+SPECTRE_API bool spectre_resources_is_resource_loaded(ecs_world_t* world, ecs_entity_t resource) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
@@ -425,7 +425,7 @@ bool spectre_resources_is_resource_loaded(ecs_world_t* world, ecs_entity_t resou
     return resources_is_resource_loaded(world, resource);
 }
 
-void spectre_resources_load_resource(ecs_world_t* world, ecs_entity_t resourceEntity) {
+SPECTRE_API void spectre_resources_load_resource(ecs_world_t* world, ecs_entity_t resourceEntity) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
@@ -442,7 +442,7 @@ void spectre_resources_load_resource(ecs_world_t* world, ecs_entity_t resourceEn
     resources_load_resource(world, resourceEntity);
 }
 
-void spectre_resources_free_resource(ecs_world_t* world, ecs_entity_t resourceEntity) {
+SPECTRE_API void spectre_resources_free_resource(ecs_world_t* world, ecs_entity_t resourceEntity) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
@@ -550,7 +550,7 @@ static void resources_export_configuration(ecs_world_t* entity_world, const char
     if (module) module->export_configuration(path);
 }
 
-void spectre_resources_import_configuration(ecs_world_t* world, const char* path) {
+SPECTRE_API void spectre_resources_import_configuration(ecs_world_t* world, const char* path) {
     flecs::world flecs_world(world);
     const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
     if (service && service->api && service->api->import_configuration) {
@@ -560,7 +560,7 @@ void spectre_resources_import_configuration(ecs_world_t* world, const char* path
     resources_import_configuration(world, path);
 }
 
-void spectre_resources_export_configuration(ecs_world_t* world, const char* path) {
+SPECTRE_API void spectre_resources_export_configuration(ecs_world_t* world, const char* path) {
     flecs::world flecs_world(world);
     const spectre_resources_service_t* service = flecs_world.try_get<spectre_resources_service_t>();
     if (service && service->api && service->api->export_configuration) {

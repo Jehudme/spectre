@@ -55,7 +55,14 @@ static sandbox_requirement_info_t scenes_requirements[] = {{.kind = SANDBOX_REQU
                                                             .architecture = "sandbox",
                                                             .version_major = 1,
                                                             .version_minor = 0,
-                                                            .version_patch = -1}};
+                                                            .version_patch = -1},
+{.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+ .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+ .name = "components",
+ .architecture = "spectre",
+ .version_major = 1,
+ .version_minor = 0,
+ .version_patch = -1}};
 
 SANDBOX_DECLARE_MODULE(scenes_module_t, {.name = "scenes",
                                          .description = "Scenes Module",
@@ -65,7 +72,7 @@ SANDBOX_DECLARE_MODULE(scenes_module_t, {.name = "scenes",
                                          .version_patch = 0,
                                          .service = &spectre_scenes_service_t_info,
                                          .requirements = scenes_requirements,
-                                         .requirement_count = 1})
+                                         .requirement_count = 2})
 
 scenes_module_t::scenes_module_t(flecs::world& world) : m_world(world) {
     sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scenes Module] Initializing...");

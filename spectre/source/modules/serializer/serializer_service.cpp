@@ -92,7 +92,7 @@ static void serializer_deserialize_entity(ecs_world_t* entity_world, ecs_entity_
 }
 
 // --- Public C API Implementations ---
-void spectre_serializer_register_serializer(ecs_world_t* world, const char* type,
+SPECTRE_API void spectre_serializer_register_serializer(ecs_world_t* world, const char* type,
                                             const spectre_serializer_component* serializer) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
@@ -110,7 +110,7 @@ void spectre_serializer_register_serializer(ecs_world_t* world, const char* type
     serializer_register_serializer(world, type, serializer);
 }
 
-bool spectre_serializer_has_serializer(ecs_world_t* world, const char* type) {
+SPECTRE_API bool spectre_serializer_has_serializer(ecs_world_t* world, const char* type) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_serializer_service_t* service = flecs_world.try_get<spectre_serializer_service_t>();
@@ -126,7 +126,7 @@ bool spectre_serializer_has_serializer(ecs_world_t* world, const char* type) {
     return serializer_has_serializer(world, type);
 }
 
-bool spectre_serializer_is_serializer(ecs_world_t* world, ecs_entity_t entity) {
+SPECTRE_API bool spectre_serializer_is_serializer(ecs_world_t* world, ecs_entity_t entity) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_serializer_service_t* service = flecs_world.try_get<spectre_serializer_service_t>();
@@ -142,7 +142,7 @@ bool spectre_serializer_is_serializer(ecs_world_t* world, ecs_entity_t entity) {
     return serializer_is_serializer(world, entity);
 }
 
-ecs_entity_t spectre_serializer_find_serializer(ecs_world_t* world, const char* type) {
+SPECTRE_API ecs_entity_t spectre_serializer_find_serializer(ecs_world_t* world, const char* type) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
     const spectre_serializer_service_t* service = flecs_world.try_get<spectre_serializer_service_t>();
@@ -158,7 +158,7 @@ ecs_entity_t spectre_serializer_find_serializer(ecs_world_t* world, const char* 
     return serializer_find_serializer(world, type);
 }
 
-sandbox_properties_handle_t spectre_serializer_serialize_entity(ecs_world_t* world, ecs_entity_t serializer,
+SPECTRE_API sandbox_properties_handle_t spectre_serializer_serialize_entity(ecs_world_t* world, ecs_entity_t serializer,
                                                                 ecs_entity_t entity) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);
@@ -175,7 +175,7 @@ sandbox_properties_handle_t spectre_serializer_serialize_entity(ecs_world_t* wor
     return serializer_serialize_entity(world, serializer, entity);
 }
 
-void spectre_serializer_deserialize_entity(ecs_world_t* world, ecs_entity_t serializer, ecs_entity_t target,
+SPECTRE_API void spectre_serializer_deserialize_entity(ecs_world_t* world, ecs_entity_t serializer, ecs_entity_t target,
                                            sandbox_properties_handle_t props) {
 #ifdef __cplusplus
     flecs::world flecs_world(world);

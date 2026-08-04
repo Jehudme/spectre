@@ -1,4 +1,13 @@
 #pragma once
+
+#ifndef SPECTRE_API
+#if defined(_WIN32)
+#define SPECTRE_API __declspec(dllexport)
+#else
+#define SPECTRE_API __attribute__((visibility("default")))
+#endif
+#endif
+
 #include "spectre/spectre.h" // for custom types
 #include <sandbox/abi/bootstrapper.h>
 #include <sandbox/abi/properties.h>
@@ -28,19 +37,19 @@ SANDBOX_DECLARE_SERVICE(spectre_serializer_service_t, spectre_serializer_api_t,
 
 // --- Public C API ---
 SANDBOX_API
-void spectre_serializer_register_serializer(ecs_world_t* world, const char* type,
+SPECTRE_API void spectre_serializer_register_serializer(ecs_world_t* world, const char* type,
                                             const spectre_serializer_component* serializer);
 SANDBOX_API
-bool spectre_serializer_has_serializer(ecs_world_t* world, const char* type);
+SPECTRE_API bool spectre_serializer_has_serializer(ecs_world_t* world, const char* type);
 SANDBOX_API
-bool spectre_serializer_is_serializer(ecs_world_t* world, ecs_entity_t entity);
+SPECTRE_API bool spectre_serializer_is_serializer(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API
-ecs_entity_t spectre_serializer_find_serializer(ecs_world_t* world, const char* type);
+SPECTRE_API ecs_entity_t spectre_serializer_find_serializer(ecs_world_t* world, const char* type);
 SANDBOX_API
-sandbox_properties_handle_t spectre_serializer_serialize_entity(ecs_world_t* world, ecs_entity_t serializer,
+SPECTRE_API sandbox_properties_handle_t spectre_serializer_serialize_entity(ecs_world_t* world, ecs_entity_t serializer,
                                                                 ecs_entity_t entity);
 SANDBOX_API
-void spectre_serializer_deserialize_entity(ecs_world_t* world, ecs_entity_t serializer, ecs_entity_t entity,
+SPECTRE_API void spectre_serializer_deserialize_entity(ecs_world_t* world, ecs_entity_t serializer, ecs_entity_t entity,
                                            sandbox_properties_handle_t props);
 
 #ifdef __cplusplus

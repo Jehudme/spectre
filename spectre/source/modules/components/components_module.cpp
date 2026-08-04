@@ -180,6 +180,7 @@ components_module_t::components_module_t(flecs::world& world) : m_world(world) {
     sandbox::modules::logs::trace(m_world, "[Components Module] Initializing...");
 
     sandbox::modules::logs::info(m_world, "[Components Module] Initialized successfully.");
+    printf("[Components Module] Constructor finished. Address of this: %p, id is: %lu\n", this, m_world.id<components_module_t>());
 }
 
 components_module_t::~components_module_t() {}

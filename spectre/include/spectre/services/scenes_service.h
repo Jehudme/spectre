@@ -1,4 +1,13 @@
 #pragma once
+
+#ifndef SPECTRE_API
+#if defined(_WIN32)
+#define SPECTRE_API __declspec(dllexport)
+#else
+#define SPECTRE_API __attribute__((visibility("default")))
+#endif
+#endif
+
 #include "spectre/spectre.h" // for custom types
 #include <sandbox/abi/bootstrapper.h>
 #include <sandbox/abi/properties.h>
@@ -42,46 +51,46 @@ SANDBOX_DECLARE_SERVICE(spectre_scenes_service_t, spectre_scenes_api_t,
 
 // --- Public C API ---
 SANDBOX_API
-sandbox_properties_handle_t spectre_scenes_serialize_state(ecs_world_t* world, ecs_entity_t state);
+SPECTRE_API sandbox_properties_handle_t spectre_scenes_serialize_state(ecs_world_t* world, ecs_entity_t state);
 SANDBOX_API
-void spectre_scenes_deserialize_state(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
+SPECTRE_API void spectre_scenes_deserialize_state(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
 SANDBOX_API
-sandbox_properties_handle_t spectre_scenes_serialize_scene(ecs_world_t* world, ecs_entity_t scene);
+SPECTRE_API sandbox_properties_handle_t spectre_scenes_serialize_scene(ecs_world_t* world, ecs_entity_t scene);
 SANDBOX_API
-void spectre_scenes_deserialize_scene(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
+SPECTRE_API void spectre_scenes_deserialize_scene(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
 SANDBOX_API
-void spectre_scenes_register_state(ecs_world_t* world, sandbox_properties_handle_t props);
+SPECTRE_API void spectre_scenes_register_state(ecs_world_t* world, sandbox_properties_handle_t props);
 SANDBOX_API
-void spectre_scenes_register_scene(ecs_world_t* world, sandbox_properties_handle_t props);
+SPECTRE_API void spectre_scenes_register_scene(ecs_world_t* world, sandbox_properties_handle_t props);
 SANDBOX_API
-ecs_entity_t spectre_scenes_find_state(ecs_world_t* world, const char* name);
+SPECTRE_API ecs_entity_t spectre_scenes_find_state(ecs_world_t* world, const char* name);
 SANDBOX_API
-ecs_entity_t spectre_scenes_find_scene(ecs_world_t* world, const char* name);
+SPECTRE_API ecs_entity_t spectre_scenes_find_scene(ecs_world_t* world, const char* name);
 SANDBOX_API
-bool spectre_scenes_has_state(ecs_world_t* world, const char* name);
+SPECTRE_API bool spectre_scenes_has_state(ecs_world_t* world, const char* name);
 SANDBOX_API
-bool spectre_scenes_has_scene(ecs_world_t* world, const char* name);
+SPECTRE_API bool spectre_scenes_has_scene(ecs_world_t* world, const char* name);
 SANDBOX_API
-bool spectre_scenes_is_state(ecs_world_t* world, ecs_entity_t entity);
+SPECTRE_API bool spectre_scenes_is_state(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API
-bool spectre_scenes_is_scene(ecs_world_t* world, ecs_entity_t entity);
+SPECTRE_API bool spectre_scenes_is_scene(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API
-ecs_entity_t* spectre_scenes_list_states(ecs_world_t* world, size_t* count);
+SPECTRE_API ecs_entity_t* spectre_scenes_list_states(ecs_world_t* world, size_t* count);
 SANDBOX_API
-ecs_entity_t spectre_scenes_find_current_state(ecs_world_t* world);
+SPECTRE_API ecs_entity_t spectre_scenes_find_current_state(ecs_world_t* world);
 SANDBOX_API
 ecs_query_t* spectre_scenes_find_current_scenes(ecs_world_t* world);
 SANDBOX_API
-void spectre_scenes_push_state(ecs_world_t* world, ecs_entity_t state);
+SPECTRE_API void spectre_scenes_push_state(ecs_world_t* world, ecs_entity_t state);
 SANDBOX_API
-void spectre_scenes_pop_state(ecs_world_t* world);
+SPECTRE_API void spectre_scenes_pop_state(ecs_world_t* world);
 SANDBOX_API
-void spectre_scenes_execute_recursive(ecs_world_t* world, ecs_entity_t entity, spectre_recursive_callback_t callback,
+SPECTRE_API void spectre_scenes_execute_recursive(ecs_world_t* world, ecs_entity_t entity, spectre_recursive_callback_t callback,
                                       void* payload);
 SANDBOX_API
-void spectre_scenes_import_configuration(ecs_world_t* world, const char* path);
+SPECTRE_API void spectre_scenes_import_configuration(ecs_world_t* world, const char* path);
 SANDBOX_API
-void spectre_scenes_export_configuration(ecs_world_t* world, const char* path);
+SPECTRE_API void spectre_scenes_export_configuration(ecs_world_t* world, const char* path);
 
 #ifdef __cplusplus
 }

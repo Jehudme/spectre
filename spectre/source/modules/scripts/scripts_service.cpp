@@ -47,7 +47,7 @@ static ecs_entity_t* scripts_list_scripts(ecs_world_t* world, size_t* count) {
     return result.empty() ? nullptr : result.data();
 }
 
-ecs_entity_t* spectre_scripts_list_scripts(ecs_world_t* world, size_t* count) {
+SPECTRE_API ecs_entity_t* spectre_scripts_list_scripts(ecs_world_t* world, size_t* count) {
 #ifdef __cplusplus
     flecs::world fw(world);
     const spectre_scripts_service_t* service = fw.try_get<spectre_scripts_service_t>();
@@ -201,46 +201,46 @@ static spectre_scripts_api_t api = {scripts_has_script,          scripts_is_scri
 
 SANDBOX_DEFINE_SERVICE(spectre_scripts_service_t, spectre_scripts_api_t, &api)
 
-bool spectre_scripts_has_script(ecs_world_t* world, const char* function_name,
+SPECTRE_API bool spectre_scripts_has_script(ecs_world_t* world, const char* function_name,
                                 const spectre_script_argument_type_t* arg_types, size_t arg_count) {
     return scripts_has_script(world, function_name, arg_types, arg_count);
 }
-bool spectre_scripts_is_script(ecs_world_t* world, ecs_entity_t entity) {
+SPECTRE_API bool spectre_scripts_is_script(ecs_world_t* world, ecs_entity_t entity) {
     return scripts_is_script(world, entity);
 }
-ecs_entity_t spectre_scripts_find_script(ecs_world_t* world, const char* function_name) {
+SPECTRE_API ecs_entity_t spectre_scripts_find_script(ecs_world_t* world, const char* function_name) {
     return scripts_find_script(world, function_name);
 }
-void spectre_scripts_include_code(ecs_world_t* world, const char* path) {
+SPECTRE_API void spectre_scripts_include_code(ecs_world_t* world, const char* path) {
     scripts_include_code(world, path);
 }
-void spectre_scripts_execute_script(ecs_world_t* world, const char* function_name, spectre_script_argument_t* args,
+SPECTRE_API void spectre_scripts_execute_script(ecs_world_t* world, const char* function_name, spectre_script_argument_t* args,
                                     size_t arg_count) {
     scripts_execute_script(world, function_name, args, arg_count);
 }
-sandbox_properties_handle_t spectre_scripts_serialize_scripts(ecs_world_t* world, ecs_entity_t entity) {
+SPECTRE_API sandbox_properties_handle_t spectre_scripts_serialize_scripts(ecs_world_t* world, ecs_entity_t entity) {
     return scripts_serialize_scripts(world, entity);
 }
-void spectre_scripts_deserialize_scripts(ecs_world_t* world, ecs_entity_t target,
+SPECTRE_API void spectre_scripts_deserialize_scripts(ecs_world_t* world, ecs_entity_t target,
                                          sandbox_properties_handle_t props_handle) {
     scripts_deserialize_scripts(world, target, props_handle);
 }
 
-void spectre_scripts_execute_on_create(ecs_world_t* world, ecs_entity_t entity) {
+SPECTRE_API void spectre_scripts_execute_on_create(ecs_world_t* world, ecs_entity_t entity) {
     scripts_execute_on_create(world, entity);
 }
-void spectre_scripts_execute_on_destroy(ecs_world_t* world, ecs_entity_t entity) {
+SPECTRE_API void spectre_scripts_execute_on_destroy(ecs_world_t* world, ecs_entity_t entity) {
     scripts_execute_on_destroy(world, entity);
 }
-void spectre_scripts_execute_on_update(ecs_world_t* world, ecs_entity_t entity) {
+SPECTRE_API void spectre_scripts_execute_on_update(ecs_world_t* world, ecs_entity_t entity) {
     scripts_execute_on_update(world, entity);
 }
-void spectre_scripts_execute_on_enter(ecs_world_t* world, ecs_entity_t entity) {
+SPECTRE_API void spectre_scripts_execute_on_enter(ecs_world_t* world, ecs_entity_t entity) {
     scripts_execute_on_enter(world, entity);
 }
-void spectre_scripts_execute_on_exit(ecs_world_t* world, ecs_entity_t entity) {
+SPECTRE_API void spectre_scripts_execute_on_exit(ecs_world_t* world, ecs_entity_t entity) {
     scripts_execute_on_exit(world, entity);
 }
-void spectre_scripts_import_configuration(ecs_world_t* world, const char* directory_path) {
+SPECTRE_API void spectre_scripts_import_configuration(ecs_world_t* world, const char* directory_path) {
     scripts_import_configuration(world, directory_path);
 }

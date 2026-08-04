@@ -1,4 +1,13 @@
 #pragma once
+
+#ifndef SPECTRE_API
+#if defined(_WIN32)
+#define SPECTRE_API __declspec(dllexport)
+#else
+#define SPECTRE_API __attribute__((visibility("default")))
+#endif
+#endif
+
 #include "spectre/spectre.h" // for custom types
 #include <sandbox/abi/bootstrapper.h>
 #include <sandbox/abi/properties.h>
@@ -33,31 +42,31 @@ SANDBOX_DECLARE_SERVICE(spectre_prefabs_service_t, spectre_prefabs_api_t,
 
 // --- Public C API ---
 SANDBOX_API
-sandbox_properties_handle_t spectre_prefabs_serialize_entity(ecs_world_t* world, ecs_entity_t entity);
+SPECTRE_API sandbox_properties_handle_t spectre_prefabs_serialize_entity(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API
-void spectre_prefabs_deserialize_entity(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
+SPECTRE_API void spectre_prefabs_deserialize_entity(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
 SANDBOX_API
-void spectre_prefabs_register_prefab(ecs_world_t* world, const char* name, sandbox_properties_handle_t props);
+SPECTRE_API void spectre_prefabs_register_prefab(ecs_world_t* world, const char* name, sandbox_properties_handle_t props);
 SANDBOX_API
-bool spectre_prefabs_has_prefab(ecs_world_t* world, const char* name);
+SPECTRE_API bool spectre_prefabs_has_prefab(ecs_world_t* world, const char* name);
 SANDBOX_API
-bool spectre_prefabs_is_prefab(ecs_world_t* world, ecs_entity_t entity);
+SPECTRE_API bool spectre_prefabs_is_prefab(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API
-ecs_entity_t* spectre_prefabs_list_prefabs(ecs_world_t* world, size_t* count);
+SPECTRE_API ecs_entity_t* spectre_prefabs_list_prefabs(ecs_world_t* world, size_t* count);
 SANDBOX_API
-ecs_entity_t* spectre_prefabs_list_prefabs(ecs_world_t* world, size_t* count);
+SPECTRE_API ecs_entity_t* spectre_prefabs_list_prefabs(ecs_world_t* world, size_t* count);
 SANDBOX_API
-ecs_entity_t spectre_prefabs_find_prefab(ecs_world_t* world, const char* name);
+SPECTRE_API ecs_entity_t spectre_prefabs_find_prefab(ecs_world_t* world, const char* name);
 SANDBOX_API
-ecs_entity_t spectre_prefabs_create_entity_from_props(ecs_world_t* world, sandbox_properties_handle_t props);
+SPECTRE_API ecs_entity_t spectre_prefabs_create_entity_from_props(ecs_world_t* world, sandbox_properties_handle_t props);
 SANDBOX_API
-ecs_entity_t spectre_prefabs_create_entity_from_prefab(ecs_world_t* world, ecs_entity_t prefab);
+SPECTRE_API ecs_entity_t spectre_prefabs_create_entity_from_prefab(ecs_world_t* world, ecs_entity_t prefab);
 SANDBOX_API
-ecs_entity_t spectre_prefabs_create_entity_from_name(ecs_world_t* world, const char* name);
+SPECTRE_API ecs_entity_t spectre_prefabs_create_entity_from_name(ecs_world_t* world, const char* name);
 SANDBOX_API
-void spectre_prefabs_import_configuration(ecs_world_t* world, const char* directory_path);
+SPECTRE_API void spectre_prefabs_import_configuration(ecs_world_t* world, const char* directory_path);
 SANDBOX_API
-void spectre_prefabs_export_configuration(ecs_world_t* world, const char* directory_path);
+SPECTRE_API void spectre_prefabs_export_configuration(ecs_world_t* world, const char* directory_path);
 
 #ifdef __cplusplus
 }

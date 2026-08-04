@@ -79,7 +79,14 @@ static sandbox_requirement_info_t resources_requirements[] = {{.kind = SANDBOX_R
                                                                .architecture = "sandbox",
                                                                .version_major = 1,
                                                                .version_minor = 0,
-                                                               .version_patch = -1}};
+                                                               .version_patch = -1},
+{.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+ .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+ .name = "components",
+ .architecture = "spectre",
+ .version_major = 1,
+ .version_minor = 0,
+ .version_patch = -1}};
 
 SANDBOX_DECLARE_MODULE(resource_module_t, {.name = "resources",
                                            .description = "Resources Module",
@@ -89,7 +96,7 @@ SANDBOX_DECLARE_MODULE(resource_module_t, {.name = "resources",
                                            .version_patch = 0,
                                            .service = &spectre_resources_service_t_info,
                                            .requirements = resources_requirements,
-                                           .requirement_count = 2})
+                                           .requirement_count = 3})
 
 resource_module_t::resource_module_t(flecs::world& world) : m_world(world) {
     sandbox::modules::logs::trace(const_cast<flecs::world&>(m_world), "[Resources Module] Initializing...");

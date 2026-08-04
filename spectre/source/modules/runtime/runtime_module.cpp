@@ -134,7 +134,14 @@ static sandbox_requirement_info_t runtime_requirements[] = {{.kind = SANDBOX_REQ
                                                              .architecture = "sandbox",
                                                              .version_major = 1,
                                                              .version_minor = 0,
-                                                             .version_patch = -1}};
+                                                             .version_patch = -1},
+{.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+ .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+ .name = "components",
+ .architecture = "spectre",
+ .version_major = 1,
+ .version_minor = 0,
+ .version_patch = -1}};
 
 namespace spectre::modules {
 static void spectre_runtime_run(ecs_world_t* entity_world) {
@@ -193,10 +200,25 @@ struct runtime_module_initializer_t {
         entity_world.component<runtime_module_t>("RuntimeModule");
         entity_world.set<runtime_module_t>(runtime_module_t());
 
-        // Override the default API with spectre's implementation
-        sandbox_runtime_service_t* service = entity_world.try_get_mut<sandbox_runtime_service_t>();
-        if (service) {
-            service->api = &g_spectre_runtime_api;
+        // We must define the C component if sandbox-runtime was not loaded
+        ECS_COMPONENT_DEFINE(entity_world.c_ptr(), sandbox_runtime_service_t);
+
+        sandbox_runtime_service_t inst;
+        inst.api = &g_spectre_runtime_api;
+        inst.info = &sandbox_runtime_service_t_info;
+        
+        std::cout << "[Spectre] Debug: ecs_id(sandbox_runtime_service_t) in spectre is " << ecs_id(sandbox_runtime_service_t) << "\n";
+        
+        ecs_set_id(entity_world.c_ptr(), 
+                   ecs_id(sandbox_runtime_service_t), 
+                   ecs_id(sandbox_runtime_service_t), 
+                   sizeof(sandbox_runtime_service_t), 
+                   &inst);
+                   
+        const sandbox_runtime_service_t* check = (const sandbox_runtime_service_t*)ecs_singleton_get(entity_world.c_ptr(), sandbox_runtime_service_t);
+        if (check) {
+            std::cout << "[Spectre] Debug: After set, api->run is " << (void*)check->api->run << "\n";
+            std::cout << "[Spectre] Debug: g_spectre_runtime_api.run is " << (void*)&spectre_runtime_run << "\n";
         }
     }
 };
@@ -209,5 +231,5 @@ SANDBOX_DECLARE_MODULE(runtime_module_initializer_t, {.name = "runtime",
                                                       .version_patch = 0,
                                                       .service = &sandbox_runtime_service_t_info,
                                                       .requirements = runtime_requirements,
-                                                      .requirement_count = 1})
+                                                      .requirement_count = 2})
 } // namespace spectre::modules

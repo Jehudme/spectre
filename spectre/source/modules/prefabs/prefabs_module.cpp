@@ -21,7 +21,14 @@ static sandbox_requirement_info_t prefabs_requirements[] = {{.kind = SANDBOX_REQ
                                                              .architecture = "sandbox",
                                                              .version_major = 1,
                                                              .version_minor = 0,
-                                                             .version_patch = -1}};
+                                                             .version_patch = -1},
+{.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+ .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+ .name = "components",
+ .architecture = "spectre",
+ .version_major = 1,
+ .version_minor = 0,
+ .version_patch = -1}};
 
 SANDBOX_DECLARE_MODULE(prefabs_module_t, {.name = "prefabs",
                                           .description = "Prefabs Module",
@@ -31,7 +38,7 @@ SANDBOX_DECLARE_MODULE(prefabs_module_t, {.name = "prefabs",
                                           .version_patch = 0,
                                           .service = &spectre_prefabs_service_t_info,
                                           .requirements = prefabs_requirements,
-                                          .requirement_count = 1})
+                                          .requirement_count = 2})
 
 prefabs_module_t::prefabs_module_t(flecs::world& world) : m_world(world) {
     sandbox::modules::logs::trace(m_world, "[Prefabs Module] Initializing...");

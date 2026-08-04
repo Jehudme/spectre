@@ -45,38 +45,46 @@ SANDBOX_DECLARE_SERVICE(spectre_components_service_t, spectre_components_api_t,
                          .version_minor = 0,
                          .init_fn = NULL});
 
+#ifndef SPECTRE_API
+#ifdef _WIN32
+#define SPECTRE_API __declspec(dllexport)
+#else
+#define SPECTRE_API __attribute__((visibility("default")))
+#endif
+#endif
+
 // --- Public C API ---
-SANDBOX_API
-void spectre_components_register_component(ecs_world_t* world, const char* name,
+SPECTRE_API
+SPECTRE_API void spectre_components_register_component(ecs_world_t* world, const char* name,
                                            spectre_component_registration_fn_t registration_fn,
                                            spectre_serializer_component serializer);
 
-SANDBOX_API
-bool spectre_components_is_static(ecs_world_t* world, const char* name);
+SPECTRE_API
+SPECTRE_API bool spectre_components_is_static(ecs_world_t* world, const char* name);
 
-SANDBOX_API
-sandbox_properties_handle_t spectre_components_find_schema(ecs_world_t* world, const char* name);
+SPECTRE_API
+SPECTRE_API sandbox_properties_handle_t spectre_components_find_schema(ecs_world_t* world, const char* name);
 
-SANDBOX_API
-ecs_entity_t spectre_components_find_component(ecs_world_t* world, const char* name);
+SPECTRE_API
+SPECTRE_API ecs_entity_t spectre_components_find_component(ecs_world_t* world, const char* name);
 
-SANDBOX_API
-bool spectre_components_has_component(ecs_world_t* world, const char* name);
+SPECTRE_API
+SPECTRE_API bool spectre_components_has_component(ecs_world_t* world, const char* name);
 
-SANDBOX_API
-bool spectre_components_is_component(ecs_world_t* world, ecs_entity_t entity);
+SPECTRE_API
+SPECTRE_API bool spectre_components_is_component(ecs_world_t* world, ecs_entity_t entity);
 
-SANDBOX_API
-ecs_entity_t* spectre_components_list_components(ecs_world_t* world, size_t* count);
+SPECTRE_API
+SPECTRE_API ecs_entity_t* spectre_components_list_components(ecs_world_t* world, size_t* count);
 
-SANDBOX_API
-void spectre_components_register_dynamic_component(ecs_world_t* world, const char* name, sandbox_properties_handle_t properties);
+SPECTRE_API
+SPECTRE_API void spectre_components_register_dynamic_component(ecs_world_t* world, const char* name, sandbox_properties_handle_t properties);
 
-SANDBOX_API
-void spectre_components_import_configuration(ecs_world_t* world, const char* directory_path);
+SPECTRE_API
+SPECTRE_API void spectre_components_import_configuration(ecs_world_t* world, const char* directory_path);
 
-SANDBOX_API
-void spectre_components_export_configuration(ecs_world_t* world, const char* directory_path);
+SPECTRE_API
+SPECTRE_API void spectre_components_export_configuration(ecs_world_t* world, const char* directory_path);
 
 
 #ifdef __cplusplus

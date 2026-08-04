@@ -29,7 +29,14 @@ static sandbox_requirement_info_t scripts_requirements[] = {{.kind = SANDBOX_REQ
                                                              .architecture = "sandbox::core",
                                                              .version_major = 1,
                                                              .version_minor = 0,
-                                                             .version_patch = -1}};
+                                                             .version_patch = -1},
+{.kind = SANDBOX_REQUIREMENT_KIND_SERVICE,
+ .strictness = SANDBOX_REQUIREMENT_STRICTNESS_REQUIRED,
+ .name = "components",
+ .architecture = "spectre",
+ .version_major = 1,
+ .version_minor = 0,
+ .version_patch = -1}};
 
 SANDBOX_DECLARE_MODULE(script_module_t, {.name = "scripts",
                                          .description = "Scripts Module",
@@ -39,7 +46,7 @@ SANDBOX_DECLARE_MODULE(script_module_t, {.name = "scripts",
                                          .version_patch = 0,
                                          .service = &spectre_scripts_service_t_info,
                                          .requirements = scripts_requirements,
-                                         .requirement_count = 2})
+                                         .requirement_count = 3})
 
 static int custom_vfs_loader(lua_State* L) {
     const char* modname = luaL_checkstring(L, 1);

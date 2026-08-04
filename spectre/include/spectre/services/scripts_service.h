@@ -1,4 +1,13 @@
 #pragma once
+
+#ifndef SPECTRE_API
+#if defined(_WIN32)
+#define SPECTRE_API __declspec(dllexport)
+#else
+#define SPECTRE_API __attribute__((visibility("default")))
+#endif
+#endif
+
 #include "spectre/spectre.h" // for custom types
 #include <sandbox/abi/bootstrapper.h>
 #include <sandbox/abi/properties.h>
@@ -38,36 +47,36 @@ SANDBOX_DECLARE_SERVICE(spectre_scripts_service_t, spectre_scripts_api_t, {
 
 // --- Public C API ---
 SANDBOX_API
-bool spectre_scripts_has_script(ecs_world_t* world, const char* function_name,
+SPECTRE_API bool spectre_scripts_has_script(ecs_world_t* world, const char* function_name,
                                 const spectre_script_argument_type_t* arg_types, size_t arg_count);
 SANDBOX_API
-bool spectre_scripts_is_script(ecs_world_t* world, ecs_entity_t entity);
+SPECTRE_API bool spectre_scripts_is_script(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API
 SANDBOX_API
-ecs_entity_t* spectre_scripts_list_scripts(ecs_world_t* world, size_t* count);
+SPECTRE_API ecs_entity_t* spectre_scripts_list_scripts(ecs_world_t* world, size_t* count);
 
-ecs_entity_t spectre_scripts_find_script(ecs_world_t* world, const char* function_name);
+SPECTRE_API ecs_entity_t spectre_scripts_find_script(ecs_world_t* world, const char* function_name);
 SANDBOX_API
-void spectre_scripts_include_code(ecs_world_t* world, const char* path);
+SPECTRE_API void spectre_scripts_include_code(ecs_world_t* world, const char* path);
 SANDBOX_API
-void spectre_scripts_execute_script(ecs_world_t* world, const char* function_name, spectre_script_argument_t* args,
+SPECTRE_API void spectre_scripts_execute_script(ecs_world_t* world, const char* function_name, spectre_script_argument_t* args,
                                     size_t arg_count);
 SANDBOX_API
-sandbox_properties_handle_t spectre_scripts_serialize_scripts(ecs_world_t* world, ecs_entity_t entity);
+SPECTRE_API sandbox_properties_handle_t spectre_scripts_serialize_scripts(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API
-void spectre_scripts_deserialize_scripts(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
+SPECTRE_API void spectre_scripts_deserialize_scripts(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
 SANDBOX_API
-void spectre_scripts_execute_on_create(ecs_world_t* world, ecs_entity_t entity);
+SPECTRE_API void spectre_scripts_execute_on_create(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API
-void spectre_scripts_execute_on_destroy(ecs_world_t* world, ecs_entity_t entity);
+SPECTRE_API void spectre_scripts_execute_on_destroy(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API
-void spectre_scripts_execute_on_update(ecs_world_t* world, ecs_entity_t entity);
+SPECTRE_API void spectre_scripts_execute_on_update(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API
-void spectre_scripts_execute_on_enter(ecs_world_t* world, ecs_entity_t entity);
+SPECTRE_API void spectre_scripts_execute_on_enter(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API
-void spectre_scripts_execute_on_exit(ecs_world_t* world, ecs_entity_t entity);
+SPECTRE_API void spectre_scripts_execute_on_exit(ecs_world_t* world, ecs_entity_t entity);
 SANDBOX_API
-void spectre_scripts_import_configuration(ecs_world_t* world, const char* directory_path);
+SPECTRE_API void spectre_scripts_import_configuration(ecs_world_t* world, const char* directory_path);
 
 #ifdef __cplusplus
 }

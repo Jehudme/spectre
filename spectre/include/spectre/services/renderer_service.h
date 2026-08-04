@@ -1,4 +1,13 @@
 #pragma once
+
+#ifndef SPECTRE_API
+#if defined(_WIN32)
+#define SPECTRE_API __declspec(dllexport)
+#else
+#define SPECTRE_API __attribute__((visibility("default")))
+#endif
+#endif
+
 #include "spectre/spectre.h" // for custom types
 #include <sandbox/abi/bootstrapper.h>
 #include <sandbox/abi/properties.h>
@@ -27,17 +36,17 @@ SANDBOX_DECLARE_SERVICE(spectre_renderer_service_t, spectre_renderer_api_t,
 
 // --- Public C API ---
 SANDBOX_API
-void spectre_renderer_deserialize_renderer(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
+SPECTRE_API void spectre_renderer_deserialize_renderer(ecs_world_t* world, ecs_entity_t target, sandbox_properties_handle_t props);
 SANDBOX_API
-sandbox_properties_handle_t spectre_renderer_serialize_renderer(ecs_world_t* world, ecs_entity_t renderer);
+SPECTRE_API sandbox_properties_handle_t spectre_renderer_serialize_renderer(ecs_world_t* world, ecs_entity_t renderer);
 SANDBOX_API
-void spectre_renderer_register_renderer(ecs_world_t* world, sandbox_properties_handle_t props);
+SPECTRE_API void spectre_renderer_register_renderer(ecs_world_t* world, sandbox_properties_handle_t props);
 SANDBOX_API
-bool spectre_renderer_is_renderer(ecs_world_t* world);
+SPECTRE_API bool spectre_renderer_is_renderer(ecs_world_t* world);
 SANDBOX_API
-void spectre_renderer_import_configuration(ecs_world_t* world, const char* path);
+SPECTRE_API void spectre_renderer_import_configuration(ecs_world_t* world, const char* path);
 SANDBOX_API
-void spectre_renderer_export_configuration(ecs_world_t* world, const char* path);
+SPECTRE_API void spectre_renderer_export_configuration(ecs_world_t* world, const char* path);
 
 #ifdef __cplusplus
 }
