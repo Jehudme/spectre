@@ -226,37 +226,11 @@ sandbox::properties scenes_module_t::serialize_scene(flecs::entity scene_entity)
     if (!scene_entity.is_valid())
         return properties;
 
-    properties.set<std::string>("name", scene_entity.name().c_str());
-
-    // Serialize scripts
-    if (m_script_args_serializer != 0) {
-        sandbox_properties_handle_t properties_handle = spectre::modules::serializer::serialize_entity(
-            m_world, m_script_args_serializer, scene_entity.id());
-        sandbox::properties scripts_node(properties_handle, true);
-        if (scripts_node.is_valid()) {
-            properties.merge("scripts", scripts_node);
-        }
-    }
-
-    // Serialize hierarchies
     if (m_entity_serializer != 0) {
-        sandbox::properties hierarchies_array;
-        int child_index = 0;
-        scene_entity.children([&](flecs::entity child_entity) {
-            if (child_entity.name() != "scripts") {
-                sandbox_properties_handle_t properties_handle = spectre::modules::serializer::serialize_entity(
-                    m_world, m_entity_serializer, child_entity.id());
-                sandbox::properties child_properties(properties_handle, true);
-                if (child_properties.is_valid()) {
-                    hierarchies_array.merge(std::to_string(child_index++), child_properties);
-                }
-            }
-        });
-        if (child_index > 0) {
-            properties.merge("hierarchies", hierarchies_array);
-        }
+        sandbox_properties_handle_t properties_handle = spectre::modules::serializer::serialize_entity(
+            m_world, m_entity_serializer, scene_entity.id());
+        properties = sandbox::properties(properties_handle, true);
     }
-
     return properties;
 }
 
@@ -271,31 +245,8 @@ void scenes_module_t::deserialize_scene(flecs::entity scene_entity, sandbox::pro
 
     scene_entity.add<spectre_scene_t>();
 
-    if (m_script_args_serializer == 0) {
-        m_script_args_serializer = m_world.entity(spectre::modules::serializer::find_serializer(m_world, "scripts"));
-    }
-    if (properties.has("scripts") && m_script_args_serializer != 0) {
-        sandbox::properties scripts_node = properties.sub("scripts");
-        spectre::modules::serializer::deserialize_entity(m_world, m_script_args_serializer, scene_entity.id(),
-                                                         scripts_node.get_raw());
-    }
-
-    if (properties.has("hierarchies") && m_entity_serializer != 0) {
-        std::vector<std::string> keys = properties.keys("hierarchies");
-        sandbox::properties hierarchies_node = properties.sub("hierarchies");
-
-        for (const auto& key : keys) {
-            sandbox::properties child_properties = hierarchies_node.sub(key);
-            if (child_properties.is_valid()) {
-                flecs::entity child_entity = m_world.entity();
-                spectre::modules::serializer::deserialize_entity(m_world, m_entity_serializer, child_entity.id(),
-                                                                 child_properties.get_raw());
-                if (child_entity.is_valid()) {
-                    child_entity.child_of(scene_entity);
-                    child_entity.add(flecs::Prefab);
-                }
-            }
-        }
+    if (m_entity_serializer != 0) {
+        spectre::modules::serializer::deserialize_entity(m_world, m_entity_serializer, scene_entity.id(), properties.get_raw());
     }
 }
 
@@ -342,7 +293,21 @@ void scenes_module_t::register_scene(sandbox::properties properties) {
     // Clean up old scripts/hierarchies if we are re-registering
     scene_prefab.children([&](flecs::entity child_entity) { child_entity.destruct(); });
 
-    deserialize_scene(scene_prefab, std::move(properties));
+    if (properties.has("entities")) {
+        sandbox::properties root_node = properties.sub("entities").sub(scene_name);
+        if (root_node.is_valid()) {
+            deserialize_scene(scene_prefab, std::move(root_node));
+        } else {
+            sandbox::properties entities_node = properties.sub("entities");
+            std::vector<std::string> keys = entities_node.keys("");
+            if (!keys.empty()) {
+                sandbox::properties fallback_node = entities_node.sub(keys[0]);
+                deserialize_scene(scene_prefab, std::move(fallback_node));
+            }
+        }
+    } else {
+        deserialize_scene(scene_prefab, std::move(properties));
+    }
     sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scenes Module] Registered scene '{}'.",
                                  scene_name);
 }
@@ -566,12 +531,18 @@ void scenes_module_t::export_configuration(std::string_view directory_path) {
         }
     });
 
-    m_scenes_root.children([&](flecs::entity child) {
-        if (is_scene(child)) {
-            sandbox::properties props = serialize_scene(child);
-            std::string content = props.dump(sandbox::properties::Format::JSON);
-            std::string file_path = scenes_dir + "/" + child.name().c_str() + ".json";
-            sandbox::modules::filesystem::write_all(m_world, file_path.c_str(), content.c_str(), content.size(), true);
+    m_scenes_root.children([&](flecs::entity scene) {
+        if (is_scene(scene)) {
+            sandbox::properties scene_props = serialize_scene(scene);
+            if (scene_props.is_valid()) {
+                sandbox::properties root_props;
+                sandbox::properties entities_node = root_props.sub("entities");
+                entities_node.merge(scene.name().c_str(), std::move(scene_props));
+
+                std::string content = root_props.dump(sandbox::properties::Format::JSON);
+                std::string file_path = scenes_dir + "/" + std::string(scene.name()) + ".json";
+                sandbox::modules::filesystem::write_all(m_world, file_path.c_str(), content.c_str(), content.size(), true);
+            }
         }
     });
 
