@@ -10,14 +10,14 @@ local function get_available_scripts()
     if available_scripts_cache then return available_scripts_cache end
     
     local world = ecs.from_ptr(g_world)
-    local files = sandbox.filesystem.list_files(world, "projects://resources/scripts", true)
+    local files = sandbox.filesystem.list_files(world, "project://resources/scripts", true)
     local scripts_info = {}
     
     if not files then return scripts_info end
     
     for _, file in ipairs(files) do
         if file:match("%.lua$") then
-            local path = "projects://resources/scripts/" .. file
+            local path = "project://resources/scripts/" .. file
             local out_data = ffi.new("uint8_t*[1]")
             local out_size = ffi.new("size_t[1]")
             if sandbox.filesystem.read_all_bytes(world, path, out_data, out_size) then
