@@ -31,7 +31,7 @@ local function get_available_scripts()
             if success and type(script_module) == "table" then
                 local found_scripts = 0
                 for func_name, script_def in pairs(script_module) do
-                    if type(script_def) == "table" and script_def.func and script_def.args then
+                    if type(script_def) == "table" and script_def.func and type(script_def.args) == "table" then
                         local args = {}
                         for _, arg in ipairs(script_def.args) do
                             table.insert(args, arg.name)

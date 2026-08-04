@@ -51,6 +51,7 @@ static int custom_vfs_loader(lua_State* L) {
     std::string modname_str = modname;
     
     if (modname_str.find("://") != std::string::npos) {
+        printf("[C Loader] require('%s') directly from complete path\n", modname_str.c_str());
         if (sandbox_filesystem_exists(world, modname_str.c_str())) {
             sandbox_filesystem_read_all_bytes(world, modname_str.c_str(), &data, &data_size);
         } else {
@@ -59,10 +60,12 @@ static int custom_vfs_loader(lua_State* L) {
         }
     } else {
         std::string prefix = "app://";
+        std::string source_str = "unknown";
         lua_Debug ar;
         if (lua_getstack(L, 2, &ar)) {
             lua_getinfo(L, "S", &ar);
             if (ar.source) {
+                source_str = ar.source;
                 std::string source = ar.source;
                 size_t pos = source.find("://");
                 if (pos != std::string::npos) {
@@ -70,6 +73,8 @@ static int custom_vfs_loader(lua_State* L) {
                 }
             }
         }
+        
+        printf("[C Loader] require('%s') called from: %s (using prefix '%s')\n", modname, source_str.c_str(), prefix.c_str());
         
         std::string modpath = modname;
         std::replace(modpath.begin(), modpath.end(), '.', '/');

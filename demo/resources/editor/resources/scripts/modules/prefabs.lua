@@ -407,6 +407,7 @@ function Prefabs.on_update()
                         sandbox.filesystem.create_directory(world, "project://scenes/prefabs", true)
                     end
                     write_file(p, '{"entities":{}}')
+                    sandbox.logs.info(world, "[Prefabs UI] Created new prefab: " .. new_name)
                     refresh_prefabs()
                     select_prefab(new_name)
                 end
@@ -455,6 +456,7 @@ function Prefabs.on_update()
                 current_prefab_props:set_string(path .. "/dummy", "0")
                 current_prefab_props:clear(path .. "/dummy")
                 save_prefab(selected_prefab, current_prefab_props)
+                sandbox.logs.info(world, "[Prefabs UI] Added child entity '" .. cname .. "' to " .. add_child_parent .. " in prefab '" .. selected_prefab .. "'")
             end
             imgui.CloseCurrentPopup()
         end
@@ -512,6 +514,7 @@ function Prefabs.on_update()
                         current_prefab_props:set_string(p .. "/dummy", "0")
                         current_prefab_props:clear(p .. "/dummy")
                         save_prefab(selected_prefab, current_prefab_props)
+                        sandbox.logs.info(world, "[Prefabs UI] Added component '" .. comp .. "' to entity path '" .. add_comp_target .. "' in prefab '" .. selected_prefab .. "'")
                     end
                     imgui.CloseCurrentPopup()
                 end
