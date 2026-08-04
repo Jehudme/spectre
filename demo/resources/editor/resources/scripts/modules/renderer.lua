@@ -20,21 +20,33 @@ Drawers["Transform2D"] = function(props, path)
     local p = path .. "/components/Transform2D"
     local modified = false
     
-    local px = props:get_double(p .. "/position/x") or 0.0
-    local py = props:get_double(p .. "/position/y") or 0.0
-    local pbuf = ffi.new("float[2]", px, py)
-    if imgui.InputFloat2("position", pbuf) then
-        props:set_double(p .. "/position/x", pbuf[0])
-        props:set_double(p .. "/position/y", pbuf[1])
+    -- We can use InputFloat3 for position, InputFloat2 for scale and origin.
+    local px = props:get_double(p .. "/position_x") or 0.0
+    local py = props:get_double(p .. "/position_y") or 0.0
+    local pz = props:get_double(p .. "/position_z") or 0.0
+    local pbuf = ffi.new("float[3]", px, py, pz)
+    if imgui.InputFloat3("position", pbuf) then
+        props:set_double(p .. "/position_x", pbuf[0])
+        props:set_double(p .. "/position_y", pbuf[1])
+        props:set_double(p .. "/position_z", pbuf[2])
         modified = true
     end
 
-    local sx = props:get_double(p .. "/scale/x") or 1.0
-    local sy = props:get_double(p .. "/scale/y") or 1.0
+    local sx = props:get_double(p .. "/scale_x") or 1.0
+    local sy = props:get_double(p .. "/scale_y") or 1.0
     local sbuf = ffi.new("float[2]", sx, sy)
     if imgui.InputFloat2("scale", sbuf) then
-        props:set_double(p .. "/scale/x", sbuf[0])
-        props:set_double(p .. "/scale/y", sbuf[1])
+        props:set_double(p .. "/scale_x", sbuf[0])
+        props:set_double(p .. "/scale_y", sbuf[1])
+        modified = true
+    end
+    
+    local ox = props:get_double(p .. "/origin_x") or 0.0
+    local oy = props:get_double(p .. "/origin_y") or 0.0
+    local obuf = ffi.new("float[2]", ox, oy)
+    if imgui.InputFloat2("origin", obuf) then
+        props:set_double(p .. "/origin_x", obuf[0])
+        props:set_double(p .. "/origin_y", obuf[1])
         modified = true
     end
 
@@ -42,6 +54,16 @@ Drawers["Transform2D"] = function(props, path)
     local rbuf = ffi.new("float[1]", rot)
     if imgui.InputFloat("rotation", rbuf) then
         props:set_double(p .. "/rotation", rbuf[0])
+        modified = true
+    end
+    
+    -- Cleanup legacy fields if they exist
+    if props:has(p .. "/position/x") then
+        props:clear(p .. "/position")
+        modified = true
+    end
+    if props:has(p .. "/scale/x") then
+        props:clear(p .. "/scale")
         modified = true
     end
     
