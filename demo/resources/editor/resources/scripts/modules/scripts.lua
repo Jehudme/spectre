@@ -24,31 +24,30 @@ local function get_available_scripts()
                 path = "project://resources/scripts/" .. file
             end
             
-            sandbox.logs.info(world, "[Scripts UI] Scanning file: " .. path)
-            local out_data = ffi.new("uint8_t*[1]")
-            local out_size = ffi.new("size_t[1]")
-            if sandbox.filesystem.read_all_bytes(world, path, out_data, out_size) then
-                local code = ffi.string(out_data[0], out_size[0])
-                sandbox.filesystem.free_bytes(world, out_data[0])
-                
+            sandbox.logs.info(world, "[Scripts UI] Loading script file: " .. path)
+            
+            local success, script_module = pcall(require, path)
+            
+            if success and type(script_module) == "table" then
                 local found_scripts = 0
-                for func_name, args_str in code:gmatch("([%w_]+)%s*=%s*ecs%.Script%.define%s*%(%s*[^,%)]+([^%)]*)%)") do
-                    local args = {}
-                    for arg_def in args_str:gmatch('"(.-)"') do
-                        local name, type = arg_def:match("^([%w_]+):([%w_]+)$")
-                        if name then
-                            table.insert(args, name)
+                for func_name, script_def in pairs(script_module) do
+                    if type(script_def) == "table" and script_def.func and script_def.args then
+                        local args = {}
+                        for _, arg in ipairs(script_def.args) do
+                            table.insert(args, arg.name)
                         end
+                        sandbox.logs.info(world, "[Scripts UI] Registered script: " .. func_name .. " with " .. #args .. " args from " .. path)
+                        scripts_info[func_name] = args
+                        found_scripts = found_scripts + 1
                     end
-                    sandbox.logs.info(world, "[Scripts UI] Parsed script: " .. func_name .. " with " .. #args .. " args from " .. path)
-                    scripts_info[func_name] = args
-                    found_scripts = found_scripts + 1
                 end
+                
                 if found_scripts == 0 then
-                    sandbox.logs.info(world, "[Scripts UI] No ecs.Script.define found in " .. path)
+                    sandbox.logs.error(world, "[Scripts UI] No valid ecs.Script.define tables returned by " .. path)
                 end
             else
-                sandbox.logs.error(world, "[Scripts UI] Failed to read file: " .. path)
+                local err = type(script_module) == "string" and script_module or "Did not return a table"
+                sandbox.logs.error(world, "[Scripts UI] Failed to require " .. path .. " - " .. err)
             end
         end
     end
