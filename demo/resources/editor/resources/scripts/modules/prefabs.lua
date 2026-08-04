@@ -35,6 +35,9 @@ local show_add_comp_popup = false
 local add_comp_target = ""
 local available_components = {}
 
+local show_add_assigned_prefab_popup = false
+local add_assigned_prefab_target = ""
+
 local selected_entity = nil
 
 local function write_file(path, content)
@@ -337,15 +340,51 @@ function Prefabs.on_update()
             show_add_comp_popup = true
             add_comp_target = comps_path
             
+            local excluded = {
+                Scene = true, State = true, StateContext = true, SceneContext = true, DisableRendering = true,
+                Resource = true, ResourceLoader = true, ResourceFlag = true,
+                Window = true, InputState = true, Serializer = true,
+                Renderable = true, CustomPolygoneRenderable = true
+            }
+            
             available_components = {}
             for k, _ in pairs(Prefabs.Drawers) do
-                table.insert(available_components, k)
+                if not excluded[k] and not string.match(k, "Relation$") then
+                    table.insert(available_components, k)
+                end
             end
             local dyn_comps = _G.modules["Components"].list_dynamic_components()
             for _, d in ipairs(dyn_comps) do
                 table.insert(available_components, d)
             end
             table.sort(available_components)
+        end
+        
+        local prefabs_path = selected_entity .. "/prefabs"
+        if not current_prefab_props:has(prefabs_path) then
+            current_prefab_props:set_string(prefabs_path .. "/dummy", "0")
+            current_prefab_props:clear(prefabs_path .. "/dummy")
+        end
+        local assigned_prefabs = current_prefab_props:keys(prefabs_path) or {}
+        
+        if imgui.CollapsingHeader("Assigned Prefabs", bit.bor(32)) then
+            for _, p_name in ipairs(assigned_prefabs) do
+                imgui.PushID("AssignedPref_" .. p_name)
+                imgui.Text(p_name)
+                if imgui.BeginPopupContextItem("RemPrefCtx") then
+                    if imgui.MenuItem("Remove") then
+                        current_prefab_props:clear(prefabs_path .. "/" .. p_name)
+                        save_prefab(selected_prefab, current_prefab_props)
+                    end
+                    imgui.EndPopup()
+                end
+                imgui.PopID()
+            end
+            
+            if imgui.Button("Add Prefab") then
+                show_add_assigned_prefab_popup = true
+                add_assigned_prefab_target = prefabs_path
+            end
         end
     else
         imgui.Text("Select an entity to view its components.")
@@ -432,9 +471,27 @@ function Prefabs.on_update()
         if imgui.Button("Rename") then
             local nname = ffi.string(rename_entity_buffer)
             if nname ~= "" and current_prefab_props then
-                local parent_path = string.match(rename_ent_target, "(.*)/[^/]+")
-                current_prefab_props:set_string(parent_path .. "/" .. nname .. "/dummy", "0")
-                current_prefab_props:clear(parent_path .. "/" .. nname .. "/dummy")
+                local parent_path = string.match(rename_ent_target, "(.*)/[^/]+") or "entities"
+                local old_sub = current_prefab_props:sub(rename_ent_target)
+                if old_sub then
+                    local dumped = old_sub:dump(0)
+                    if dumped then
+                        local new_json = dumped
+                        new_json = string.format('{"%s": %s}', nname, new_json)
+                        
+                        local parts = {}
+                        for part in string.gmatch(parent_path, "([^/]+)") do
+                            table.insert(parts, part)
+                        end
+                        for i = #parts, 1, -1 do
+                            new_json = string.format('{"%s": %s}', parts[i], new_json)
+                        end
+                        current_prefab_props:load(new_json, 0)
+                    end
+                end
+                current_prefab_props:clear(rename_ent_target)
+                save_prefab(selected_prefab, current_prefab_props)
+                selected_entity = nil
             end
             imgui.CloseCurrentPopup()
         end
@@ -447,16 +504,41 @@ function Prefabs.on_update()
     if imgui.BeginPopupModal("Add Component", nil, 64) then
         show_add_comp_popup = false
         imgui.Text("Select Component:")
-        for _, comp in ipairs(available_components) do
-            if imgui.Button(comp) then
-                if current_prefab_props then
-                    local p = add_comp_target .. "/" .. comp
-                    current_prefab_props:set_string(p .. "/dummy", "0")
-                    current_prefab_props:clear(p .. "/dummy")
-                    save_prefab(selected_prefab, current_prefab_props)
+        if imgui.BeginListBox("##AddCompList") then
+            for _, comp in ipairs(available_components) do
+                if imgui.Selectable(comp) then
+                    if current_prefab_props then
+                        local p = add_comp_target .. "/" .. comp
+                        current_prefab_props:set_string(p .. "/dummy", "0")
+                        current_prefab_props:clear(p .. "/dummy")
+                        save_prefab(selected_prefab, current_prefab_props)
+                    end
+                    imgui.CloseCurrentPopup()
                 end
-                imgui.CloseCurrentPopup()
             end
+            imgui.EndListBox()
+        end
+        if imgui.Button("Cancel") then imgui.CloseCurrentPopup() end
+        imgui.EndPopup()
+    end
+    
+    if show_add_assigned_prefab_popup then imgui.OpenPopup("Add Assigned Prefab") end
+    if imgui.BeginPopupModal("Add Assigned Prefab", nil, 64) then
+        show_add_assigned_prefab_popup = false
+        imgui.Text("Select Prefab:")
+        if imgui.BeginListBox("##AddAssignedPrefList") then
+            for _, p_name in ipairs(prefabs_list) do
+                if imgui.Selectable(p_name) then
+                    if current_prefab_props then
+                        local p = add_assigned_prefab_target .. "/" .. p_name
+                        current_prefab_props:set_string(p .. "/dummy", "0")
+                        current_prefab_props:clear(p .. "/dummy")
+                        save_prefab(selected_prefab, current_prefab_props)
+                    end
+                    imgui.CloseCurrentPopup()
+                end
+            end
+            imgui.EndListBox()
         end
         if imgui.Button("Cancel") then imgui.CloseCurrentPopup() end
         imgui.EndPopup()
