@@ -3,11 +3,13 @@ local spectre = require("spectre")
 local sandbox = require("sandbox")
 local imgui = require("imgui")
 local ffi = require("ffi")
+
 local available_scripts_cache = nil
 
 local function get_available_scripts()
     if available_scripts_cache then return available_scripts_cache end
     
+    local world = ecs.from_ptr(g_world)
     local files = sandbox.filesystem.list_files(world, "projects://resources/scripts", true)
     local scripts_info = {}
     
@@ -30,6 +32,7 @@ local function get_available_scripts()
                             table.insert(args, name)
                         end
                     end
+                    sandbox.logs.info(world, "[Scripts UI] Parsed script: " .. func_name .. " with " .. #args .. " args from " .. file)
                     scripts_info[func_name] = args
                 end
             end
