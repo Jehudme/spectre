@@ -365,4 +365,12 @@ function Resources.on_exit()
 	end
 end
 
+_G.modules["Prefabs"] = _G.modules["Prefabs"] or { Drawers = {} }
+local Drawers = _G.modules["Prefabs"].Drawers
+
+Drawers["Resource"] = function(props, path) return false end
+Drawers["ResourceLoader"] = function(props, path) return false end
+Drawers["UseLoaderRelation"] = function(props, path) return false end
+Drawers["ResourceFlag"] = function(props, path) return false end
+
 return {}

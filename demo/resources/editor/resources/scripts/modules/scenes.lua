@@ -36,4 +36,11 @@ Drawers["Camera2D"] = function(props, path)
     return modified
 end
 
+Drawers["Scene"] = function(props, path) return false end
+Drawers["State"] = function(props, path) return false end
+Drawers["StateUseSceneRelation"] = function(props, path) return false end
+Drawers["StateContext"] = function(props, path) return false end
+Drawers["SceneContext"] = function(props, path) return false end
+Drawers["DisableRendering"] = function(props, path) return false end
+
 return {}

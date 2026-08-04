@@ -466,5 +466,8 @@ function ComponentsUI.draw_dynamic_component(prefab_props, entity_path, comp_nam
     schema:destroy()
     return modified
 end
+_G.modules["Prefabs"] = _G.modules["Prefabs"] or { Drawers = {} }
+local Drawers = _G.modules["Prefabs"].Drawers
+Drawers["Serializer"] = function(props, path) return false end
 
 return {}

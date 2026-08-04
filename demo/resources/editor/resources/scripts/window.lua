@@ -237,6 +237,11 @@ function edit.on_render()
 	end
 end
 
+_G.modules["Prefabs"] = _G.modules["Prefabs"] or { Drawers = {} }
+local Drawers = _G.modules["Prefabs"].Drawers
+Drawers["Window"] = function(props, path) return false end
+Drawers["InputState"] = function(props, path) return false end
+
 return {
 	on_style_imgui = ecs.Script.define(styling_ui),
 	on_init_menu = ecs.Script.define(project.initialize),

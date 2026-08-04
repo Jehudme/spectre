@@ -29,4 +29,11 @@ Drawers["Script"] = function(props, path)
     return modified
 end
 
+Drawers["UseScriptOnCreateRelation"] = function(props, path) return false end
+Drawers["UseScriptOnDestroyRelation"] = function(props, path) return false end
+Drawers["UseScriptOnUpdateRelation"] = function(props, path) return false end
+Drawers["UseScriptOnEnterRelation"] = function(props, path) return false end
+Drawers["UseScriptOnExitRelation"] = function(props, path) return false end
+Drawers["UseScriptOnRenderRelation"] = function(props, path) return false end
+
 return {}

@@ -98,4 +98,138 @@ Drawers["Material"] = function(props, path)
     return modified
 end
 
+local function draw_color(props, base_path, name)
+    local col_r = props:get_double(base_path .. "/" .. name .. "/r") or 1.0
+    local col_g = props:get_double(base_path .. "/" .. name .. "/g") or 1.0
+    local col_b = props:get_double(base_path .. "/" .. name .. "/b") or 1.0
+    local col_a = props:get_double(base_path .. "/" .. name .. "/a") or 1.0
+    local cbuf = ffi.new("float[4]", col_r, col_g, col_b, col_a)
+    if imgui.ColorEdit4(name, cbuf) then
+        props:set_double(base_path .. "/" .. name .. "/r", cbuf[0])
+        props:set_double(base_path .. "/" .. name .. "/g", cbuf[1])
+        props:set_double(base_path .. "/" .. name .. "/b", cbuf[2])
+        props:set_double(base_path .. "/" .. name .. "/a", cbuf[3])
+        return true
+    end
+    return false
+end
+
+Drawers["RectangleRenderable"] = function(props, path)
+    local p = path .. "/components/RectangleRenderable"
+    local modified = false
+    
+    local w = props:get_double(p .. "/width") or 10.0
+    local h = props:get_double(p .. "/height") or 10.0
+    local sbuf = ffi.new("float[2]", w, h)
+    if imgui.InputFloat2("size", sbuf) then
+        props:set_double(p .. "/width", sbuf[0])
+        props:set_double(p .. "/height", sbuf[1])
+        modified = true
+    end
+    
+    if draw_color(props, p, "fill_color") then modified = true end
+    if draw_color(props, p, "outline_color") then modified = true end
+    
+    local thick = props:get_double(p .. "/outline_thickness") or 0.0
+    local tbuf = ffi.new("float[1]", thick)
+    if imgui.InputFloat("outline_thickness", tbuf) then
+        props:set_double(p .. "/outline_thickness", tbuf[0])
+        modified = true
+    end
+    
+    return modified
+end
+
+Drawers["CircleRenderable"] = function(props, path)
+    local p = path .. "/components/CircleRenderable"
+    local modified = false
+    
+    local r = props:get_double(p .. "/radius") or 10.0
+    local rbuf = ffi.new("float[1]", r)
+    if imgui.InputFloat("radius", rbuf) then
+        props:set_double(p .. "/radius", rbuf[0])
+        modified = true
+    end
+    
+    if draw_color(props, p, "fill_color") then modified = true end
+    if draw_color(props, p, "outline_color") then modified = true end
+    
+    local thick = props:get_double(p .. "/outline_thickness") or 0.0
+    local tbuf = ffi.new("float[1]", thick)
+    if imgui.InputFloat("outline_thickness", tbuf) then
+        props:set_double(p .. "/outline_thickness", tbuf[0])
+        modified = true
+    end
+    
+    return modified
+end
+
+Drawers["PolygoneRenderable"] = function(props, path)
+    local p = path .. "/components/PolygoneRenderable"
+    local modified = false
+    
+    local r = props:get_double(p .. "/radius") or 10.0
+    local rbuf = ffi.new("float[1]", r)
+    if imgui.InputFloat("radius", rbuf) then
+        props:set_double(p .. "/radius", rbuf[0])
+        modified = true
+    end
+    
+    local pt = props:get_int64(p .. "/point_count") or 3
+    local ptbuf = ffi.new("int[1]", pt)
+    if imgui.InputInt("point_count", ptbuf) then
+        props:set_int64(p .. "/point_count", ptbuf[0])
+        modified = true
+    end
+    
+    if draw_color(props, p, "fill_color") then modified = true end
+    if draw_color(props, p, "outline_color") then modified = true end
+    
+    local thick = props:get_double(p .. "/outline_thickness") or 0.0
+    local tbuf = ffi.new("float[1]", thick)
+    if imgui.InputFloat("outline_thickness", tbuf) then
+        props:set_double(p .. "/outline_thickness", tbuf[0])
+        modified = true
+    end
+    
+    return modified
+end
+
+Drawers["LigneRenderable"] = function(props, path)
+    local p = path .. "/components/LigneRenderable"
+    local modified = false
+    
+    local x1 = props:get_double(p .. "/position_x1") or 0.0
+    local y1 = props:get_double(p .. "/position_y1") or 0.0
+    local p1buf = ffi.new("float[2]", x1, y1)
+    if imgui.InputFloat2("point 1", p1buf) then
+        props:set_double(p .. "/position_x1", p1buf[0])
+        props:set_double(p .. "/position_y1", p1buf[1])
+        modified = true
+    end
+    
+    local x2 = props:get_double(p .. "/position_x2") or 10.0
+    local y2 = props:get_double(p .. "/position_y2") or 10.0
+    local p2buf = ffi.new("float[2]", x2, y2)
+    if imgui.InputFloat2("point 2", p2buf) then
+        props:set_double(p .. "/position_x2", p2buf[0])
+        props:set_double(p .. "/position_y2", p2buf[1])
+        modified = true
+    end
+    
+    if draw_color(props, p, "color") then modified = true end
+    
+    local thick = props:get_double(p .. "/thickness") or 1.0
+    local tbuf = ffi.new("float[1]", thick)
+    if imgui.InputFloat("thickness", tbuf) then
+        props:set_double(p .. "/thickness", tbuf[0])
+        modified = true
+    end
+    
+    return modified
+end
+
+Drawers["Renderable"] = function(props, path) return false end
+Drawers["CustomPolygoneRenderable"] = function(props, path) return false end
+
 return {}
