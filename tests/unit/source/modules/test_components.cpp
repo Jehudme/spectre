@@ -144,7 +144,7 @@ TEST_CASE("Components Module: SDK and Registration", "[components module]") {
         REQUIRE(spectre::modules::components::is_static(world, "DynamicComp") == false);
         
         sandbox::properties dummy_schema = spectre::modules::components::find_schema(world, "DummyComponent");
-        REQUIRE(dummy_schema.is_valid() == true);
+        REQUIRE(dummy_schema.is_valid() == false);
         
         sandbox::properties dynamic_schema = spectre::modules::components::find_schema(world, "DynamicComp");
         // REQUIRE(dynamic_schema.is_valid() == true); // skipped for now

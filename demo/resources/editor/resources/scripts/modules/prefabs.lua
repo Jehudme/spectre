@@ -70,7 +70,7 @@ local function load_prefab(name)
     if content then
         props:load(content, 0)
     else
-        props:load('{"entities":{}}', 0)
+        props:load(string.format('{"entities":{"%s":{}}}', name), 0)
     end
     return props
 end
@@ -148,18 +148,20 @@ local function draw_hierarchy(props, path, name)
         selected_entity = path
     end
     
+    local is_root = (path == "entities/" .. selected_prefab)
+    
     if imgui.BeginPopupContextItem("EntityCtx_" .. path) then
         if imgui.MenuItem("Add Child") then
             show_add_child_popup = true
             add_child_parent = path
             add_child_buffer[0] = 0
         end
-        if imgui.MenuItem("Rename") then
+        if not is_root and imgui.MenuItem("Rename") then
             show_rename_ent_popup = true
             rename_ent_target = path
             ffi.copy(rename_entity_buffer, name)
         end
-        if imgui.MenuItem("Duplicate") then
+        if not is_root and imgui.MenuItem("Duplicate") then
             local parent_path = string.match(path, "(.*)/[^/]+") or "entities"
             local new_name = name .. "_copy"
             local idx = 1
@@ -167,12 +169,11 @@ local function draw_hierarchy(props, path, name)
                 new_name = name .. "_copy" .. tostring(idx)
                 idx = idx + 1
             end
-            -- Note: in a real implementation we would deep copy the property tree
             props:set_string(parent_path .. "/" .. new_name .. "/dummy", "0")
             props:clear(parent_path .. "/" .. new_name .. "/dummy")
             save_prefab(selected_prefab, props)
         end
-        if imgui.MenuItem("Delete") then
+        if not is_root and imgui.MenuItem("Delete") then
             props:clear(path)
             if selected_entity == path then selected_entity = nil end
             save_prefab(selected_prefab, props)
@@ -241,7 +242,19 @@ function Prefabs.on_update()
                         new_name = name .. "_copy" .. tostring(i)
                         i = i + 1
                     end
-                    sandbox.filesystem.copy(world, old_path, get_prefab_path(new_name), false, true)
+                    
+                    local props = load_prefab(name)
+                    local root_dump = props:sub("entities/" .. name):dump(0)
+                    if root_dump then
+                        local new_props = sandbox.Properties.new()
+                        new_props:load(string.format('{"entities":{"%s": %s}}', new_name, root_dump), 0)
+                        save_prefab(new_name, new_props)
+                        new_props:destroy()
+                    else
+                        sandbox.filesystem.copy(world, old_path, get_prefab_path(new_name), false, true)
+                    end
+                    props:destroy()
+                    
                     refresh_prefabs()
                 end
                 if imgui.MenuItem("Delete") then
@@ -275,8 +288,8 @@ function Prefabs.on_update()
         end
         if #ent_keys == 0 then
             if imgui.Button("Add Root Entity") then
-                current_prefab_props:set_string("entities/Root/dummy", "0")
-                current_prefab_props:clear("entities/Root/dummy")
+                current_prefab_props:set_string("entities/" .. selected_prefab .. "/dummy", "0")
+                current_prefab_props:clear("entities/" .. selected_prefab .. "/dummy")
                 save_prefab(selected_prefab, current_prefab_props)
             end
         end
@@ -406,7 +419,7 @@ function Prefabs.on_update()
                     if not sandbox.filesystem.exists(world, "project://scenes/prefabs") then
                         sandbox.filesystem.create_directory(world, "project://scenes/prefabs", true)
                     end
-                    write_file(p, '{"entities":{}}')
+                    write_file(p, string.format('{"entities":{"%s":{}}}', new_name))
                     sandbox.logs.info(world, "[Prefabs UI] Created new prefab: " .. new_name)
                     refresh_prefabs()
                     select_prefab(new_name)
@@ -430,7 +443,19 @@ function Prefabs.on_update()
                 local old_path = get_prefab_path(rename_target)
                 local new_path = get_prefab_path(new_name)
                 if not sandbox.filesystem.exists(world, new_path) then
-                    sandbox.filesystem.move(world, old_path, new_path, false, true)
+                    local props = load_prefab(rename_target)
+                    local root_dump = props:sub("entities/" .. rename_target):dump(0)
+                    if root_dump then
+                        local new_props = sandbox.Properties.new()
+                        new_props:load(string.format('{"entities":{"%s": %s}}', new_name, root_dump), 0)
+                        save_prefab(new_name, new_props)
+                        new_props:destroy()
+                        sandbox.filesystem.remove_file(world, old_path)
+                    else
+                        sandbox.filesystem.move(world, old_path, new_path, false, true)
+                    end
+                    props:destroy()
+                    
                     if selected_prefab == rename_target then
                         select_prefab(new_name)
                     end

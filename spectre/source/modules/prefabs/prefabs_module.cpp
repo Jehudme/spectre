@@ -233,7 +233,21 @@ void prefabs_module_t::register_prefab(std::string_view name, sandbox::propertie
     }
 
     if (properties.is_valid()) {
-        deserialize_entity(prefab, std::move(properties));
+        if (properties.has("entities")) {
+            sandbox::properties root_node = properties.sub("entities").sub(std::string(name));
+            if (root_node.is_valid()) {
+                deserialize_entity(prefab, std::move(root_node));
+            } else {
+                sandbox::properties entities_node = properties.sub("entities");
+                std::vector<std::string> keys = entities_node.keys("");
+                if (!keys.empty()) {
+                    sandbox::properties fallback_node = entities_node.sub(keys[0]);
+                    deserialize_entity(prefab, std::move(fallback_node));
+                }
+            }
+        } else {
+            deserialize_entity(prefab, std::move(properties));
+        }
         sandbox::modules::logs::info(m_world, "[Prefabs Module] Registered prefab: '{}'", name);
     }
 }
@@ -342,9 +356,13 @@ void prefabs_module_t::export_configuration(std::string_view directory_path) {
     m_prefabs_root.children([&](flecs::entity prefab) {
         if (!is_prefab(prefab)) return;
         
-        sandbox::properties props = serialize_entity(prefab);
-        if (props.is_valid()) {
-            std::string content = props.dump(sandbox::properties::Format::JSON);
+        sandbox::properties entity_props = serialize_entity(prefab);
+        if (entity_props.is_valid()) {
+            sandbox::properties root_props;
+            sandbox::properties entities_node = root_props.sub("entities");
+            entities_node.merge(prefab.name().c_str(), std::move(entity_props));
+            
+            std::string content = root_props.dump(sandbox::properties::Format::JSON);
             std::string file_path = std::string(directory_path) + "/" + std::string(prefab.name()) + ".json";
             sandbox::modules::filesystem::write_all(m_world, file_path.c_str(), content.c_str(), content.size(), true);
         }

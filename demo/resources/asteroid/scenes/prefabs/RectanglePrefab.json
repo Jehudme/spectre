@@ -1,19 +1,22 @@
 {
-    "name": "RectanglePrefab",
-    "components": {
-        "Renderable": {},
-        "TextureRenderable": {
-            "name": "unknow_texture",
-            "width": 150.0,
-            "height": 150.0
-        },
-        "Transform2D": {
-            "position_x": 0.0,
-            "position_y": 0.0,
-            "position_z": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "rotation": 0.0
+    "entities": {
+        "RectanglePrefab": {
+            "components": {
+                "Renderable": {},
+                "TextureRenderable": {
+                    "name": "unknow_texture",
+                    "width": 150.0,
+                    "height": 150.0
+                },
+                "Transform2D": {
+                    "position_x": 0.0,
+                    "position_y": 0.0,
+                    "position_z": 0.0,
+                    "scale_x": 1.0,
+                    "scale_y": 1.0,
+                    "rotation": 0.0
+                }
+            }
         }
     }
 }
