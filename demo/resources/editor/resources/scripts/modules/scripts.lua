@@ -34,7 +34,7 @@ local function get_available_scripts()
                     if type(script_def) == "table" and script_def.func and type(script_def.args) == "table" then
                         local args = {}
                         for _, arg in ipairs(script_def.args) do
-                            table.insert(args, arg.name)
+                            table.insert(args, arg)
                         end
                         sandbox.logs.info(world, "[Scripts UI] Registered script: " .. func_name .. " with " .. #args .. " args from " .. path)
                         scripts_info[func_name] = args
@@ -130,13 +130,43 @@ Drawers["scripts"] = function(props, path)
                     
                     local scripts_info = get_available_scripts()
                     local args = scripts_info[func_name] or {}
-                    for _, arg_name in ipairs(args) do
-                        local arg_val = props:read_string(script_path .. "/arguments/" .. arg_name) or ""
-                        local buf = ffi.new("char[256]")
-                        ffi.copy(buf, arg_val)
-                        if imgui.InputText(arg_name, buf, 256) then
-                            props:set_string(script_path .. "/arguments/" .. arg_name, ffi.string(buf))
-                            modified = true
+                    for _, arg in ipairs(args) do
+                        local arg_name = type(arg) == "table" and arg.name or arg
+                        local arg_type = type(arg) == "table" and arg.type or "string"
+                        local display_name = arg_name .. " (" .. arg_type .. ")"
+                        
+                        if arg_type == "integer" or arg_type == "int" then
+                            local arg_val = props:read_string(script_path .. "/arguments/" .. arg_name) or "0"
+                            local n = tonumber(arg_val) or 0
+                            local buf = ffi.new("int[1]", n)
+                            if imgui.InputInt(display_name, buf) then
+                                props:set_string(script_path .. "/arguments/" .. arg_name, tostring(buf[0]))
+                                modified = true
+                            end
+                        elseif arg_type == "number" or arg_type == "float" then
+                            local arg_val = props:read_string(script_path .. "/arguments/" .. arg_name) or "0.0"
+                            local n = tonumber(arg_val) or 0.0
+                            local buf = ffi.new("float[1]", n)
+                            if imgui.InputFloat(display_name, buf) then
+                                props:set_string(script_path .. "/arguments/" .. arg_name, tostring(buf[0]))
+                                modified = true
+                            end
+                        elseif arg_type == "boolean" or arg_type == "bool" then
+                            local arg_val = props:read_string(script_path .. "/arguments/" .. arg_name) or "false"
+                            local b = arg_val == "true" or arg_val == "1"
+                            local buf = ffi.new("bool[1]", b)
+                            if imgui.Checkbox(display_name, buf) then
+                                props:set_string(script_path .. "/arguments/" .. arg_name, buf[0] and "true" or "false")
+                                modified = true
+                            end
+                        else
+                            local arg_val = props:read_string(script_path .. "/arguments/" .. arg_name) or ""
+                            local buf = ffi.new("char[256]")
+                            ffi.copy(buf, arg_val)
+                            if imgui.InputText(display_name, buf, 256) then
+                                props:set_string(script_path .. "/arguments/" .. arg_name, ffi.string(buf))
+                                modified = true
+                            end
                         end
                     end
                     imgui.TreePop()
@@ -181,8 +211,10 @@ Drawers["scripts"] = function(props, path)
             local selected_name = script_names[selected_script_idx]
             local args = scripts_info[selected_name] or {}
             imgui.Text("Arguments:")
-            for _, arg_name in ipairs(args) do
-                imgui.Text("- " .. arg_name)
+            for _, arg in ipairs(args) do
+                local arg_name = type(arg) == "table" and arg.name or arg
+                local arg_type = type(arg) == "table" and arg.type or "string"
+                imgui.Text("- " .. arg_name .. " : " .. arg_type)
             end
             
             if imgui.Button("Add") then
@@ -199,7 +231,8 @@ Drawers["scripts"] = function(props, path)
                 if #args > 0 then
                     props:set_string(script_path .. "/arguments/dummy", "0")
                     props:clear(script_path .. "/arguments/dummy")
-                    for _, arg_name in ipairs(args) do
+                    for _, arg in ipairs(args) do
+                        local arg_name = type(arg) == "table" and arg.name or arg
                         props:set_string(script_path .. "/arguments/" .. arg_name, "")
                     end
                 else
