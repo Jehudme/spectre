@@ -51,33 +51,156 @@ end
 Drawers["TextureRenderable"] = function(props, path)
     local p = path .. "/components/TextureRenderable"
     local modified = false
-    local tex = props:read_string(p .. "/texture_path") or ""
-    local buf = ffi.new("char[256]")
-    ffi.copy(buf, tex)
-    if imgui.InputText("texture_path", buf, 256) then
-        props:set_string(p .. "/texture_path", ffi.string(buf))
+    
+    local name = props:read_string(p .. "/name") or ""
+    local textures = _G.modules["Resources"].get_resources_by_type("texture")
+    
+    -- Insert an empty option or find current index
+    local current_idx = 0
+    local c_textures = ffi.new("const char*[?]", #textures + 1)
+    c_textures[0] = "None"
+    for i, tex in ipairs(textures) do
+        c_textures[i] = tex
+        if tex == name then
+            current_idx = i
+        end
+    end
+    
+    local idx_buf = ffi.new("int[1]", current_idx)
+    if imgui.Combo("Texture##TexRen", idx_buf, c_textures, #textures + 1) then
+        local new_name = idx_buf[0] > 0 and textures[idx_buf[0]] or ""
+        props:set_string(p .. "/name", new_name)
         modified = true
     end
+    
+    local w = props:get_double(p .. "/width") or 0.0
+    local h = props:get_double(p .. "/height") or 0.0
+    local size_buf = ffi.new("float[2]", w, h)
+    if imgui.InputFloat2("size##TexRen", size_buf) then
+        props:set_double(p .. "/width", size_buf[0])
+        props:set_double(p .. "/height", size_buf[1])
+        modified = true
+    end
+    
+    local sx = props:get_double(p .. "/source_x") or 0.0
+    local sy = props:get_double(p .. "/source_y") or 0.0
+    local src_pos = ffi.new("float[2]", sx, sy)
+    if imgui.InputFloat2("source pos##TexRen", src_pos) then
+        props:set_double(p .. "/source_x", src_pos[0])
+        props:set_double(p .. "/source_y", src_pos[1])
+        modified = true
+    end
+    
+    local sw = props:get_double(p .. "/source_width") or 0.0
+    local sh = props:get_double(p .. "/source_height") or 0.0
+    local src_size = ffi.new("float[2]", sw, sh)
+    if imgui.InputFloat2("source size##TexRen", src_size) then
+        props:set_double(p .. "/source_width", src_size[0])
+        props:set_double(p .. "/source_height", src_size[1])
+        modified = true
+    end
+    
+    local fx = props:read_string(p .. "/flip_x") == "true"
+    local fy = props:read_string(p .. "/flip_y") == "true"
+    local f_buf = ffi.new("bool[2]", fx, fy)
+    if imgui.Checkbox("flip x##TexRen", f_buf) then
+        props:set_string(p .. "/flip_x", f_buf[0] and "true" or "false")
+        modified = true
+    end
+    imgui.SameLine()
+    if imgui.Checkbox("flip y##TexRen", ffi.cast("bool*", ffi.cast("char*", f_buf) + 1)) then
+        props:set_string(p .. "/flip_y", f_buf[1] and "true" or "false")
+        modified = true
+    end
+    
+    local tr = props:get_double(p .. "/tint/r") or 255.0
+    local tg = props:get_double(p .. "/tint/g") or 255.0
+    local tb = props:get_double(p .. "/tint/b") or 255.0
+    local ta = props:get_double(p .. "/tint/a") or 255.0
+    local tbuf = ffi.new("float[4]", tr/255.0, tg/255.0, tb/255.0, ta/255.0)
+    if imgui.ColorEdit4("tint##TexRen", tbuf) then
+        props:set_double(p .. "/tint/r", tbuf[0] * 255.0)
+        props:set_double(p .. "/tint/g", tbuf[1] * 255.0)
+        props:set_double(p .. "/tint/b", tbuf[2] * 255.0)
+        props:set_double(p .. "/tint/a", tbuf[3] * 255.0)
+        modified = true
+    end
+
     return modified
 end
 
 Drawers["TextRenderable"] = function(props, path)
     local p = path .. "/components/TextRenderable"
     local modified = false
-    local txt = props:read_string(p .. "/text") or ""
-    local buf = ffi.new("char[256]")
+    
+    local name = props:read_string(p .. "/name") or ""
+    local fonts = _G.modules["Resources"].get_resources_by_type("font")
+    
+    local current_idx = 0
+    local c_fonts = ffi.new("const char*[?]", #fonts + 1)
+    c_fonts[0] = "None"
+    for i, font in ipairs(fonts) do
+        c_fonts[i] = font
+        if font == name then
+            current_idx = i
+        end
+    end
+    
+    local idx_buf = ffi.new("int[1]", current_idx)
+    if imgui.Combo("Font##TxtRen", idx_buf, c_fonts, #fonts + 1) then
+        local new_name = idx_buf[0] > 0 and fonts[idx_buf[0]] or ""
+        props:set_string(p .. "/name", new_name)
+        modified = true
+    end
+    
+    local txt = props:read_string(p .. "/content") or ""
+    local buf = ffi.new("char[2048]")
     ffi.copy(buf, txt)
-    if imgui.InputText("text", buf, 256) then
-        props:set_string(p .. "/text", ffi.string(buf))
+    if imgui.InputTextMultiline("content##TxtRen", buf, 2048, ffi.new("ImVec2", 0, 50)) then
+        props:set_string(p .. "/content", ffi.string(buf))
         modified = true
     end
-    local font = props:read_string(p .. "/font_path") or ""
-    local fbuf = ffi.new("char[256]")
-    ffi.copy(fbuf, font)
-    if imgui.InputText("font_path", fbuf, 256) then
-        props:set_string(p .. "/font_path", ffi.string(fbuf))
+    
+    local fs = props:get_double(p .. "/font_size") or 20.0
+    local fs_buf = ffi.new("float[1]", fs)
+    if imgui.InputFloat("font size##TxtRen", fs_buf) then
+        props:set_double(p .. "/font_size", fs_buf[0])
         modified = true
     end
+    
+    local sp = props:get_double(p .. "/spacing") or 1.0
+    local sp_buf = ffi.new("float[1]", sp)
+    if imgui.InputFloat("spacing##TxtRen", sp_buf) then
+        props:set_double(p .. "/spacing", sp_buf[0])
+        modified = true
+    end
+    
+    local tr = props:get_double(p .. "/tint/r") or 255.0
+    local tg = props:get_double(p .. "/tint/g") or 255.0
+    local tb = props:get_double(p .. "/tint/b") or 255.0
+    local ta = props:get_double(p .. "/tint/a") or 255.0
+    local tbuf = ffi.new("float[4]", tr/255.0, tg/255.0, tb/255.0, ta/255.0)
+    if imgui.ColorEdit4("tint##TxtRen", tbuf) then
+        props:set_double(p .. "/tint/r", tbuf[0] * 255.0)
+        props:set_double(p .. "/tint/g", tbuf[1] * 255.0)
+        props:set_double(p .. "/tint/b", tbuf[2] * 255.0)
+        props:set_double(p .. "/tint/a", tbuf[3] * 255.0)
+        modified = true
+    end
+    
+    local b = props:read_string(p .. "/bold") == "true"
+    local i = props:read_string(p .. "/italic") == "true"
+    local b_buf = ffi.new("bool[2]", b, i)
+    if imgui.Checkbox("bold##TxtRen", b_buf) then
+        props:set_string(p .. "/bold", b_buf[0] and "true" or "false")
+        modified = true
+    end
+    imgui.SameLine()
+    if imgui.Checkbox("italic##TxtRen", ffi.cast("bool*", ffi.cast("char*", b_buf) + 1)) then
+        props:set_string(p .. "/italic", b_buf[1] and "true" or "false")
+        modified = true
+    end
+
     return modified
 end
 

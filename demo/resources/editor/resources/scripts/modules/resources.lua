@@ -142,6 +142,19 @@ function Resources.on_enter()
 	load_configuration()
 end
 
+function Resources.get_resources_by_type(target_type)
+    if not config_props then load_configuration() end
+    local results = {}
+    for _, res_name in ipairs(cached_resources_list) do
+        local res_sub = config_props:sub(res_name)
+        local t = res_sub:read_string("type") or ""
+        if t == target_type or target_type == nil then
+            table.insert(results, res_name)
+        end
+    end
+    return results
+end
+
 function Resources.on_update()
 	local screen_w = spectre.window.get_width(world)
 	local screen_h = spectre.window.get_height(world)
