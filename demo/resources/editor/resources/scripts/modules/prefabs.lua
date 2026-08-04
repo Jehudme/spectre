@@ -4,9 +4,9 @@ local sandbox = require("sandbox")
 local imgui = require("imgui")
 local world = ecs.from_ptr(g_world)
 
-Prefabs = {}
-Prefabs.Drawers = {}
 _G.modules = _G.modules or {}
+Prefabs = _G.modules["Prefabs"] or {}
+Prefabs.Drawers = Prefabs.Drawers or {}
 _G.modules["Prefabs"] = Prefabs
 
 local ffi = require("ffi")
