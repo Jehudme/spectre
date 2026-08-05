@@ -44,6 +44,7 @@ int main(int argc, char* argv[]) {
             }
         }
         props.set_array("engine/sandbox", modules);
+        props.set_array("booting-configuration/modules", std::vector<std::string>{"sandbox-application@1.0.0"});
 
         if (engine.initialize(props)) {
             flecs::world ecs(static_cast<ecs_world_t*>(engine.get_ecs()));
