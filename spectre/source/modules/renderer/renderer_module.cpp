@@ -769,10 +769,13 @@ renderer_module_t::~renderer_module_t() = default;
 void renderer_module_t::deserialize_renderer(flecs::entity target, const sandbox::properties& properties) {
     sandbox::modules::logs::debug(const_cast<flecs::world&>(m_world),
                                   "[Renderer Module] Deserializing renderer entity.");
+    m_background_color = deserialize_color(properties.sub("background_color"));
 }
 
 sandbox::properties renderer_module_t::serialize_renderer(flecs::entity renderer_entity) {
-    return sandbox::properties{};
+    sandbox::properties props;
+    props.merge("background_color", serialize_color(m_background_color));
+    return props;
 }
 
 void renderer_module_t::register_renderer(const sandbox::properties& properties) {
@@ -795,7 +798,9 @@ bool renderer_module_t::is_renderer() const {
 
 void renderer_module_t::begin_frame() {
     BeginDrawing();
-    ClearBackground(RAYWHITE); // Or any default color, let's use a standard default
+    Color bg_color = {(unsigned char)m_background_color.r, (unsigned char)m_background_color.g,
+                      (unsigned char)m_background_color.b, (unsigned char)m_background_color.a};
+    ClearBackground(bg_color);
 }
 
 void renderer_module_t::render_frame() {
