@@ -11,7 +11,7 @@ _G.modules["Renderer"] = Renderer
 
 local config_props = nil
 local config_path = "project://configs/renderer.json"
-local bg_color = ffi.new("float[4]", 245.0/255.0, 245.0/255.0, 245.0/255.0, 1.0)
+local bg_color = ffi.new("float[4]", 245.0 / 255.0, 245.0 / 255.0, 245.0 / 255.0, 1.0)
 
 local function save_configuration()
 	if config_props then
@@ -33,7 +33,7 @@ local function load_configuration()
 		config_props:destroy()
 	end
 	config_props = sandbox.Properties.new()
-	
+
 	if not sandbox.filesystem.exists(world, config_path) then
 		save_configuration()
 	else
@@ -61,13 +61,13 @@ end
 function Renderer.on_update()
 	local screen_w = spectre.window.get_width(world)
 	local screen_h = spectre.window.get_height(world)
-	
--- 	imgui.SetNextWindowPos(ffi.new("ImVec2", 0, 20), 1)
--- 	imgui.SetNextWindowSize(ffi.new("ImVec2", screen_w, screen_h - 20), 1)
-	
+
+	imgui.SetNextWindowPos(ffi.new("ImVec2", 0, 20), 1)
+	imgui.SetNextWindowSize(ffi.new("ImVec2", screen_w, screen_h - 20), 1)
+
 	local window_flags = bit.bor(1, 32, 2, 4, 8192, 524288)
 	imgui.Begin("Renderer Configuration##Main", nil, window_flags)
-	
+
 	imgui.Text("Renderer Settings")
 	imgui.Separator()
 

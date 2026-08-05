@@ -22,16 +22,6 @@ set(SPECTRE_ORIGINAL_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 set(BUILD_SHARED_LIBS OFF)
 
 
-# sandbox engine
-find_package(sandbox QUIET)
-if(NOT sandbox_FOUND)
-  FetchContent_Declare(
-        sandbox
-        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../sandbox
-  )
-  FetchContent_MakeAvailable(sandbox)
-endif()
-
 # raylib
 find_package(raylib QUIET)
 if(NOT raylib_FOUND)
@@ -42,6 +32,16 @@ if(NOT raylib_FOUND)
         GIT_SHALLOW TRUE
   )
   FetchContent_MakeAvailable(raylib)
+endif()
+
+# sandbox engine
+find_package(sandbox QUIET)
+if(NOT sandbox_FOUND)
+  FetchContent_Declare(
+        sandbox
+        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../sandbox
+  )
+  FetchContent_MakeAvailable(sandbox)
 endif()
 
 # EnTT
