@@ -159,8 +159,8 @@ function Resources.on_update()
 	local screen_w = spectre.window.get_width(world)
 	local screen_h = spectre.window.get_height(world)
 	
-	imgui.SetNextWindowPos(ffi.new("ImVec2", 0, 20), 1)
-	imgui.SetNextWindowSize(ffi.new("ImVec2", screen_w, screen_h - 20), 1)
+-- 	imgui.SetNextWindowPos(ffi.new("ImVec2", 0, 20), 1)
+-- 	imgui.SetNextWindowSize(ffi.new("ImVec2", screen_w, screen_h - 20), 1)
 	
 	local window_flags = bit.bor(1, 32, 2, 4, 8192, 524288)
 	imgui.Begin("Resources Manager##Main", nil, window_flags)

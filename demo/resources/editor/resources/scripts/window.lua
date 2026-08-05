@@ -47,16 +47,16 @@ function menu.on_render(self_id, scene_id, state_id)
     local screen_w = spectre.window.get_width(world)
     local screen_h = spectre.window.get_height(world)
     
-	imgui.SetNextWindowPos(ffi.new("ImVec2", 0, 0), 1) -- ImGuiCond_Always
-	imgui.SetNextWindowSize(ffi.new("ImVec2", screen_w, screen_h), 1) -- ImGuiCond_Always
+-- 	imgui.SetNextWindowPos(ffi.new("ImVec2", 0, 0), 1) -- ImGuiCond_Always
+-- 	imgui.SetNextWindowSize(ffi.new("ImVec2", screen_w, screen_h), 1) -- ImGuiCond_Always
 
 	local window_flags = bit.bor(1, 32, 2, 4, 8192, 524288) -- NoTitleBar, NoCollapse, NoResize, NoMove, NoBringToFrontOnFocus, NoNavFocus
 
 	imgui.Begin("Project Manager##Main", nil, window_flags)
 
 	-- Center inner window
-	imgui.SetNextWindowPos(ffi.new("ImVec2", screen_w * 0.5, screen_h * 0.5), 1, ffi.new("ImVec2", 0.5, 0.5)) -- ImGuiCond_Always
-	imgui.SetNextWindowSize(ffi.new("ImVec2", 700, 500), 4) -- ImGuiCond_FirstUseEver
+-- 	imgui.SetNextWindowPos(ffi.new("ImVec2", screen_w * 0.5, screen_h * 0.5), 1, ffi.new("ImVec2", 0.5, 0.5)) -- ImGuiCond_Always
+-- 	imgui.SetNextWindowSize(ffi.new("ImVec2", 700, 500), 4) -- ImGuiCond_FirstUseEver
 
 	imgui.Begin("Spectre Editor - Project Hub", nil, 32) -- ImGuiWindowFlags_NoCollapse
 

@@ -187,7 +187,7 @@ Drawers["scripts"] = function(props, path)
     
     if add_script_popup then
         imgui.OpenPopup("Add Script")
-        imgui.SetNextWindowSize(imgui.ImVec2(500, 400), 0)
+--         imgui.SetNextWindowSize(imgui.ImVec2(500, 400), 0)
     end
     if imgui.BeginPopupModal("Add Script", nil, 64) then
         add_script_popup = false
