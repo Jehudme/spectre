@@ -2,6 +2,7 @@
 #include "spectre/components/renderer_component.h"
 #include "spectre/sdk/scenes.hpp"
 #include "spectre/services/renderer_service.h"
+#include <rlImGui.h>
 
 #include "sandbox/sdk/logs.hpp"
 #include "spectre/sdk/components.hpp"
@@ -798,6 +799,7 @@ bool renderer_module_t::is_renderer() const {
 
 void renderer_module_t::begin_frame() {
     BeginDrawing();
+    rlImGuiBegin();
     Color bg_color = {(unsigned char)m_background_color.r, (unsigned char)m_background_color.g,
                       (unsigned char)m_background_color.b, (unsigned char)m_background_color.a};
     ClearBackground(bg_color);
@@ -810,6 +812,7 @@ void renderer_module_t::render_frame() {
     if (!current_state.is_valid()) {
         auto renderable_query = m_world.query<spectre_renderable_t>();
         renderable_query.each([this](flecs::entity entity, spectre_renderable_t& renderable) { this->render(entity); });
+        rlImGuiEnd();
         EndDrawing();
         return;
     }
@@ -853,7 +856,7 @@ void renderer_module_t::render_frame() {
     static int frame_count = 0;
     if (frame_count++ == 0) {}
 
-
+    rlImGuiEnd();
     EndDrawing();
 }
 

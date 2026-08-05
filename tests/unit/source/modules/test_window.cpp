@@ -5,7 +5,6 @@
 #include <flecs.h>
 #include <string>
 
-
 using namespace spectre::modules;
 
 TEST_CASE("Window Module: Serialization and Configuration", "[window module test]") {
@@ -56,7 +55,6 @@ TEST_CASE("Window Module: Serialization and Configuration", "[window module test
     // However, headless CI environments might crash if xvfb is not available.
     // We execute it here safely as a simple test case.
     SECTION("Register Window and modify parameters") {
-
         sandbox::properties props;
         props.set("width", 800u);
         props.set("height", 600u);

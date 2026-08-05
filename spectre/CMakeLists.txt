@@ -8,7 +8,21 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(LUAJIT REQUIRED luajit)
 
 
+include(FetchContent)
 
+FetchContent_Declare(
+    cimgui
+    GIT_REPOSITORY https://github.com/cimgui/cimgui.git
+    GIT_TAG docking_inter
+    GIT_SUBMODULES "imgui"
+)
+FetchContent_Declare(
+    rlimui
+    GIT_REPOSITORY https://github.com/raylib-extras/rlImGui.git
+    GIT_TAG Raylib_6_0
+)
+
+FetchContent_MakeAvailable(cimgui rlimui)
 
 # Source files
 set(SOURCES
@@ -29,7 +43,13 @@ set(SOURCES
     source/modules/serializer/serializer_module.cpp
     source/modules/window/window_service.cpp
     source/modules/window/window_module.cpp
-
+    ${cimgui_SOURCE_DIR}/imgui/imgui.cpp
+    ${cimgui_SOURCE_DIR}/imgui/imgui_draw.cpp
+    ${cimgui_SOURCE_DIR}/imgui/imgui_tables.cpp
+    ${cimgui_SOURCE_DIR}/imgui/imgui_widgets.cpp
+    ${cimgui_SOURCE_DIR}/imgui/imgui_demo.cpp
+    ${rlimui_SOURCE_DIR}/rlImGui.cpp
+    ${cimgui_SOURCE_DIR}/cimgui.cpp
 )
 
 # Headers
@@ -61,7 +81,9 @@ add_library(spectre::plugin_static ALIAS spectre_plugin_static)
 target_include_directories(spectre_plugin PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/source
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-
+    ${cimgui_SOURCE_DIR}/imgui
+    ${cimgui_SOURCE_DIR}
+    ${rlimui_SOURCE_DIR}
 )
 
 target_include_directories(spectre_plugin PUBLIC
@@ -73,7 +95,9 @@ target_include_directories(spectre_plugin PUBLIC
 target_include_directories(spectre_plugin_static PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/source
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-
+    ${cimgui_SOURCE_DIR}/imgui
+    ${cimgui_SOURCE_DIR}
+    ${rlimui_SOURCE_DIR}
 )
 
 target_include_directories(spectre_plugin_static PUBLIC
