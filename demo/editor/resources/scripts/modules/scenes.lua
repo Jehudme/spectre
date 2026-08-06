@@ -79,7 +79,11 @@ local function load_item(mode, name)
 	if content then
 		props:load(content, 0)
 	else
-		props:load(string.format('{"entities":{"%s":{}}}', name), 0)
+		if mode == "state" then
+			props:load(string.format('{"name":"%s","scenes":[]}', name), 0)
+		else
+			props:load(string.format('{"entities":{"%s":{}}}', name), 0)
+		end
 	end
 	return props
 end
@@ -278,15 +282,8 @@ function Scenes.on_update()
 							i = i + 1
 						end
 						local props = load_item("state", name)
-						local root_dump = props:sub("entities/" .. name):dump(0)
-						if root_dump then
-							local new_props = sandbox.Properties.new()
-							new_props:load(string.format('{"entities":{"%s": %s}}', new_name, root_dump), 0)
-							save_item("state", new_name, new_props)
-							new_props:destroy()
-						else
-							sandbox.filesystem.copy(world, old_path, get_item_path("state", new_name), false, true)
-						end
+						props:set_string("name", new_name)
+						save_item("state", new_name, props)
 						props:destroy()
 						refresh_lists()
 					end
@@ -359,7 +356,84 @@ function Scenes.on_update()
 
 	imgui.BeginChild("RightPanel", ffi.new("ImVec2", 0, 0), false)
 
-	imgui.BeginChild("Hierarchy", ffi.new("ImVec2", 0, (screen_h - 20) / 2 - 10), true)
+	if selected_mode == "state" then
+		if selected_item and current_props then
+			imgui.Text("State Editor: " .. selected_item)
+			imgui.Separator()
+
+			local modified = false
+
+			if not current_props:has("name") then
+				current_props:set_string("name", selected_item)
+				modified = true
+			end
+			imgui.Text("Name: " .. current_props:read_string("name"))
+			imgui.Separator()
+
+			imgui.Text("Included Scenes:")
+			if not current_props:has("scenes") then
+				current_props:set_string("scenes/dummy", "0")
+				current_props:clear("scenes/dummy")
+				modified = true
+			end
+
+			local scene_keys = current_props:keys("scenes") or {}
+			-- We will gather scenes in order if they are indexed
+			local current_scenes = {}
+			for _, k in ipairs(scene_keys) do
+				local s = current_props:read_string("scenes/" .. k)
+				if s and s ~= "" then
+					table.insert(current_scenes, s)
+				end
+			end
+
+			local scenes_changed = false
+			for i, scene_name in ipairs(current_scenes) do
+				imgui.PushID("StateScene_" .. tostring(i))
+				imgui.BulletText(scene_name)
+				imgui.SameLine()
+				if imgui.Button("Remove") then
+					table.remove(current_scenes, i)
+					scenes_changed = true
+				end
+				imgui.PopID()
+			end
+
+			if imgui.Button("Add Scene") then
+				imgui.OpenPopup("AddSceneToState")
+			end
+
+			if imgui.BeginPopup("AddSceneToState") then
+				for _, s_name in ipairs(scenes_list) do
+					if imgui.Selectable(s_name) then
+						table.insert(current_scenes, s_name)
+						scenes_changed = true
+					end
+				end
+				imgui.EndPopup()
+			end
+
+			if scenes_changed then
+				current_props:clear("scenes")
+				if #current_scenes == 0 then
+					current_props:set_string("scenes/dummy", "0")
+					current_props:clear("scenes/dummy")
+				else
+					for i, s_name in ipairs(current_scenes) do
+						current_props:set_string("scenes/" .. tostring(i - 1), s_name)
+					end
+				end
+				modified = true
+			end
+
+			if modified then
+				save_item("state", selected_item, current_props)
+			end
+		else
+			imgui.Text("Select a state to edit.")
+		end
+	elseif selected_mode == "scene" then
+		imgui.BeginChild("Hierarchy", ffi.new("ImVec2", 0, (screen_h - 20) / 2 - 10), true)
 	if selected_item and current_props then
 		imgui.Text("Hierarchy: " .. selected_item .. " (" .. selected_mode .. ")")
 		imgui.Separator()
@@ -521,6 +595,9 @@ function Scenes.on_update()
 	imgui.EndChild()
 
 	imgui.EndChild()
+	end -- end if selected_mode == "scene"
+
+	imgui.EndChild()
 
 	if show_add_state_popup then
 		imgui.OpenPopup("New State")
@@ -537,7 +614,7 @@ function Scenes.on_update()
 					if not sandbox.filesystem.exists(world, "project://scenes/states") then
 						sandbox.filesystem.create_directory(world, "project://scenes/states", true)
 					end
-					write_file(p, string.format('{"entities":{"%s":{"components":{"State":{}}}}}', new_name))
+					write_file(p, string.format('{"name":"%s","scenes":[]}', new_name))
 					refresh_lists()
 					select_item("state", new_name)
 				end
