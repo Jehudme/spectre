@@ -1,7 +1,7 @@
 # Copy Asteroid App and Plugin
 add_custom_target(asteroid_app ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/../resources/asteroid
+        ${CMAKE_CURRENT_SOURCE_DIR}/asteroid
         ${CMAKE_BINARY_DIR}/bin/asteroid
     COMMAND ${CMAKE_COMMAND} -E make_directory
         ${CMAKE_BINARY_DIR}/bin/asteroid/plugins
@@ -14,7 +14,7 @@ add_custom_target(asteroid_app ALL
 # Copy Editor App and Plugin
 add_custom_target(editor_app ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/../resources/editor
+        ${CMAKE_CURRENT_SOURCE_DIR}/editor
         ${CMAKE_BINARY_DIR}/bin/editor
     COMMAND ${CMAKE_COMMAND} -E make_directory
         ${CMAKE_BINARY_DIR}/bin/editor/plugins
