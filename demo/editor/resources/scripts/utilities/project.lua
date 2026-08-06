@@ -8,13 +8,13 @@ project = {}
 -- TODO: Refactor to create 
 function project.initialize()
     sandbox.logs.info(world, "[project.lua] project.initialize called!")
-    local exists = sandbox.filesystem.exists(world, "cache://spectre-projects/")
+    local exists = sandbox.filesystem.exists(world, "save://spectre-projects/")
     sandbox.logs.info(world, "[project.lua] exists before: " .. tostring(exists))
     if not exists then
-        local created = sandbox.filesystem.create_directory(world, "cache://spectre-projects/", true)
+        local created = sandbox.filesystem.create_directory(world, "save://spectre-projects/", true)
         sandbox.logs.info(world, "[project.lua] created: " .. tostring(created))
     end
-    local cache_phys = sandbox.filesystem.resolve_physical_path(world, "cache://spectre-projects/")
+    local cache_phys = sandbox.filesystem.resolve_physical_path(world, "save://spectre-projects/")
     sandbox.logs.info(world, "[project.lua] cache_phys: " .. tostring(cache_phys))
     sandbox.filesystem.mount(world, cache_phys, "projects://", false)
 end
