@@ -5,6 +5,7 @@ local world = ecs.from_ptr(g_world)
 
 project = {}
 
+-- TODO: Refactor to create 
 function project.initialize()
     sandbox.logs.info(world, "[project.lua] project.initialize called!")
     local exists = sandbox.filesystem.exists(world, "cache://spectre-projects/")
@@ -18,6 +19,7 @@ function project.initialize()
     sandbox.filesystem.mount(world, cache_phys, "projects://", false)
 end
 
+-- TODO: Refactor to
 function project.create(name)
     local dest = "projects://" .. name
     local res = sandbox.filesystem.copy(world, "app://templates/new_app", dest, false, true)
