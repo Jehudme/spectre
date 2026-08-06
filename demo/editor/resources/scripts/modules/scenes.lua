@@ -592,12 +592,11 @@ function Scenes.on_update()
 	else
 		imgui.Text("Select an entity to view its components.")
 	end
-	imgui.EndChild()
+	imgui.EndChild() -- End Inspector
 
-	imgui.EndChild()
-	end -- end if selected_mode == "scene"
+	end -- end if selected_mode
 
-	imgui.EndChild()
+	imgui.EndChild() -- End RightPanel
 
 	if show_add_state_popup then
 		imgui.OpenPopup("New State")
