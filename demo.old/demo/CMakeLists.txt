@@ -23,3 +23,8 @@ add_custom_target(editor_app ALL
         ${CMAKE_BINARY_DIR}/bin/editor/plugins/
     DEPENDS spectre_plugin
 )
+
+# Ensure building the launcher also triggers copying the apps and plugins
+if (TARGET sandbox_launcher)
+    add_dependencies(sandbox_launcher asteroid_app editor_app)
+endif()
