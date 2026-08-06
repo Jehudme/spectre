@@ -80,5 +80,5 @@ include(CTest)
 enable_testing()
 add_subdirectory(tests)
 
-# 4. Add demo
-add_subdirectory(demo)
+# 4. Add the demo applications
+add_subdirectory(demo.old)
