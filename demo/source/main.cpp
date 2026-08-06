@@ -16,23 +16,8 @@ int main(int argc, char* argv[]) {
         sandbox::engine engine;
         sandbox::properties props;
 
-        // Simulate launcher loading the app configuration
-        std::string config_path = std::string(APP_RESOURCES_DIR) + "/configuration.json";
-        if (FILE* f = fopen(config_path.c_str(), "rb")) {
-            fseek(f, 0, SEEK_END);
-            size_t size = ftell(f);
-            fseek(f, 0, SEEK_SET);
-            std::string content(size, '\0');
-            fread(&content[0], 1, size, f);
-            fclose(f);
-
-            sandbox::properties app_props(content, sandbox::properties::Format::JSON);
-            props.merge("", app_props);
-        }
-
         // Mount the application resources folder as app://
-        props.set("filesystem/mounts/app/physical", APP_RESOURCES_DIR);
-        props.set("filesystem/mounts/app/readonly", true);
+        props.set("booting-configuration/mount-path", APP_RESOURCES_DIR);
 
         // Ensure mandatory modules are present
         std::vector<std::string> modules;
@@ -43,8 +28,6 @@ int main(int argc, char* argv[]) {
                 modules.push_back(m);
             }
         }
-        props.set_array("engine/sandbox", modules);
-        props.set_array("booting-configuration/modules", std::vector<std::string>{"sandbox-application@1.0.0"});
 
         if (engine.initialize(props)) {
             flecs::world ecs(static_cast<ecs_world_t*>(engine.get_ecs()));
