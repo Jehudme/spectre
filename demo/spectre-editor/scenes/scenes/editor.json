@@ -1,0 +1,26 @@
+{
+  "name": "Editor",
+  "entities": {
+    "Editor": {
+      "components": {
+        "Scene": {}
+      },
+      "children": {
+        "EditorController": {
+          "components": {
+            "scripts": {
+              "on_update": {
+                "0": {
+                  "function": "on_render_edit",
+                  "arguments": {
+                    "self_id": "%self%"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

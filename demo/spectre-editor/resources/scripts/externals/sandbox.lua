@@ -38,9 +38,13 @@ pcall(function() ffi.cdef[[
     size_t sandbox_filesystem_file_size(ecs_world_t* ecs, const char* virtual_path);
     int64_t sandbox_filesystem_last_modified(ecs_world_t* ecs, const char* virtual_path);
     bool sandbox_filesystem_list_files(ecs_world_t* ecs, const char* virtual_path, bool recursive, char*** out_files, size_t* out_count);
+    bool sandbox_filesystem_list_directories(ecs_world_t* ecs, const char* virtual_path, bool recursive, char*** out_dirs, size_t* out_count);
     void sandbox_filesystem_free_file_list(ecs_world_t* ecs, char** files, size_t count);
     bool sandbox_filesystem_read_all_bytes(ecs_world_t* ecs, const char* virtual_path, uint8_t** out_data, size_t* out_size);
+    bool sandbox_filesystem_write_all_bytes(ecs_world_t* ecs, const char* virtual_path, const void* data, size_t size);
     void sandbox_filesystem_free_bytes(ecs_world_t* ecs, uint8_t* data);
+    bool sandbox_filesystem_resolve_physical_path(ecs_world_t* ecs, const char* virtual_path, char** out_path);
+    void sandbox_filesystem_free_string(ecs_world_t* ecs, char* str);
     sandbox_properties_handle_t sandbox_configuration_get_properties(ecs_world_t* ecs);
     void sandbox_logs_trace(ecs_world_t* ecs, const char* msg);
     void sandbox_logs_debug(ecs_world_t* ecs, const char* msg);
@@ -305,10 +309,37 @@ end
 ---@param world ecs_world_t
 ---@param virtual_path string
 ---@param recursive boolean
----@param out_files any
----@param out_count any
-function sandbox.filesystem.list_files(world, virtual_path, recursive, out_files, out_count)
-    return ffi.C.sandbox_filesystem_list_files((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, recursive, out_files, out_count)
+---@return table
+function sandbox.filesystem.list_files(world, virtual_path, recursive)
+    local out_files = ffi.new("char**[1]")
+    local out_count = ffi.new("size_t[1]")
+    local success = ffi.C.sandbox_filesystem_list_files((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, recursive, out_files, out_count)
+    local result = {}
+    if success and tonumber(out_count[0]) > 0 then
+        for i = 0, tonumber(out_count[0]) - 1 do
+            table.insert(result, ffi.string(out_files[0][i]))
+        end
+        ffi.C.sandbox_filesystem_free_file_list((type(world) == "table" and world.ptr) and world.ptr or world, out_files[0], out_count[0])
+    end
+    return result
+end
+
+---@param world ecs_world_t
+---@param virtual_path string
+---@param recursive boolean
+---@return table
+function sandbox.filesystem.list_directories(world, virtual_path, recursive)
+    local out_dirs = ffi.new("char**[1]")
+    local out_count = ffi.new("size_t[1]")
+    local success = ffi.C.sandbox_filesystem_list_directories((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, recursive, out_dirs, out_count)
+    local result = {}
+    if success and tonumber(out_count[0]) > 0 then
+        for i = 0, tonumber(out_count[0]) - 1 do
+            table.insert(result, ffi.string(out_dirs[0][i]))
+        end
+        ffi.C.sandbox_filesystem_free_file_list((type(world) == "table" and world.ptr) and world.ptr or world, out_dirs[0], out_count[0])
+    end
+    return result
 end
 
 ---@param world ecs_world_t
@@ -329,38 +360,32 @@ end
 
 ---@param world ecs_world_t
 ---@param virtual_path string
----@return string?
-function sandbox.filesystem.read_file_string(world, virtual_path)
-    if not sandbox.filesystem.exists(world, virtual_path) then return nil end
-    local out_data = ffi.new("uint8_t*[1]")
-    local out_size = ffi.new("size_t[1]")
-    if sandbox.filesystem.read_all_bytes(world, virtual_path, out_data, out_size) then
-        if tonumber(out_size[0]) > 0 and out_data[0] ~= nil then
-            local content = ffi.string(out_data[0], tonumber(out_size[0]))
-            sandbox.filesystem.free_bytes(world, out_data[0])
-            return content
-        end
-    end
-    return nil
-end
-
----@param world ecs_world_t
----@param virtual_path string
----@param content string
-function sandbox.filesystem.write_file_string(world, virtual_path, content)
-    local c_str = ffi.cast("const void*", content)
-    -- Write using the handle API since C API might only expose read_all_bytes natively
-    local handle = sandbox.filesystem.open_write(world, virtual_path, false, true)
-    if handle ~= nil then
-        sandbox.filesystem.write(world, handle, c_str, #content)
-        sandbox.filesystem.close_handle(world, handle)
-    end
+---@param data string
+---@param size integer
+---@return boolean
+function sandbox.filesystem.write_all_bytes(world, virtual_path, data, size)
+    return ffi.C.sandbox_filesystem_write_all_bytes((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, data, size)
 end
 
 ---@param world ecs_world_t
 ---@param data string
 function sandbox.filesystem.free_bytes(world, data)
     return ffi.C.sandbox_filesystem_free_bytes((type(world) == "table" and world.ptr) and world.ptr or world, data)
+end
+
+---@param world ecs_world_t
+---@param virtual_path string
+---@return string|nil
+function sandbox.filesystem.resolve_physical_path(world, virtual_path)
+    local out_path = ffi.new("char*[1]")
+    if ffi.C.sandbox_filesystem_resolve_physical_path((type(world) == "table" and world.ptr) and world.ptr or world, virtual_path, out_path) then
+        if out_path[0] ~= nil then
+            local res = ffi.string(out_path[0])
+            ffi.C.sandbox_filesystem_free_string((type(world) == "table" and world.ptr) and world.ptr or world, out_path[0])
+            return res
+        end
+    end
+    return nil
 end
 
 -- ========================================
@@ -568,63 +593,79 @@ function sandbox.Properties:get_bool(path)
     return nil
 end
 
+local _g_read_string_res = nil
+local _g_read_string_cb = ffi.cast("void (*)(const char*, void*)", function(val, ctx)
+    if val ~= nil then _g_read_string_res = ffi.string(val) end
+end)
+
 ---@param path string
 function sandbox.Properties:read_string(path)
-    local res = nil
-    local cb = ffi.cast("void (*)(const char*, void*)", function(val, ctx)
-        if val ~= nil then
-            res = ffi.string(val)
-        end
-    end)
-    ffi.C.sandbox_properties_read_string(self.handle, path, cb, nil)
-    cb:free()
+    _g_read_string_res = nil
+    ffi.C.sandbox_properties_read_string(self.handle, path, _g_read_string_cb, nil)
+    local res = _g_read_string_res
+    _g_read_string_res = nil
     return res
 end
+
+local _g_read_int64_array_res = nil
+local _g_read_int64_array_cb = ffi.cast("void (*)(int64_t, void*)", function(val, ctx) table.insert(_g_read_int64_array_res, tonumber(val)) end)
 
 ---@param path string
 function sandbox.Properties:read_int64_array(path)
-    local res = {}
-    local cb = ffi.cast("void (*)(int64_t, void*)", function(val, ctx) table.insert(res, tonumber(val)) end)
-    ffi.C.sandbox_properties_read_int64_array(self.handle, path, cb, nil)
-    cb:free()
+    _g_read_int64_array_res = {}
+    ffi.C.sandbox_properties_read_int64_array(self.handle, path, _g_read_int64_array_cb, nil)
+    local res = _g_read_int64_array_res
+    _g_read_int64_array_res = nil
     return res
 end
+
+local _g_read_uint64_array_res = nil
+local _g_read_uint64_array_cb = ffi.cast("void (*)(uint64_t, void*)", function(val, ctx) table.insert(_g_read_uint64_array_res, tonumber(val)) end)
 
 ---@param path string
 function sandbox.Properties:read_uint64_array(path)
-    local res = {}
-    local cb = ffi.cast("void (*)(uint64_t, void*)", function(val, ctx) table.insert(res, tonumber(val)) end)
-    ffi.C.sandbox_properties_read_uint64_array(self.handle, path, cb, nil)
-    cb:free()
+    _g_read_uint64_array_res = {}
+    ffi.C.sandbox_properties_read_uint64_array(self.handle, path, _g_read_uint64_array_cb, nil)
+    local res = _g_read_uint64_array_res
+    _g_read_uint64_array_res = nil
     return res
 end
+
+local _g_read_double_array_res = nil
+local _g_read_double_array_cb = ffi.cast("void (*)(double, void*)", function(val, ctx) table.insert(_g_read_double_array_res, tonumber(val)) end)
 
 ---@param path string
 function sandbox.Properties:read_double_array(path)
-    local res = {}
-    local cb = ffi.cast("void (*)(double, void*)", function(val, ctx) table.insert(res, tonumber(val)) end)
-    ffi.C.sandbox_properties_read_double_array(self.handle, path, cb, nil)
-    cb:free()
+    _g_read_double_array_res = {}
+    ffi.C.sandbox_properties_read_double_array(self.handle, path, _g_read_double_array_cb, nil)
+    local res = _g_read_double_array_res
+    _g_read_double_array_res = nil
     return res
 end
+
+local _g_read_bool_array_res = nil
+local _g_read_bool_array_cb = ffi.cast("void (*)(bool, void*)", function(val, ctx) table.insert(_g_read_bool_array_res, val) end)
 
 ---@param path string
 function sandbox.Properties:read_bool_array(path)
-    local res = {}
-    local cb = ffi.cast("void (*)(bool, void*)", function(val, ctx) table.insert(res, val) end)
-    ffi.C.sandbox_properties_read_bool_array(self.handle, path, cb, nil)
-    cb:free()
+    _g_read_bool_array_res = {}
+    ffi.C.sandbox_properties_read_bool_array(self.handle, path, _g_read_bool_array_cb, nil)
+    local res = _g_read_bool_array_res
+    _g_read_bool_array_res = nil
     return res
 end
 
+local _g_read_string_array_res = nil
+local _g_read_string_array_cb = ffi.cast("void (*)(const char*, void*)", function(val, ctx) 
+    if val ~= nil then table.insert(_g_read_string_array_res, ffi.string(val)) end 
+end)
+
 ---@param path string
 function sandbox.Properties:read_string_array(path)
-    local res = {}
-    local cb = ffi.cast("void (*)(const char*, void*)", function(val, ctx) 
-        if val ~= nil then table.insert(res, ffi.string(val)) end 
-    end)
-    ffi.C.sandbox_properties_read_string_array(self.handle, path, cb, nil)
-    cb:free()
+    _g_read_string_array_res = {}
+    ffi.C.sandbox_properties_read_string_array(self.handle, path, _g_read_string_array_cb, nil)
+    local res = _g_read_string_array_res
+    _g_read_string_array_res = nil
     return res
 end
 
@@ -705,12 +746,10 @@ end
 
 ---@param path string
 function sandbox.Properties:keys(path)
-    local res = {}
-    local cb = ffi.cast("void (*)(const char*, void*)", function(key, ctx) 
-        if key ~= nil then table.insert(res, ffi.string(key)) end 
-    end)
-    ffi.C.sandbox_properties_keys(self.handle, path, cb, nil)
-    cb:free()
+    _g_read_string_array_res = {}
+    ffi.C.sandbox_properties_keys(self.handle, path, _g_read_string_array_cb, nil)
+    local res = _g_read_string_array_res
+    _g_read_string_array_res = nil
     return res
 end
 

@@ -43,26 +43,7 @@ local add_assigned_prefab_target = ""
 
 local selected_entity = nil
 
-local function write_file(path, content)
-	local c_str = ffi.cast("const void*", content)
-	sandbox.filesystem.write_all_bytes(world, path, c_str, #content)
-end
 
-local function read_file(path)
-	if not sandbox.filesystem.exists(world, path) then
-		return nil
-	end
-	local out_data = ffi.new("uint8_t*[1]")
-	local out_size = ffi.new("size_t[1]")
-	if sandbox.filesystem.read_all_bytes(world, path, out_data, out_size) then
-		if tonumber(out_size[0]) > 0 and out_data[0] ~= nil then
-			local content = ffi.string(out_data[0], tonumber(out_size[0]))
-			sandbox.filesystem.free_bytes(world, out_data[0])
-			return content
-		end
-	end
-	return nil
-end
 
 local function get_item_path(mode, name)
 	if mode == "state" then
@@ -74,7 +55,7 @@ end
 
 local function load_item(mode, name)
 	local path = get_item_path(mode, name)
-	local content = read_file(path)
+	local content = sandbox.filesystem.read_file_string(world, path)
 	local props = sandbox.Properties.new()
 	if content then
 		props:load(content, 0)
@@ -96,7 +77,7 @@ local function save_item(mode, name, props)
 			if not sandbox.filesystem.exists(world, dir) then
 				sandbox.filesystem.create_directory(world, dir, true)
 			end
-			write_file(get_item_path(mode, name), dumped)
+			sandbox.filesystem.write_file_string(world, get_item_path(mode, name), dumped)
 		end
 	end
 end
@@ -613,7 +594,7 @@ function Scenes.on_update()
 					if not sandbox.filesystem.exists(world, "project://scenes/states") then
 						sandbox.filesystem.create_directory(world, "project://scenes/states", true)
 					end
-					write_file(p, string.format('{"name":"%s","scenes":[]}', new_name))
+					sandbox.filesystem.write_file_string(world, p, string.format('{"name":"%s","scenes":[]}', new_name))
 					refresh_lists()
 					select_item("state", new_name)
 				end
@@ -642,7 +623,7 @@ function Scenes.on_update()
 					if not sandbox.filesystem.exists(world, "project://scenes/scenes") then
 						sandbox.filesystem.create_directory(world, "project://scenes/scenes", true)
 					end
-					write_file(p, string.format('{"entities":{"%s":{"components":{"Scene":{}}}}}', new_name))
+					sandbox.filesystem.write_file_string(world, p, string.format('{"entities":{"%s":{"components":{"Scene":{}}}}}', new_name))
 					refresh_lists()
 					select_item("scene", new_name)
 				end
