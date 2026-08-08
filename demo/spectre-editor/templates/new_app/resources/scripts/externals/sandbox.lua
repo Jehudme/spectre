@@ -360,6 +360,36 @@ end
 
 ---@param world ecs_world_t
 ---@param virtual_path string
+---@return string?
+function sandbox.filesystem.read_file_string(world, virtual_path)
+    if not sandbox.filesystem.exists(world, virtual_path) then return nil end
+    local out_data = ffi.new("uint8_t*[1]")
+    local out_size = ffi.new("size_t[1]")
+    if sandbox.filesystem.read_all_bytes(world, virtual_path, out_data, out_size) then
+        if tonumber(out_size[0]) > 0 and out_data[0] ~= nil then
+            local content = ffi.string(out_data[0], tonumber(out_size[0]))
+            sandbox.filesystem.free_bytes(world, out_data[0])
+            return content
+        end
+    end
+    return nil
+end
+
+---@param world ecs_world_t
+---@param virtual_path string
+---@param content string
+function sandbox.filesystem.write_file_string(world, virtual_path, content)
+    local c_str = ffi.cast("const void*", content)
+    -- Write using the handle API since C API might only expose read_all_bytes natively
+    local handle = sandbox.filesystem.open_write(world, virtual_path, false, true)
+    if handle ~= nil then
+        sandbox.filesystem.write(world, handle, c_str, #content)
+        sandbox.filesystem.close_handle(world, handle)
+    end
+end
+
+---@param world ecs_world_t
+---@param virtual_path string
 ---@param data string
 ---@param size integer
 ---@return boolean
