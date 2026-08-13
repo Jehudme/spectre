@@ -185,24 +185,20 @@ function projects.view.on_enter()
 end
 
 function projects.view.on_render()
-	local viewport = imgui.GetMainViewport()
 	local window_flags = bit.bor(
-		imgui.WindowFlags.NoTitleBar,
-		imgui.WindowFlags.NoResize,
-		imgui.WindowFlags.NoMove,
-		imgui.WindowFlags.NoCollapse,
-		imgui.WindowFlags.NoSavedSettings
+		ffi.C.ImGuiWindowFlags_NoTitleBar,
+		ffi.C.ImGuiWindowFlags_NoResize,
+		ffi.C.ImGuiWindowFlags_NoMove,
+		ffi.C.ImGuiWindowFlags_NoCollapse,
+		ffi.C.ImGuiWindowFlags_NoSavedSettings
 	)
 	
-	-- Center the window
+	-- Since igGetMainViewport is not available, we use a default position and size.
 	local window_size = imgui.ImVec2(800, 600)
-	local center_pos = imgui.ImVec2(
-		viewport.Pos.x + (viewport.Size.x - window_size.x) * 0.5,
-		viewport.Pos.y + (viewport.Size.y - window_size.y) * 0.5
-	)
+	local center_pos = imgui.ImVec2(100, 100)
 	
-	imgui.SetNextWindowPos(center_pos, imgui.Cond.Always)
-	imgui.SetNextWindowSize(window_size, imgui.Cond.Always)
+	imgui.SetNextWindowPos(center_pos, ffi.C.ImGuiCond_FirstUseEver)
+	imgui.SetNextWindowSize(window_size, ffi.C.ImGuiCond_FirstUseEver)
 	
 	if imgui.Begin("Projects Browser", nil, window_flags) then
 		imgui.Text("Project Manager")
@@ -298,7 +294,7 @@ function projects.view.on_render()
 			imgui.OpenPopup("Rename Project")
 		end
 		
-		if imgui.BeginPopupModal("Rename Project", nil, imgui.WindowFlags.AlwaysAutoResize) then
+		if imgui.BeginPopupModal("Rename Project", nil, ffi.C.ImGuiWindowFlags_AlwaysAutoResize) then
 			imgui.Text("Enter new name for " .. projects.view.selected_project .. ":")
 			local changed, new_buf = imgui.InputText("##newname", projects.view.rename_buffer, 256)
 			if changed then
@@ -433,13 +429,13 @@ end
 
 return {
 	-- TODO: Attach this function to be run on_enter of Menu scene
-	on_enter_projects_view = ecs.Script.define(projects.view.on_enter()),
+	on_enter_projects_view = ecs.Script.define(projects.view.on_enter),
 
 	-- TODO: Attach this function to be run on_update of menu scene
-	on_render_projects_view = ecs.Script.define(projects.view.on_render()),
+	on_render_projects_view = ecs.Script.define(projects.view.on_render),
 
 	-- TODO: Attach this function to be run on_exit of on_exit of menu scene,
-	on_exit_projects_view = ecs.Script.define(projects.view.on_exit()),
+	on_exit_projects_view = ecs.Script.define(projects.view.on_exit),
 
 	run_all_projects_tests = ecs.Script.define(projects.test_all),
 }

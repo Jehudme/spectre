@@ -1,16 +1,6 @@
 {
   "name": "Startup",
-  "scenes": ["Menu"],
-  "scripts": {
-    "on_enter": {
-      "0": {
-        "function": "on_init_menu",
-        "arguments": {
-          "self_id": "%self%",
-          "scene_id": "%scene%",
-          "state_id": "%state%"
-        }
-      }
-    }
-  }
+  "scenes": [
+    "Menu"
+  ]
 }
