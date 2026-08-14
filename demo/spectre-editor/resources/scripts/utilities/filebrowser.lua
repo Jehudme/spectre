@@ -264,208 +264,387 @@ function FileBrowser:commit_rename(old_path, new_name)
 end
 
 -- ==========================================
+-- Render Helpers
+-- ==========================================
+
+local function format_size(bytes)
+    if bytes == 0 then return "--" end
+    if bytes < 1024 then return bytes .. " B" end
+    if bytes < 1024 * 1024 then return string.format("%.1f KB", bytes / 1024) end
+    return string.format("%.1f MB", bytes / (1024 * 1024))
+end
+
+local function get_breadcrumb_parts(path)
+    local parts = {}
+    -- Extract scheme like "os:/", "save:/", etc.
+    local scheme, rest = path:match("^([a-zA-Z]+:/+)(.*)")
+    if scheme then
+        table.insert(parts, { label = scheme, path = scheme })
+        if rest and rest ~= "" then
+            local accumulated = scheme
+            for segment in rest:gmatch("[^/]+") do
+                if accumulated:match(":/+$") then
+                    accumulated = accumulated:gsub("/+$", "") .. "/" .. segment
+                else
+                    accumulated = accumulated .. "/" .. segment
+                end
+                table.insert(parts, { label = segment, path = accumulated })
+            end
+        end
+    else
+        table.insert(parts, { label = path, path = path })
+    end
+    return parts
+end
+
+-- ==========================================
 -- Render
 -- ==========================================
 
 function FileBrowser:render()
     if not self.is_open then return end
-    
-    local w_width = spectre.window.get_width(g_world)
+
+    local w_width  = spectre.window.get_width(g_world)
     local w_height = spectre.window.get_height(g_world)
-    imgui.SetNextWindowSize(imgui.ImVec2(math.floor(w_width * 0.8), math.floor(w_height * 0.8)), ffi.C.ImGuiCond_FirstUseEver)
-    
-    if imgui.BeginPopupModal("File Browser", nil, ffi.C.ImGuiWindowFlags_NoSavedSettings) then
-        
-        -- Top bar
-        if imgui.Button("<-") then self:backward() end
-        imgui.SameLine()
-        if imgui.Button("->") then self:forward() end
-        imgui.SameLine()
-        if imgui.Button("Home") then self:go_home() end
-        imgui.SameLine()
-        if imgui.Button("Up") then self:navigate_up() end
-        imgui.SameLine()
-        imgui.Text("Path: " .. self.current_path)
-        
-        imgui.SameLine(imgui.GetWindowWidth() - 250)
-        imgui.Text("Search:")
-        imgui.SameLine()
-        imgui.InputText("##search", self.search_query, 256)
-        
+    local modal_w  = math.max(800, math.floor(w_width  * 0.80))
+    local modal_h  = math.max(500, math.floor(w_height * 0.80))
+
+    imgui.SetNextWindowSize(imgui.ImVec2(modal_w, modal_h), ffi.C.ImGuiCond_Always)
+    imgui.SetNextWindowPos(
+        imgui.ImVec2(math.floor(w_width / 2), math.floor(w_height / 2)),
+        ffi.C.ImGuiCond_Always,
+        imgui.ImVec2(0.5, 0.5))
+
+    local popup_flags = bit.bor(
+        ffi.C.ImGuiWindowFlags_NoSavedSettings,
+        ffi.C.ImGuiWindowFlags_NoResize,
+        ffi.C.ImGuiWindowFlags_NoMove)
+
+    if not imgui.BeginPopupModal("File Browser", nil, popup_flags) then return end
+
+    -- ---- collect selection ----
+    local selected_paths = {}
+    local selected_count = 0
+    for path, flag in pairs(self.selected) do
+        if flag then
+            selected_count = selected_count + 1
+            table.insert(selected_paths, path)
+        end
+    end
+
+    -- ===========================================
+    -- TOP NAV BAR  (back / forward / up / breadcrumb / search)
+    -- ===========================================
+    local nav_button_size = imgui.ImVec2(28, 24)
+
+    local back_enabled    = self.history_index > 1
+    local forward_enabled = self.history_index < #self.history
+
+    if not back_enabled then imgui.BeginDisabled() end
+    if imgui.Button("<##back", nav_button_size) then self:backward() end
+    if not back_enabled then imgui.EndDisabled() end
+
+    imgui.SameLine(0, 3)
+
+    if not forward_enabled then imgui.BeginDisabled() end
+    if imgui.Button(">##fwd",  nav_button_size) then self:forward() end
+    if not forward_enabled then imgui.EndDisabled() end
+
+    imgui.SameLine(0, 3)
+    if imgui.Button("^##up", nav_button_size) then self:navigate_up() end
+
+    imgui.SameLine(0, 10)
+
+    -- Breadcrumb path bar
+    local breadcrumb_parts = get_breadcrumb_parts(self.current_path)
+    local available_for_breadcrumb = modal_w - 280  -- leave room for search
+
+    imgui.PushItemWidth(available_for_breadcrumb)
+    for idx, part in ipairs(breadcrumb_parts) do
+        if idx > 1 then
+            imgui.SameLine(0, 0)
+            imgui.TextDisabled("  >  ")
+            imgui.SameLine(0, 0)
+        end
+        if imgui.SmallButton(part.label .. "##bc" .. idx) then
+            self:change_directory(part.path)
+        end
+    end
+    imgui.PopItemWidth()
+
+    -- Search bar flush-right
+    local search_label_w = 60
+    local search_input_w = 180
+    imgui.SameLine(modal_w - search_label_w - search_input_w - 30)
+    imgui.Text("Search:")
+    imgui.SameLine(0, 4)
+    imgui.SetNextItemWidth(search_input_w)
+    imgui.InputText("##search", self.search_query, 256)
+
+    imgui.Separator()
+
+    -- ===========================================
+    -- ACTION TOOLBAR
+    -- ===========================================
+    if not self.readonly then
+        if imgui.Button("+ New Folder") then
+            self.new_folder_active = true
+            ffi.copy(self.new_folder_buffer, "New_Folder")
+        end
+
+        if selected_count > 0 then
+            imgui.SameLine(0, 6)
+            if imgui.Button("Copy")      then self:copy_to_clipboard(selected_paths, false) end
+            imgui.SameLine(0, 4)
+            if imgui.Button("Cut")       then self:copy_to_clipboard(selected_paths, true)  end
+            imgui.SameLine(0, 4)
+            if imgui.Button("Duplicate") then self:duplicate(selected_paths) end
+            imgui.SameLine(0, 4)
+            if imgui.Button("Delete")    then self:delete(selected_paths) end
+        end
+
+        if #self.clipboard > 0 then
+            imgui.SameLine(0, 6)
+            local paste_label = self.clipboard_op == "cut" and "Paste (Move)" or "Paste (Copy)"
+            if imgui.Button(paste_label) then self:paste(self.current_path) end
+        end
+    end
+
+    imgui.Separator()
+
+    -- ===========================================
+    -- MAIN AREA  (sidebar | file table)
+    -- ===========================================
+    local sidebar_w        = 160
+    local content_area_h   = modal_h - 160   -- reserve top nav + toolbar + bottom bar
+
+    -- --- LEFT SIDEBAR ---
+    if imgui.BeginChild("##sidebar", imgui.ImVec2(sidebar_w, content_area_h), true, 0) then
+
+        imgui.TextDisabled("Quick Access")
         imgui.Separator()
-        
-        -- Action bar
-        if not self.readonly then
-            if imgui.Button("New Folder") then
-                self.new_folder_active = true
-                ffi.copy(self.new_folder_buffer, "New_Folder")
+
+        local function sidebar_location(label, path)
+            if imgui.Selectable(label, self.current_path == path, 0, imgui.ImVec2(0, 0)) then
+                self:change_directory(path)
             end
-            imgui.SameLine()
         end
-        local sel_count = 0
-        local sel_paths = {}
-        for k, v in pairs(self.selected) do
-            if v then
-                sel_count = sel_count + 1
-                table.insert(sel_paths, k)
+
+        local home = os.getenv("HOME")
+        if home then sidebar_location("  Home", "os:/" .. home) end
+        sidebar_location("  os://", "os://")
+        sidebar_location("  save://", "save://")
+        sidebar_location("  app://", "app://")
+        sidebar_location("  projects://", "projects://")
+
+        imgui.EndChild()
+    end
+
+    imgui.SameLine(0, 6)
+
+    -- --- FILE TABLE ---
+    if imgui.BeginChild("##filetable", imgui.ImVec2(0, content_area_h), true, 0) then
+
+        -- New Folder inline input (at the top of the list)
+        if self.new_folder_active then
+            imgui.Text("[DIR]  ")
+            imgui.SameLine()
+            imgui.SetNextItemWidth(220)
+            if imgui.InputText("##newfolder", self.new_folder_buffer, 256,
+                               ffi.C.ImGuiInputTextFlags_EnterReturnsTrue) then
+                local folder_name = ffi.string(self.new_folder_buffer)
+                if folder_name ~= "" then self:create_folder(folder_name) end
+                self.new_folder_active = false
             end
+            if imgui.IsKeyPressed(ffi.C.ImGuiKey_Escape) then
+                self.new_folder_active = false
+            end
+            imgui.Separator()
         end
-        
-        if not self.readonly and sel_count > 0 then
-            if imgui.Button("Copy") then self:copy_to_clipboard(sel_paths, false) end
-            imgui.SameLine()
-            if imgui.Button("Cut") then self:copy_to_clipboard(sel_paths, true) end
-            imgui.SameLine()
-            if imgui.Button("Delete") then self:delete(sel_paths) end
-            imgui.SameLine()
-            if imgui.Button("Duplicate") then self:duplicate(sel_paths) end
-            imgui.SameLine()
-        end
-        if not self.readonly and #self.clipboard > 0 then
-            if imgui.Button("Paste") then self:paste(self.current_path) end
-            imgui.SameLine()
-        end
-        
-        imgui.Separator()
-        
-        -- Header for columns
-        if imgui.Button("Name##sort") then self.sort_by = "name"; self.sort_desc = not self.sort_desc; self:apply_sort() end
-        imgui.SameLine(300)
-        if imgui.Button("Size##sort") then self.sort_by = "size"; self.sort_desc = not self.sort_desc; self:apply_sort() end
-        imgui.SameLine(400)
-        if imgui.Button("Type##sort") then self.sort_by = "type"; self.sort_desc = not self.sort_desc; self:apply_sort() end
-        imgui.Separator()
-        
-        if imgui.BeginChild("BrowserList", imgui.ImVec2(0, -imgui.GetFrameHeightWithSpacing() - 20), true, 0) then
-            
-            -- New Folder input
-            if self.new_folder_active then
-                imgui.Text("[DIR]")
-                imgui.SameLine()
-                if imgui.InputText("##newfolder", self.new_folder_buffer, 256, ffi.C.ImGuiInputTextFlags_EnterReturnsTrue) then
-                    local nm = ffi.string(self.new_folder_buffer)
-                    if nm ~= "" then self:create_folder(nm) end
-                    self.new_folder_active = false
+
+        -- Column header row
+        local col_name_w = 380
+        local col_type_w = 90
+        local col_size_w = 90
+
+        local function sort_header(label, key, width)
+            local indicator = ""
+            if self.sort_by == key then
+                indicator = self.sort_desc and "  v" or "  ^"
+            end
+            if imgui.SmallButton(label .. indicator .. "##hdr") then
+                if self.sort_by == key then
+                    self.sort_desc = not self.sort_desc
+                else
+                    self.sort_by = key
+                    self.sort_desc = false
                 end
+                self:apply_sort()
             end
-            
-            local search_str = ffi.string(self.search_query):lower()
-            
-            for i, item in ipairs(self.items) do
-                if search_str == "" or item.name:lower():find(search_str, 1, true) then
-                    
-                    if self.rename_active_for == item.path then
-                        imgui.Text(item.is_dir and "[DIR]" or "[FILE]")
-                        imgui.SameLine()
-                        if imgui.InputText("##rename", self.rename_buffer, 256, ffi.C.ImGuiInputTextFlags_EnterReturnsTrue) then
-                            local nm = ffi.string(self.rename_buffer)
-                            if nm ~= "" then self:commit_rename(item.path, nm) end
-                            self.rename_active_for = nil
+        end
+
+        sort_header("Name", "name", col_name_w)
+        imgui.SameLine(col_name_w)
+        sort_header("Type", "type", col_type_w)
+        imgui.SameLine(col_name_w + col_type_w)
+        sort_header("Size", "size", col_size_w)
+        imgui.Separator()
+
+        -- File rows
+        local search_str = ffi.string(self.search_query):lower()
+        local item_trigger_rename = nil  -- deferred rename trigger
+
+        for _, item in ipairs(self.items) do
+            if search_str == "" or item.name:lower():find(search_str, 1, true) then
+
+                local is_selected = self.selected[item.path] == true
+                local icon        = item.is_dir and "[D]" or "[F]"
+                local type_label  = item.is_dir and "Folder" or "File"
+
+                -- Rename inline input
+                if self.rename_active_for == item.path then
+                    imgui.Text(icon .. "  ")
+                    imgui.SameLine()
+                    imgui.SetNextItemWidth(220)
+                    if imgui.InputText("##rename_" .. item.path, self.rename_buffer, 256,
+                                       ffi.C.ImGuiInputTextFlags_EnterReturnsTrue) then
+                        local new_name = ffi.string(self.rename_buffer)
+                        if new_name ~= "" then self:commit_rename(item.path, new_name) end
+                        self.rename_active_for = nil
+                    end
+                    if imgui.IsKeyPressed(ffi.C.ImGuiKey_Escape) then
+                        self.rename_active_for = nil
+                    end
+
+                else
+                    -- Selectable row
+                    local row_label = icon .. "  " .. item.name .. "##row_" .. item.path
+                    if imgui.Selectable(row_label, is_selected,
+                                        ffi.C.ImGuiSelectableFlags_AllowDoubleClick,
+                                        imgui.ImVec2(col_name_w - 10, 0)) then
+                        if imgui.GetIO().KeyCtrl then
+                            self.selected[item.path] = not is_selected or nil
+                        else
+                            self.selected = { [item.path] = true }
                         end
-                    else
-                        local display_name = (item.is_dir and "[DIR] " or "[FILE] ") .. item.name
-                        local is_selected = self.selected[item.path] == true
-                        
-                        if imgui.Selectable(display_name .. "##" .. item.path, is_selected, ffi.C.ImGuiSelectableFlags_AllowDoubleClick) then
-                            -- handle multi select with ctrl/shift? simplistic toggle for now
-                            if imgui.GetIO().KeyCtrl then
-                                self.selected[item.path] = not is_selected
-                            else
-                                self.selected = { [item.path] = true }
+
+                        if imgui.IsMouseDoubleClicked(ffi.C.ImGuiMouseButton_Left) then
+                            if item.is_dir then
+                                self:change_directory(item.path)
+                            elseif self.mode == "file" or self.mode == "both" then
+                                if self.callback then self.callback({ item.path }) end
+                                self:close()
                             end
-                            
-                            if imgui.IsMouseDoubleClicked(ffi.C.ImGuiMouseButton_Left) then
-                                if item.is_dir then
-                                    self:change_directory(item.path)
-                                else
-                                    if self.mode == "file" or self.mode == "both" then
-                                        if self.callback then self.callback({item.path}) end
-                                        self:close()
-                                    end
-                                end
+                        end
+                    end
+
+                    -- Type column
+                    imgui.SameLine(col_name_w)
+                    imgui.TextDisabled(type_label)
+
+                    -- Size column
+                    imgui.SameLine(col_name_w + col_type_w)
+                    imgui.TextDisabled(format_size(item.size))
+
+                    -- Drag & Drop source
+                    if not self.readonly and imgui.BeginDragDropSource() then
+                        imgui.SetDragDropPayload("FILEBROWSER_ITEM", item.path, #item.path + 1, ffi.C.ImGuiCond_Once)
+                        imgui.Text("Move: " .. item.name)
+                        imgui.EndDragDropSource()
+                    end
+
+                    -- Drag & Drop target (folders only)
+                    if not self.readonly and item.is_dir and imgui.BeginDragDropTarget() then
+                        local payload = imgui.AcceptDragDropPayload("FILEBROWSER_ITEM")
+                        if payload ~= nil then
+                            local src_path = ffi.string(payload.Data)
+                            if src_path ~= item.path then
+                                local drop_world = ecs.from_ptr(g_world)
+                                sandbox.filesystem.move(drop_world, src_path, join_path(item.path, get_name(src_path)), false, true)
+                                self:refresh()
                             end
                         end
-                        
-                        -- Drag & Drop
-                        if not self.readonly and imgui.BeginDragDropSource() then
-                            -- Send the string path
-                            imgui.SetDragDropPayload("FILEBROWSER_ITEM", item.path, string.len(item.path) + 1, ffi.C.ImGuiCond_Once)
-                            imgui.Text("Move " .. item.name)
-                            imgui.EndDragDropSource()
-                        end
-                        
-                        if not self.readonly and item.is_dir and imgui.BeginDragDropTarget() then
-                            local payload = imgui.AcceptDragDropPayload("FILEBROWSER_ITEM")
-                            if payload ~= nil then
-                                local src = ffi.string(payload.Data)
-                                if src ~= item.path then
-                                    local world = ecs.from_ptr(g_world)
-                                    sandbox.filesystem.move(world, src, join_path(item.path, get_name(src)), false, true)
-                                    self:refresh()
-                                end
-                            end
-                            imgui.EndDragDropTarget()
-                        end
-                        
-                        -- Context menu
-                        if not self.readonly and imgui.BeginPopupContextItem("Context##" .. item.path) then
-                            if imgui.MenuItem("Rename") then
-                                self.rename_active_for = item.path
-                                ffi.copy(self.rename_buffer, item.name)
-                            end
-                            if imgui.MenuItem("Delete") then self:delete({item.path}) end
-                            if imgui.MenuItem("Duplicate") then self:duplicate({item.path}) end
-                            if imgui.MenuItem("Copy") then self:copy_to_clipboard({item.path}, false) end
-                            if imgui.MenuItem("Cut") then self:copy_to_clipboard({item.path}, true) end
-                            imgui.EndPopup()
-                        end
-                        
-                        -- Draw Size and Type in same line
-                        imgui.SameLine(300)
-                        imgui.Text(tostring(item.size) .. " B")
-                        imgui.SameLine(400)
-                        imgui.Text(item.is_dir and "Folder" or "File")
+                        imgui.EndDragDropTarget()
+                    end
+
+                    -- Context menu
+                    if not self.readonly and imgui.BeginPopupContextItem("ctx##" .. item.path) then
+                        if imgui.MenuItem("Rename")    then item_trigger_rename = item end
+                        if imgui.MenuItem("Duplicate") then self:duplicate({ item.path }) end
+                        imgui.Separator()
+                        if imgui.MenuItem("Copy")      then self:copy_to_clipboard({ item.path }, false) end
+                        if imgui.MenuItem("Cut")       then self:copy_to_clipboard({ item.path }, true)  end
+                        imgui.Separator()
+                        if imgui.MenuItem("Delete")    then self:delete({ item.path }) end
+                        imgui.EndPopup()
                     end
                 end
             end
-            
-            imgui.EndChild()
         end
-        
-        -- Root drop target
+
+        -- Apply deferred rename trigger (outside context menu scope)
+        if item_trigger_rename then
+            self.rename_active_for = item_trigger_rename.path
+            ffi.copy(self.rename_buffer, item_trigger_rename.name)
+        end
+
+        -- Root drop zone (empty space in the table)
         if not self.readonly and imgui.BeginDragDropTarget() then
             local payload = imgui.AcceptDragDropPayload("FILEBROWSER_ITEM")
             if payload ~= nil then
-                local src = ffi.string(payload.Data)
-                if parent_dir(src) ~= self.current_path then
-                    local world = ecs.from_ptr(g_world)
-                    sandbox.filesystem.move(world, src, join_path(self.current_path, get_name(src)), false, true)
+                local src_path = ffi.string(payload.Data)
+                if parent_dir(src_path) ~= self.current_path then
+                    local drop_world = ecs.from_ptr(g_world)
+                    sandbox.filesystem.move(drop_world, src_path, join_path(self.current_path, get_name(src_path)), false, true)
                     self:refresh()
                 end
             end
             imgui.EndDragDropTarget()
         end
-        
-        imgui.Separator()
-        
-        if imgui.Button("Select", imgui.ImVec2(120, 0)) then
-            if sel_count > 0 then
-                if self.callback then self.callback(sel_paths) end
-                self:close()
-            elseif self.mode == "directory" then
-                if self.callback then self.callback({self.current_path}) end
-                self:close()
-            end
-        end
-        
-        imgui.SameLine()
-        if imgui.Button("Cancel", imgui.ImVec2(120, 0)) then
-            self:close()
-        end
-        
-        imgui.EndPopup()
+
+        imgui.EndChild()
     end
+
+    -- ===========================================
+    -- BOTTOM BAR  (status | Select / Cancel)
+    -- ===========================================
+    imgui.Separator()
+
+    -- Status text
+    local status_text
+    if selected_count > 0 then
+        status_text = selected_count .. " item(s) selected"
+    else
+        status_text = #self.items .. " item(s)"
+    end
+    imgui.Text(status_text)
+    imgui.SameLine()
+
+    -- Select button (right-aligned)
+    local button_w = 110
+    local button_gap = 8
+    imgui.SetCursorPosX(modal_w - (button_w * 2) - button_gap - 20)
+
+    local can_select = selected_count > 0 or self.mode == "directory"
+    if not can_select then imgui.BeginDisabled() end
+    if imgui.Button("Select", imgui.ImVec2(button_w, 0)) then
+        if selected_count > 0 then
+            if self.callback then self.callback(selected_paths) end
+        else
+            if self.callback then self.callback({ self.current_path }) end
+        end
+        self:close()
+    end
+    if not can_select then imgui.EndDisabled() end
+
+    imgui.SameLine(0, button_gap)
+    if imgui.Button("Cancel", imgui.ImVec2(button_w, 0)) then
+        self:close()
+    end
+
+    imgui.EndPopup()
 end
+
 
 -- ==========================================
 -- Tests
