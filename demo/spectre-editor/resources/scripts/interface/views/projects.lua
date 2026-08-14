@@ -178,7 +178,20 @@ function projects.run(project_name)
 		return false
 	end
 	
-	local run_command = string.format("%s %s &", projects.PHYSICAL_SANDBOX_LAUNCHER_PATH, target_path)
+	local physical_path = ffi.new("char*[1]")
+	local res = ffi.C.sandbox_filesystem_resolve_physical_path(
+		(type(world) == "table" and world.ptr) and world.ptr or world, 
+		target_path, physical_path)
+
+	if not res or physical_path[0] == nil then
+		sandbox.logs.error(world, "[projects.run] Failed: Could not resolve physical path for " .. target_path)
+		return false
+	end
+	
+	local actual_path = ffi.string(physical_path[0])
+	ffi.C.free(physical_path[0]) -- Assuming it alloc'd it using malloc or strdup in C++
+
+	local run_command = string.format("nohup %s \"%s\" > /dev/null 2>&1 &", projects.PHYSICAL_SANDBOX_LAUNCHER_PATH, actual_path)
 	sandbox.logs.info(world, "[projects.run] Executing command: " .. run_command)
 	os.execute(run_command)
 	return true
