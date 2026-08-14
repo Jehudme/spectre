@@ -241,9 +241,6 @@ function projects.view.on_enter()
 end
 
 function projects.view.on_render()
-	projects.view.import_browser:render()
-	projects.view.export_browser:render()
-
 	local window_flags = bit.bor(
 		ffi.C.ImGuiWindowFlags_NoTitleBar,
 		ffi.C.ImGuiWindowFlags_NoResize,
@@ -262,6 +259,9 @@ function projects.view.on_render()
 	imgui.SetNextWindowSize(window_size, ffi.C.ImGuiCond_FirstUseEver)
 	
 	if imgui.Begin("Projects Browser", nil, window_flags) then
+		projects.view.import_browser:render()
+		projects.view.export_browser:render()
+
 		imgui.Text("Project Manager")
 		imgui.Separator()
 		imgui.Spacing()
