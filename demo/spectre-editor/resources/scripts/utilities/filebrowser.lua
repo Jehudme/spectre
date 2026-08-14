@@ -537,15 +537,8 @@ function FileBrowser:render()
                         end
                     end
 
-                    -- Type column
-                    imgui.SameLine(col_name_w)
-                    imgui.TextDisabled(type_label)
-
-                    -- Size column
-                    imgui.SameLine(col_name_w + col_type_w)
-                    imgui.TextDisabled(format_size(item.size))
-
-                    -- Drag & Drop source
+                    -- Drag & Drop source: must be right after the Selectable,
+                    -- before any SameLine calls, so ImGui's last-item context is correct.
                     if not self.readonly and imgui.BeginDragDropSource() then
                         imgui.SetDragDropPayload("FILEBROWSER_ITEM", item.path, #item.path + 1, ffi.C.ImGuiCond_Once)
                         imgui.Text("Move: " .. item.name)
@@ -577,6 +570,14 @@ function FileBrowser:render()
                         if imgui.MenuItem("Delete")    then self:delete({ item.path }) end
                         imgui.EndPopup()
                     end
+
+                    -- Type column
+                    imgui.SameLine(col_name_w)
+                    imgui.TextDisabled(type_label)
+
+                    -- Size column
+                    imgui.SameLine(col_name_w + col_type_w)
+                    imgui.TextDisabled(format_size(item.size))
                 end
             end
         end
