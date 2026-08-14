@@ -439,7 +439,6 @@ function FileBrowser:render()
         sidebar_location("  os://", "os://")
         sidebar_location("  save://", "save://")
         sidebar_location("  app://", "app://")
-        sidebar_location("  projects://", "projects://")
 
         imgui.EndChild()
     end
