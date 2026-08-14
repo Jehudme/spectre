@@ -339,6 +339,7 @@ function projects.view.on_render()
 					end
 					
 					-- Context Menu on Right Click
+					local open_export = false
 					if imgui.BeginPopupContextItem("context_" .. proj_name) then
 						projects.view.selected_project = proj_name
 						imgui.TextDisabled("Actions for " .. proj_name)
@@ -360,10 +361,7 @@ function projects.view.on_render()
 							refresh_projects_list()
 						end
 						if imgui.MenuItem("Export") then
-							projects.view.export_browser:open(function(paths)
-								local dest = type(paths) == "table" and paths[1] or paths
-								projects.export(proj_name, dest)
-							end)
+							open_export = true
 						end
 						
 						imgui.Separator()
@@ -377,6 +375,13 @@ function projects.view.on_render()
 						end
 						
 						imgui.EndPopup()
+					end
+					
+					if open_export then
+						projects.view.export_browser:open(function(paths)
+							local dest = type(paths) == "table" and paths[1] or paths
+							projects.export(proj_name, dest)
+						end)
 					end
 				end
 			else
