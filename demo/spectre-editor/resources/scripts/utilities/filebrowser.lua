@@ -2,6 +2,7 @@ local sandbox = require("sandbox")
 local imgui = require("imgui")
 local ffi = require("ffi")
 local ecs = require("ecs")
+local spectre = require("spectre")
 
 package.cpath = package.cpath .. ";/home/jehud/.luarocks/lib/lua/5.1/?.so"
 local lfs_success, lfs = pcall(require, "lfs")
