@@ -597,6 +597,9 @@ function projects.run_test()
 	local write_file_util = require("utilities.actions.write_file")
 	write_file_util.run_test()
 
+	local window_module = require("interface.pages.modules.window")
+	window_module.run_test()
+
 	if all_passed then
 		sandbox.logs.info(world, "[Test] ===== ALL PROJECTS TESTS PASSED =====")
 	else
