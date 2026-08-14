@@ -591,6 +591,12 @@ function projects.run_test()
 	history.run_test()
 	pages.run_test()
 
+	local search_util = require("utilities.search")
+	search_util.run_test()
+
+	local write_file_util = require("utilities.actions.write_file")
+	write_file_util.run_test()
+
 	if all_passed then
 		sandbox.logs.info(world, "[Test] ===== ALL PROJECTS TESTS PASSED =====")
 	else
