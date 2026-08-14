@@ -9,6 +9,7 @@ local world = ecs.from_ptr(g_world)
 
 projects = {
 	PHYSICAL_SANDBOX_LAUNCHER_PATH = "/home/jehud/CLionProjects/spectre/cmake-build-debug/bin/sandbox_launcher",
+	PHYSICAL_SPECTRE_PLUGIN_PATH = "/home/jehud/CLionProjects/spectre/cmake-build-debug/bin/editor/plugins/spectre_plugin.so",
 	VIRTUAL_PROJECTS_PATH_DIRECTORY = "save://projects",
 	VIRTUAL_TEMPLATES_PATH = "app://templates/new_app",
 
@@ -215,7 +216,7 @@ function projects.run(project_name)
 	local actual_path = ffi.string(physical_path[0])
 	ffi.C.free(physical_path[0]) -- Assuming it alloc'd it using malloc or strdup in C++
 
-	local run_command = string.format("nohup %s \"%s\" > /dev/null 2>&1 &", projects.PHYSICAL_SANDBOX_LAUNCHER_PATH, actual_path)
+	local run_command = string.format("nohup %s \"%s\" --lib %s > /dev/null 2>&1 &", projects.PHYSICAL_SANDBOX_LAUNCHER_PATH, actual_path, projects.PHYSICAL_SPECTRE_PLUGIN_PATH)
 	sandbox.logs.info(world, "[projects.run] Executing command: " .. run_command)
 	os.execute(run_command)
 	return true
