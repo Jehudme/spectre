@@ -16,13 +16,19 @@ function editor.view.on_enter()
 	local world = ecs.from_ptr(g_world)
 	sandbox.logs.info(world, "[Editor] Entering Editor View")
 
-	-- Register module pages
-	pages.register("module", "Prefabs", Page.new())
-	pages.register("module", "Components", Page.new())
-	pages.register("module", "Scenes", Page.new())
-	pages.register("module", "Resources", Page.new())
-	pages.register("module", "Scripts", Page.new())
-	pages.register("module", "Window", Page.new())
+	-- Register module pages by requiring the ported module files
+	pages.register("module", "Prefabs", require("interface.pages.modules.prefabs"))
+	pages.register("module", "Components", require("interface.pages.modules.components"))
+	pages.register("module", "Scenes", require("interface.pages.modules.scenes"))
+	pages.register("module", "Resources", require("interface.pages.modules.resources"))
+	pages.register("module", "Scripts", require("interface.pages.modules.scripts"))
+	pages.register("module", "Window", require("interface.pages.modules.window"))
+
+	-- Load renderer drawers registry
+	local renderer = require("interface.pages.modules.renderer")
+	if renderer and renderer.on_enter then
+		renderer.on_enter()
+	end
 
 	-- Register option pages
 	pages.register("option", "Settings", Page.new())
@@ -35,6 +41,9 @@ function editor.view.on_enter()
 	-- Set default page
 	pages.set_default("module", "Prefabs")
 	pages.current_page = pages.find("module", "Prefabs")
+	if pages.current_page and pages.current_page.on_enter then
+		pages.current_page:on_enter()
+	end
 end
 
 function editor.view.on_render()
@@ -172,6 +181,9 @@ end
 function editor.view.on_exit()
 	local world = ecs.from_ptr(g_world)
 	sandbox.logs.info(world, "[Editor] Exiting Editor View")
+	if pages.current_page and pages.current_page.on_exit then
+		pages.current_page:on_exit()
+	end
 	is_initialized = false
 end
 
