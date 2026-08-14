@@ -14,7 +14,7 @@ projects = {
 
 	view = {
 		import_browser = FileBrowser.new("both"),
-		export_browser = FileBrowser.new("directory")
+		export_browser = FileBrowser.new("directory", "os://", true)
 	},
 }
 

@@ -61,10 +61,21 @@ end
 -- Instance Methods
 -- ==========================================
 
-function FileBrowser.new(mode, start_path)
+function FileBrowser.new(mode, start_path, readonly)
     local instance = setmetatable({}, FileBrowser)
     instance.mode = mode or "file"
-    instance.current_path = start_path or "os://"
+    instance.readonly = readonly or false
+    
+    if not start_path or start_path == "os://" then
+        local home = os.getenv("HOME")
+        if home then
+            instance.current_path = "os:/" .. home
+        else
+            instance.current_path = "os://"
+        end
+    else
+        instance.current_path = start_path
+    end
     instance.is_open = false
     instance.callback = nil
     
@@ -284,11 +295,13 @@ function FileBrowser:render()
         imgui.Separator()
         
         -- Action bar
-        if imgui.Button("New Folder") then
-            self.new_folder_active = true
-            ffi.copy(self.new_folder_buffer, "New_Folder")
+        if not self.readonly then
+            if imgui.Button("New Folder") then
+                self.new_folder_active = true
+                ffi.copy(self.new_folder_buffer, "New_Folder")
+            end
+            imgui.SameLine()
         end
-        imgui.SameLine()
         local sel_count = 0
         local sel_paths = {}
         for k, v in pairs(self.selected) do
@@ -298,7 +311,7 @@ function FileBrowser:render()
             end
         end
         
-        if sel_count > 0 then
+        if not self.readonly and sel_count > 0 then
             if imgui.Button("Copy") then self:copy_to_clipboard(sel_paths, false) end
             imgui.SameLine()
             if imgui.Button("Cut") then self:copy_to_clipboard(sel_paths, true) end
@@ -308,7 +321,7 @@ function FileBrowser:render()
             if imgui.Button("Duplicate") then self:duplicate(sel_paths) end
             imgui.SameLine()
         end
-        if #self.clipboard > 0 then
+        if not self.readonly and #self.clipboard > 0 then
             if imgui.Button("Paste") then self:paste(self.current_path) end
             imgui.SameLine()
         end
@@ -374,14 +387,14 @@ function FileBrowser:render()
                         end
                         
                         -- Drag & Drop
-                        if imgui.BeginDragDropSource() then
+                        if not self.readonly and imgui.BeginDragDropSource() then
                             -- Send the string path
                             imgui.SetDragDropPayload("FILEBROWSER_ITEM", item.path, string.len(item.path) + 1, ffi.C.ImGuiCond_Once)
                             imgui.Text("Move " .. item.name)
                             imgui.EndDragDropSource()
                         end
                         
-                        if item.is_dir and imgui.BeginDragDropTarget() then
+                        if not self.readonly and item.is_dir and imgui.BeginDragDropTarget() then
                             local payload = imgui.AcceptDragDropPayload("FILEBROWSER_ITEM")
                             if payload ~= nil then
                                 local src = ffi.string(payload.Data)
@@ -395,7 +408,7 @@ function FileBrowser:render()
                         end
                         
                         -- Context menu
-                        if imgui.BeginPopupContextItem("Context##" .. item.path) then
+                        if not self.readonly and imgui.BeginPopupContextItem("Context##" .. item.path) then
                             if imgui.MenuItem("Rename") then
                                 self.rename_active_for = item.path
                                 ffi.copy(self.rename_buffer, item.name)
@@ -420,7 +433,7 @@ function FileBrowser:render()
         end
         
         -- Root drop target
-        if imgui.BeginDragDropTarget() then
+        if not self.readonly and imgui.BeginDragDropTarget() then
             local payload = imgui.AcceptDragDropPayload("FILEBROWSER_ITEM")
             if payload ~= nil then
                 local src = ffi.string(payload.Data)
