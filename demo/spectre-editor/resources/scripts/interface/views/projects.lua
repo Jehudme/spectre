@@ -4,6 +4,7 @@ local spectre = require("spectre")
 local sandbox = require("sandbox")
 local imgui = require("imgui")
 local ffi = require("ffi")
+local FileBrowser = require("utilities.filebrowser")
 local world = ecs.from_ptr(g_world)
 
 projects = {
@@ -11,7 +12,10 @@ projects = {
 	VIRTUAL_PROJECTS_PATH_DIRECTORY = "save://projects",
 	VIRTUAL_TEMPLATES_PATH = "app://templates/new_app",
 
-	view = {},
+	view = {
+		import_browser = FileBrowser.new("both"),
+		export_browser = FileBrowser.new("directory")
+	},
 }
 
 -- Inline functions --
@@ -131,14 +135,34 @@ function projects.find(project_name)
 end
 
 function projects.import(project_name, physical_path)
-	sandbox.logs.info(world, "[projects.import] Dummy operation called for project: " .. project_name .. " from " .. physical_path)
-	-- TODO: Use the filesystem to copy the project from physical_path into "save://projects/<project_name>"
+	sandbox.logs.info(world, "[projects.import] Importing project: " .. project_name .. " from " .. physical_path)
+	local target_path = projects.VIRTUAL_PROJECTS_PATH_DIRECTORY .. "/" .. project_name
+	
+	if sandbox.filesystem.exists(world, target_path) then
+		sandbox.logs.error(world, "[projects.import] Failed: Destination project already exists at " .. target_path)
+		return false
+	end
+	
+	local success = sandbox.filesystem.copy(world, physical_path, target_path, false, true)
+	if not success or not sandbox.filesystem.exists(world, target_path) then
+		sandbox.logs.error(world, "[projects.import] Failed to import project to: " .. target_path)
+		return false
+	end
+	sandbox.logs.info(world, "[projects.import] Successfully imported project to: " .. target_path)
 	return true
 end
 
-function projects.export(project_name, physical_path)
-	sandbox.logs.info(world, "[projects.export] Dummy operation called for project: " .. project_name .. " to " .. physical_path)
-	-- TODO: Use the filesystem to copy the project from "save://projects/<project_name>" into physical_path
+function projects.export(project_name, dest_path)
+	sandbox.logs.info(world, "[projects.export] Exporting project: " .. project_name .. " to " .. dest_path)
+	local source_path = projects.VIRTUAL_PROJECTS_PATH_DIRECTORY .. "/" .. project_name
+	local target_path = dest_path .. "/" .. project_name
+	
+	local success = sandbox.filesystem.copy(world, source_path, target_path, false, true)
+	if not success then
+		sandbox.logs.error(world, "[projects.export] Failed to export project to: " .. target_path)
+		return false
+	end
+	sandbox.logs.info(world, "[projects.export] Successfully exported project to: " .. target_path)
 	return true
 end
 
@@ -217,6 +241,9 @@ function projects.view.on_enter()
 end
 
 function projects.view.on_render()
+	projects.view.import_browser:render()
+	projects.view.export_browser:render()
+
 	local window_flags = bit.bor(
 		ffi.C.ImGuiWindowFlags_NoTitleBar,
 		ffi.C.ImGuiWindowFlags_NoResize,
@@ -277,9 +304,18 @@ function projects.view.on_render()
 		imgui.SameLine()
 		
 		if imgui.Button("Import Project", imgui.ImVec2(150, 30)) then
-			-- Dummy import for now
-			projects.import("Imported_Project", "/dummy/path")
-			refresh_projects_list()
+			projects.view.import_browser:open(function(paths)
+				if type(paths) == "table" then
+					for _, p in ipairs(paths) do
+						local name = p:match("([^/]+)$") or p
+						projects.import(name, p)
+					end
+				else
+					local name = paths:match("([^/]+)$") or paths
+					projects.import(name, paths)
+				end
+				refresh_projects_list()
+			end)
 		end
 		
 		imgui.Spacing()
@@ -324,7 +360,10 @@ function projects.view.on_render()
 							refresh_projects_list()
 						end
 						if imgui.MenuItem("Export") then
-							projects.export(proj_name, "/dummy/export/path")
+							projects.view.export_browser:open(function(paths)
+								local dest = type(paths) == "table" and paths[1] or paths
+								projects.export(proj_name, dest)
+							end)
 						end
 						
 						imgui.Separator()
@@ -474,6 +513,8 @@ function projects.test_all()
 	all_passed = all_passed and projects.test_duplicate()
 	all_passed = all_passed and projects.test_find()
 	all_passed = all_passed and projects.test_delete()
+	
+	FileBrowser.run_test()
 	
 	if all_passed then
 		sandbox.logs.info(world, "[Test] ===== ALL PROJECTS TESTS PASSED =====")
