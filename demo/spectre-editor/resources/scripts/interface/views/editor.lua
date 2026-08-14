@@ -46,12 +46,27 @@ function editor.view.on_enter()
 	end
 end
 
+local FileBrowser = require("utilities.filebrowser")
+local export_browser = nil
+
 function editor.view.on_render()
 	local world = ecs.from_ptr(g_world)
 
 	if not is_initialized then
 		editor.view.on_enter()
 		is_initialized = true
+	end
+
+	-- Handle Ctrl+Z / Ctrl+Y shortcuts globally (before menu bar)
+	local io = imgui.GetIO()
+	if io.KeyCtrl then
+		if imgui.IsKeyPressed(ffi.C.ImGuiKey_Z, false) then
+			sandbox.logs.info(world, "[Editor] Ctrl+Z: Undo")
+			history.undo()
+		elseif imgui.IsKeyPressed(ffi.C.ImGuiKey_Y, false) then
+			sandbox.logs.info(world, "[Editor] Ctrl+Y: Redo")
+			history.redo()
+		end
 	end
 
 	-- 1. Render Top Main Menu Bar
@@ -67,11 +82,18 @@ function editor.view.on_render()
 				end
 			end
 
-			if imgui.MenuItem("Export") then
+			if imgui.MenuItem("Export...") then
 				sandbox.logs.info(world, "[Editor] Menu item clicked: File -> Export")
 				if editor.active_project_name then
-					sandbox.logs.info(world, "[Editor] Triggering project export: " .. editor.active_project_name)
-					projects.export(editor.active_project_name, "save://projects_export_test")
+					if not export_browser then
+						export_browser = FileBrowser.new("dir", "save://")
+					end
+					export_browser:open(function(selected_path)
+						if selected_path then
+							sandbox.logs.info(world, "[Editor] Exporting to: " .. selected_path)
+							projects.export(editor.active_project_name, selected_path)
+						end
+					end)
 				else
 					sandbox.logs.error(world, "[Editor] No active project loaded to export.")
 				end
@@ -162,10 +184,9 @@ function editor.view.on_render()
 			pages.actions.switch_page("others", "Help")
 		end
 
-		-- Show active project name at the right side of the menu bar
+		-- Show active project name in the menu bar
 		if editor.active_project_name then
-			local label = "  |  " .. editor.active_project_name
-			imgui.Text(label)
+			imgui.Text("  |  " .. editor.active_project_name)
 		end
 
 		imgui.EndMainMenuBar()
@@ -204,7 +225,12 @@ function editor.view.on_render()
 		end
 	end
 
-	-- 3. Undo/Redo toast notification overlay
+	-- 3. Export FileBrowser modal
+	if export_browser and export_browser.is_open then
+		export_browser:render()
+	end
+
+	-- 4. Undo/Redo toast notification overlay
 	if history.notification then
 		local notif = history.notification
 		-- Tick down timer (use a fixed dt estimate)
@@ -216,7 +242,7 @@ function editor.view.on_render()
 			local viewport_w = spectre.window.get_width(g_world)
 			local viewport_h = spectre.window.get_height(g_world)
 			local pad = 16
-			local toast_w = 280
+			local toast_w = 300
 			local toast_h = 36
 
 			local alpha = math.min(1.0, notif.timer / 0.4) -- fade in/out

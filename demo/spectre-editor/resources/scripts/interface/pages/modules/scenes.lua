@@ -69,7 +69,7 @@ local function load_item(world, mode, name)
 		if mode == "state" then
 			props:load(string.format('{"name":"%s","scenes":[]}', name), 0)
 		else
-			props:load(string.format('{"entities":{"%s":{"components":{"Scene":{}}}}}', name), 0)
+			props:load(string.format('{"name":"%s","entities":{"%s":{"components":{"Scene":{}}}}}', name, name), 0)
 		end
 	end
 	return props
@@ -426,53 +426,55 @@ function scenes_page:on_render()
 
 	if selected_mode == "state" then
 		if selected_item and current_props then
-			imgui.Text("State Editor: " .. selected_item)
+			imgui.Text(selected_item)
+			imgui.TextDisabled("State Configuration")
 			imgui.Separator()
 
-			local modified = false
-
-			if not current_props:has("name") then
-				current_props:set_string("name", selected_item)
-				modified = true
-			end
-			imgui.Text("Name: " .. current_props:read_string("name"))
+			local name_val = current_props:read_string("name") or selected_item
+			imgui.Text("Name: " .. name_val)
 			imgui.Separator()
 
-			imgui.Text("Included Scenes:")
-			if not current_props:has("scenes") then
-				current_props:set_string("scenes/dummy", "0")
-				current_props:clear("scenes/dummy")
-				modified = true
-			end
+			imgui.Text("Included Scenes")
+			imgui.TextDisabled("Scenes loaded when this state is active")
+			imgui.Spacing()
 
-			local scene_keys = current_props:keys("scenes") or {}
-			local current_scenes = {}
-			for _, k in ipairs(scene_keys) do
-				local s = current_props:read_string("scenes/" .. k)
-				if s and s ~= "" then
-					table.insert(current_scenes, s)
-				end
-			end
+			-- Read scenes as a proper JSON array
+			local current_scenes = current_props:read_string_array("scenes") or {}
 
 			local scenes_changed = false
+			local remove_idx = nil
 			for i, scene_name in ipairs(current_scenes) do
 				imgui.PushID("StateScene_" .. tostring(i))
 				imgui.BulletText(scene_name)
 				imgui.SameLine()
-				if imgui.Button("Remove") then
-					table.remove(current_scenes, i)
+				if imgui.SmallButton("X##Remove") then
+					remove_idx = i
 					scenes_changed = true
 				end
 				imgui.PopID()
 			end
 
-			if imgui.Button("Add Scene") then
+			if remove_idx then
+				table.remove(current_scenes, remove_idx)
+			end
+
+			if imgui.Button("+ Add Scene") then
 				imgui.OpenPopup("AddSceneToState")
 			end
 
 			if imgui.BeginPopup("AddSceneToState") then
+				imgui.TextDisabled("Available Scenes")
+				imgui.Separator()
+				if #scenes_list == 0 then
+					imgui.TextDisabled("No scenes found in project.")
+				end
 				for _, s_name in ipairs(scenes_list) do
-					if imgui.Selectable(s_name) then
+					-- show check mark if already included
+					local already_in = false
+					for _, s in ipairs(current_scenes) do
+						if s == s_name then already_in = true break end
+					end
+					if imgui.Selectable(s_name, already_in) and not already_in then
 						table.insert(current_scenes, s_name)
 						scenes_changed = true
 					end
@@ -481,23 +483,13 @@ function scenes_page:on_render()
 			end
 
 			if scenes_changed then
-				current_props:clear("scenes")
-				if #current_scenes == 0 then
-					current_props:set_string("scenes/dummy", "0")
-					current_props:clear("scenes/dummy")
-				else
-					for i, s_name in ipairs(current_scenes) do
-						current_props:set_string("scenes/" .. tostring(i - 1), s_name)
-					end
-				end
-				modified = true
-			end
-
-			if modified then
+				-- Write back as a proper JSON string array
+				current_props:set_string_array("scenes", current_scenes)
 				save_item(world, "state", selected_item, current_props)
 			end
 		else
-			imgui.Text("Select a state to edit.")
+			imgui.Spacing()
+			imgui.TextDisabled("Select a state to edit.")
 		end
 	elseif selected_mode == "scene" then
 		imgui.BeginChild("Hierarchy", ffi.new("ImVec2", 0, (screen_h - 20) / 2 - 10), true)
@@ -695,7 +687,7 @@ function scenes_page:on_render()
 					if not sandbox.filesystem.exists(world, "project://scenes/scenes") then
 						sandbox.filesystem.create_directory(world, "project://scenes/scenes", true)
 					end
-					execute_write_file(p, string.format('{"entities":{"%s":{"components":{"Scene":{}}}}}', new_name), "Create Scene " .. new_name)
+					execute_write_file(p, string.format('{"name":"%s","entities":{"%s":{"components":{"Scene":{}}}}}', new_name, new_name), "Create Scene " .. new_name)
 					refresh_lists(world)
 					select_item(world, "scene", new_name)
 				end
