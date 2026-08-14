@@ -9,6 +9,7 @@ local world = ecs.from_ptr(g_world)
 projects = {
 	PHYSICAL_SANDBOX_LAUNCHER_PATH = "/home/jehud/CLionProjects/spectre/cmake-build-debug/bin/sandbox_launcher",
 	VIRTUAL_PROJECTS_PATH_DIRECTORY = "save://projects",
+	VIRTUAL_TEMPLATES_PATH = "app://templates/new_app",
 
 	view = {},
 }
@@ -19,13 +20,23 @@ function projects.create(project_name)
 	sandbox.logs.info(world, "[projects.create] Starting to create project: " .. project_name)
 	local source_path = "app://templates/new_app"
 	local destination_path = projects.VIRTUAL_PROJECTS_PATH_DIRECTORY .. "/" .. project_name
+	local target_path = projects.VIRTUAL_PROJECTS_PATH_DIRECTORY .. "/" .. project_name
 
-	if sandbox.filesystem.exists(world, destination_path) then
-		sandbox.logs.error(world, "[projects.create] Failed: Project already exists at " .. destination_path)
+	if sandbox.filesystem.exists(world, target_path) then
+		sandbox.logs.error(world, "[projects.create] Failed: Project already exists at " .. target_path)
 		return false
 	end
 
-	sandbox.filesystem.copy(world, source_path, destination_path, false, true)
+	if not sandbox.filesystem.exists(world, projects.VIRTUAL_TEMPLATES_PATH) then
+		sandbox.logs.error(world, "[projects.create] Template does not exist: " .. projects.VIRTUAL_TEMPLATES_PATH)
+		return false
+	end
+	local success = sandbox.filesystem.copy(world, projects.VIRTUAL_TEMPLATES_PATH, target_path, false, true)
+	local exists_after = sandbox.filesystem.exists(world, target_path)
+	if not success or not exists_after then
+		sandbox.logs.error(world, string.format("[projects.create] Failed. success=%s, exists_after=%s", tostring(success), tostring(exists_after)))
+		return false
+	end
 	sandbox.logs.info(world, "[projects.create] Successfully created project: " .. project_name)
 	return true
 end
@@ -39,35 +50,43 @@ function projects.delete(project_name)
 		return false
 	end
 
-	sandbox.filesystem.remove_directory(world, target_path)
+	local success = sandbox.filesystem.remove_directory(world, target_path)
+	if not success or sandbox.filesystem.exists(world, target_path) then
+		sandbox.logs.error(world, "[projects.delete] Failed to delete project: " .. target_path)
+		return false
+	end
 	sandbox.logs.info(world, "[projects.delete] Successfully deleted project: " .. project_name)
 	return true
 end
 
-function projects.rename(old_name, new_name)
-	sandbox.logs.info(world, "[projects.rename] Starting to rename project from " .. old_name .. " to " .. new_name)
+function projects.rename(old_name, new_project_name)
+	sandbox.logs.info(world, "[projects.rename] Starting to rename project from " .. old_name .. " to " .. new_project_name)
 	local source_path = projects.VIRTUAL_PROJECTS_PATH_DIRECTORY .. "/" .. old_name
-	local destination_path = projects.VIRTUAL_PROJECTS_PATH_DIRECTORY .. "/" .. new_name
+	local target_path = projects.VIRTUAL_PROJECTS_PATH_DIRECTORY .. "/" .. new_project_name
 
 	if not sandbox.filesystem.exists(world, source_path) then
 		sandbox.logs.error(world, "[projects.rename] Failed: Source project does not exist at " .. source_path)
 		return false
 	end
-	if sandbox.filesystem.exists(world, destination_path) then
-		sandbox.logs.error(world, "[projects.rename] Failed: Destination project already exists at " .. destination_path)
+	if sandbox.filesystem.exists(world, target_path) then
+		sandbox.logs.error(world, "[projects.rename] Failed: Destination project already exists at " .. target_path)
 		return false
 	end
 
-	sandbox.filesystem.move(world, source_path, destination_path, false, true)
-	sandbox.logs.info(world, "[projects.rename] Successfully renamed project to: " .. new_name)
+	local success = sandbox.filesystem.move(world, source_path, target_path, false, true)
+	if not success or not sandbox.filesystem.exists(world, target_path) then
+		sandbox.logs.error(world, "[projects.rename] Failed to rename project to: " .. target_path)
+		return false
+	end
+	sandbox.logs.info(world, "[projects.rename] Successfully renamed project to: " .. new_project_name)
 	return true
 end
 
 function projects.duplicate(project_name)
 	sandbox.logs.info(world, "[projects.duplicate] Starting to duplicate project: " .. project_name)
 	local source_path = projects.VIRTUAL_PROJECTS_PATH_DIRECTORY .. "/" .. project_name
-	local duplicate_name = project_name .. "_copy"
-	local destination_path = projects.VIRTUAL_PROJECTS_PATH_DIRECTORY .. "/" .. duplicate_name
+	local new_project_name = project_name .. "_copy"
+	local target_path = projects.VIRTUAL_PROJECTS_PATH_DIRECTORY .. "/" .. new_project_name
 
 	if not sandbox.filesystem.exists(world, source_path) then
 		sandbox.logs.error(world, "[projects.duplicate] Failed: Source project does not exist at " .. source_path)
@@ -75,13 +94,17 @@ function projects.duplicate(project_name)
 	end
 	
 	-- Keep adding _copy if it already exists
-	while sandbox.filesystem.exists(world, destination_path) do
-		duplicate_name = duplicate_name .. "_copy"
-		destination_path = projects.VIRTUAL_PROJECTS_PATH_DIRECTORY .. "/" .. duplicate_name
+	while sandbox.filesystem.exists(world, target_path) do
+		new_project_name = new_project_name .. "_copy"
+		target_path = projects.VIRTUAL_PROJECTS_PATH_DIRECTORY .. "/" .. new_project_name
 	end
 
-	sandbox.filesystem.copy(world, source_path, destination_path, false, true)
-	sandbox.logs.info(world, "[projects.duplicate] Successfully duplicated project as: " .. duplicate_name)
+	local success = sandbox.filesystem.copy(world, source_path, target_path, false, true)
+	if not success or not sandbox.filesystem.exists(world, target_path) then
+		sandbox.logs.error(world, "[projects.duplicate] Failed to duplicate project to: " .. target_path)
+		return false
+	end
+	sandbox.logs.info(world, "[projects.duplicate] Successfully duplicated project as: " .. new_project_name)
 	return true
 end
 
@@ -121,7 +144,7 @@ end
 
 function projects.list(sort_type)
 	sandbox.logs.info(world, "[projects.list] Listing all projects in " .. projects.VIRTUAL_PROJECTS_PATH_DIRECTORY)
-	local files = sandbox.filesystem.list_files(world, projects.VIRTUAL_PROJECTS_PATH_DIRECTORY, false)
+	local files = sandbox.filesystem.list_directories(world, projects.VIRTUAL_PROJECTS_PATH_DIRECTORY, false)
 	local merged_properties = sandbox.Properties.new()
 
 	for index, file_path in ipairs(files) do
@@ -193,9 +216,11 @@ function projects.view.on_render()
 		ffi.C.ImGuiWindowFlags_NoSavedSettings
 	)
 	
-	-- Since igGetMainViewport is not available, we use a default position and size.
-	local window_size = imgui.ImVec2(800, 600)
-	local center_pos = imgui.ImVec2(100, 100)
+	local w_width = spectre.window.get_width(g_world)
+	local w_height = spectre.window.get_height(g_world)
+	-- Use a proportion of the main window or hardcoded size
+	local window_size = imgui.ImVec2(math.floor(w_width * 0.8), math.floor(w_height * 0.8))
+	local center_pos = imgui.ImVec2(math.floor((w_width - window_size.x) * 0.5), math.floor((w_height - window_size.y) * 0.5))
 	
 	imgui.SetNextWindowPos(center_pos, ffi.C.ImGuiCond_FirstUseEver)
 	imgui.SetNextWindowSize(window_size, ffi.C.ImGuiCond_FirstUseEver)
