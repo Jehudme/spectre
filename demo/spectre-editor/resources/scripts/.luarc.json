@@ -5,7 +5,7 @@
     "path": ["?.lua", "?/init.lua", "externals/?.lua", "externals/?/init.lua"]
   },
   "workspace": {
-    "library": ["externals"],
+    "library": ["externals", "utilities"],
     "checkThirdParty": true
   },
   "diagnostics": {
