@@ -58,7 +58,7 @@ function editor.view.on_render()
 	if imgui.BeginMainMenuBar() then
 		-- File Menu
 		if imgui.BeginMenu("File") then
-			if imgui.MenuItem("Run") then
+			if imgui.MenuItem("Run", "F5") then
 				sandbox.logs.info(world, "[Editor] Menu item clicked: File -> Run")
 				if editor.active_project_name then
 					projects.run(editor.active_project_name)
@@ -77,7 +77,9 @@ function editor.view.on_render()
 				end
 			end
 
-			if imgui.MenuItem("Exit") then
+			imgui.Separator()
+
+			if imgui.MenuItem("Exit", "Alt+F4") then
 				sandbox.logs.info(world, "[Editor] Menu item clicked: File -> Exit")
 				local startup_state = spectre.scenes.find_state(world, "Startup")
 				if startup_state and startup_state ~= 0 then
@@ -91,12 +93,31 @@ function editor.view.on_render()
 
 		-- Edit Menu
 		if imgui.BeginMenu("Edit") then
-			if imgui.MenuItem("Undo") then
+			local can_undo = history.actions_index > 0
+			local can_redo = history.actions_index < #history.actions_stack
+
+			-- Show the name of the action that would be undone/redone
+			local undo_label = "Undo"
+			if can_undo then
+				local action = history.actions_stack[history.actions_index]
+				if action and action.action_name then
+					undo_label = "Undo: " .. action.action_name
+				end
+			end
+			local redo_label = "Redo"
+			if can_redo then
+				local action = history.actions_stack[history.actions_index + 1]
+				if action and action.action_name then
+					redo_label = "Redo: " .. action.action_name
+				end
+			end
+
+			if imgui.MenuItem(undo_label, "Ctrl+Z", false, can_undo) then
 				sandbox.logs.info(world, "[Editor] Menu item clicked: Edit -> Undo")
 				history.undo()
 			end
 
-			if imgui.MenuItem("Redo") then
+			if imgui.MenuItem(redo_label, "Ctrl+Y", false, can_redo) then
 				sandbox.logs.info(world, "[Editor] Menu item clicked: Edit -> Redo")
 				history.redo()
 			end
@@ -141,6 +162,14 @@ function editor.view.on_render()
 			pages.actions.switch_page("others", "Help")
 		end
 
+		-- Show active project name at the right side of the menu bar
+		if editor.active_project_name then
+			local label = "  |  " .. editor.active_project_name
+			local avail = imgui.GetContentRegionAvail()
+			-- Just append it inline — menu bar flows left to right
+			imgui.Text(label)
+		end
+
 		imgui.EndMainMenuBar()
 	end
 
@@ -174,6 +203,48 @@ function editor.view.on_render()
 				imgui.Text("This page is currently empty.")
 			end
 			imgui.End()
+		end
+	end
+
+	-- 3. Undo/Redo toast notification overlay
+	if history.notification then
+		local notif = history.notification
+		-- Tick down timer (use a fixed dt estimate)
+		notif.timer = notif.timer - (1.0 / 60.0)
+		if notif.timer <= 0 then
+			history.notification = nil
+		else
+			-- Render a small overlay in the bottom-right corner
+			local viewport_w = spectre.window.get_width(g_world)
+			local viewport_h = spectre.window.get_height(g_world)
+			local pad = 16
+			local toast_w = 280
+			local toast_h = 36
+
+			local alpha = math.min(1.0, notif.timer / 0.4) -- fade in/out
+			if notif.timer < 0.6 then
+				alpha = notif.timer / 0.6
+			end
+
+			imgui.SetNextWindowPos(imgui.ImVec2(viewport_w - toast_w - pad, viewport_h - toast_h - pad))
+			imgui.SetNextWindowSize(imgui.ImVec2(toast_w, toast_h))
+			imgui.SetNextWindowBgAlpha(alpha * 0.85)
+
+			local toast_flags = bit.bor(
+				ffi.C.ImGuiWindowFlags_NoTitleBar,
+				ffi.C.ImGuiWindowFlags_NoResize,
+				ffi.C.ImGuiWindowFlags_NoMove,
+				ffi.C.ImGuiWindowFlags_NoInputs,
+				ffi.C.ImGuiWindowFlags_NoScrollbar,
+				ffi.C.ImGuiWindowFlags_NoSavedSettings,
+				ffi.C.ImGuiWindowFlags_NoBringToDisplayOnFocus
+			)
+
+			if imgui.Begin("###UndoRedoToast", nil, toast_flags) then
+				local icon = notif.kind == "undo" and "<" or ">"
+				imgui.Text(icon .. " " .. notif.text)
+				imgui.End()
+			end
 		end
 	end
 end

@@ -188,18 +188,21 @@ end
 function components_page:on_render()
 	local world = ecs.from_ptr(g_world)
 
-	imgui.BeginChild("ComponentsList", ffi.new("ImVec2", 300, 0), true)
+	imgui.BeginChild("ComponentsList", ffi.new("ImVec2", 280, 0), true)
 
-	imgui.InputText("##Search", search_buffer, 256)
+	-- Toolbar: search + new + refresh
+	imgui.SetNextItemWidth(-80)
+	imgui.InputTextWithHint("##Search", "Filter components...", search_buffer, 256)
 	imgui.SameLine()
 	if imgui.Button("New") then
 		show_add_popup = true
 		add_name_buffer[0] = 0
 	end
 	imgui.SameLine()
-	if imgui.Button("Refresh") then
+	if imgui.Button("##Refresh", ffi.new("ImVec2", 20, 0)) then
 		refresh_lists(world)
 	end
+	if imgui.IsItemHovered() then imgui.SetTooltip("Refresh list") end
 
 	imgui.Separator()
 
@@ -207,6 +210,9 @@ function components_page:on_render()
 
 	local function draw_list(list)
         local filtered = search.filter(list, search_str)
+		if #filtered == 0 then
+			imgui.TextDisabled(search_str ~= "" and "No matches." or "No components yet.")
+		end
 		for _, name in ipairs(filtered) do
             local is_selected = (selected_component == name)
             if imgui.Selectable(name, is_selected) then
@@ -216,14 +222,14 @@ function components_page:on_render()
             end
 
             if imgui.BeginPopupContextItem("ContextPopup_" .. name) then
+				imgui.TextDisabled(name)
+				imgui.Separator()
                 if imgui.MenuItem("Rename") then
-                    sandbox.logs.info(world, "Rename clicked on " .. name)
                     show_rename_popup = true
                     rename_target = name
                     ffi.copy(rename_name_buffer, name)
                 end
                 if imgui.MenuItem("Duplicate") then
-                    sandbox.logs.info(world, "Duplicate clicked on " .. name)
                     local old_path = get_dyn_path(name)
                     local new_name = name .. "_copy"
                     local i = 1
@@ -236,8 +242,8 @@ function components_page:on_render()
                     action_write_file(new_path, old_content, "Duplicate Component")
                     refresh_lists(world)
                 end
+				imgui.Separator()
                 if imgui.MenuItem("Delete") then
-                    sandbox.logs.info(world, "Delete clicked on " .. name)
                     local path = get_dyn_path(name)
                     local content = read_file(world, path) or "{}"
                     action_remove_file(path, content, "Delete Component")
@@ -255,7 +261,7 @@ function components_page:on_render()
 		end
 	end
 
-	imgui.Text("Dynamic Components:")
+	imgui.Text("Dynamic Components")
 	draw_list(dynamic_components)
 
 	imgui.EndChild()
@@ -264,7 +270,8 @@ function components_page:on_render()
 
 	imgui.BeginChild("ComponentConfig", ffi.new("ImVec2", 0, 0), true)
 	if selected_component then
-		imgui.Text("Schema for: " .. selected_component)
+		imgui.Text(selected_component)
+		imgui.TextDisabled("Dynamic Component Schema")
 		imgui.Separator()
 
 		if current_schema then
@@ -323,7 +330,9 @@ function components_page:on_render()
 			end
 		end
 	else
-		imgui.Text("Select a component to view its schema.")
+		imgui.Spacing()
+		imgui.TextDisabled("Select a component on the left")
+		imgui.TextDisabled("to view or edit its schema.")
 	end
 	imgui.EndChild()
 

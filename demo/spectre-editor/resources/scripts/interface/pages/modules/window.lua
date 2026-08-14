@@ -178,39 +178,76 @@ end
 
 function window_page:on_render()
 	local world = ecs.from_ptr(g_world)
-	
+
 	imgui.Text("Window Settings")
+	imgui.TextDisabled("Configure the project window properties")
 	imgui.Separator()
+	imgui.Spacing()
 
-	local changed = false
+	-- Size & title
+	imgui.Text("General")
+	imgui.Spacing()
+	imgui.InputInt("Width", w_state.width)
+	imgui.InputInt("Height", w_state.height)
+	imgui.InputText("Title", w_state.title, 256)
 
-	if imgui.InputInt("Width", w_state.width) then changed = true end
-	if imgui.InputInt("Height", w_state.height) then changed = true end
-	if imgui.InputText("Title", w_state.title, 256) then changed = true end
-	if imgui.Checkbox("VSync", w_state.vsync) then changed = true end
-	if imgui.Checkbox("Fullscreen", w_state.fullscreen) then changed = true end
-	if imgui.Checkbox("Borderless", w_state.borderless) then changed = true end
-	if imgui.Checkbox("Resizable", w_state.resizable) then changed = true end
-	if imgui.Checkbox("Always on Top", w_state.always_on_top) then changed = true end
-	
+	imgui.Spacing()
 	imgui.Separator()
-	imgui.Text("Constraints & Positioning")
-	if imgui.InputInt("Min Width", w_state.min_width) then changed = true end
-	if imgui.InputInt("Min Height", w_state.min_height) then changed = true end
-	if imgui.InputInt("Max Width", w_state.max_width) then changed = true end
-	if imgui.InputInt("Max Height", w_state.max_height) then changed = true end
-	if imgui.InputInt("Position X", w_state.position_x) then changed = true end
-	if imgui.InputInt("Position Y", w_state.position_y) then changed = true end
+	imgui.Spacing()
 
+	-- Display options
+	imgui.Text("Display")
+	imgui.Spacing()
+	imgui.Checkbox("VSync", w_state.vsync)
+	imgui.SameLine()
+	imgui.Checkbox("Fullscreen", w_state.fullscreen)
+	imgui.SameLine()
+	imgui.Checkbox("Borderless", w_state.borderless)
+	imgui.Checkbox("Resizable", w_state.resizable)
+	imgui.SameLine()
+	imgui.Checkbox("Always on Top", w_state.always_on_top)
+
+	imgui.Spacing()
 	imgui.Separator()
+	imgui.Spacing()
+
+	-- Constraints & positioning
+	imgui.Text("Constraints & Position")
+	imgui.TextDisabled("0 = no constraint  |  -1 = auto")
+	imgui.Spacing()
+	imgui.InputInt("Min Width", w_state.min_width)
+	imgui.InputInt("Min Height", w_state.min_height)
+	imgui.InputInt("Max Width", w_state.max_width)
+	imgui.InputInt("Max Height", w_state.max_height)
+	imgui.InputInt("Position X", w_state.position_x)
+	imgui.InputInt("Position Y", w_state.position_y)
+
+	imgui.Spacing()
+	imgui.Separator()
+	imgui.Spacing()
+
+	-- State flags
 	imgui.Text("State Flags")
-	if imgui.Checkbox("Minimized", w_state.minimized) then changed = true end
-	if imgui.Checkbox("Maximized", w_state.maximized) then changed = true end
-	if imgui.Checkbox("Visible", w_state.visible) then changed = true end
-	if imgui.Checkbox("Cursor Visible", w_state.cursor_visible) then changed = true end
-	if imgui.Checkbox("Cursor Locked", w_state.cursor_locked) then changed = true end
+	imgui.Spacing()
+	imgui.Checkbox("Minimized", w_state.minimized)
+	imgui.SameLine()
+	imgui.Checkbox("Maximized", w_state.maximized)
+	imgui.Checkbox("Visible", w_state.visible)
+	imgui.SameLine()
+	imgui.Checkbox("Cursor Visible", w_state.cursor_visible)
+	imgui.SameLine()
+	imgui.Checkbox("Cursor Locked", w_state.cursor_locked)
 
-	if changed then
+	imgui.Spacing()
+	imgui.Separator()
+	imgui.Spacing()
+
+	if imgui.Button("Apply Changes") then
+		apply_window_settings(world)
+	end
+	imgui.SameLine()
+	if imgui.Button("Reset to Defaults") then
+		reset_to_defaults()
 		apply_window_settings(world)
 	end
 end

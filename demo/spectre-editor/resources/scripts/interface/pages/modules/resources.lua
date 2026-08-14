@@ -226,7 +226,8 @@ function resources_page:on_render()
 
 	imgui.BeginChild("ResourcesList", ffi.new("ImVec2", 300, 0), true)
 
-	imgui.InputText("##Search", search_buffer, 256)
+	imgui.SetNextItemWidth(-50)
+	imgui.InputTextWithHint("##Search", "Filter resources...", search_buffer, 256)
 	imgui.SameLine()
 	if imgui.Button("Add") then
 		show_add_popup = true
@@ -238,6 +239,12 @@ function resources_page:on_render()
 
 	local search_str = ffi.string(search_buffer)
 	local filtered_resources = search.filter(cached_resources_list, search_str)
+
+	if #filtered_resources == 0 then
+		imgui.Spacing()
+		imgui.TextDisabled(search_str ~= "" and "No matches." or "No resources yet.")
+		imgui.TextDisabled("Click 'Add' to create one.")
+	end
 
 	for _, res_name in ipairs(filtered_resources) do
 		if imgui.Selectable(res_name, selected_resource == res_name) then
@@ -257,18 +264,18 @@ function resources_page:on_render()
 		end
 
 		if imgui.BeginPopupContextItem() then
+			imgui.TextDisabled(res_name)
+			imgui.Separator()
 			if imgui.MenuItem("Rename") then
-				sandbox.logs.info(world, "Rename clicked on " .. res_name)
 				show_rename_popup = true
 				rename_target = res_name
 				ffi.copy(rename_name_buffer, res_name)
 			end
 			if imgui.MenuItem("Duplicate") then
-				sandbox.logs.info(world, "Duplicate clicked on " .. res_name)
 				action_duplicate_resource(world, res_name)
 			end
+			imgui.Separator()
 			if imgui.MenuItem("Delete") then
-				sandbox.logs.info(world, "Delete clicked on " .. res_name)
 				action_delete_resource(world, res_name)
 			end
 			imgui.EndPopup()
@@ -283,7 +290,8 @@ function resources_page:on_render()
 	if selected_resource then
 		local res_name = selected_resource
 
-		imgui.Text("Configuration for: " .. res_name)
+		imgui.Text(res_name)
+		imgui.TextDisabled("Resource Configuration")
 		imgui.Separator()
 
 		imgui.Text("Virtual Path:")
@@ -375,7 +383,9 @@ function resources_page:on_render()
 			end
 		end
 	else
-		imgui.Text("Select a resource to view configuration.")
+		imgui.Spacing()
+		imgui.TextDisabled("Select a resource on the left")
+		imgui.TextDisabled("to view its configuration.")
 	end
 	imgui.EndChild()
 

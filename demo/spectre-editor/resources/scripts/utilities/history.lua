@@ -33,6 +33,8 @@ _G.Action = Action
 history = {
 	actions_stack = {},
 	actions_index = 0,
+	-- Notification state: set by undo/redo, consumed by the editor overlay
+	notification = nil, -- { text = string, kind = "undo"|"redo", timer = number }
 }
 
 ---Executes a new action and clears the forward redo history.
@@ -61,9 +63,11 @@ function history.undo()
 	end
 
 	local world = ecs.from_ptr(g_world)
+	local first_name = nil
 	while history.actions_index > 0 do
 		local action = history.actions_stack[history.actions_index]
 		sandbox.logs.info(world, "[History] Undoing action: " .. (action.action_name or "Unnamed Action"))
+		if not first_name then first_name = action.action_name end
 		if action.undo_function then
 			action.undo_function()
 		end
@@ -72,6 +76,7 @@ function history.undo()
 			break
 		end
 	end
+	history.notification = { text = "Undo: " .. (first_name or "Action"), kind = "undo", timer = 2.0 }
 end
 
 ---Redoes actions forwards until the next transaction group's head (is_head = true) is reached.
@@ -82,6 +87,7 @@ function history.redo()
 
 	local world = ecs.from_ptr(g_world)
 	local is_first_action = true
+	local first_name = nil
 	while history.actions_index < #history.actions_stack do
 		local next_index = history.actions_index + 1
 		local next_action = history.actions_stack[next_index]
@@ -92,12 +98,14 @@ function history.redo()
 		end
 
 		sandbox.logs.info(world, "[History] Redoing action: " .. (next_action.action_name or "Unnamed Action"))
+		if not first_name then first_name = next_action.action_name end
 		history.actions_index = next_index
 		if next_action.redo_function then
 			next_action.redo_function()
 		end
 		is_first_action = false
 	end
+	history.notification = { text = "Redo: " .. (first_name or "Action"), kind = "redo", timer = 2.0 }
 end
 
 ---Clears the action history stack.
