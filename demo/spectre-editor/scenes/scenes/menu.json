@@ -1,28 +1,10 @@
 {
   "name": "Menu",
-  "entities": {
-    "Menu": {
-      "components": {
-        "Scene": {}
-      },
-      "children": {
-        "MenuController": {
-          "components": {
-            "scripts": {
-              "on_update": {
-                "0": {
-                  "function": "on_render_menu",
-                  "arguments": {
-                    "self_id": "%self%",
-                    "scene_id": "%scene%",
-                    "state_id": "%state%"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+  "components": {
+    "scripts": {
+      "on_enter": { "0": { "function": "on_enter_projects_view" } },
+      "on_update": { "0": { "function": "on_render_projects_view" } },
+      "on_exit": { "0": { "function": "on_exit_projects_view" } }
     }
   }
 }

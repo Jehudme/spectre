@@ -537,6 +537,14 @@ end
 -- ========================================
 -- Properties Wrapper Class
 -- ========================================
+---@enum sandbox.PropertiesFormat
+sandbox.PropertiesFormat = {
+    JSON = 0,
+    BEVE = 1,
+    TOML = 2,
+    YAML = 3
+}
+
 ---@class sandbox.Properties
 sandbox.Properties = {}
 sandbox.Properties.__index = sandbox.Properties
