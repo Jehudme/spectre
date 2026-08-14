@@ -5,6 +5,8 @@ local sandbox = require("sandbox")
 local imgui = require("imgui")
 local ffi = require("ffi")
 local FileBrowser = require("utilities.filebrowser")
+local history = require("utilities.history")
+local pages = require("utilities.pages")
 local world = ecs.from_ptr(g_world)
 
 projects = {
@@ -521,6 +523,8 @@ function projects.test_all()
 	all_passed = all_passed and projects.test_delete()
 	
 	FileBrowser.run_test()
+	history.run_test()
+	pages.run_test()
 	
 	if all_passed then
 		sandbox.logs.info(world, "[Test] ===== ALL PROJECTS TESTS PASSED =====")

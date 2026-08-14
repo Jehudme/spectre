@@ -13,12 +13,14 @@ Action.__index = Action
 ---@param redo_function function The function to execute or redo.
 ---@param undo_function function The function to undo the action.
 ---@param is_head boolean? If true (or nil), this action marks the start/head of a transaction group.
+---@param action_name string? Descriptive name of the action.
 ---@return Action
-function Action.new(redo_function, undo_function, is_head)
+function Action.new(redo_function, undo_function, is_head, action_name)
 	local instance = setmetatable({}, Action)
 	instance.redo_function = redo_function
 	instance.undo_function = undo_function
 	instance.is_head = (is_head == nil) and true or is_head
+	instance.action_name = action_name or "Unnamed Action"
 	return instance
 end
 
