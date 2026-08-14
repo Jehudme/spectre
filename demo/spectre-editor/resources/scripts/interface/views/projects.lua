@@ -239,6 +239,11 @@ function projects.edit(project_name)
 	-- Push the Edition state
 	local state_id = spectre.scenes.find_state(world, "Edition")
 	if state_id and state_id ~= 0 then
+		-- Set active project name in the editor context
+		if _G.editor then
+			_G.editor.active_project_name = project_name
+		end
+
 		spectre.scenes.push_state(world, state_id)
 		sandbox.logs.info(world, "[projects.edit] Successfully pushed Edition state.")
 	else
