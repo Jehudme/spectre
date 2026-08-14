@@ -320,7 +320,7 @@ function FileBrowser:render()
         ffi.C.ImGuiWindowFlags_NoResize,
         ffi.C.ImGuiWindowFlags_NoMove)
 
-    if not imgui.BeginPopupModal("File Browser", nil, popup_flags) then return end
+    if imgui.BeginPopupModal("File Browser", nil, popup_flags) then
 
     -- ---- collect selection ----
     local selected_paths = {}
@@ -340,15 +340,19 @@ function FileBrowser:render()
     local back_enabled    = self.history_index > 1
     local forward_enabled = self.history_index < #self.history
 
-    if not back_enabled then imgui.BeginDisabled() end
-    if imgui.Button("<##back", nav_button_size) then self:backward() end
-    if not back_enabled then imgui.EndDisabled() end
+    if back_enabled then
+        if imgui.Button("<##back", nav_button_size) then self:backward() end
+    else
+        imgui.SmallButton(" < ") -- visually present but non-functional
+    end
 
     imgui.SameLine(0, 3)
 
-    if not forward_enabled then imgui.BeginDisabled() end
-    if imgui.Button(">##fwd",  nav_button_size) then self:forward() end
-    if not forward_enabled then imgui.EndDisabled() end
+    if forward_enabled then
+        if imgui.Button(">##fwd", nav_button_size) then self:forward() end
+    else
+        imgui.SmallButton(" > ")
+    end
 
     imgui.SameLine(0, 3)
     if imgui.Button("^##up", nav_button_size) then self:navigate_up() end
@@ -456,9 +460,6 @@ function FileBrowser:render()
                 if folder_name ~= "" then self:create_folder(folder_name) end
                 self.new_folder_active = false
             end
-            if imgui.IsKeyPressed(ffi.C.ImGuiKey_Escape) then
-                self.new_folder_active = false
-            end
             imgui.Separator()
         end
 
@@ -512,9 +513,7 @@ function FileBrowser:render()
                         if new_name ~= "" then self:commit_rename(item.path, new_name) end
                         self.rename_active_for = nil
                     end
-                    if imgui.IsKeyPressed(ffi.C.ImGuiKey_Escape) then
-                        self.rename_active_for = nil
-                    end
+
 
                 else
                     -- Selectable row
@@ -626,16 +625,18 @@ function FileBrowser:render()
     imgui.SetCursorPosX(modal_w - (button_w * 2) - button_gap - 20)
 
     local can_select = selected_count > 0 or self.mode == "directory"
-    if not can_select then imgui.BeginDisabled() end
-    if imgui.Button("Select", imgui.ImVec2(button_w, 0)) then
-        if selected_count > 0 then
-            if self.callback then self.callback(selected_paths) end
-        else
-            if self.callback then self.callback({ self.current_path }) end
+    if can_select then
+        if imgui.Button("Select", imgui.ImVec2(button_w, 0)) then
+            if selected_count > 0 then
+                if self.callback then self.callback(selected_paths) end
+            else
+                if self.callback then self.callback({ self.current_path }) end
+            end
+            self:close()
         end
-        self:close()
+    else
+        imgui.SmallButton("  Select  ") -- shown but inactive
     end
-    if not can_select then imgui.EndDisabled() end
 
     imgui.SameLine(0, button_gap)
     if imgui.Button("Cancel", imgui.ImVec2(button_w, 0)) then
@@ -643,6 +644,7 @@ function FileBrowser:render()
     end
 
     imgui.EndPopup()
+    end -- end BeginPopupModal
 end
 
 
