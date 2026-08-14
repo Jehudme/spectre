@@ -224,9 +224,11 @@ function window_page.run_test()
 	local world = ecs.from_ptr(g_world)
 	sandbox.logs.info(world, "[Window Page Test] ===== STARTING ALL TESTS =====")
 
-	local test_config = "project://configs/window.json"
-	if not sandbox.filesystem.exists(world, "project://configs") then
-		sandbox.filesystem.create_directory(world, "project://configs", true)
+	local orig_path = config_path
+	config_path = "save://configs/window.json"
+	local test_config = config_path
+	if not sandbox.filesystem.exists(world, "save://configs") then
+		sandbox.filesystem.create_directory(world, "save://configs", true)
 	end
 
 	local backup = nil
@@ -274,6 +276,8 @@ function window_page.run_test()
 	else
 		sandbox.filesystem.remove_file(world, test_config)
 	end
+
+	config_path = orig_path
 
 	sandbox.logs.info(world, "[Window Page Test] ===== ALL TESTS FINISHED =====")
 	return true

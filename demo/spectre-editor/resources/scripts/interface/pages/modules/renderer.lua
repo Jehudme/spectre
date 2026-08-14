@@ -1,59 +1,135 @@
-local ecs = require("ecs")
-local spectre = require("spectre")
 local sandbox = require("sandbox")
+local ecs = require("ecs")
 local imgui = require("imgui")
 local ffi = require("ffi")
+local spectre = require("spectre")
 local resources_module = require("interface.pages.modules.resources")
+local history = require("utilities.history")
+local pages = require("utilities.pages")
 
-_G.PrefabsDrawers = _G.PrefabsDrawers or {}
-local Drawers = _G.PrefabsDrawers
+local renderer_page = Page.new()
 
 local config_props = nil
 local config_path = "project://configs/renderer.json"
 local bg_color = ffi.new("float[4]", 245.0 / 255.0, 245.0 / 255.0, 245.0 / 255.0, 1.0)
 
-local function save_configuration(world)
-	if config_props then
-		config_props:set_double("background_color/r", bg_color[0] * 255.0)
-		config_props:set_double("background_color/g", bg_color[1] * 255.0)
-		config_props:set_double("background_color/b", bg_color[2] * 255.0)
-		config_props:set_double("background_color/a", bg_color[3] * 255.0)
+-- ==========================================
+-- Inline Functions
+-- ==========================================
 
-		local dumped = config_props:dump(0)
-		if dumped then
-			local c_str = ffi.cast("const void*", dumped)
-			sandbox.filesystem.write_all_bytes(world, config_path, c_str, #dumped)
-		end
-	end
+local function reset_to_defaults()
+	bg_color[0] = 245.0 / 255.0
+	bg_color[1] = 245.0 / 255.0
+	bg_color[2] = 245.0 / 255.0
+	bg_color[3] = 1.0
 end
 
-local function load_configuration(world)
+local function load_configuration_from_string(world, content)
 	if config_props then
 		config_props:destroy()
 	end
 	config_props = sandbox.Properties.new()
+	config_props:load(content, 0)
 
+	bg_color[0] = (config_props:get_double("background_color/r") or 245.0) / 255.0
+	bg_color[1] = (config_props:get_double("background_color/g") or 245.0) / 255.0
+	bg_color[2] = (config_props:get_double("background_color/b") or 245.0) / 255.0
+	bg_color[3] = (config_props:get_double("background_color/a") or 255.0) / 255.0
+end
+
+local function load_configuration(world)
 	if not sandbox.filesystem.exists(world, config_path) then
-		save_configuration(world)
+		reset_to_defaults()
 	else
 		local out_data = ffi.new("uint8_t*[1]")
 		local out_size = ffi.new("size_t[1]")
 		if sandbox.filesystem.read_all_bytes(world, config_path, out_data, out_size) then
 			if tonumber(out_size[0]) > 0 and out_data[0] ~= nil then
 				local content = ffi.string(out_data[0], tonumber(out_size[0]))
-				config_props:load(content, 0)
+				load_configuration_from_string(world, content)
 				sandbox.filesystem.free_bytes(world, out_data[0])
-
-				bg_color[0] = (config_props:get_double("background_color/r") or 245.0) / 255.0
-				bg_color[1] = (config_props:get_double("background_color/g") or 245.0) / 255.0
-				bg_color[2] = (config_props:get_double("background_color/b") or 245.0) / 255.0
-				bg_color[3] = (config_props:get_double("background_color/a") or 255.0) / 255.0
 			end
 		end
 	end
 end
 
-Drawers["Transform2D"] = function(props, path)
+-- ==========================================
+-- Action Functions
+-- ==========================================
+
+local function apply_renderer_settings(world)
+	local temp_props = sandbox.Properties.new()
+	temp_props:set_double("background_color/r", bg_color[0] * 255.0)
+	temp_props:set_double("background_color/g", bg_color[1] * 255.0)
+	temp_props:set_double("background_color/b", bg_color[2] * 255.0)
+	temp_props:set_double("background_color/a", bg_color[3] * 255.0)
+
+	local new_dumped = temp_props:dump(0)
+	temp_props:destroy()
+
+	local old_dumped = nil
+	if sandbox.filesystem.exists(world, config_path) then
+		old_dumped = sandbox.filesystem.read_file_string(world, config_path)
+	end
+
+	local redo_fn = function()
+		local w = ecs.from_ptr(g_world)
+		local parent = config_path:match("(.*)/[^/]+$")
+		if parent and not sandbox.filesystem.exists(w, parent) then
+			sandbox.filesystem.create_directory(w, parent, true)
+		end
+		sandbox.filesystem.write_file_string(w, config_path, new_dumped)
+		load_configuration_from_string(w, new_dumped)
+	end
+
+	local undo_fn = function()
+		local w = ecs.from_ptr(g_world)
+		if old_dumped then
+			sandbox.filesystem.write_file_string(w, config_path, old_dumped)
+			load_configuration_from_string(w, old_dumped)
+		else
+			sandbox.filesystem.remove_file(w, config_path)
+			reset_to_defaults()
+		end
+	end
+
+	local action = Action.new(redo_fn, undo_fn, true, "Update Renderer Settings")
+	history.execute(action)
+end
+
+-- ==========================================
+-- Page Code
+-- ==========================================
+
+function renderer_page:on_enter()
+	local world = ecs.from_ptr(g_world)
+	load_configuration(world)
+end
+
+function renderer_page:on_render()
+	local world = ecs.from_ptr(g_world)
+	imgui.Text("Renderer Settings")
+	imgui.Separator()
+
+	if imgui.ColorEdit4("Background Color", bg_color) then
+		apply_renderer_settings(world)
+	end
+end
+
+function renderer_page:on_exit()
+	if config_props then
+		config_props:destroy()
+		config_props = nil
+	end
+end
+
+-- ==========================================
+-- Drawers Pages Registration
+-- ==========================================
+
+-- Transform2D Drawer
+local transform2d_drawer = Page.new()
+function transform2d_drawer:on_render(props, path)
 	local p = path .. "/components/Transform2D"
 	local modified = false
 
@@ -104,8 +180,11 @@ Drawers["Transform2D"] = function(props, path)
 
 	return modified
 end
+pages.register("drawer", "Transform2D", transform2d_drawer)
 
-Drawers["TextureRenderable"] = function(props, path)
+-- TextureRenderable Drawer
+local texture_renderable_drawer = Page.new()
+function texture_renderable_drawer:on_render(props, path)
 	local p = path .. "/components/TextureRenderable"
 	local modified = false
 
@@ -184,8 +263,11 @@ Drawers["TextureRenderable"] = function(props, path)
 
 	return modified
 end
+pages.register("drawer", "TextureRenderable", texture_renderable_drawer)
 
-Drawers["TextRenderable"] = function(props, path)
+-- TextRenderable Drawer
+local text_renderable_drawer = Page.new()
+function text_renderable_drawer:on_render(props, path)
 	local p = path .. "/components/TextRenderable"
 	local modified = false
 
@@ -259,8 +341,11 @@ Drawers["TextRenderable"] = function(props, path)
 
 	return modified
 end
+pages.register("drawer", "TextRenderable", text_renderable_drawer)
 
-Drawers["Material"] = function(props, path)
+-- Material Drawer
+local material_drawer = Page.new()
+function material_drawer:on_render(props, path)
 	local p = path .. "/components/Material"
 	local modified = false
 	local col_r = props:get_double(p .. "/color/r") or 1.0
@@ -277,6 +362,7 @@ Drawers["Material"] = function(props, path)
 	end
 	return modified
 end
+pages.register("drawer", "Material", material_drawer)
 
 local function draw_color(props, base_path, name)
 	local col_r = props:get_double(base_path .. "/" .. name .. "/r") or 1.0
@@ -294,7 +380,9 @@ local function draw_color(props, base_path, name)
 	return false
 end
 
-Drawers["RectangleRenderable"] = function(props, path)
+-- RectangleRenderable Drawer
+local rectangle_renderable_drawer = Page.new()
+function rectangle_renderable_drawer:on_render(props, path)
 	local p = path .. "/components/RectangleRenderable"
 	local modified = false
 
@@ -323,8 +411,11 @@ Drawers["RectangleRenderable"] = function(props, path)
 
 	return modified
 end
+pages.register("drawer", "RectangleRenderable", rectangle_renderable_drawer)
 
-Drawers["CircleRenderable"] = function(props, path)
+-- CircleRenderable Drawer
+local circle_renderable_drawer = Page.new()
+function circle_renderable_drawer:on_render(props, path)
 	local p = path .. "/components/CircleRenderable"
 	local modified = false
 
@@ -351,8 +442,11 @@ Drawers["CircleRenderable"] = function(props, path)
 
 	return modified
 end
+pages.register("drawer", "CircleRenderable", circle_renderable_drawer)
 
-Drawers["PolygoneRenderable"] = function(props, path)
+-- PolygoneRenderable Drawer
+local polygone_renderable_drawer = Page.new()
+function polygone_renderable_drawer:on_render(props, path)
 	local p = path .. "/components/PolygoneRenderable"
 	local modified = false
 
@@ -386,8 +480,11 @@ Drawers["PolygoneRenderable"] = function(props, path)
 
 	return modified
 end
+pages.register("drawer", "PolygoneRenderable", polygone_renderable_drawer)
 
-Drawers["LigneRenderable"] = function(props, path)
+-- LigneRenderable Drawer
+local ligne_renderable_drawer = Page.new()
+function ligne_renderable_drawer:on_render(props, path)
 	local p = path .. "/components/LigneRenderable"
 	local modified = false
 
@@ -422,23 +519,95 @@ Drawers["LigneRenderable"] = function(props, path)
 
 	return modified
 end
+pages.register("drawer", "LigneRenderable", ligne_renderable_drawer)
 
-Drawers["Renderable"] = function(props, path)
+-- Renderable Drawer
+local renderable_drawer = Page.new()
+function renderable_drawer:on_render(props, path)
 	return false
 end
-Drawers["CustomPolygoneRenderable"] = function(props, path)
+pages.register("drawer", "Renderable", renderable_drawer)
+
+-- CustomPolygoneRenderable Drawer
+local custom_polygone_renderable_drawer = Page.new()
+function custom_polygone_renderable_drawer:on_render(props, path)
 	return false
 end
+pages.register("drawer", "CustomPolygoneRenderable", custom_polygone_renderable_drawer)
 
-return {
-	on_enter = function()
-		local world = ecs.from_ptr(g_world)
-		load_configuration(world)
-	end,
-	on_exit = function()
-		if config_props then
-			config_props:destroy()
-			config_props = nil
-		end
+-- ==========================================
+-- Tests
+-- ==========================================
+
+function renderer_page.run_test()
+	local world = ecs.from_ptr(g_world)
+	sandbox.logs.info(world, "[Renderer Page Test] ===== STARTING ALL TESTS =====")
+
+	local orig_path = config_path
+	config_path = "save://configs/renderer.json"
+	local test_config = config_path
+	if not sandbox.filesystem.exists(world, "save://configs") then
+		sandbox.filesystem.create_directory(world, "save://configs", true)
 	end
-}
+
+	local backup = nil
+	if sandbox.filesystem.exists(world, test_config) then
+		backup = sandbox.filesystem.read_file_string(world, test_config)
+	end
+
+	history.clear()
+
+	bg_color[0] = 0.5
+	bg_color[1] = 0.5
+	bg_color[2] = 0.5
+	bg_color[3] = 1.0
+	apply_renderer_settings(world)
+
+	if sandbox.filesystem.exists(world, test_config) then
+		local content = sandbox.filesystem.read_file_string(world, test_config)
+		if content:match("background_color") then
+			sandbox.logs.info(world, "[Renderer Page Test] Passed apply settings")
+		else
+			sandbox.logs.error(world, "[Renderer Page Test] Failed apply settings")
+		end
+	else
+		sandbox.logs.error(world, "[Renderer Page Test] Failed apply settings (no file)")
+	end
+
+	-- Undo
+	history.undo()
+	if bg_color[0] ~= 0.5 then
+		sandbox.logs.info(world, "[Renderer Page Test] Passed undo settings")
+	else
+		sandbox.logs.error(world, "[Renderer Page Test] Failed undo settings")
+	end
+
+	-- Redo
+	history.redo()
+	if bg_color[0] == 0.5 then
+		sandbox.logs.info(world, "[Renderer Page Test] Passed redo settings")
+	else
+		sandbox.logs.error(world, "[Renderer Page Test] Failed redo settings")
+	end
+
+	if backup then
+		sandbox.filesystem.write_file_string(world, test_config, backup)
+	else
+		sandbox.filesystem.remove_file(world, test_config)
+	end
+
+	config_path = orig_path
+
+	-- Test page lookup of drawer
+	local drw = pages.find("drawer", "Transform2D")
+	if drw then
+		sandbox.logs.info(world, "[Renderer Page Test] Passed drawer lookup test")
+	else
+		sandbox.logs.error(world, "[Renderer Page Test] Failed drawer lookup test")
+	end
+
+	sandbox.logs.info(world, "[Renderer Page Test] ===== ALL TESTS FINISHED =====")
+	return true
+end
+
+return renderer_page

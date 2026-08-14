@@ -600,6 +600,9 @@ function projects.run_test()
 	local window_module = require("interface.pages.modules.window")
 	window_module.run_test()
 
+	local renderer_module = require("interface.pages.modules.renderer")
+	renderer_module.run_test()
+
 	if all_passed then
 		sandbox.logs.info(world, "[Test] ===== ALL PROJECTS TESTS PASSED =====")
 	else
