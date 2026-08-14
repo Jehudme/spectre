@@ -148,18 +148,14 @@ function projects.list(sort_type)
 	local merged_properties = sandbox.Properties.new()
 
 	for index, file_path in ipairs(files) do
-		if sandbox.filesystem.is_directory(world, file_path) then
-			-- Extract folder name from path
-			local folder_name = file_path:match("([^/]+)$") or file_path
-			sandbox.logs.info(world, "[projects.list] Found project directory: " .. folder_name)
-			
-			local project_properties = projects.find(folder_name)
-			if project_properties then
-				-- Merge into our main properties object under its own name
-				-- Since merge takes another properties object, we just attach it
-				merged_properties:set_string("projects/" .. folder_name .. "/path", file_path)
-				project_properties:destroy()
-			end
+		-- list_directories already guarantees these are directories
+		local folder_name = file_path:match("([^/]+)$") or file_path
+		sandbox.logs.info(world, "[projects.list] Found project directory: " .. folder_name)
+		
+		local project_properties = projects.find(folder_name)
+		if project_properties then
+			merged_properties:set_string("projects/" .. folder_name .. "/path", file_path)
+			project_properties:destroy()
 		end
 	end
 	
@@ -232,15 +228,37 @@ function projects.view.on_render()
 		
 		-- Top buttons
 		if imgui.Button("New Project", imgui.ImVec2(150, 30)) then
-			-- Generate a default name
-			local new_name = "New_Project"
-			local counter = 1
-			while sandbox.filesystem.exists(world, projects.VIRTUAL_PROJECTS_PATH_DIRECTORY .. "/" .. new_name) do
-				new_name = "New_Project_" .. tostring(counter)
-				counter = counter + 1
+			imgui.OpenPopup("New Project Modal")
+		end
+		
+		if imgui.BeginPopupModal("New Project Modal", nil, ffi.C.ImGuiWindowFlags_AlwaysAutoResize) then
+			if not projects.view.new_project_buffer then
+				projects.view.new_project_buffer = ffi.new("char[256]")
+				ffi.copy(projects.view.new_project_buffer, "New_Project")
 			end
-			projects.create(new_name)
-			refresh_projects_list()
+			
+			imgui.Text("Enter Project Name:")
+			imgui.InputText("##ProjectName", projects.view.new_project_buffer, 256)
+			
+			imgui.Spacing()
+			
+			if imgui.Button("Create", imgui.ImVec2(120, 0)) then
+				local new_name = ffi.string(projects.view.new_project_buffer)
+				if new_name and new_name ~= "" then
+					projects.create(new_name)
+					refresh_projects_list()
+					imgui.CloseCurrentPopup()
+				end
+			end
+			
+			imgui.SetItemDefaultFocus()
+			imgui.SameLine()
+			
+			if imgui.Button("Cancel", imgui.ImVec2(120, 0)) then
+				imgui.CloseCurrentPopup()
+			end
+			
+			imgui.EndPopup()
 		end
 		
 		imgui.SameLine()
@@ -263,10 +281,10 @@ function projects.view.on_render()
 				for i, proj_name in ipairs(project_keys) do
 					local is_selected = (projects.view.selected_project == proj_name)
 					
-					if imgui.Selectable(proj_name, is_selected, imgui.SelectableFlags.AllowDoubleClick) then
+					if imgui.Selectable(proj_name, is_selected, ffi.C.ImGuiSelectableFlags_AllowDoubleClick) then
 						projects.view.selected_project = proj_name
 						
-						if imgui.IsMouseDoubleClicked(imgui.MouseButton.Left) then
+						if imgui.IsMouseDoubleClicked(ffi.C.ImGuiMouseButton_Left) then
 							projects.run(proj_name)
 						end
 					end
@@ -285,7 +303,8 @@ function projects.view.on_render()
 						end
 						if imgui.MenuItem("Rename") then
 							projects.view.rename_popup_open = true
-							projects.view.rename_buffer = proj_name
+							projects.view.rename_buffer = ffi.new("char[256]")
+							ffi.copy(projects.view.rename_buffer, proj_name)
 						end
 						if imgui.MenuItem("Duplicate") then
 							projects.duplicate(proj_name)
@@ -321,16 +340,14 @@ function projects.view.on_render()
 		
 		if imgui.BeginPopupModal("Rename Project", nil, ffi.C.ImGuiWindowFlags_AlwaysAutoResize) then
 			imgui.Text("Enter new name for " .. projects.view.selected_project .. ":")
-			local changed, new_buf = imgui.InputText("##newname", projects.view.rename_buffer, 256)
-			if changed then
-				projects.view.rename_buffer = new_buf
-			end
+			imgui.InputText("##newname", projects.view.rename_buffer, 256)
 			
 			imgui.Spacing()
 			
 			if imgui.Button("Rename", imgui.ImVec2(120, 0)) then
-				if string.len(projects.view.rename_buffer) > 0 and projects.view.rename_buffer ~= projects.view.selected_project then
-					projects.rename(projects.view.selected_project, projects.view.rename_buffer)
+				local renamed = ffi.string(projects.view.rename_buffer)
+				if string.len(renamed) > 0 and renamed ~= projects.view.selected_project then
+					projects.rename(projects.view.selected_project, renamed)
 					refresh_projects_list()
 				end
 				projects.view.rename_popup_open = false
