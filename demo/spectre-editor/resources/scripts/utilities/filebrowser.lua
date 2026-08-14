@@ -355,7 +355,7 @@ function FileBrowser:render()
                         
                         if imgui.Selectable(display_name .. "##" .. item.path, is_selected, ffi.C.ImGuiSelectableFlags_AllowDoubleClick) then
                             -- handle multi select with ctrl/shift? simplistic toggle for now
-                            if imgui.IsKeyDown(ffi.C.ImGuiKey_LeftCtrl) or imgui.IsKeyDown(ffi.C.ImGuiKey_RightCtrl) then
+                            if imgui.GetIO().KeyCtrl then
                                 self.selected[item.path] = not is_selected
                             else
                                 self.selected = { [item.path] = true }
