@@ -4,12 +4,24 @@ local imgui = require("imgui")
 local ffi = require("ffi")
 local spectre = require("spectre")
 
+require("utilities.actions.write_file")
+local history = require("utilities.history")
+local search = require("utilities.search")
+
 local scripts_page = Page.new()
 
 _G.PrefabsDrawers = _G.PrefabsDrawers or {}
 local Drawers = _G.PrefabsDrawers
 
+-- ============================================================================
+-- INLINE FUNCTIONS
+-- ============================================================================
 local available_scripts_cache = nil
+local scripts_search_query = ffi.new("char[256]")
+local add_script_search_query = ffi.new("char[256]")
+local add_script_popup = false
+local add_script_target_list = ""
+local selected_script_idx = 0
 
 local function get_available_scripts()
 	if available_scripts_cache then
@@ -71,6 +83,107 @@ local function get_available_scripts()
 	return scripts_info
 end
 
+local function get_max_key(props, list_path)
+	local max_k = 0
+	for _, k in ipairs(props:keys(list_path) or {}) do
+		local n = tonumber(k)
+		if n and n >= max_k then
+			max_k = n + 1
+		end
+	end
+	return max_k
+end
+
+-- ============================================================================
+-- ACTIONS
+-- ============================================================================
+
+local PropertySetAction = {}
+PropertySetAction.__index = PropertySetAction
+function PropertySetAction.new(props, path, value)
+	local self = setmetatable({}, PropertySetAction)
+	self.props = props
+	self.path = path
+	self.new_value = value
+	self.old_value = props:read_string(path)
+	return self
+end
+function PropertySetAction:execute()
+	self.props:set_string(self.path, self.new_value)
+end
+function PropertySetAction:undo()
+	if self.old_value then
+		self.props:set_string(self.path, self.old_value)
+	else
+		self.props:clear(self.path)
+	end
+end
+
+local PropertyClearAction = {}
+PropertyClearAction.__index = PropertyClearAction
+function PropertyClearAction.new(props, path)
+	local self = setmetatable({}, PropertyClearAction)
+	self.props = props
+	self.path = path
+	self.old_value = props:read_string(path)
+	self.dumped = props:sub(path):dump(0)
+	return self
+end
+function PropertyClearAction:execute()
+	self.props:clear(self.path)
+end
+function PropertyClearAction:undo()
+	if self.dumped then
+		self.props:set_string(self.path .. "/dummy", "0")
+		self.props:sub(self.path):load(self.dumped, 0)
+		self.props:clear(self.path .. "/dummy")
+	else
+		if self.old_value then
+			self.props:set_string(self.path, self.old_value)
+		end
+	end
+end
+
+local PropertyDuplicateAction = {}
+PropertyDuplicateAction.__index = PropertyDuplicateAction
+function PropertyDuplicateAction.new(props, src_path, dest_path)
+	local self = setmetatable({}, PropertyDuplicateAction)
+	self.props = props
+	self.dest_path = dest_path
+	self.dumped = props:sub(src_path):dump(0)
+	return self
+end
+function PropertyDuplicateAction:execute()
+	if self.dumped then
+		self.props:set_string(self.dest_path .. "/dummy", "0")
+		self.props:sub(self.dest_path):load(self.dumped, 0)
+		self.props:clear(self.dest_path .. "/dummy")
+	end
+end
+function PropertyDuplicateAction:undo()
+	self.props:clear(self.dest_path)
+end
+
+-- ============================================================================
+-- ACTION FUNCTIONS
+-- ============================================================================
+
+local function action_set_property(props, path, value)
+	history.execute(PropertySetAction.new(props, path, value))
+end
+
+local function action_clear_property(props, path)
+	history.execute(PropertyClearAction.new(props, path))
+end
+
+local function action_duplicate_property(props, src_path, dest_path)
+	history.execute(PropertyDuplicateAction.new(props, src_path, dest_path))
+end
+
+-- ============================================================================
+-- PAGE CODE
+-- ============================================================================
+
 function scripts_page:on_enter()
 	available_scripts_cache = nil
 end
@@ -83,12 +196,20 @@ function scripts_page:on_render()
 		available_scripts_cache = nil
 	end
 
+	imgui.SameLine()
+	imgui.InputText("Search Scripts", scripts_search_query, 256)
+
 	imgui.Separator()
 
 	local scripts_info = get_available_scripts()
 	local keys = {}
 	for k, _ in pairs(scripts_info) do
 		table.insert(keys, k)
+	end
+
+	local query_str = ffi.string(scripts_search_query)
+	if query_str ~= "" then
+		keys = search.filter(keys, query_str)
 	end
 	table.sort(keys)
 
@@ -108,10 +229,6 @@ end
 
 function scripts_page:on_exit()
 end
-
-local add_script_popup = false
-local add_script_target_list = ""
-local selected_script_idx = 0
 
 Drawers["scripts"] = function(props, path)
 	local p = path .. "/components/scripts"
@@ -149,25 +266,13 @@ Drawers["scripts"] = function(props, path)
 				if imgui.TreeNodeEx(func_name ~= "" and func_name or "Unknown", 0) then
 					if imgui.BeginPopupContextItem("Context_" .. key) then
 						if imgui.MenuItem("Remove") then
-							props:clear(script_path)
+							action_clear_property(props, script_path)
 							modified = true
 						end
 						if imgui.MenuItem("Duplicate") then
-							local dumped = props:sub(script_path):dump(0)
-							if dumped then
-								local max_k = 0
-								for _, k in ipairs(props:keys(list_path) or {}) do
-									local n = tonumber(k)
-									if n and n >= max_k then
-										max_k = n + 1
-									end
-								end
-								local new_script_path = list_path .. "/" .. max_k
-								props:set_string(new_script_path .. "/dummy", "0")
-								props:sub(new_script_path):load(dumped, 0)
-								props:clear(new_script_path .. "/dummy")
-								modified = true
-							end
+							local new_script_path = list_path .. "/" .. get_max_key(props, list_path)
+							action_duplicate_property(props, script_path, new_script_path)
+							modified = true
 						end
 						imgui.EndPopup()
 					end
@@ -184,7 +289,7 @@ Drawers["scripts"] = function(props, path)
 							local n = tonumber(arg_val) or 0
 							local buf = ffi.new("int[1]", n)
 							if imgui.InputInt(display_name, buf) then
-								props:set_string(script_path .. "/arguments/" .. arg_name, tostring(buf[0]))
+								action_set_property(props, script_path .. "/arguments/" .. arg_name, tostring(buf[0]))
 								modified = true
 							end
 						elseif arg_type == "number" or arg_type == "float" then
@@ -192,7 +297,7 @@ Drawers["scripts"] = function(props, path)
 							local n = tonumber(arg_val) or 0.0
 							local buf = ffi.new("float[1]", n)
 							if imgui.InputFloat(display_name, buf) then
-								props:set_string(script_path .. "/arguments/" .. arg_name, tostring(buf[0]))
+								action_set_property(props, script_path .. "/arguments/" .. arg_name, tostring(buf[0]))
 								modified = true
 							end
 						elseif arg_type == "boolean" or arg_type == "bool" then
@@ -200,7 +305,7 @@ Drawers["scripts"] = function(props, path)
 							local b = arg_val == "true" or arg_val == "1"
 							local buf = ffi.new("bool[1]", b)
 							if imgui.Checkbox(display_name, buf) then
-								props:set_string(script_path .. "/arguments/" .. arg_name, buf[0] and "true" or "false")
+								action_set_property(props, script_path .. "/arguments/" .. arg_name, buf[0] and "true" or "false")
 								modified = true
 							end
 						else
@@ -208,7 +313,7 @@ Drawers["scripts"] = function(props, path)
 							local buf = ffi.new("char[256]")
 							ffi.copy(buf, arg_val)
 							if imgui.InputText(display_name, buf, 256) then
-								props:set_string(script_path .. "/arguments/" .. arg_name, ffi.string(buf))
+								action_set_property(props, script_path .. "/arguments/" .. arg_name, ffi.string(buf))
 								modified = true
 							end
 						end
@@ -234,11 +339,16 @@ Drawers["scripts"] = function(props, path)
 		imgui.SetNextWindowSize(imgui.ImVec2(500, 400), 0)
 	end
 	if imgui.BeginPopupModal("Add Script", nil, 64) then
-		add_script_popup = false
 		local scripts_info = get_available_scripts()
 		local script_names = {}
 		for func_name, _ in pairs(scripts_info) do
 			table.insert(script_names, func_name)
+		end
+		
+		imgui.InputText("Search Scripts", add_script_search_query, 256)
+		local add_query_str = ffi.string(add_script_search_query)
+		if add_query_str ~= "" then
+			script_names = search.filter(script_names, add_query_str)
 		end
 		table.sort(script_names)
 
@@ -263,32 +373,28 @@ Drawers["scripts"] = function(props, path)
 
 			if imgui.Button("Add") then
 				local list_path = p .. "/" .. add_script_target_list
-				local max_k = 0
-				for _, k in ipairs(props:keys(list_path) or {}) do
-					local n = tonumber(k)
-					if n and n >= max_k then
-						max_k = n + 1
-					end
-				end
+				local max_k = get_max_key(props, list_path)
 
 				local script_path = list_path .. "/" .. max_k
-				props:set_string(script_path .. "/function", selected_name)
+				action_set_property(props, script_path .. "/function", selected_name)
 
 				if #args > 0 then
-					props:set_string(script_path .. "/arguments/dummy", "0")
-					props:clear(script_path .. "/arguments/dummy")
+					action_set_property(props, script_path .. "/arguments/dummy", "0")
+					action_clear_property(props, script_path .. "/arguments/dummy")
 					for _, arg in ipairs(args) do
 						local arg_name = type(arg) == "table" and arg.name or arg
-						props:set_string(script_path .. "/arguments/" .. arg_name, "")
+						action_set_property(props, script_path .. "/arguments/" .. arg_name, "")
 					end
 				else
-					props:set_string(script_path .. "/arguments/dummy", "0")
-					props:clear(script_path .. "/arguments/dummy")
+					action_set_property(props, script_path .. "/arguments/dummy", "0")
+					action_clear_property(props, script_path .. "/arguments/dummy")
 				end
 
 				modified = true
 				imgui.CloseCurrentPopup()
 				selected_script_idx = 0
+				add_script_popup = false
+				ffi.copy(add_script_search_query, "")
 			end
 			imgui.SameLine()
 		end
@@ -296,11 +402,38 @@ Drawers["scripts"] = function(props, path)
 		if imgui.Button("Cancel") then
 			imgui.CloseCurrentPopup()
 			selected_script_idx = 0
+			add_script_popup = false
+			ffi.copy(add_script_search_query, "")
 		end
 		imgui.EndPopup()
+	else
+		add_script_popup = false
 	end
 
 	return modified
+end
+
+-- ============================================================================
+-- TESTS
+-- ============================================================================
+
+local function run_test()
+	local world = ecs.from_ptr(g_world)
+	sandbox.logs.info(world, "[Tests] Running scripts.lua tests...")
+	local success = true
+
+	-- Test get_available_scripts
+	local scripts = get_available_scripts()
+	if type(scripts) ~= "table" then
+		sandbox.logs.error(world, "[Tests] get_available_scripts returned invalid type")
+		success = false
+	end
+
+	if success then
+		sandbox.logs.info(world, "[Tests] scripts.lua tests passed!")
+	else
+		sandbox.logs.error(world, "[Tests] scripts.lua tests failed!")
+	end
 end
 
 return scripts_page

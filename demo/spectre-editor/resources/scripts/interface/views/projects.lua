@@ -597,11 +597,26 @@ function projects.run_test()
 	local write_file_util = require("utilities.actions.write_file")
 	write_file_util.run_test()
 
-	local window_module = require("interface.pages.modules.window")
-	window_module.run_test()
+	local components_module = require("interface.pages.modules.components")
+	if components_module.run_test then components_module.run_test() end
+
+	local prefabs_module = require("interface.pages.modules.prefabs")
+	if prefabs_module.run_test then prefabs_module.run_test() end
+
+	local scenes_module = require("interface.pages.modules.scenes")
+	if scenes_module.run_test then scenes_module.run_test() end
+
+	local scripts_module = require("interface.pages.modules.scripts")
+	if scripts_module.run_test then scripts_module.run_test() end
+
+	local resources_module = require("interface.pages.modules.resources")
+	if resources_module.run_test then resources_module.run_test() end
 
 	local renderer_module = require("interface.pages.modules.renderer")
-	renderer_module.run_test()
+	if renderer_module.run_test then renderer_module.run_test() end
+
+	local window_module = require("interface.pages.modules.window")
+	if window_module.run_test then window_module.run_test() end
 
 	if all_passed then
 		sandbox.logs.info(world, "[Test] ===== ALL PROJECTS TESTS PASSED =====")

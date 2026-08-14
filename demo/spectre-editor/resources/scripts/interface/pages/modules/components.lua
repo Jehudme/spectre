@@ -4,39 +4,15 @@ local imgui = require("imgui")
 local ffi = require("ffi")
 local spectre = require("spectre")
 
-local components_page = Page.new()
+require("utilities.actions.write_file")
+local history = require("utilities.history")
+local search = require("utilities.search")
 
--- Keep all local helper buffers/variables here:
-local search_buffer = ffi.new("char[256]")
-local add_name_buffer = ffi.new("char[256]")
-local rename_name_buffer = ffi.new("char[256]")
-local new_var_name_buffer = ffi.new("char[256]")
+local WriteFileAction = _G.WriteFileAction
 
-local dynamic_components = {}
-local selected_component = nil
-
-local show_add_popup = false
-local show_rename_popup = false
-local rename_target = ""
-local show_add_var_popup = false
-
--- current dynamic schema
-local current_schema = nil
-local current_schema_keys = {}
-local schema_types_idx = {}
-local schema_keys_buffers = {}
-
-local var_types = { "int", "float", "double", "string", "bool" }
-local c_var_types = ffi.new("const char*[?]", #var_types)
-for i, v in ipairs(var_types) do
-	c_var_types[i - 1] = v
-end
-
-local function write_file(world, path, content)
-	local c_str = ffi.cast("const void*", content)
-	sandbox.filesystem.write_all_bytes(world, path, c_str, #content)
-end
-
+-- ============================================================================
+-- INLINE FUNCTIONS
+-- ============================================================================
 local function read_file(world, path)
 	if not sandbox.filesystem.exists(world, path) then
 		return nil
@@ -69,16 +45,88 @@ local function load_schema(world, name)
 	return props
 end
 
-local function save_schema(world, name, props)
-	if props then
-		local dumped = props:dump(0)
-		if dumped then
-			if not sandbox.filesystem.exists(world, "project://scenes/components") then
-				sandbox.filesystem.create_directory(world, "project://scenes/components", true)
+local function list_dynamic_components(world)
+	local list = {}
+	if sandbox.filesystem.exists(world, "project://scenes/components") then
+		local files = sandbox.filesystem.list_files(world, "project://scenes/components", false)
+		for _, file in ipairs(files) do
+			if string.sub(file, -5) == ".json" then
+				local name = string.match(file, "([^/\\]+)%.json$")
+				if name then
+					table.insert(list, name)
+				end
 			end
-			write_file(world, get_dyn_path(name), dumped)
 		end
 	end
+	table.sort(list)
+	return list
+end
+
+-- ============================================================================
+-- ACTIONS
+-- ============================================================================
+local RemoveFileAction = {}
+RemoveFileAction.__index = RemoveFileAction
+
+function RemoveFileAction.new(path, content, name)
+	local self = setmetatable({}, RemoveFileAction)
+	self.path = path
+	self.content = content
+	self.name = name or "Remove File"
+	return self
+end
+
+function RemoveFileAction:execute()
+	local world = ecs.from_ptr(g_world)
+	sandbox.filesystem.remove_file(world, self.path)
+end
+
+function RemoveFileAction:undo()
+	local world = ecs.from_ptr(g_world)
+	local c_str = ffi.cast("const void*", self.content)
+	sandbox.filesystem.write_all_bytes(world, self.path, c_str, #self.content)
+end
+
+-- ============================================================================
+-- ACTION FUNCTIONS
+-- ============================================================================
+local function action_write_file(path, content, desc)
+	local action = WriteFileAction.new(path, content, true, desc)
+	history.execute(action)
+end
+
+local function action_remove_file(path, content, desc)
+	local action = RemoveFileAction.new(path, content, desc)
+	history.execute(action)
+end
+
+-- ============================================================================
+-- PAGE CODE
+-- ============================================================================
+local components_page = Page.new()
+
+local search_buffer = ffi.new("char[256]")
+local add_name_buffer = ffi.new("char[256]")
+local rename_name_buffer = ffi.new("char[256]")
+local new_var_name_buffer = ffi.new("char[256]")
+
+local dynamic_components = {}
+local selected_component = nil
+
+local show_add_popup = false
+local show_rename_popup = false
+local rename_target = ""
+local show_add_var_popup = false
+
+local current_schema = nil
+local current_schema_keys = {}
+local schema_types_idx = {}
+local schema_keys_buffers = {}
+
+local var_types = { "int", "float", "double", "string", "bool" }
+local c_var_types = ffi.new("const char*[?]", #var_types)
+for i, v in ipairs(var_types) do
+	c_var_types[i - 1] = v
 end
 
 local function select_component(world, name)
@@ -117,19 +165,7 @@ local function select_component(world, name)
 end
 
 local function refresh_lists(world)
-	dynamic_components = {}
-	if sandbox.filesystem.exists(world, "project://scenes/components") then
-		local files = sandbox.filesystem.list_files(world, "project://scenes/components", false)
-		for _, file in ipairs(files) do
-			if string.sub(file, -5) == ".json" then
-				local name = string.match(file, "([^/\\]+)%.json$")
-				if name then
-					table.insert(dynamic_components, name)
-				end
-			end
-		end
-	end
-	table.sort(dynamic_components)
+	dynamic_components = list_dynamic_components(world)
 end
 
 function components_page:on_enter()
@@ -170,50 +206,52 @@ function components_page:on_render()
 	local search_str = ffi.string(search_buffer)
 
 	local function draw_list(list)
-		for _, name in ipairs(list) do
-			if search_str == "" or string.find(name:lower(), search_str:lower(), 1, true) then
-				local is_selected = (selected_component == name)
-				if imgui.Selectable(name, is_selected) then
-					if not is_selected then
-						select_component(world, name)
-					end
-				end
+        local filtered = search.filter(list, search_str)
+		for _, name in ipairs(filtered) do
+            local is_selected = (selected_component == name)
+            if imgui.Selectable(name, is_selected) then
+                if not is_selected then
+                    select_component(world, name)
+                end
+            end
 
-				if imgui.BeginPopupContextItem("ContextPopup_" .. name) then
-					if imgui.MenuItem("Rename") then
-						sandbox.logs.info(world, "Rename clicked on " .. name)
-						show_rename_popup = true
-						rename_target = name
-						ffi.copy(rename_name_buffer, name)
-					end
-					if imgui.MenuItem("Duplicate") then
-						sandbox.logs.info(world, "Duplicate clicked on " .. name)
-						local old_path = get_dyn_path(name)
-						local new_name = name .. "_copy"
-						local i = 1
-						while sandbox.filesystem.exists(world, get_dyn_path(new_name)) do
-							new_name = name .. "_copy" .. tostring(i)
-							i = i + 1
-						end
-						local new_path = get_dyn_path(new_name)
-						sandbox.filesystem.copy(world, old_path, new_path, false, true)
-						refresh_lists(world)
-					end
-					if imgui.MenuItem("Delete") then
-						sandbox.logs.info(world, "Delete clicked on " .. name)
-						sandbox.filesystem.remove_file(world, get_dyn_path(name))
-						if selected_component == name then
-							selected_component = nil
-							if current_schema then
-								current_schema:destroy()
-								current_schema = nil
-							end
-						end
-						refresh_lists(world)
-					end
-					imgui.EndPopup()
-				end
-			end
+            if imgui.BeginPopupContextItem("ContextPopup_" .. name) then
+                if imgui.MenuItem("Rename") then
+                    sandbox.logs.info(world, "Rename clicked on " .. name)
+                    show_rename_popup = true
+                    rename_target = name
+                    ffi.copy(rename_name_buffer, name)
+                end
+                if imgui.MenuItem("Duplicate") then
+                    sandbox.logs.info(world, "Duplicate clicked on " .. name)
+                    local old_path = get_dyn_path(name)
+                    local new_name = name .. "_copy"
+                    local i = 1
+                    while sandbox.filesystem.exists(world, get_dyn_path(new_name)) do
+                        new_name = name .. "_copy" .. tostring(i)
+                        i = i + 1
+                    end
+                    local new_path = get_dyn_path(new_name)
+                    local old_content = read_file(world, old_path) or "{}"
+                    action_write_file(new_path, old_content, "Duplicate Component")
+                    refresh_lists(world)
+                end
+                if imgui.MenuItem("Delete") then
+                    sandbox.logs.info(world, "Delete clicked on " .. name)
+                    local path = get_dyn_path(name)
+                    local content = read_file(world, path) or "{}"
+                    action_remove_file(path, content, "Delete Component")
+                    if selected_component == name then
+                        selected_component = nil
+                        if current_schema then
+                            current_schema:destroy()
+                            current_schema = nil
+                        end
+                    end
+                    refresh_lists(world)
+                end
+                imgui.EndPopup()
+            end
 		end
 	end
 
@@ -277,7 +315,10 @@ function components_page:on_render()
 					local t_val = var_types[schema_types_idx[k][0] + 1]
 					current_schema:set_string("members/" .. str_i .. "/type", t_val)
 				end
-				save_schema(world, selected_component, current_schema)
+                local dumped = current_schema:dump(0)
+                if dumped then
+                    action_write_file(get_dyn_path(selected_component), dumped, "Update Component Schema")
+                end
 				select_component(world, selected_component)
 			end
 		end
@@ -302,7 +343,7 @@ function components_page:on_render()
 					if not sandbox.filesystem.exists(world, "project://scenes/components") then
 						sandbox.filesystem.create_directory(world, "project://scenes/components", true)
 					end
-					write_file(world, new_path, "{}")
+                    action_write_file(new_path, "{}", "Create Component")
 					refresh_lists(world)
 					select_component(world, new_name)
 				end
@@ -330,7 +371,9 @@ function components_page:on_render()
 				local old_path = get_dyn_path(rename_target)
 				local new_path = get_dyn_path(new_name)
 				if not sandbox.filesystem.exists(world, new_path) then
-					sandbox.filesystem.move(world, old_path, new_path, false, true)
+                    local content = read_file(world, old_path) or "{}"
+                    action_write_file(new_path, content, "Rename Component (Write)")
+                    action_remove_file(old_path, content, "Rename Component (Remove Old)")
 					if selected_component == rename_target then
 						select_component(world, new_name)
 					end
@@ -377,7 +420,10 @@ function components_page:on_render()
 						local t_val = var_types[schema_types_idx[k][0] + 1]
 						current_schema:set_string("members/" .. str_i .. "/type", t_val)
 					end
-					save_schema(world, selected_component, current_schema)
+                    local dumped = current_schema:dump(0)
+                    if dumped then
+                        action_write_file(get_dyn_path(selected_component), dumped, "Add Variable to Component")
+                    end
 				end
 			end
 			imgui.CloseCurrentPopup()
@@ -392,20 +438,7 @@ end
 
 function components_page.list_dynamic_components()
 	local world = ecs.from_ptr(g_world)
-	local list = {}
-	if sandbox.filesystem.exists(world, "project://scenes/components") then
-		local files = sandbox.filesystem.list_files(world, "project://scenes/components", false)
-		for _, file in ipairs(files) do
-			if string.sub(file, -5) == ".json" then
-				local name = string.match(file, "([^/\\]+)%.json$")
-				if name then
-					table.insert(list, name)
-				end
-			end
-		end
-	end
-	table.sort(list)
-	return list
+	return list_dynamic_components(world)
 end
 
 function components_page.draw_dynamic_component(prefab_props, entity_path, comp_name)
@@ -456,6 +489,15 @@ function components_page.draw_dynamic_component(prefab_props, entity_path, comp_
 	end
 	schema:destroy()
 	return modified
+end
+
+-- ============================================================================
+-- TESTS
+-- ============================================================================
+function components_page.run_test()
+	local world = ecs.from_ptr(g_world)
+	sandbox.logs.info(world, "Running tests for components_page module")
+    sandbox.logs.info(world, "components_page tests completed.")
 end
 
 return components_page

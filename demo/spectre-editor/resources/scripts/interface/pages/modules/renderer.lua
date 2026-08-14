@@ -4,8 +4,11 @@ local imgui = require("imgui")
 local ffi = require("ffi")
 local spectre = require("spectre")
 local resources_module = require("interface.pages.modules.resources")
+
 local history = require("utilities.history")
 local pages = require("utilities.pages")
+local search = require("utilities.search")
+require("utilities.actions.write_file")
 
 local renderer_page = Page.new()
 
@@ -53,6 +56,22 @@ local function load_configuration(world)
 	end
 end
 
+local function draw_color(props, base_path, name)
+	local col_r = props:get_double(base_path .. "/" .. name .. "/r") or 1.0
+	local col_g = props:get_double(base_path .. "/" .. name .. "/g") or 1.0
+	local col_b = props:get_double(base_path .. "/" .. name .. "/b") or 1.0
+	local col_a = props:get_double(base_path .. "/" .. name .. "/a") or 1.0
+	local cbuf = ffi.new("float[4]", col_r, col_g, col_b, col_a)
+	if imgui.ColorEdit4(name, cbuf) then
+		props:set_double(base_path .. "/" .. name .. "/r", cbuf[0])
+		props:set_double(base_path .. "/" .. name .. "/g", cbuf[1])
+		props:set_double(base_path .. "/" .. name .. "/b", cbuf[2])
+		props:set_double(base_path .. "/" .. name .. "/a", cbuf[3])
+		return true
+	end
+	return false
+end
+
 -- ==========================================
 -- Action Functions
 -- ==========================================
@@ -71,29 +90,31 @@ local function apply_renderer_settings(world)
 	if sandbox.filesystem.exists(world, config_path) then
 		old_dumped = sandbox.filesystem.read_file_string(world, config_path)
 	end
+	
+	local current_path = config_path
 
 	local redo_fn = function()
 		local w = ecs.from_ptr(g_world)
-		local parent = config_path:match("(.*)/[^/]+$")
+		local parent = current_path:match("(.*)/[^/]+$")
 		if parent and not sandbox.filesystem.exists(w, parent) then
 			sandbox.filesystem.create_directory(w, parent, true)
 		end
-		sandbox.filesystem.write_file_string(w, config_path, new_dumped)
+		sandbox.filesystem.write_file_string(w, current_path, new_dumped)
 		load_configuration_from_string(w, new_dumped)
 	end
 
 	local undo_fn = function()
 		local w = ecs.from_ptr(g_world)
 		if old_dumped then
-			sandbox.filesystem.write_file_string(w, config_path, old_dumped)
+			sandbox.filesystem.write_file_string(w, current_path, old_dumped)
 			load_configuration_from_string(w, old_dumped)
 		else
-			sandbox.filesystem.remove_file(w, config_path)
+			sandbox.filesystem.remove_file(w, current_path)
 			reset_to_defaults()
 		end
 	end
 
-	local action = Action.new(redo_fn, undo_fn, true, "Update Renderer Settings")
+	local action = _G.Action.new(redo_fn, undo_fn, true, "Update Renderer Settings")
 	history.execute(action)
 end
 
@@ -122,10 +143,6 @@ function renderer_page:on_exit()
 		config_props = nil
 	end
 end
-
--- ==========================================
--- Drawers Pages Registration
--- ==========================================
 
 -- Transform2D Drawer
 local transform2d_drawer = Page.new()
@@ -363,22 +380,6 @@ function material_drawer:on_render(props, path)
 	return modified
 end
 pages.register("drawer", "Material", material_drawer)
-
-local function draw_color(props, base_path, name)
-	local col_r = props:get_double(base_path .. "/" .. name .. "/r") or 1.0
-	local col_g = props:get_double(base_path .. "/" .. name .. "/g") or 1.0
-	local col_b = props:get_double(base_path .. "/" .. name .. "/b") or 1.0
-	local col_a = props:get_double(base_path .. "/" .. name .. "/a") or 1.0
-	local cbuf = ffi.new("float[4]", col_r, col_g, col_b, col_a)
-	if imgui.ColorEdit4(name, cbuf) then
-		props:set_double(base_path .. "/" .. name .. "/r", cbuf[0])
-		props:set_double(base_path .. "/" .. name .. "/g", cbuf[1])
-		props:set_double(base_path .. "/" .. name .. "/b", cbuf[2])
-		props:set_double(base_path .. "/" .. name .. "/a", cbuf[3])
-		return true
-	end
-	return false
-end
 
 -- RectangleRenderable Drawer
 local rectangle_renderable_drawer = Page.new()

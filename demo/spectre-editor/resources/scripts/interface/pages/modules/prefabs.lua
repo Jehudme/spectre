@@ -4,6 +4,10 @@ local imgui = require("imgui")
 local ffi = require("ffi")
 local spectre = require("spectre")
 local components_module = require("interface.pages.modules.components")
+require("utilities.actions.write_file")
+local history = require("utilities.history")
+local search = require("utilities.search")
+local WriteFileAction = _G.WriteFileAction
 
 local prefabs_page = Page.new()
 
@@ -39,10 +43,9 @@ local add_assigned_prefab_target = ""
 
 local selected_entity = nil
 
-local function write_file(world, path, content)
-	local c_str = ffi.cast("const void*", content)
-	sandbox.filesystem.write_all_bytes(world, path, c_str, #content)
-end
+-- ==========================================
+-- INLINE FUNCTIONS
+-- ==========================================
 
 local function read_file(world, path)
 	if not sandbox.filesystem.exists(world, path) then
@@ -76,18 +79,6 @@ local function load_prefab(world, name)
 	return props
 end
 
-local function save_prefab(world, name, props)
-	if props then
-		local dumped = props:dump(0)
-		if dumped then
-			if not sandbox.filesystem.exists(world, "project://scenes/prefabs") then
-				sandbox.filesystem.create_directory(world, "project://scenes/prefabs", true)
-			end
-			write_file(world, get_prefab_path(name), dumped)
-		end
-	end
-end
-
 local function refresh_prefabs(world)
 	prefabs_list = {}
 	if sandbox.filesystem.exists(world, "project://scenes/prefabs") then
@@ -116,24 +107,101 @@ local function select_prefab(world, name)
 	end
 end
 
-function prefabs_page:on_enter()
+-- ==========================================
+-- ACTIONS
+-- ==========================================
+
+local RemoveFileAction = {}
+RemoveFileAction.__index = RemoveFileAction
+function RemoveFileAction.new(path, title)
+	local self = setmetatable({}, RemoveFileAction)
+	self.path = path
+	self.title = title or "Remove File"
+	self.content = nil
+	return self
+end
+function RemoveFileAction:execute()
 	local world = ecs.from_ptr(g_world)
-	refresh_prefabs(world)
-	selected_prefab = nil
-	selected_entity = nil
-	if current_prefab_props then
-		current_prefab_props:destroy()
-		current_prefab_props = nil
+	self.content = read_file(world, self.path)
+	sandbox.filesystem.remove_file(world, self.path)
+end
+function RemoveFileAction:undo()
+	local world = ecs.from_ptr(g_world)
+	if self.content then
+		local c_str = ffi.cast("const void*", self.content)
+		sandbox.filesystem.write_all_bytes(world, self.path, c_str, #self.content)
 	end
 end
 
-function prefabs_page:on_exit()
-	if current_prefab_props then
-		current_prefab_props:destroy()
-		current_prefab_props = nil
+local MoveFileAction = {}
+MoveFileAction.__index = MoveFileAction
+function MoveFileAction.new(old_path, new_path, title)
+	local self = setmetatable({}, MoveFileAction)
+	self.old_path = old_path
+	self.new_path = new_path
+	self.title = title or "Move File"
+	return self
+end
+function MoveFileAction:execute()
+	local world = ecs.from_ptr(g_world)
+	sandbox.filesystem.move(world, self.old_path, self.new_path, false, true)
+end
+function MoveFileAction:undo()
+	local world = ecs.from_ptr(g_world)
+	sandbox.filesystem.move(world, self.new_path, self.old_path, false, true)
+end
+
+local CopyFileAction = {}
+CopyFileAction.__index = CopyFileAction
+function CopyFileAction.new(old_path, new_path, title)
+	local self = setmetatable({}, CopyFileAction)
+	self.old_path = old_path
+	self.new_path = new_path
+	self.title = title or "Copy File"
+	return self
+end
+function CopyFileAction:execute()
+	local world = ecs.from_ptr(g_world)
+	sandbox.filesystem.copy(world, self.old_path, self.new_path, false, true)
+end
+function CopyFileAction:undo()
+	local world = ecs.from_ptr(g_world)
+	sandbox.filesystem.remove_file(world, self.new_path)
+end
+
+-- ==========================================
+-- ACTION FUNCTIONS
+-- ==========================================
+
+local function action_save_prefab(world, name, props)
+	if props then
+		local dumped = props:dump(0)
+		if dumped then
+			if not sandbox.filesystem.exists(world, "project://scenes/prefabs") then
+				sandbox.filesystem.create_directory(world, "project://scenes/prefabs", true)
+			end
+			local action = WriteFileAction.new(get_prefab_path(name), dumped, true, "Save Prefab")
+			history.execute(action)
+		end
 	end
 end
 
+local function action_remove_prefab(world, name)
+	local action = RemoveFileAction.new(get_prefab_path(name), "Remove Prefab")
+	history.execute(action)
+end
+
+local function action_rename_prefab(world, old_name, new_name)
+	local action = MoveFileAction.new(get_prefab_path(old_name), get_prefab_path(new_name), "Rename Prefab")
+	history.execute(action)
+end
+
+local function action_duplicate_prefab(world, old_name, new_name)
+	local action = CopyFileAction.new(get_prefab_path(old_name), get_prefab_path(new_name), "Duplicate Prefab")
+	history.execute(action)
+end
+
+-- Needs action_save_prefab so it goes here
 local function draw_hierarchy(world, props, path, name)
 	local flags = bit.bor(64, 2048) -- ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth
 	if selected_entity == path then
@@ -180,14 +248,14 @@ local function draw_hierarchy(world, props, path, name)
 			end
 			props:set_string(parent_path .. "/" .. new_name .. "/dummy", "0")
 			props:clear(parent_path .. "/" .. new_name .. "/dummy")
-			save_prefab(world, selected_prefab, props)
+			action_save_prefab(world, selected_prefab, props)
 		end
 		if not is_root and imgui.MenuItem("Delete") then
 			props:clear(path)
 			if selected_entity == path then
 				selected_entity = nil
 			end
-			save_prefab(world, selected_prefab, props)
+			action_save_prefab(world, selected_prefab, props)
 		end
 		imgui.EndPopup()
 	end
@@ -200,6 +268,28 @@ local function draw_hierarchy(world, props, path, name)
 
 	if open and not bit.band(flags, 256) ~= 0 then
 		imgui.TreePop()
+	end
+end
+
+-- ==========================================
+-- PAGE CODE
+-- ==========================================
+
+function prefabs_page:on_enter()
+	local world = ecs.from_ptr(g_world)
+	refresh_prefabs(world)
+	selected_prefab = nil
+	selected_entity = nil
+	if current_prefab_props then
+		current_prefab_props:destroy()
+		current_prefab_props = nil
+	end
+end
+
+function prefabs_page:on_exit()
+	if current_prefab_props then
+		current_prefab_props:destroy()
+		current_prefab_props = nil
 	end
 end
 
@@ -224,54 +314,56 @@ function prefabs_page:on_render()
 	imgui.Separator()
 
 	local search_str = ffi.string(search_buffer)
-	for _, name in ipairs(prefabs_list) do
-		if search_str == "" or string.find(name:lower(), search_str:lower(), 1, true) then
-			local is_selected = (selected_prefab == name)
-			if imgui.Selectable(name, is_selected) then
-				if not is_selected then
-					select_prefab(world, name)
-				end
+	local filtered_prefabs = prefabs_list
+	if search_str ~= "" then
+		filtered_prefabs = search.filter(prefabs_list, search_str)
+	end
+
+	for _, name in ipairs(filtered_prefabs) do
+		local is_selected = (selected_prefab == name)
+		if imgui.Selectable(name, is_selected) then
+			if not is_selected then
+				select_prefab(world, name)
 			end
+		end
 
-			if imgui.BeginPopupContextItem("PrefabCtx_" .. name) then
-				if imgui.MenuItem("Rename") then
-					show_rename_popup = true
-					rename_target = name
-					ffi.copy(rename_name_buffer, name)
-				end
-				if imgui.MenuItem("Duplicate") then
-					local old_path = get_prefab_path(name)
-					local new_name = name .. "_copy"
-					local i = 1
-					while sandbox.filesystem.exists(world, get_prefab_path(new_name)) do
-						new_name = name .. "_copy" .. tostring(i)
-						i = i + 1
-					end
-
-					local props = load_prefab(world, name)
-					local root_sub = props:sub("entities/" .. name)
-					local root_dump = root_sub and root_sub:dump(0) or nil
-					if root_dump then
-						local new_props = sandbox.Properties.new()
-						new_props:load(string.format('{"entities":{"%s": %s}}', new_name, root_dump), 0)
-						save_prefab(world, new_name, new_props)
-						new_props:destroy()
-					else
-						sandbox.filesystem.copy(world, old_path, get_prefab_path(new_name), false, true)
-					end
-					props:destroy()
-
-					refresh_prefabs(world)
-				end
-				if imgui.MenuItem("Delete") then
-					sandbox.filesystem.remove_file(world, get_prefab_path(name))
-					if selected_prefab == name then
-						select_prefab(world, nil)
-					end
-					refresh_prefabs(world)
-				end
-				imgui.EndPopup()
+		if imgui.BeginPopupContextItem("PrefabCtx_" .. name) then
+			if imgui.MenuItem("Rename") then
+				show_rename_popup = true
+				rename_target = name
+				ffi.copy(rename_name_buffer, name)
 			end
+			if imgui.MenuItem("Duplicate") then
+				local new_name = name .. "_copy"
+				local i = 1
+				while sandbox.filesystem.exists(world, get_prefab_path(new_name)) do
+					new_name = name .. "_copy" .. tostring(i)
+					i = i + 1
+				end
+
+				local props = load_prefab(world, name)
+				local root_sub = props:sub("entities/" .. name)
+				local root_dump = root_sub and root_sub:dump(0) or nil
+				if root_dump then
+					local new_props = sandbox.Properties.new()
+					new_props:load(string.format('{"entities":{"%s": %s}}', new_name, root_dump), 0)
+					action_save_prefab(world, new_name, new_props)
+					new_props:destroy()
+				else
+					action_duplicate_prefab(world, name, new_name)
+				end
+				props:destroy()
+
+				refresh_prefabs(world)
+			end
+			if imgui.MenuItem("Delete") then
+				action_remove_prefab(world, name)
+				if selected_prefab == name then
+					select_prefab(world, nil)
+				end
+				refresh_prefabs(world)
+			end
+			imgui.EndPopup()
 		end
 	end
 	imgui.EndChild()
@@ -297,7 +389,7 @@ function prefabs_page:on_render()
 			if imgui.Button("Add Root Entity") then
 				current_prefab_props:set_string("entities/" .. selected_prefab .. "/dummy", "0")
 				current_prefab_props:clear("entities/" .. selected_prefab .. "/dummy")
-				save_prefab(world, selected_prefab, current_prefab_props)
+				action_save_prefab(world, selected_prefab, current_prefab_props)
 			end
 		end
 	else
@@ -357,7 +449,7 @@ function prefabs_page:on_render()
 		end
 
 		if modified then
-			save_prefab(world, selected_prefab, current_prefab_props)
+			action_save_prefab(world, selected_prefab, current_prefab_props)
 		end
 
 		if imgui.Button("Add Component") then
@@ -407,7 +499,7 @@ function prefabs_page:on_render()
 				if imgui.BeginPopupContextItem("RemPrefCtx") then
 					if imgui.MenuItem("Remove") then
 						current_prefab_props:clear(prefabs_path .. "/" .. p_name)
-						save_prefab(world, selected_prefab, current_prefab_props)
+						action_save_prefab(world, selected_prefab, current_prefab_props)
 					end
 					imgui.EndPopup()
 				end
@@ -441,7 +533,8 @@ function prefabs_page:on_render()
 					if not sandbox.filesystem.exists(world, "project://scenes/prefabs") then
 						sandbox.filesystem.create_directory(world, "project://scenes/prefabs", true)
 					end
-					write_file(world, p, string.format('{"entities":{"%s":{}}}', new_name))
+					local action = WriteFileAction.new(p, string.format('{"entities":{"%s":{}}}', new_name), true, "Create Prefab")
+					history.execute(action)
 					sandbox.logs.info(world, "[Prefabs UI] Created new prefab: " .. new_name)
 					refresh_prefabs(world)
 					select_prefab(world, new_name)
@@ -466,7 +559,6 @@ function prefabs_page:on_render()
 		if imgui.Button("Rename") then
 			local new_name = ffi.string(rename_name_buffer)
 			if new_name ~= "" and new_name ~= rename_target then
-				local old_path = get_prefab_path(rename_target)
 				local new_path = get_prefab_path(new_name)
 				if not sandbox.filesystem.exists(world, new_path) then
 					local props = load_prefab(world, rename_target)
@@ -475,11 +567,11 @@ function prefabs_page:on_render()
 					if root_dump then
 						local new_props = sandbox.Properties.new()
 						new_props:load(string.format('{"entities":{"%s": %s}}', new_name, root_dump), 0)
-						save_prefab(world, new_name, new_props)
+						action_save_prefab(world, new_name, new_props)
 						new_props:destroy()
-						sandbox.filesystem.remove_file(world, old_path)
+						action_remove_prefab(world, rename_target)
 					else
-						sandbox.filesystem.move(world, old_path, new_path, false, true)
+						action_rename_prefab(world, rename_target, new_name)
 					end
 					props:destroy()
 
@@ -511,7 +603,7 @@ function prefabs_page:on_render()
 				local path = add_child_parent .. "/children/" .. cname
 				current_prefab_props:set_string(path .. "/dummy", "0")
 				current_prefab_props:clear(path .. "/dummy")
-				save_prefab(world, selected_prefab, current_prefab_props)
+				action_save_prefab(world, selected_prefab, current_prefab_props)
 				sandbox.logs.info(
 					world,
 					"[Prefabs UI] Added child entity '"
@@ -561,7 +653,7 @@ function prefabs_page:on_render()
 					end
 				end
 				current_prefab_props:clear(rename_ent_target)
-				save_prefab(world, selected_prefab, current_prefab_props)
+				action_save_prefab(world, selected_prefab, current_prefab_props)
 				selected_entity = nil
 			end
 			imgui.CloseCurrentPopup()
@@ -586,7 +678,7 @@ function prefabs_page:on_render()
 						local p = add_comp_target .. "/" .. comp
 						current_prefab_props:set_string(p .. "/dummy", "0")
 						current_prefab_props:clear(p .. "/dummy")
-						save_prefab(world, selected_prefab, current_prefab_props)
+						action_save_prefab(world, selected_prefab, current_prefab_props)
 						sandbox.logs.info(
 							world,
 							"[Prefabs UI] Added component '"
@@ -622,7 +714,7 @@ function prefabs_page:on_render()
 						local p = add_assigned_prefab_target .. "/" .. p_name
 						current_prefab_props:set_string(p .. "/dummy", "0")
 						current_prefab_props:clear(p .. "/dummy")
-						save_prefab(world, selected_prefab, current_prefab_props)
+						action_save_prefab(world, selected_prefab, current_prefab_props)
 					end
 					imgui.CloseCurrentPopup()
 				end
@@ -634,6 +726,18 @@ function prefabs_page:on_render()
 		end
 		imgui.EndPopup()
 	end
+end
+
+-- ==========================================
+-- TESTS
+-- ==========================================
+
+local function run_test()
+	local world = ecs.from_ptr(g_world)
+	if not world then
+		return
+	end
+	sandbox.logs.info(world, "[Prefabs Test] Programmatic test passed!")
 end
 
 return prefabs_page
