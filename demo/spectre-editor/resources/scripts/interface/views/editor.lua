@@ -5,6 +5,7 @@ local imgui = require("imgui")
 local ffi = require("ffi")
 local history = require("utilities.history")
 local pages = require("utilities.pages")
+local is_initialized = false
 
 editor = {
 	active_project_name = nil,
@@ -38,6 +39,11 @@ end
 
 function editor.view.on_render()
 	local world = ecs.from_ptr(g_world)
+
+	if not is_initialized then
+		editor.view.on_enter()
+		is_initialized = true
+	end
 
 	-- 1. Render Top Main Menu Bar
 	if imgui.BeginMainMenuBar() then
@@ -166,6 +172,7 @@ end
 function editor.view.on_exit()
 	local world = ecs.from_ptr(g_world)
 	sandbox.logs.info(world, "[Editor] Exiting Editor View")
+	is_initialized = false
 end
 
 return {
