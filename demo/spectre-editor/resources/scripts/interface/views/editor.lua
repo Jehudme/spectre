@@ -165,8 +165,6 @@ function editor.view.on_render()
 		-- Show active project name at the right side of the menu bar
 		if editor.active_project_name then
 			local label = "  |  " .. editor.active_project_name
-			local avail = imgui.GetContentRegionAvail()
-			-- Just append it inline — menu bar flows left to right
 			imgui.Text(label)
 		end
 

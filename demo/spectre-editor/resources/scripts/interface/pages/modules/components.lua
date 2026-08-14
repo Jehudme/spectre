@@ -199,7 +199,7 @@ function components_page:on_render()
 		add_name_buffer[0] = 0
 	end
 	imgui.SameLine()
-	if imgui.Button("##Refresh", ffi.new("ImVec2", 20, 0)) then
+	if imgui.SmallButton("R##Refresh") then
 		refresh_lists(world)
 	end
 	if imgui.IsItemHovered() then imgui.SetTooltip("Refresh list") end
