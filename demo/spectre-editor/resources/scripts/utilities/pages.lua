@@ -2,6 +2,8 @@ local sandbox = require("sandbox")
 local ecs = require("ecs")
 local history = require("utilities.history")
 
+local pages -- Forward declaration for lexical scope function resolution
+
 -- ==========================================
 -- Page Class
 -- ==========================================
