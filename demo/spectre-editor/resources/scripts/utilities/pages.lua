@@ -202,6 +202,10 @@ function pages.run_test()
 	local world = ecs.from_ptr(g_world)
 	sandbox.logs.info(world, "[Pages Test] ===== STARTING ALL TESTS =====")
 
+	local backup_map = pages.map
+	local backup_current_page = pages.current_page
+	local backup_defaults = pages.defaults
+
 	pages.map = {}
 	pages.current_page = nil
 	pages.defaults = {}
@@ -289,6 +293,9 @@ function pages.run_test()
 	end
 
 	sandbox.logs.info(world, "[Pages Test] ===== ALL TESTS FINISHED =====")
+	pages.map = backup_map
+	pages.current_page = backup_current_page
+	pages.defaults = backup_defaults
 	return true
 end
 
