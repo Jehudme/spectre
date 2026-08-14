@@ -38,6 +38,9 @@ history = {
 ---Executes a new action and clears the forward redo history.
 ---@param action Action
 function history.execute(action)
+	local world = ecs.from_ptr(g_world)
+	sandbox.logs.info(world, "[History] Executing action: " .. (action.action_name or "Unnamed Action"))
+
 	-- Truncate any forward redo history if we were in an undone state
 	for i = #history.actions_stack, history.actions_index + 1, -1 do
 		table.remove(history.actions_stack, i)
@@ -57,8 +60,10 @@ function history.undo()
 		return
 	end
 
+	local world = ecs.from_ptr(g_world)
 	while history.actions_index > 0 do
 		local action = history.actions_stack[history.actions_index]
+		sandbox.logs.info(world, "[History] Undoing action: " .. (action.action_name or "Unnamed Action"))
 		if action.undo_function then
 			action.undo_function()
 		end
@@ -75,6 +80,7 @@ function history.redo()
 		return
 	end
 
+	local world = ecs.from_ptr(g_world)
 	local is_first_action = true
 	while history.actions_index < #history.actions_stack do
 		local next_index = history.actions_index + 1
@@ -85,6 +91,7 @@ function history.redo()
 			break
 		end
 
+		sandbox.logs.info(world, "[History] Redoing action: " .. (next_action.action_name or "Unnamed Action"))
 		history.actions_index = next_index
 		if next_action.redo_function then
 			next_action.redo_function()
