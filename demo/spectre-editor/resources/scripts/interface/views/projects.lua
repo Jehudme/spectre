@@ -323,6 +323,7 @@ function projects.view.on_render()
 		imgui.Spacing()
 		
 		-- Project List Box
+		local trigger_export_proj = nil
 		if imgui.BeginChild("ProjectList", imgui.ImVec2(0, -imgui.GetFrameHeightWithSpacing()), true, 0) then
 			if projects.view.cached_projects then
 				local project_keys = projects.view.cached_projects:keys("projects")
@@ -339,7 +340,6 @@ function projects.view.on_render()
 					end
 					
 					-- Context Menu on Right Click
-					local open_export = false
 					if imgui.BeginPopupContextItem("context_" .. proj_name) then
 						projects.view.selected_project = proj_name
 						imgui.TextDisabled("Actions for " .. proj_name)
@@ -361,7 +361,7 @@ function projects.view.on_render()
 							refresh_projects_list()
 						end
 						if imgui.MenuItem("Export") then
-							open_export = true
+							trigger_export_proj = proj_name
 						end
 						
 						imgui.Separator()
@@ -376,18 +376,18 @@ function projects.view.on_render()
 						
 						imgui.EndPopup()
 					end
-					
-					if open_export then
-						projects.view.export_browser:open(function(paths)
-							local dest = type(paths) == "table" and paths[1] or paths
-							projects.export(proj_name, dest)
-						end)
-					end
 				end
 			else
 				imgui.TextDisabled("No projects found.")
 			end
 			imgui.EndChild()
+		end
+		
+		if trigger_export_proj then
+			projects.view.export_browser:open(function(paths)
+				local dest = type(paths) == "table" and paths[1] or paths
+				projects.export(trigger_export_proj, dest)
+			end)
 		end
 		
 		-- Rename Popup Handling
