@@ -74,12 +74,17 @@ _G.SwitchPageAction = SwitchPageAction
 -- Pages Module
 -- ==========================================
 
-pages = {
-	map = {}, -- map of type table containing a map of name -> Page
-	current_page = nil,
-	defaults = {},
-	actions = {},
-}
+if _G.pages then
+	pages = _G.pages
+else
+	pages = {
+		map = {}, -- map of type table containing a map of name -> Page
+		current_page = nil,
+		defaults = {},
+		actions = {},
+	}
+	_G.pages = pages
+end
 
 ---Registers a page within a specific category type.
 ---@param page_type string The category of the page (e.g. "views", "modules").

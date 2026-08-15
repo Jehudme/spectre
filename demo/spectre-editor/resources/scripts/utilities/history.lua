@@ -30,6 +30,10 @@ _G.Action = Action
 -- History Module
 -- ==========================================
 
+if _G.history then
+	return _G.history
+end
+
 history = {
 	actions_stack = {},
 	actions_index = 0,
