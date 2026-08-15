@@ -282,8 +282,7 @@ function editor.view.on_render()
 				ffi.C.ImGuiWindowFlags_NoMove,
 				ffi.C.ImGuiWindowFlags_NoInputs,
 				ffi.C.ImGuiWindowFlags_NoScrollbar,
-				ffi.C.ImGuiWindowFlags_NoSavedSettings,
-				ffi.C.ImGuiWindowFlags_NoBringToDisplayOnFocus
+				ffi.C.ImGuiWindowFlags_NoSavedSettings
 			)
 
 			if imgui.Begin("###UndoRedoToast", nil, toast_flags) then
