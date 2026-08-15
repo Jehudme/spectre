@@ -161,8 +161,6 @@ static spectre_color_t deserialize_color(sandbox::properties props) {
         color.b = get_val("b");
         color.a = get_val("a");
     }
-    std::cout << "deserialize_color parsed: r=" << color.r << ", g=" << color.g << ", b=" << color.b
-              << ", a=" << color.a << std::endl;
     return color;
 }
 
@@ -763,8 +761,7 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
     flecs::entity on_renderer_phase = m_world.entity("on_renderer").add(flecs::Phase).depends_on(flecs::OnUpdate);
 
     m_renderables_query = m_world.query_builder<>()
-        .with<spectre_renderable_component_t>()
-        .with<spectre_2D_transform_component_t>()
+        .with<spectre_renderable_t>()
         .build();
 
     sandbox::modules::logs::info(m_world, "[Renderer Module] Initialized successfully.");
@@ -912,7 +909,7 @@ void renderer_module_t::render(flecs::entity entity_to_render) {
     if (entity_to_render.has<spectre_rectange_renderable_t>()) {
         const auto* rect = entity_to_render.try_get<spectre_rectange_renderable_t>();
         if (rect) {
-            sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Renderer] Rendering Rectangle for {} ({}x{})", entity_to_render.name().c_str(), rect->width, rect->height);
+
             DrawRectangle(0, 0, (int)rect->width, (int)rect->height, to_raylib_color(rect->fill_color));
             if (rect->outline_thickness > 0) {
                 DrawRectangleLinesEx(Rectangle{0, 0, rect->width, rect->height}, rect->outline_thickness,
@@ -924,7 +921,7 @@ void renderer_module_t::render(flecs::entity entity_to_render) {
     if (entity_to_render.has<spectre_circle_renderable_t>()) {
         const auto* circle = entity_to_render.try_get<spectre_circle_renderable_t>();
         if (circle) {
-            sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Renderer] Rendering Circle for {} (r={})", entity_to_render.name().c_str(), circle->radius);
+
             DrawCircleV(Vector2{0.0f, 0.0f}, circle->radius, to_raylib_color(circle->fill_color));
             if (circle->outline_thickness > 0) {
                 // raylib DrawCircleLines lacks thickness, but we can draw a ring
@@ -1038,7 +1035,7 @@ void renderer_module_t::render(flecs::entity entity_to_render) {
                         DrawTextEx(*font, text_comp->content, Vector2{1.0f, 0.0f}, text_comp->font_size,
                                    text_comp->spacing, to_raylib_color(actual_tint));
                     }
-                    sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Renderer] Rendering Text for {} ('{}')", entity_to_render.name().c_str(), text_comp->content);
+
                     DrawTextEx(*font, text_comp->content, origin, text_comp->font_size, text_comp->spacing,
                                to_raylib_color(actual_tint));
                 }

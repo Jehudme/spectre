@@ -168,7 +168,6 @@ flecs::entity prefabs_module_t::deserialize_entity(flecs::entity target_entity, 
                 prefab = m_world.prefab(prefab_name.c_str()).child_of(m_prefabs_root).is_a(m_entity_prefab);
             }
             target_entity.is_a(prefab);
-            sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Prefabs Module] Attached array prefab '{}' to '{}'", prefab_name.c_str(), target_entity.name().c_str());
         }
     } else if (properties.has("prefabs")) {
         sandbox::properties prefabs_node = properties.sub("prefabs");
@@ -180,7 +179,6 @@ flecs::entity prefabs_module_t::deserialize_entity(flecs::entity target_entity, 
                     prefab = m_world.prefab(prefab_name.c_str()).child_of(m_prefabs_root).is_a(m_entity_prefab);
                 }
                 target_entity.is_a(prefab);
-                sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Prefabs Module] Attached object prefab '{}' to '{}'", prefab_name.c_str(), target_entity.name().c_str());
             }
         }
     }
