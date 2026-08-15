@@ -763,7 +763,13 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
     flecs::entity on_renderer_phase = m_world.entity("on_renderer").add(flecs::Phase).depends_on(flecs::OnUpdate);
 
     m_renderables_query = m_world.query_builder<>()
-        .expr("RectangleRenderable || CircleRenderable || PolygoneRenderable || CustomPolygoneRenderable || LigneRenderable || TextureRenderable || TextRenderable")
+        .with<spectre_rectange_renderable_t>().or_()
+        .with<spectre_circle_renderable_t>().or_()
+        .with<spectre_polygone_renderable_t>().or_()
+        .with<spectre_custom_polygone_renderable_t>().or_()
+        .with<spectre_ligne_renderable_t>().or_()
+        .with<spectre_texture_renderable_t>().or_()
+        .with<spectre_text_renderable_t>()
         .build();
 
     sandbox::modules::logs::info(m_world, "[Renderer Module] Initialized successfully.");
@@ -854,9 +860,6 @@ void renderer_module_t::render_frame() {
     for (const auto& renderable_entity : entities_to_render) {
         this->render(renderable_entity.entity);
     }
-
-    static int frame_count = 0;
-    if (frame_count++ == 0) {}
 
     rlImGuiEnd();
     EndDrawing();
