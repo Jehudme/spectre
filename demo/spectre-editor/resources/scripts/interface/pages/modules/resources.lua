@@ -61,7 +61,7 @@ local function load_configuration(world)
 
 	if not sandbox.filesystem.exists(world, config_path) then
 		local action = _G.WriteFileAction.new(config_path, "{}")
-		action:execute()
+		history.execute(action)
 	end
 
 	local out_data = ffi.new("uint8_t*[1]")
