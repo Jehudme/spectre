@@ -37,6 +37,7 @@ class renderer_module_t {
     flecs::entity m_renderer_prefab;
     flecs::entity m_renderer_serializer;
     spectre_color_t m_background_color = {245.0f, 245.0f, 245.0f, 255.0f};
+    flecs::query<> m_renderables_query;
 };
 
 } // namespace spectre::modules

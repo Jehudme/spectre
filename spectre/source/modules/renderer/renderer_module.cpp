@@ -762,6 +762,10 @@ renderer_module_t::renderer_module_t(flecs::world& world) : m_world(world) {
 
     flecs::entity on_renderer_phase = m_world.entity("on_renderer").add(flecs::Phase).depends_on(flecs::OnUpdate);
 
+    m_renderables_query = m_world.query_builder<>()
+        .expr("RectangleRenderable || CircleRenderable || PolygoneRenderable || CustomPolygoneRenderable || LigneRenderable || TextureRenderable || TextRenderable")
+        .build();
+
     sandbox::modules::logs::info(m_world, "[Renderer Module] Initialized successfully.");
 }
 
@@ -810,8 +814,7 @@ void renderer_module_t::render_frame() {
     flecs::entity current_state = m_world.entity(current_state_id);
 
     if (!current_state.is_valid()) {
-        auto renderable_query = m_world.query<spectre_renderable_t>();
-        renderable_query.each([this](flecs::entity entity, spectre_renderable_t& renderable) { this->render(entity); });
+        m_renderables_query.each([this](flecs::entity entity) { this->render(entity); });
         rlImGuiEnd();
         EndDrawing();
         return;
@@ -823,8 +826,7 @@ void renderer_module_t::render_frame() {
     };
     std::vector<renderable_entity_t> entities_to_render;
 
-    auto renderable_query = m_world.query<spectre_renderable_t>();
-    renderable_query.each([&](flecs::entity entity, spectre_renderable_t&) {
+    m_renderables_query.each([&](flecs::entity entity) {
         flecs::entity parent_entity = entity.target(flecs::ChildOf);
         int layer_index = 0;
         bool found_scene_ancestor = false;
@@ -1056,7 +1058,7 @@ void renderer_module_t::render(flecs::entity entity_to_render) {
 }
 
 flecs::query<> renderer_module_t::find_renderable() const {
-    return m_world.query<spectre_renderable_t>();
+    return m_renderables_query;
 }
 
 void renderer_module_t::import_configuration(std::string_view file_path) {
