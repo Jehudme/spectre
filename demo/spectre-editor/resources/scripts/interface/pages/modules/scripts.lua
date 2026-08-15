@@ -45,6 +45,7 @@ local function get_available_scripts()
 
 			sandbox.logs.info(world, "[Scripts UI] Loading script file: " .. path)
 
+			package.loaded[path] = nil
 			local success, script_module = pcall(require, path)
 
 			if success and type(script_module) == "table" then
