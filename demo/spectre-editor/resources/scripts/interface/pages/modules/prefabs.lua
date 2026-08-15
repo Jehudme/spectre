@@ -455,8 +455,6 @@ function prefabs_page:on_render()
 				Window = true,
 				InputState = true,
 				Serializer = true,
-				Renderable = true,
-				CustomPolygoneRenderable = true,
 			}
 
 			available_components = {}
