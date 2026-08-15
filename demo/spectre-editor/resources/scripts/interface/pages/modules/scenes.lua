@@ -526,6 +526,10 @@ function scenes_page:on_render()
 						if Drawers[comp_name](current_props, selected_entity) then
 							modified = true
 						end
+					elseif _G.pages.map["drawer"] and _G.pages.map["drawer"][comp_name] then
+						if _G.pages.map["drawer"][comp_name]:on_render(current_props, selected_entity) then
+							modified = true
+						end
 					else
 						local dyn_comps = components_module.list_dynamic_components()
 						local is_dyn = false
@@ -583,6 +587,13 @@ function scenes_page:on_render()
 				for k, _ in pairs(Drawers) do
 					if not excluded[k] and not string.match(k, "Relation$") then
 						table.insert(available_components, k)
+					end
+				end
+				if _G.pages.map["drawer"] then
+					for k, _ in pairs(_G.pages.map["drawer"]) do
+						if not excluded[k] and not string.match(k, "Relation$") then
+							table.insert(available_components, k)
+						end
 					end
 				end
 				local dyn_comps = components_module.list_dynamic_components()

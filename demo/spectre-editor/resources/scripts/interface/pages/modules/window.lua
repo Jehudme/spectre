@@ -326,4 +326,16 @@ function window_page.run_test()
 	return true
 end
 
+local window_drawer = Page.new()
+function window_drawer:on_render(props, path)
+	return false
+end
+pages.register("drawer", "Window", window_drawer)
+
+local input_state_drawer = Page.new()
+function input_state_drawer:on_render(props, path)
+	return false
+end
+pages.register("drawer", "InputState", input_state_drawer)
+
 return window_page

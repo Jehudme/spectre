@@ -502,4 +502,10 @@ function components_page.run_test()
     sandbox.logs.info(world, "components_page tests completed.")
 end
 
+local serializer_drawer = Page.new()
+function serializer_drawer:on_render(props, path)
+	return false
+end
+pages.register("drawer", "Serializer", serializer_drawer)
+
 return components_page
