@@ -317,8 +317,12 @@ void script_module_t::deserialize_scripts(flecs::entity target_entity, sandbox::
                         case SPECTRE_SCRIPT_ARGUMENT_TYPE_NUMBER: {
                             std::string str_val;
                             if (arguments_properties.get<std::string>(argument_name, str_val)) {
-                                flecs::entity resolved = resolve_entity_argument(target_entity, str_val);
-                                script_arguments[index].value.number_value = static_cast<double>(resolved.id());
+                                try {
+                                    script_arguments[index].value.number_value = std::stod(str_val);
+                                } catch (...) {
+                                    flecs::entity resolved = resolve_entity_argument(target_entity, str_val);
+                                    script_arguments[index].value.number_value = static_cast<double>(resolved.id());
+                                }
                             } else {
                                 double number_value = 0.0;
                                 arguments_properties.get<double>(argument_name, number_value);
@@ -329,8 +333,12 @@ void script_module_t::deserialize_scripts(flecs::entity target_entity, sandbox::
                         case SPECTRE_SCRIPT_ARGUMENT_TYPE_INTEGER: {
                             std::string str_val;
                             if (arguments_properties.get<std::string>(argument_name, str_val)) {
-                                flecs::entity resolved = resolve_entity_argument(target_entity, str_val);
-                                script_arguments[index].value.integer_value = resolved.id();
+                                try {
+                                    script_arguments[index].value.integer_value = std::stoll(str_val);
+                                } catch (...) {
+                                    flecs::entity resolved = resolve_entity_argument(target_entity, str_val);
+                                    script_arguments[index].value.integer_value = resolved.id();
+                                }
                             } else {
                                 long long integer_value = 0;
                                 arguments_properties.get<long long>(argument_name, integer_value);
