@@ -106,12 +106,7 @@ function editor.view.on_render()
 
 			if imgui.MenuItem("Exit", "Alt+F4") then
 				sandbox.logs.info(world, "[Editor] Menu item clicked: File -> Exit")
-				local startup_state = spectre.scenes.find_state(world, "Startup")
-				if startup_state and startup_state ~= 0 then
-					spectre.scenes.push_state(world, startup_state)
-				else
-					sandbox.logs.error(world, "[Editor] Failed to transition to Startup state.")
-				end
+				spectre.scenes.pop_state(world)
 			end
 			imgui.EndMenu()
 		end

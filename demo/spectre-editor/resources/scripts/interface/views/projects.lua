@@ -309,6 +309,10 @@ function projects.view.on_enter()
 end
 
 function projects.view.on_render()
+	if not projects.view.cached_projects then
+		refresh_projects_list()
+	end
+
 	local window_flags = bit.bor(
 		ffi.C.ImGuiWindowFlags_NoTitleBar,
 		ffi.C.ImGuiWindowFlags_NoResize,
