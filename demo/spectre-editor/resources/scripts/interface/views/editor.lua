@@ -59,15 +59,22 @@ function editor.view.on_render()
 
 	-- Handle Ctrl+Z / Ctrl+Y shortcuts globally (before menu bar)
 	local io = imgui.GetIO()
-	if io.KeyCtrl then
-		if imgui.IsKeyPressed(ffi.C.ImGuiKey_Z, false) then
+	local is_ctrl = io.KeyCtrl
+
+	if is_ctrl then
+		local key_z = imgui.IsKeyPressed(ffi.C.ImGuiKey_Z, false) or imgui.IsKeyPressed(string.byte('Z'), false) or imgui.IsKeyPressed(string.byte('z'), false)
+		local key_y = imgui.IsKeyPressed(ffi.C.ImGuiKey_Y, false) or imgui.IsKeyPressed(string.byte('Y'), false) or imgui.IsKeyPressed(string.byte('y'), false)
+
+		if key_z then
 			sandbox.logs.info(world, "[Editor] Ctrl+Z: Undo")
 			history.undo()
-		elseif imgui.IsKeyPressed(ffi.C.ImGuiKey_Y, false) then
+		elseif key_y then
 			sandbox.logs.info(world, "[Editor] Ctrl+Y: Redo")
 			history.redo()
 		end
 	end
+
+	local trigger_export = false
 
 	-- 1. Render Top Main Menu Bar
 	if imgui.BeginMainMenuBar() then
@@ -85,15 +92,7 @@ function editor.view.on_render()
 			if imgui.MenuItem("Export...") then
 				sandbox.logs.info(world, "[Editor] Menu item clicked: File -> Export")
 				if editor.active_project_name then
-					if not export_browser then
-						export_browser = FileBrowser.new("dir", "save://")
-					end
-					export_browser:open(function(selected_path)
-						if selected_path then
-							sandbox.logs.info(world, "[Editor] Exporting to: " .. selected_path)
-							projects.export(editor.active_project_name, selected_path)
-						end
-					end)
+					trigger_export = true
 				else
 					sandbox.logs.error(world, "[Editor] No active project loaded to export.")
 				end
@@ -190,6 +189,18 @@ function editor.view.on_render()
 		end
 
 		imgui.EndMainMenuBar()
+	end
+
+	if trigger_export then
+		if not export_browser then
+			export_browser = FileBrowser.new("dir", "save://")
+		end
+		export_browser:open(function(selected_path)
+			if selected_path then
+				sandbox.logs.info(world, "[Editor] Exporting to: " .. selected_path)
+				projects.export(editor.active_project_name, selected_path)
+			end
+		end)
 	end
 
 	-- 2. Render active page below menu bar
