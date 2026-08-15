@@ -604,11 +604,8 @@ function scenes_page:on_render()
 			end
 
 			local prefabs_path = selected_entity .. "/prefabs"
-			if not current_props:has(prefabs_path) then
-				current_props:set_string(prefabs_path .. "/dummy", "0")
-				current_props:clear(prefabs_path .. "/dummy")
-			end
-			local assigned_prefabs = current_props:keys(prefabs_path) or {}
+			local assigned_prefabs = current_props:read_string_array(prefabs_path)
+			if not assigned_prefabs then assigned_prefabs = {} end
 
 			if imgui.CollapsingHeader("Assigned Prefabs", bit.bor(32)) then
 				for _, p_name in ipairs(assigned_prefabs) do
@@ -616,7 +613,9 @@ function scenes_page:on_render()
 					imgui.Text(p_name)
 					if imgui.BeginPopupContextItem("RemPrefCtx") then
 						if imgui.MenuItem("Remove") then
-							current_props:clear(prefabs_path .. "/" .. p_name)
+							local new_arr = {}
+							for _, v in ipairs(assigned_prefabs) do if v ~= p_name then table.insert(new_arr, v) end end
+							current_props:set_string_array(prefabs_path, new_arr)
 							save_item(world, selected_mode, selected_item, current_props)
 						end
 						imgui.EndPopup()
@@ -847,8 +846,10 @@ function scenes_page:on_render()
 		for _, p in ipairs(p_list) do
 			if imgui.Selectable(p, false) then
 				if current_props then
-					current_props:set_string(add_assigned_prefab_target .. "/" .. p .. "/dummy", "0")
-					current_props:clear(add_assigned_prefab_target .. "/" .. p .. "/dummy")
+					local current_arr = current_props:read_string_array(add_assigned_prefab_target)
+					if not current_arr then current_arr = {} end
+					table.insert(current_arr, p)
+					current_props:set_string_array(add_assigned_prefab_target, current_arr)
 					save_item(world, selected_mode, selected_item, current_props)
 				end
 				imgui.CloseCurrentPopup()

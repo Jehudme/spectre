@@ -1,0 +1,5 @@
+{
+  "name": "Startup",
+  "scenes": ["Main"],
+  "components": {}
+}

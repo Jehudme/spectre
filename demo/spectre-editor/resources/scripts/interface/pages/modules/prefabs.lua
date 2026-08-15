@@ -480,11 +480,8 @@ function prefabs_page:on_render()
 		end
 
 		local prefabs_path = selected_entity .. "/prefabs"
-		if not current_prefab_props:has(prefabs_path) then
-			current_prefab_props:set_string(prefabs_path .. "/dummy", "0")
-			current_prefab_props:clear(prefabs_path .. "/dummy")
-		end
-		local assigned_prefabs = current_prefab_props:keys(prefabs_path) or {}
+		local assigned_prefabs = current_prefab_props:read_string_array(prefabs_path)
+		if not assigned_prefabs then assigned_prefabs = {} end
 
 		if imgui.CollapsingHeader("Assigned Prefabs", bit.bor(32)) then
 			for _, p_name in ipairs(assigned_prefabs) do
@@ -492,7 +489,9 @@ function prefabs_page:on_render()
 				imgui.Text(p_name)
 				if imgui.BeginPopupContextItem("RemPrefCtx") then
 					if imgui.MenuItem("Remove") then
-						current_prefab_props:clear(prefabs_path .. "/" .. p_name)
+						local new_arr = {}
+						for _, v in ipairs(assigned_prefabs) do if v ~= p_name then table.insert(new_arr, v) end end
+						current_prefab_props:set_string_array(prefabs_path, new_arr)
 						action_save_prefab(world, selected_prefab, current_prefab_props)
 					end
 					imgui.EndPopup()
@@ -705,9 +704,10 @@ function prefabs_page:on_render()
 			for _, p_name in ipairs(prefabs_list) do
 				if imgui.Selectable(p_name) then
 					if current_prefab_props then
-						local p = add_assigned_prefab_target .. "/" .. p_name
-						current_prefab_props:set_string(p .. "/dummy", "0")
-						current_prefab_props:clear(p .. "/dummy")
+						local current_arr = current_prefab_props:read_string_array(add_assigned_prefab_target)
+						if not current_arr then current_arr = {} end
+						table.insert(current_arr, p_name)
+						current_prefab_props:set_string_array(add_assigned_prefab_target, current_arr)
 						action_save_prefab(world, selected_prefab, current_prefab_props)
 					end
 					imgui.CloseCurrentPopup()

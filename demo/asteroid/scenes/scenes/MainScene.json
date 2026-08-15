@@ -7,9 +7,9 @@
       },
       "children": {
         "TestRectangle": {
-          "prefabs": {
-            "RectanglePrefab": {}
-          },
+          "prefabs": [
+            "RectanglePrefab"
+          ],
           "components": {
             "Transform2D": {
               "position_x": 325.0,
@@ -30,9 +30,9 @@
           }
         },
         "TestText": {
-          "prefabs": {
-            "TextPrefab": {}
-          },
+          "prefabs": [
+            "TextPrefab"
+          ],
           "components": {
             "Transform2D": {
               "position_x": 50.0,

@@ -62,8 +62,8 @@ function editor.view.on_render()
 	local is_ctrl = io.KeyCtrl
 
 	if is_ctrl then
-		local key_z = imgui.IsKeyPressed(ffi.C.ImGuiKey_Z, false) or imgui.IsKeyPressed(string.byte('Z'), false) or imgui.IsKeyPressed(string.byte('z'), false)
-		local key_y = imgui.IsKeyPressed(ffi.C.ImGuiKey_Y, false) or imgui.IsKeyPressed(string.byte('Y'), false) or imgui.IsKeyPressed(string.byte('y'), false)
+		local key_z = imgui.IsKeyPressed(571, false) -- ImGuiKey_Z (512 + offset)
+		local key_y = imgui.IsKeyPressed(570, false) -- ImGuiKey_Y (512 + offset)
 
 		if key_z then
 			sandbox.logs.info(world, "[Editor] Ctrl+Z: Undo")
@@ -201,8 +201,9 @@ function editor.view.on_render()
 		if not export_browser then
 			export_browser = FileBrowser.new("dir", "save://")
 		end
-		export_browser:open(function(selected_path)
-			if selected_path then
+		export_browser:open(function(selected_paths)
+			if selected_paths and #selected_paths > 0 then
+				local selected_path = selected_paths[1]
 				sandbox.logs.info(world, "[Editor] Exporting to: " .. selected_path)
 				projects.export(editor.active_project_name, selected_path)
 			end
