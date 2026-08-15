@@ -121,6 +121,9 @@ function editor.view.on_render()
 			local can_undo = history.actions_index > 0
 			local can_redo = history.actions_index < #history.actions_stack
 
+			-- Debug log to figure out why they are disabled!
+			sandbox.logs.info(world, "[Editor] Edit Menu Opened! actions_index: " .. tostring(history.actions_index) .. " stack size: " .. tostring(#history.actions_stack))
+
 			-- Show the name of the action that would be undone/redone
 			local undo_label = "Undo"
 			if can_undo then
@@ -194,6 +197,14 @@ function editor.view.on_render()
 		-- Show active project name in the menu bar
 		if editor.active_project_name then
 			imgui.Text("  |  " .. editor.active_project_name)
+		end
+
+		imgui.Text(string.format("  |  DEBUG: idx=%d stack=%d can_undo=%s", history.actions_index, #history.actions_stack, tostring(history.actions_index > 0)))
+		
+		if not _G.frame_counter then _G.frame_counter = 0 end
+		_G.frame_counter = _G.frame_counter + 1
+		if _G.frame_counter % 60 == 0 then
+			sandbox.logs.info(world, string.format("[Editor] DEBUG: idx=%d stack=%d can_undo=%s", history.actions_index, #history.actions_stack, tostring(history.actions_index > 0)))
 		end
 
 		imgui.EndMainMenuBar()

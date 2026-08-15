@@ -38,6 +38,11 @@ history = {
 	change_version = 0,
 }
 
+if g_world then
+	local w = require("ecs").from_ptr(g_world)
+	require("sandbox").logs.info(w, "[History Module] history table initialized! Address: " .. tostring(history))
+end
+
 ---Executes a new action and clears the forward redo history.
 ---@param action Action
 function history.execute(action)
