@@ -81,35 +81,29 @@ end
 -- ACTIONS
 -- =====================================================================
 
-local ResourceConfigAction = {}
-ResourceConfigAction.__index = ResourceConfigAction
-function ResourceConfigAction.new(world, old_content, new_content)
-	local self = setmetatable({}, ResourceConfigAction)
-	self.world = world
-	self.old_content = old_content
-	self.new_content = new_content
-	self.write_action = _G.WriteFileAction.new(config_path, new_content)
-	self.undo_action = _G.WriteFileAction.new(config_path, old_content)
-	return self
-end
-function ResourceConfigAction:execute()
-	self.write_action:execute()
-	load_configuration(self.world)
-end
-function ResourceConfigAction:undo()
-	self.undo_action:execute()
-	load_configuration(self.world)
+local function create_resource_config_action(world, old_content, new_content, action_title)
+	local redo = function()
+		local w = ecs.from_ptr(g_world)
+		sandbox.filesystem.write_file_string(w, config_path, new_content)
+		load_configuration(w)
+	end
+	local undo = function()
+		local w = ecs.from_ptr(g_world)
+		sandbox.filesystem.write_file_string(w, config_path, old_content)
+		load_configuration(w)
+	end
+	return Action.new(redo, undo, true, action_title or "Update Resources")
 end
 
 -- =====================================================================
 -- ACTION FUNCTIONS
 -- =====================================================================
 
-local function execute_config_change(world, update_fn)
+local function execute_config_change(world, update_fn, action_title)
 	local old_content = config_props:dump(0) or "{}"
 	update_fn()
 	local new_content = config_props:dump(0) or "{}"
-	local action = ResourceConfigAction.new(world, old_content, new_content)
+	local action = create_resource_config_action(world, old_content, new_content, action_title)
 	history.execute(action)
 end
 
@@ -117,7 +111,7 @@ local function action_add_resource(world, new_name)
 	execute_config_change(world, function()
 		local new_json = string.format('{"%s": {"type": "texture", "path": "", "configurations": {}}}', new_name)
 		config_props:load(new_json, 0)
-	end)
+	end, "Add Resource")
 end
 
 local function action_rename_resource(world, old_name, new_name)
@@ -131,7 +125,7 @@ local function action_rename_resource(world, old_name, new_name)
 				selected_resource = new_name
 			end
 		end
-	end)
+	end, "Rename Resource")
 end
 
 local function action_duplicate_resource(world, old_name)
@@ -147,7 +141,7 @@ local function action_duplicate_resource(world, old_name)
 			local new_json = string.format('{"%s": %s}', new_name, dumped_sub)
 			config_props:load(new_json, 0)
 		end
-	end)
+	end, "Duplicate Resource")
 end
 
 local function action_delete_resource(world, res_name)
@@ -156,7 +150,7 @@ local function action_delete_resource(world, res_name)
 		if selected_resource == res_name then
 			selected_resource = nil
 		end
-	end)
+	end, "Delete Resource")
 end
 
 local function action_update_resource_property(world, res_name, key, value, is_config)
@@ -170,7 +164,7 @@ local function action_update_resource_property(world, res_name, key, value, is_c
 		elseif type(value) == "number" then
 			res_sub:set_int64(key, value)
 		end
-	end)
+	end, "Update Resource Property")
 end
 
 -- =====================================================================
