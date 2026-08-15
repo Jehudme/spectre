@@ -1,1 +1,0 @@
-{"name":"Main","hierarchies":{},"entities":{"Main":{"components":{"Scene":{}},"prefabs":{},"children":{"Player":{"components":{},"prefabs":{"Circle":{}}}}}}}

@@ -1164,21 +1164,21 @@ end
 
 ---@param world ecs_world_t
 ---@param props sandbox.Properties
----@return boolean
+---@return integer
 function spectre.prefabs.create_entity_from_props(world, props)
     return ffi.C.spectre_prefabs_create_entity_from_props((type(world) == "table" and world.ptr) and world.ptr or world, props)
 end
 
 ---@param world ecs_world_t
 ---@param prefab any
----@return boolean
+---@return integer
 function spectre.prefabs.create_entity_from_prefab(world, prefab)
     return ffi.C.spectre_prefabs_create_entity_from_prefab((type(world) == "table" and world.ptr) and world.ptr or world, prefab)
 end
 
 ---@param world ecs_world_t
 ---@param name string
----@return boolean
+---@return integer
 function spectre.prefabs.create_entity_from_name(world, name)
     return ffi.C.spectre_prefabs_create_entity_from_name((type(world) == "table" and world.ptr) and world.ptr or world, name)
 end
