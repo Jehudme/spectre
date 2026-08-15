@@ -35,6 +35,7 @@ history = {
 	actions_index = 0,
 	-- Notification state: set by undo/redo, consumed by the editor overlay
 	notification = nil, -- { text = string, kind = "undo"|"redo", timer = number }
+	change_version = 0,
 }
 
 ---Executes a new action and clears the forward redo history.
@@ -77,6 +78,7 @@ function history.undo()
 		end
 	end
 	history.notification = { text = "Undo: " .. (first_name or "Action"), kind = "undo", timer = 2.0 }
+	history.change_version = history.change_version + 1
 end
 
 ---Redoes actions forwards until the next transaction group's head (is_head = true) is reached.
@@ -106,6 +108,7 @@ function history.redo()
 		is_first_action = false
 	end
 	history.notification = { text = "Redo: " .. (first_name or "Action"), kind = "redo", timer = 2.0 }
+	history.change_version = history.change_version + 1
 end
 
 ---Clears the action history stack.

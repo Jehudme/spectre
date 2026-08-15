@@ -68,9 +68,13 @@ function editor.view.on_render()
 		if key_z then
 			sandbox.logs.info(world, "[Editor] Ctrl+Z: Undo")
 			history.undo()
+			local cp = pages.get_current()
+			if cp and cp.on_enter then cp:on_enter() end
 		elseif key_y then
 			sandbox.logs.info(world, "[Editor] Ctrl+Y: Redo")
 			history.redo()
+			local cp = pages.get_current()
+			if cp and cp.on_enter then cp:on_enter() end
 		end
 	end
 
@@ -136,11 +140,15 @@ function editor.view.on_render()
 			if imgui.MenuItem(undo_label, "Ctrl+Z", false, can_undo) then
 				sandbox.logs.info(world, "[Editor] Menu item clicked: Edit -> Undo")
 				history.undo()
+				local cp = pages.get_current()
+				if cp and cp.on_enter then cp:on_enter() end
 			end
 
 			if imgui.MenuItem(redo_label, "Ctrl+Y", false, can_redo) then
 				sandbox.logs.info(world, "[Editor] Menu item clicked: Edit -> Redo")
 				history.redo()
+				local cp = pages.get_current()
+				if cp and cp.on_enter then cp:on_enter() end
 			end
 			imgui.EndMenu()
 		end
