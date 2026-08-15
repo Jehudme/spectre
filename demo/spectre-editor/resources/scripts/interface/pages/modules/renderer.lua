@@ -57,16 +57,16 @@ local function load_configuration(world)
 end
 
 local function draw_color(props, base_path, name)
-	local col_r = props:get_double(base_path .. "/" .. name .. "/r") or 1.0
-	local col_g = props:get_double(base_path .. "/" .. name .. "/g") or 1.0
-	local col_b = props:get_double(base_path .. "/" .. name .. "/b") or 1.0
-	local col_a = props:get_double(base_path .. "/" .. name .. "/a") or 1.0
+	local col_r = (props:get_double(base_path .. "/" .. name .. "/r") or 255.0) / 255.0
+	local col_g = (props:get_double(base_path .. "/" .. name .. "/g") or 255.0) / 255.0
+	local col_b = (props:get_double(base_path .. "/" .. name .. "/b") or 255.0) / 255.0
+	local col_a = (props:get_double(base_path .. "/" .. name .. "/a") or 255.0) / 255.0
 	local cbuf = ffi.new("float[4]", col_r, col_g, col_b, col_a)
 	if imgui.ColorEdit4(name, cbuf) then
-		props:set_double(base_path .. "/" .. name .. "/r", cbuf[0])
-		props:set_double(base_path .. "/" .. name .. "/g", cbuf[1])
-		props:set_double(base_path .. "/" .. name .. "/b", cbuf[2])
-		props:set_double(base_path .. "/" .. name .. "/a", cbuf[3])
+		props:set_double(base_path .. "/" .. name .. "/r", cbuf[0] * 255.0)
+		props:set_double(base_path .. "/" .. name .. "/g", cbuf[1] * 255.0)
+		props:set_double(base_path .. "/" .. name .. "/b", cbuf[2] * 255.0)
+		props:set_double(base_path .. "/" .. name .. "/a", cbuf[3] * 255.0)
 		return true
 	end
 	return false

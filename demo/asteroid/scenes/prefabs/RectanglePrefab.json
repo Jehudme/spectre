@@ -6,9 +6,9 @@
                 "RectangleRenderable": {
                     "width": 150.0,
                     "height": 100.0,
-                    "fill_color": { "r": 80.0, "g": 140.0, "b": 255.0, "a": 255.0 },
-                    "outline_color": { "r": 255.0, "g": 255.0, "b": 255.0, "a": 255.0 },
-                    "outline_thickness": 2.0
+                    "fill_color": { "r": 255.0, "g": 255.0, "b": 255.0, "a": 255.0 },
+                    "outline_color": { "r": 0.0, "g": 0.0, "b": 0.0, "a": 255.0 },
+                    "outline_thickness": 0.0
                 },
                 "Transform2D": {
                     "position_x": 0.0,
