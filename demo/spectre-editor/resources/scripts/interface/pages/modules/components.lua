@@ -65,26 +65,19 @@ end
 -- ============================================================================
 -- ACTIONS
 -- ============================================================================
-local RemoveFileAction = {}
-RemoveFileAction.__index = RemoveFileAction
-
-function RemoveFileAction.new(path, content, name)
-	local self = setmetatable({}, RemoveFileAction)
-	self.path = path
-	self.content = content
-	self.name = name or "Remove File"
-	return self
-end
-
-function RemoveFileAction:execute()
-	local world = ecs.from_ptr(g_world)
-	sandbox.filesystem.remove_file(world, self.path)
-end
-
-function RemoveFileAction:undo()
-	local world = ecs.from_ptr(g_world)
-	local c_str = ffi.cast("const void*", self.content)
-	sandbox.filesystem.write_all_bytes(world, self.path, c_str, #self.content)
+local function create_remove_file_action(path, content, name)
+	local redo = function()
+		local world = ecs.from_ptr(g_world)
+		sandbox.filesystem.remove_file(world, path)
+	end
+	local undo = function()
+		local world = ecs.from_ptr(g_world)
+		if content then
+			local c_str = ffi.cast("const void*", content)
+			sandbox.filesystem.write_all_bytes(world, path, c_str, #content)
+		end
+	end
+	return Action.new(redo, undo, true, name or "Remove File")
 end
 
 -- ============================================================================
@@ -96,7 +89,7 @@ local function action_write_file(path, content, desc)
 end
 
 local function action_remove_file(path, content, desc)
-	local action = RemoveFileAction.new(path, content, desc)
+	local action = create_remove_file_action(path, content, desc)
 	history.execute(action)
 end
 

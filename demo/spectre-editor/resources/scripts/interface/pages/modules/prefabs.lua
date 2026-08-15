@@ -111,62 +111,45 @@ end
 -- ACTIONS
 -- ==========================================
 
-local RemoveFileAction = {}
-RemoveFileAction.__index = RemoveFileAction
-function RemoveFileAction.new(path, title)
-	local self = setmetatable({}, RemoveFileAction)
-	self.path = path
-	self.title = title or "Remove File"
-	self.content = nil
-	return self
-end
-function RemoveFileAction:execute()
+local function create_remove_file_action(path, title)
 	local world = ecs.from_ptr(g_world)
-	self.content = read_file(world, self.path)
-	sandbox.filesystem.remove_file(world, self.path)
-end
-function RemoveFileAction:undo()
-	local world = ecs.from_ptr(g_world)
-	if self.content then
-		local c_str = ffi.cast("const void*", self.content)
-		sandbox.filesystem.write_all_bytes(world, self.path, c_str, #self.content)
+	local content = read_file(world, path)
+	local redo = function()
+		local w = ecs.from_ptr(g_world)
+		sandbox.filesystem.remove_file(w, path)
 	end
+	local undo = function()
+		local w = ecs.from_ptr(g_world)
+		if content then
+			local c_str = ffi.cast("const void*", content)
+			sandbox.filesystem.write_all_bytes(w, path, c_str, #content)
+		end
+	end
+	return Action.new(redo, undo, true, title or "Remove File")
 end
 
-local MoveFileAction = {}
-MoveFileAction.__index = MoveFileAction
-function MoveFileAction.new(old_path, new_path, title)
-	local self = setmetatable({}, MoveFileAction)
-	self.old_path = old_path
-	self.new_path = new_path
-	self.title = title or "Move File"
-	return self
-end
-function MoveFileAction:execute()
-	local world = ecs.from_ptr(g_world)
-	sandbox.filesystem.move(world, self.old_path, self.new_path, false, true)
-end
-function MoveFileAction:undo()
-	local world = ecs.from_ptr(g_world)
-	sandbox.filesystem.move(world, self.new_path, self.old_path, false, true)
+local function create_move_file_action(old_path, new_path, title)
+	local redo = function()
+		local w = ecs.from_ptr(g_world)
+		sandbox.filesystem.move(w, old_path, new_path, false, true)
+	end
+	local undo = function()
+		local w = ecs.from_ptr(g_world)
+		sandbox.filesystem.move(w, new_path, old_path, false, true)
+	end
+	return Action.new(redo, undo, true, title or "Move File")
 end
 
-local CopyFileAction = {}
-CopyFileAction.__index = CopyFileAction
-function CopyFileAction.new(old_path, new_path, title)
-	local self = setmetatable({}, CopyFileAction)
-	self.old_path = old_path
-	self.new_path = new_path
-	self.title = title or "Copy File"
-	return self
-end
-function CopyFileAction:execute()
-	local world = ecs.from_ptr(g_world)
-	sandbox.filesystem.copy(world, self.old_path, self.new_path, false, true)
-end
-function CopyFileAction:undo()
-	local world = ecs.from_ptr(g_world)
-	sandbox.filesystem.remove_file(world, self.new_path)
+local function create_copy_file_action(old_path, new_path, title)
+	local redo = function()
+		local w = ecs.from_ptr(g_world)
+		sandbox.filesystem.copy(w, old_path, new_path, false, true)
+	end
+	local undo = function()
+		local w = ecs.from_ptr(g_world)
+		sandbox.filesystem.remove_file(w, new_path)
+	end
+	return Action.new(redo, undo, true, title or "Copy File")
 end
 
 -- ==========================================
@@ -187,17 +170,17 @@ local function action_save_prefab(world, name, props)
 end
 
 local function action_remove_prefab(world, name)
-	local action = RemoveFileAction.new(get_prefab_path(name), "Remove Prefab")
+	local action = create_remove_file_action(get_prefab_path(name), "Remove Prefab")
 	history.execute(action)
 end
 
 local function action_rename_prefab(world, old_name, new_name)
-	local action = MoveFileAction.new(get_prefab_path(old_name), get_prefab_path(new_name), "Rename Prefab")
+	local action = create_move_file_action(get_prefab_path(old_name), get_prefab_path(new_name), "Rename Prefab")
 	history.execute(action)
 end
 
 local function action_duplicate_prefab(world, old_name, new_name)
-	local action = CopyFileAction.new(get_prefab_path(old_name), get_prefab_path(new_name), "Duplicate Prefab")
+	local action = create_copy_file_action(get_prefab_path(old_name), get_prefab_path(new_name), "Duplicate Prefab")
 	history.execute(action)
 end
 

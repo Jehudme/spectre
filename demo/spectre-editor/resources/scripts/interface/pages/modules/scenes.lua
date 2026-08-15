@@ -185,61 +185,44 @@ end
 
 -- actions
 
-local RemoveFileAction = {}
-RemoveFileAction.__index = RemoveFileAction
-function RemoveFileAction.new(path, action_name)
-    local self = setmetatable({}, RemoveFileAction)
-    self.path = path
-    self.action_name = action_name or "Remove File"
-    self.old_content = nil
-    return self
-end
-function RemoveFileAction:execute()
+local function create_remove_file_action(path, action_name)
     local world = ecs.from_ptr(g_world)
-    self.old_content = sandbox.filesystem.read_file_string(world, self.path)
-    sandbox.filesystem.remove_file(world, self.path)
-end
-function RemoveFileAction:undo()
-    local world = ecs.from_ptr(g_world)
-    if self.old_content then
-        sandbox.filesystem.write_file_string(world, self.path, self.old_content)
+    local old_content = sandbox.filesystem.read_file_string(world, path)
+    local redo = function()
+        local w = ecs.from_ptr(g_world)
+        sandbox.filesystem.remove_file(w, path)
     end
+    local undo = function()
+        local w = ecs.from_ptr(g_world)
+        if old_content then
+            sandbox.filesystem.write_file_string(w, path, old_content)
+        end
+    end
+    return Action.new(redo, undo, true, action_name or "Remove File")
 end
 
-local MoveFileAction = {}
-MoveFileAction.__index = MoveFileAction
-function MoveFileAction.new(old_path, new_path, action_name)
-    local self = setmetatable({}, MoveFileAction)
-    self.old_path = old_path
-    self.new_path = new_path
-    self.action_name = action_name or "Move File"
-    return self
-end
-function MoveFileAction:execute()
-    local world = ecs.from_ptr(g_world)
-    sandbox.filesystem.move(world, self.old_path, self.new_path, false, true)
-end
-function MoveFileAction:undo()
-    local world = ecs.from_ptr(g_world)
-    sandbox.filesystem.move(world, self.new_path, self.old_path, false, true)
+local function create_move_file_action(old_path, new_path, action_name)
+    local redo = function()
+        local w = ecs.from_ptr(g_world)
+        sandbox.filesystem.move(w, old_path, new_path, false, true)
+    end
+    local undo = function()
+        local w = ecs.from_ptr(g_world)
+        sandbox.filesystem.move(w, new_path, old_path, false, true)
+    end
+    return Action.new(redo, undo, true, action_name or "Move File")
 end
 
-local CopyFileAction = {}
-CopyFileAction.__index = CopyFileAction
-function CopyFileAction.new(old_path, new_path, action_name)
-    local self = setmetatable({}, CopyFileAction)
-    self.old_path = old_path
-    self.new_path = new_path
-    self.action_name = action_name or "Copy File"
-    return self
-end
-function CopyFileAction:execute()
-    local world = ecs.from_ptr(g_world)
-    sandbox.filesystem.copy(world, self.old_path, self.new_path, false, true)
-end
-function CopyFileAction:undo()
-    local world = ecs.from_ptr(g_world)
-    sandbox.filesystem.remove_file(world, self.new_path)
+local function create_copy_file_action(old_path, new_path, action_name)
+    local redo = function()
+        local w = ecs.from_ptr(g_world)
+        sandbox.filesystem.copy(w, old_path, new_path, false, true)
+    end
+    local undo = function()
+        local w = ecs.from_ptr(g_world)
+        sandbox.filesystem.remove_file(w, new_path)
+    end
+    return Action.new(redo, undo, true, action_name or "Copy File")
 end
 
 -- action functions
@@ -250,17 +233,17 @@ local function execute_write_file(path, content, name)
 end
 
 local function execute_remove_file(path, name)
-    local action = RemoveFileAction.new(path, name)
+    local action = create_remove_file_action(path, name)
     history.execute(action)
 end
 
 local function execute_move_file(old_path, new_path, name)
-    local action = MoveFileAction.new(old_path, new_path, name)
+    local action = create_move_file_action(old_path, new_path, name)
     history.execute(action)
 end
 
 local function execute_copy_file(old_path, new_path, name)
-    local action = CopyFileAction.new(old_path, new_path, name)
+    local action = create_copy_file_action(old_path, new_path, name)
     history.execute(action)
 end
 
