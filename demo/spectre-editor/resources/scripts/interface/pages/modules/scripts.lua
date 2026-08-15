@@ -98,70 +98,48 @@ end
 -- ACTIONS
 -- ============================================================================
 
-local PropertySetAction = {}
-PropertySetAction.__index = PropertySetAction
-function PropertySetAction.new(props, path, value)
-	local self = setmetatable({}, PropertySetAction)
-	self.props = props
-	self.path = path
-	self.new_value = value
-	self.old_value = props:read_string(path)
-	return self
-end
-function PropertySetAction:execute()
-	self.props:set_string(self.path, self.new_value)
-end
-function PropertySetAction:undo()
-	if self.old_value then
-		self.props:set_string(self.path, self.old_value)
-	else
-		self.props:clear(self.path)
-	end
-end
-
-local PropertyClearAction = {}
-PropertyClearAction.__index = PropertyClearAction
-function PropertyClearAction.new(props, path)
-	local self = setmetatable({}, PropertyClearAction)
-	self.props = props
-	self.path = path
-	self.old_value = props:read_string(path)
-	self.dumped = props:sub(path):dump(0)
-	return self
-end
-function PropertyClearAction:execute()
-	self.props:clear(self.path)
-end
-function PropertyClearAction:undo()
-	if self.dumped then
-		self.props:set_string(self.path .. "/dummy", "0")
-		self.props:sub(self.path):load(self.dumped, 0)
-		self.props:clear(self.path .. "/dummy")
-	else
-		if self.old_value then
-			self.props:set_string(self.path, self.old_value)
+local function create_property_set_action(props, path, value)
+	local old_value = props:read_string(path)
+	return Action.new(function()
+		props:set_string(path, value)
+	end, function()
+		if old_value then
+			props:set_string(path, old_value)
+		else
+			props:clear(path)
 		end
-	end
+	end, false, "Set Property")
 end
 
-local PropertyDuplicateAction = {}
-PropertyDuplicateAction.__index = PropertyDuplicateAction
-function PropertyDuplicateAction.new(props, src_path, dest_path)
-	local self = setmetatable({}, PropertyDuplicateAction)
-	self.props = props
-	self.dest_path = dest_path
-	self.dumped = props:sub(src_path):dump(0)
-	return self
+local function create_property_clear_action(props, path)
+	local old_value = props:read_string(path)
+	local dumped = props:sub(path):dump(0)
+	return Action.new(function()
+		props:clear(path)
+	end, function()
+		if dumped then
+			props:set_string(path .. "/dummy", "0")
+			props:sub(path):load(dumped, 0)
+			props:clear(path .. "/dummy")
+		else
+			if old_value then
+				props:set_string(path, old_value)
+			end
+		end
+	end, false, "Clear Property")
 end
-function PropertyDuplicateAction:execute()
-	if self.dumped then
-		self.props:set_string(self.dest_path .. "/dummy", "0")
-		self.props:sub(self.dest_path):load(self.dumped, 0)
-		self.props:clear(self.dest_path .. "/dummy")
-	end
-end
-function PropertyDuplicateAction:undo()
-	self.props:clear(self.dest_path)
+
+local function create_property_duplicate_action(props, src_path, dest_path)
+	local dumped = props:sub(src_path):dump(0)
+	return Action.new(function()
+		if dumped then
+			props:set_string(dest_path .. "/dummy", "0")
+			props:sub(dest_path):load(dumped, 0)
+			props:clear(dest_path .. "/dummy")
+		end
+	end, function()
+		props:clear(dest_path)
+	end, false, "Duplicate Property")
 end
 
 -- ============================================================================
@@ -169,15 +147,15 @@ end
 -- ============================================================================
 
 local function action_set_property(props, path, value)
-	history.execute(PropertySetAction.new(props, path, value))
+	history.execute(create_property_set_action(props, path, value))
 end
 
 local function action_clear_property(props, path)
-	history.execute(PropertyClearAction.new(props, path))
+	history.execute(create_property_clear_action(props, path))
 end
 
 local function action_duplicate_property(props, src_path, dest_path)
-	history.execute(PropertyDuplicateAction.new(props, src_path, dest_path))
+	history.execute(create_property_duplicate_action(props, src_path, dest_path))
 end
 
 -- ============================================================================
