@@ -4930,7 +4930,7 @@ ffi.metatype('ecs_world_t', {
     get = function (self, entity, component)
       if component == nil then return nil end
       local data = ffi.C.ecs_get_id(self, entity, component)
-      if data == nil then
+      if data == nil or data == ffi.NULL then
         return
       end
 
@@ -4940,6 +4940,20 @@ ffi.metatype('ecs_world_t', {
       end
 
       return ctype.struct(ffi.cast(ctype.const_ptr, data)[0])
+    end,
+    get_mut = function (self, entity, component)
+      if component == nil then return nil end
+      local data = ffi.C.ecs_get_mut_id(self, entity, component)
+      if data == nil or data == ffi.NULL then
+        return
+      end
+
+      local ctype = worlds[tostring(self)].component_ctypes[tostring(component)]
+      if not ctype then
+        error('Component ' .. self:name(component, true) .. " does not exist or it's missing serialization data.", 2)
+      end
+
+      return ffi.cast(ctype.ptr, data)
     end,
     -- TODO: Get ref.
     ---@generic T

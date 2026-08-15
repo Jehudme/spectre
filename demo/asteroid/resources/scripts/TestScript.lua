@@ -19,21 +19,28 @@ function TestScript.on_update(self_id, scene_id, state_id)
 		world:set(self_id, Velocity, { x = 0.001, y = 0 })
 	end
 
-    local static_schema = spectre.components.find_schema(world, "Transform2D")
-    if static_schema then
-        sandbox.logs.info(world, "Transform2D schema found and is_static: " .. tostring(spectre.components.is_static(world, "Transform2D")))
-    end
+	local static_schema = spectre.components.find_schema(world, "Transform2D")
+	if static_schema then
+		sandbox.logs.info(
+			world,
+			"Transform2D schema found and is_static: " .. tostring(spectre.components.is_static(world, "Transform2D"))
+		)
+	end
 
-    local dyn_props = {
-        members = {
-            { name = "speed", type = "float" }
-        }
-    }
-    spectre.components.register_component(world, "AsteroidDynamicComp", nil, nil, dyn_props)
-    local dyn_schema = spectre.components.find_schema(world, "AsteroidDynamicComp")
-    if dyn_schema then
-        sandbox.logs.info(world, "AsteroidDynamicComp schema found and is_static: " .. tostring(spectre.components.is_static(world, "AsteroidDynamicComp")))
-    end
+	local dyn_props = {
+		members = {
+			{ name = "speed", type = "float" },
+		},
+	}
+	spectre.components.register_component(world, "AsteroidDynamicComp", nil, nil, dyn_props)
+	local dyn_schema = spectre.components.find_schema(world, "AsteroidDynamicComp")
+	if dyn_schema then
+		sandbox.logs.info(
+			world,
+			"AsteroidDynamicComp schema found and is_static: "
+				.. tostring(spectre.components.is_static(world, "AsteroidDynamicComp"))
+		)
+	end
 
 	local transform = world:get(self_id, spectre.Transform2D)
 	local v = world:get(self_id, Velocity)
@@ -113,6 +120,19 @@ function TestScript.on_update(self_id, scene_id, state_id)
 	imgui.End()
 end
 
+function MyScript.on_update(entity_id, greeting, number_val)
+	sandbox.logs.info(
+		ecs.from_ptr(g_world),
+		string.format("MyScript updating entity %d! Greeting: %s, Number: %f", entity_id, greeting, number_val)
+	)
+end
+
+function MyScript.on_enter(entity_id, message)
+	sandbox.logs.info(ecs.from_ptr(g_world), string.format("Entity %d entered with message: %s", entity_id, message))
+end
+
 return {
+	on_update = ecs.Script.define(MyScript.on_update, "greeting:string", "number_val:number"),
+	on_enter = ecs.Script.define(MyScript.on_enter, "message:string"),
 	on_update = ecs.Script.define(TestScript.on_update, "self_id:integer", "scene_id:integer", "state_id:integer"),
 }
