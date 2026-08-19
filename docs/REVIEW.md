@@ -147,3 +147,8 @@ print(my_comp.health)
 **Location**: `spectre/source/modules/renderer/renderer_module.cpp`
 **Problem**: Fundamental rendering primitives (`CircleRenderable`, `RectangleRenderable`, `PolygoneRenderable`) do not currently support applying textures.
 **Proposed Solution**: Enhance the C++ rendering backend to pass UV coordinates and bind texture uniforms when drawing shapes (e.g., utilizing `DrawTexturePoly` or custom shader bindings in Raylib), and expose these UV/Texture parameters to the respective UI drawers.
+
+### 6. FFI Encapsulation & Lua Abstraction
+**Location**: `demo/spectre-editor/resources/scripts/` vs `externals/`
+**Problem**: Application and UI Lua scripts currently rely heavily on `require('ffi')` directly to interact with C-structs, allocate buffers, and call the engine ABI. This breaks abstraction boundaries, making high-level UI logic extremely verbose, unsafe, and fragile.
+**Proposed Solution**: Enforce a strict architectural boundary: NO Lua file outside of the `externals/` directory should ever `require("ffi")`. The `externals/` scripts (such as `sandbox.lua`, `spectre.lua`, and `imgui.lua`) must provide clean, high-level wrapper objects and functions for all C-API interactions and memory allocations.
