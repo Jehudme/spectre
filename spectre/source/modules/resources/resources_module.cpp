@@ -49,12 +49,24 @@ static void deserialize_resource_comp_cb(ecs_world_t* world, ecs_entity_t serial
         comp.path = nullptr;
     }
     comp.instance = nullptr;
+    const auto* old_comp = e.try_get<spectre_resource_component_t>();
+    if (old_comp && old_comp->path) {
+        delete[] old_comp->path;
+    }
     e.set<spectre_resource_component_t>(comp);
 }
 
 // Component Registration Callbacks
 static ecs_entity_t register_resource_component(ecs_world_t* world) {
-    return flecs::world(world).component<spectre_resource_component_t>("Resource").id();
+    flecs::world flecs_world(world);
+    auto id = flecs_world.component<spectre_resource_component_t>("Resource").id();
+    flecs_world.component<spectre_resource_component_t>().on_remove([](flecs::entity e, spectre_resource_component_t& comp) {
+        if (comp.path) {
+            delete[] comp.path;
+            comp.path = nullptr;
+        }
+    });
+    return id;
 }
 static ecs_entity_t register_resource_loader_component(ecs_world_t* world) {
     return flecs::world(world).component<spectre_resource_loader_component_t>("ResourceLoader").id();
@@ -213,6 +225,12 @@ void resource_module_t::deserialize_resource(flecs::entity resource_entity, cons
     resource_component.path = path_copy;
     resource_component.instance = nullptr;
     resource_component.properties_handle = configs.get_raw();
+
+    const auto* old_comp = resource_entity.try_get<Resource>();
+    if (old_comp && old_comp->path) {
+        delete[] old_comp->path;
+    }
+
     resource_entity.set<Resource>(resource_component);
 
     configs.release();

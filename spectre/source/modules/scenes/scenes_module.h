@@ -62,5 +62,7 @@ class scenes_module_t {
     flecs::entity m_entity_serializer;
 
     std::stack<flecs::entity> m_state_stack;
+    flecs::query<> m_current_scenes_query;
+    flecs::entity m_query_state;
 };
 } // namespace spectre::modules

@@ -24,7 +24,15 @@ static sandbox_properties_handle_t serialize_window_cb(ecs_world_t* world, ecs_e
 
 // Component Registration Callbacks
 static ecs_entity_t register_window_comp(ecs_world_t* world) {
-    return flecs::world(world).component<spectre_window_component_t>("Window").id();
+    flecs::world flecs_world(world);
+    auto id = flecs_world.component<spectre_window_component_t>("Window").id();
+    flecs_world.component<spectre_window_component_t>().on_remove([](flecs::entity e, spectre_window_component_t& comp) {
+        if (comp.title) {
+            delete[] comp.title;
+            comp.title = nullptr;
+        }
+    });
+    return id;
 }
 static ecs_entity_t register_input_state_comp(ecs_world_t* world) {
     return flecs::world(world).component<spectre_input_state_t>("InputState").id();
@@ -155,6 +163,11 @@ void window_module_t::deserialize_window(flecs::entity window_entity, const sand
     component.cursor_visible = properties.get<bool>("cursor_visible").value_or(true);
     component.cursor_locked = properties.get<bool>("cursor_locked").value_or(false);
     component.native_handle = nullptr;
+
+    const auto* old_comp = window_entity.try_get<spectre_window_component_t>();
+    if (old_comp && old_comp->title) {
+        delete[] old_comp->title;
+    }
 
     window_entity.set<spectre_window_component_t>(component);
 
@@ -358,6 +371,9 @@ void window_module_t::set_title(const char* title) {
         return;
     auto* component = m_window_entity.try_get_mut<spectre_window_component_t>();
     if (component) {
+        if (component->title) {
+            delete[] component->title;
+        }
         char* title_copy = new char[strlen(title) + 1];
         strcpy(title_copy, title);
         component->title = title_copy;

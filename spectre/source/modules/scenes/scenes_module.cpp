@@ -146,7 +146,11 @@ scenes_module_t::scenes_module_t(flecs::world& world) : m_world(world) {
     sandbox::modules::logs::info(const_cast<flecs::world&>(m_world), "[Scenes Module] Initialized successfully.");
 }
 
-scenes_module_t::~scenes_module_t() = default;
+scenes_module_t::~scenes_module_t() {
+    if (m_current_scenes_query) {
+        m_current_scenes_query.destruct();
+    }
+}
 
 sandbox::properties scenes_module_t::serialize_state(flecs::entity state_entity) {
     sandbox::properties properties;
@@ -362,10 +366,23 @@ flecs::entity scenes_module_t::find_current_state() {
 
 flecs::query<> scenes_module_t::find_current_scenes() {
     flecs::entity current_state = find_current_state();
-    if (current_state.is_valid()) {
-        return m_world.query_builder<>(m_world.entity()).with(flecs::ChildOf, current_state).with<spectre_scene_t>().build();
+
+    if (m_current_scenes_query && m_query_state == current_state) {
+        return m_current_scenes_query;
     }
-    return m_world.query_builder<>(m_world.entity()).with<spectre_scene_t>().with(flecs::ChildOf, (flecs::entity_t)0).build();
+
+    if (m_current_scenes_query) {
+        m_current_scenes_query.destruct();
+    }
+
+    m_query_state = current_state;
+    if (current_state.is_valid()) {
+        m_current_scenes_query = m_world.query_builder<>(m_world.entity()).with(flecs::ChildOf, current_state).with<spectre_scene_t>().build();
+    } else {
+        m_current_scenes_query = m_world.query_builder<>(m_world.entity()).with<spectre_scene_t>().with(flecs::ChildOf, (flecs::entity_t)0).build();
+    }
+
+    return m_current_scenes_query;
 }
 
 void scenes_module_t::push_state(flecs::entity state_prefab) {
