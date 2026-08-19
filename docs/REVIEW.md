@@ -23,6 +23,7 @@ To ensure a prioritized workflow, issues are divided into three phases: **Phase 
 **Root Cause**: The UI script was serializing boolean fields as Strings (`"true"`) using `set_string()`, but the C++ backend (`window_module.cpp`) strictly parsed them using `.get<bool>()`. This type mismatch caused all window flags to silently fail and fall back to default during engine initialization. This has been patched to correctly write booleans while maintaining fallback compatibility.
 
 ### 3. C++ ECS Query Memory Leak (scenes_module_t)
+**Status**: 🟢 Fixed
 **Severity**: Critical
 **Location**: `spectre/source/modules/scenes/scenes_module.cpp` (`find_current_scenes`)
 **Root Cause**: The method `find_current_scenes()` calls `m_world.query_builder<...>().build()` every single time it is invoked. In Flecs, creating a query dynamically without explicitly destroying it or caching it results in massive overhead and a permanent memory leak within the ECS world.
@@ -43,6 +44,7 @@ To ensure a prioritized workflow, issues are divided into three phases: **Phase 
 **Proposed Solution**: Cache the dynamically loaded schemas in a global Lua table and only reload them if the file is explicitly updated or modified.
 
 ### 6. C++ Engine Memory Leaks: Unfreed String Allocations
+**Status**: 🟢 Fixed
 **Severity**: High
 **Location**: `resources_module.cpp` (`deserialize_resource`) and `window_module.cpp` (`deserialize_window`)
 **Root Cause**: Both modules allocate string buffers dynamically using `new char[size]` (e.g., `path_copy` and `title_copy`) to attach to `spectre_resource_component_t` and `spectre_window_component_t`. However, neither component has an `on_remove` observer registered in Flecs to free this memory, nor do they define C++ destructors. Consequently, whenever a window is destroyed or a resource is unloaded/reloaded, the string buffer leaks permanently.
