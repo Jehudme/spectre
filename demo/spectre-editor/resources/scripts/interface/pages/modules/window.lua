@@ -70,22 +70,45 @@ local function load_configuration_from_string(world, content)
 	w_state.width[0] = config_props:get_int64("width") or 800
 	w_state.height[0] = config_props:get_int64("height") or 600
 	ffi.copy(w_state.title, config_props:read_string("title") or "Spectre Engine")
-	w_state.vsync[0] = config_props:read_string("vsync") == "true"
-	w_state.fullscreen[0] = config_props:read_string("fullscreen") == "true"
-	w_state.borderless[0] = config_props:read_string("borderless") == "true"
-	w_state.resizable[0] = config_props:read_string("resizable") ~= "false"
-	w_state.always_on_top[0] = config_props:read_string("always_on_top") == "true"
+	w_state.vsync[0] = config_props:get_bool("vsync")
+	if w_state.vsync[0] == nil then w_state.vsync[0] = (config_props:read_string("vsync") == "true") end
+	
+	w_state.fullscreen[0] = config_props:get_bool("fullscreen")
+	if w_state.fullscreen[0] == nil then w_state.fullscreen[0] = (config_props:read_string("fullscreen") == "true") end
+
+	w_state.borderless[0] = config_props:get_bool("borderless")
+	if w_state.borderless[0] == nil then w_state.borderless[0] = (config_props:read_string("borderless") == "true") end
+
+	local resizable = config_props:get_bool("resizable")
+	if resizable == nil then resizable = (config_props:read_string("resizable") ~= "false") end
+	w_state.resizable[0] = resizable
+
+	w_state.always_on_top[0] = config_props:get_bool("always_on_top")
+	if w_state.always_on_top[0] == nil then w_state.always_on_top[0] = (config_props:read_string("always_on_top") == "true") end
+
 	w_state.min_width[0] = config_props:get_int64("min_width") or 0
 	w_state.min_height[0] = config_props:get_int64("min_height") or 0
 	w_state.max_width[0] = config_props:get_int64("max_width") or 0
 	w_state.max_height[0] = config_props:get_int64("max_height") or 0
 	w_state.position_x[0] = config_props:get_int64("position_x") or -1
 	w_state.position_y[0] = config_props:get_int64("position_y") or -1
-	w_state.minimized[0] = config_props:read_string("minimized") == "true"
-	w_state.maximized[0] = config_props:read_string("maximized") == "true"
-	w_state.visible[0] = config_props:read_string("visible") ~= "false"
-	w_state.cursor_visible[0] = config_props:read_string("cursor_visible") ~= "false"
-	w_state.cursor_locked[0] = config_props:read_string("cursor_locked") == "true"
+	
+	w_state.minimized[0] = config_props:get_bool("minimized")
+	if w_state.minimized[0] == nil then w_state.minimized[0] = (config_props:read_string("minimized") == "true") end
+	
+	w_state.maximized[0] = config_props:get_bool("maximized")
+	if w_state.maximized[0] == nil then w_state.maximized[0] = (config_props:read_string("maximized") == "true") end
+	
+	local visible = config_props:get_bool("visible")
+	if visible == nil then visible = (config_props:read_string("visible") ~= "false") end
+	w_state.visible[0] = visible
+
+	local cursor_visible = config_props:get_bool("cursor_visible")
+	if cursor_visible == nil then cursor_visible = (config_props:read_string("cursor_visible") ~= "false") end
+	w_state.cursor_visible[0] = cursor_visible
+
+	w_state.cursor_locked[0] = config_props:get_bool("cursor_locked")
+	if w_state.cursor_locked[0] == nil then w_state.cursor_locked[0] = (config_props:read_string("cursor_locked") == "true") end
 end
 
 local function load_configuration(world)
@@ -117,22 +140,22 @@ local function apply_window_settings(world)
 	temp_props:set_int64("width", w_state.width[0])
 	temp_props:set_int64("height", w_state.height[0])
 	temp_props:set_string("title", ffi.string(w_state.title))
-	temp_props:set_string("vsync", w_state.vsync[0] and "true" or "false")
-	temp_props:set_string("fullscreen", w_state.fullscreen[0] and "true" or "false")
-	temp_props:set_string("borderless", w_state.borderless[0] and "true" or "false")
-	temp_props:set_string("resizable", w_state.resizable[0] and "true" or "false")
-	temp_props:set_string("always_on_top", w_state.always_on_top[0] and "true" or "false")
+	temp_props:set_bool("vsync", w_state.vsync[0])
+	temp_props:set_bool("fullscreen", w_state.fullscreen[0])
+	temp_props:set_bool("borderless", w_state.borderless[0])
+	temp_props:set_bool("resizable", w_state.resizable[0])
+	temp_props:set_bool("always_on_top", w_state.always_on_top[0])
 	temp_props:set_int64("min_width", w_state.min_width[0])
 	temp_props:set_int64("min_height", w_state.min_height[0])
 	temp_props:set_int64("max_width", w_state.max_width[0])
 	temp_props:set_int64("max_height", w_state.max_height[0])
 	temp_props:set_int64("position_x", w_state.position_x[0])
 	temp_props:set_int64("position_y", w_state.position_y[0])
-	temp_props:set_string("minimized", w_state.minimized[0] and "true" or "false")
-	temp_props:set_string("maximized", w_state.maximized[0] and "true" or "false")
-	temp_props:set_string("visible", w_state.visible[0] and "true" or "false")
-	temp_props:set_string("cursor_visible", w_state.cursor_visible[0] and "true" or "false")
-	temp_props:set_string("cursor_locked", w_state.cursor_locked[0] and "true" or "false")
+	temp_props:set_bool("minimized", w_state.minimized[0])
+	temp_props:set_bool("maximized", w_state.maximized[0])
+	temp_props:set_bool("visible", w_state.visible[0])
+	temp_props:set_bool("cursor_visible", w_state.cursor_visible[0])
+	temp_props:set_bool("cursor_locked", w_state.cursor_locked[0])
 
 	local new_dumped = temp_props:dump(0)
 	temp_props:destroy()
