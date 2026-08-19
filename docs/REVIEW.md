@@ -174,3 +174,21 @@ print(my_comp.health)
 **Location**: `scenes.lua` and `prefabs.lua`
 **Problem**: Flecs natively supports standard `(ChildOf, Parent)` entity hierarchies, but the UI completely lacks the ability to structure them via drag and drop.
 **Proposed Solution**: Implement ImGui drag-and-drop payloads (`BeginDragDropSource`, `BeginDragDropTarget`) on entity tree nodes in the inspectors, allowing users to rapidly drag entities into each other to create parent-child relationships.
+
+### 8. Scene & Prefab Visualizer (Render to Texture)
+**Location**: `renderer_module.cpp` and Editor UI
+**Problem**: The editor lacks a native viewport to preview prefabs and scenes inside ImGui panels.
+**Proposed Solution**: Add a function to the renderer module that takes a root entity and renders it (and all its children) directly into a renderable sprite/image entity (using an offscreen `RenderTexture2D`). The editor UI can then expose this texture ID to ImGui to create native Viewport windows.
+
+### 9. In-Process Engine Runtime (Play/Pause/Step)
+**Location**: `runtime_module.cpp` and Editor UI
+**Problem**: The engine currently forces a blocking `while(true)` execution loop, making it impossible to run the game as a sub-process embedded inside the editor's main loop.
+**Proposed Solution**: Refactor the runtime module to support an "in-process" mode. Instead of trapping the thread in a continuous loop, expose a manual `update(dt)` or `step()` function. The editor can then create a separate `flecs::world` for the game and manually tick it when the user presses Play, Pause, or Step.
+
+### 10. Unified Camera System (2D & 3D)
+**Location**: `renderer_module.cpp` & `components_module.cpp`
+**Problem**: The engine currently lacks a formal ECS-driven Camera system, making viewport and world-space rendering rigid.
+**Proposed Solution**: Implement dedicated `Camera2D` and `Camera3D` components. 
+- The components should store position (x, y, z - where z acts as zoom for 2D), fov, pitch, roll, and target.
+- Implement an `ActiveCamera` tag/flag.
+- Modify the renderer module to automatically query for the entity with the `ActiveCamera` flag before rendering, and apply the corresponding Raylib camera transformations (`BeginMode2D` / `BeginMode3D`) to the render pass.
