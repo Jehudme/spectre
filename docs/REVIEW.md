@@ -102,7 +102,7 @@ To ensure a prioritized workflow, issues are divided into three phases: **Phase 
 - **Manual Ordering**: Implement ImGui drag-and-drop payload logic to allow manual reordering of items directly within the Scene and State inspectors.
 
 ### 3. Editor Configuration & Project Meta
-- **Dedicated Info Page**: Create an "Info" module page to configure high-level project metadata (Name, Version, Description).
+- **Dedicated Info Page**: Create an "Info" module page to directly edit the project`s `configuration.json` file. This should expose high-level project metadata for editing, including the application Name, Version, Description, and required engine modules.
 - **Arguments Page**: Implement an Arguments page to configure and pass command-line arguments to the launched project.
 
 ---
