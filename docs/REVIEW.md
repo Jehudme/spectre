@@ -152,3 +152,23 @@ print(my_comp.health)
 **Location**: `demo/spectre-editor/resources/scripts/` vs `externals/`
 **Problem**: Application and UI Lua scripts currently rely heavily on `require('ffi')` directly to interact with C-structs, allocate buffers, and call the engine ABI. This breaks abstraction boundaries, making high-level UI logic extremely verbose, unsafe, and fragile.
 **Proposed Solution**: Enforce a strict architectural boundary: NO Lua file outside of the `externals/` directory should ever `require("ffi")`. The `externals/` scripts (such as `sandbox.lua`, `spectre.lua`, and `imgui.lua`) must provide clean, high-level wrapper objects and functions for all C-API interactions and memory allocations.
+
+### 4. In-Editor Console & Log Viewer
+**Location**: New Editor Module (e.g., `interface/pages/modules/console.lua`)
+**Problem**: The editor currently relies entirely on the external terminal/stdout to display engine logs, warnings, and errors. This is poor UX, especially for debugging Lua scripts where users need to see immediate feedback.
+**Proposed Solution**: Create an internal ImGui Console panel that captures and renders logs (`sandbox.logs.info`, `error`, etc.) directly within the Editor GUI, complete with severity filtering and search functionality.
+
+### 5. Play / Pause / Stop Toolbar
+**Location**: Main Editor Window (`interface/views/editor.lua`)
+**Problem**: The "Run" function is hidden in the `File -> Run` dropdown menu, making rapid iterative testing cumbersome.
+**Proposed Solution**: Implement a centered ImGui Toolbar at the top of the screen (similar to Unity/Godot) with dedicated Play, Pause, and Stop buttons to instantly launch and halt the active project.
+
+### 6. Universal Copy / Paste
+**Location**: Global Shortcut Interceptor (`editor.lua`)
+**Problem**: While entities can be duplicated, they cannot be copied to a clipboard buffer and pasted across different scenes or prefabs.
+**Proposed Solution**: Implement a global `Ctrl+C` and `Ctrl+V` serialization buffer. When an entity or component is selected, serialize its `sandbox.Properties` payload into a global table. When pasted, deserialize that payload into the current target node.
+
+### 7. Visual Entity Parenting (Drag & Drop Hierarchy)
+**Location**: `scenes.lua` and `prefabs.lua`
+**Problem**: Flecs natively supports standard `(ChildOf, Parent)` entity hierarchies, but the UI completely lacks the ability to structure them via drag and drop.
+**Proposed Solution**: Implement ImGui drag-and-drop payloads (`BeginDragDropSource`, `BeginDragDropTarget`) on entity tree nodes in the inspectors, allowing users to rapidly drag entities into each other to create parent-child relationships.
