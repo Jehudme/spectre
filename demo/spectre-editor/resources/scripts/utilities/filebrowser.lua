@@ -283,11 +283,10 @@ local function get_breadcrumb_parts(path)
         if rest and rest ~= "" then
             local accumulated = scheme
             for segment in rest:gmatch("[^/]+") do
-                if accumulated:match(":/+$") then
-                    accumulated = accumulated:gsub("/+$", "") .. "/" .. segment
-                else
-                    accumulated = accumulated .. "/" .. segment
+                if not accumulated:match("/$") then
+                    accumulated = accumulated .. "/"
                 end
+                accumulated = accumulated .. segment
                 table.insert(parts, { label = segment, path = accumulated })
             end
         end
