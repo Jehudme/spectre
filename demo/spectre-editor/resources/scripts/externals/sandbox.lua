@@ -549,15 +549,26 @@ sandbox.PropertiesFormat = {
 sandbox.Properties = {}
 sandbox.Properties.__index = sandbox.Properties
 
+local function gc_properties(handle)
+    if handle.token ~= 0 then
+        local ptr = ffi.new("sandbox_properties_handle_t[1]", handle)
+        ffi.C.sandbox_properties_destroy(ptr)
+        handle.token = 0
+    end
+end
+
 function sandbox.Properties.new()
-    local instance = { handle = ffi.C.sandbox_properties_create() }
+    local handle = ffi.C.sandbox_properties_create()
+    local instance = { handle = handle }
     setmetatable(instance, sandbox.Properties)
+    local proxy = newproxy(true)
+    getmetatable(proxy).__gc = function() gc_properties(handle) end
+    instance.__gc_proxy = proxy
     return instance
 end
 
 function sandbox.Properties:destroy()
-    local ptr = ffi.new("sandbox_properties_handle_t[1]", self.handle)
-    ffi.C.sandbox_properties_destroy(ptr)
+    gc_properties(self.handle)
 end
 
 ---@param data string
@@ -592,6 +603,9 @@ function sandbox.Properties:sub(path)
     local sub_handle = ffi.C.sandbox_properties_sub(self.handle, path)
     local instance = { handle = sub_handle }
     setmetatable(instance, sandbox.Properties)
+    local proxy = newproxy(true)
+    getmetatable(proxy).__gc = function() gc_properties(sub_handle) end
+    instance.__gc_proxy = proxy
     return instance
 end
 

@@ -30,6 +30,7 @@ To ensure a prioritized workflow, issues are divided into three phases: **Phase 
 **Proposed Solution**: Initialize the query once during `scenes_module_t`'s constructor and store it as a class member variable (e.g., `m_current_scenes_query`), similar to how `renderer_module_t` caches `m_renderables_query`.
 
 ### 4. Lua UI Memory Leaks (sandbox.Properties:sub)
+**Status**: 🟢 Fixed
 **Severity**: Critical
 **Location**: `demo/spectre-editor/resources/scripts/interface/pages/modules/*.lua` & `externals/sandbox.lua`
 **Root Cause**: The UI scripts extensively use `props:sub(...)` (e.g., in `scenes.lua`, `prefabs.lua`, `resources.lua`) to traverse JSON trees. In `sandbox.lua`, `sub()` creates a new C-struct handle that must be explicitly destroyed. The scripts completely fail to call `:destroy()` on these returned sub-objects, causing widespread memory leaks every time the user duplicates items or modifies properties.
