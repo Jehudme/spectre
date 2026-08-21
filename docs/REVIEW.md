@@ -98,22 +98,40 @@ To ensure a prioritized workflow, issues are divided into three phases: **Phase 
 
 ---
 
-## Phase 2: Editor Workflow & UI Enhancements
+## Phase 2: Editor Workflow, UI Enhancements & Core Features
 
-### 1. Component Management Ergonomics
-- **Global Searchable Add Menu**: Add an `imgui.InputText` search bar at the top of the "Add Component" popup menus across all pages (Prefabs, Scenes, etc.) to allow rapid filtering of long component lists.
-- **Component Sections/Folders**: Introduce the ability to categorize dynamic components into logical Sections/Folders in the UI, complete with section-level Add/Duplicate/Delete context menus.
-- **Script Drawer Overhaul**: Redesign the script component drawer (`Drawers["scripts"]`). Standardize paddings, improve the visual hierarchy of lifecycle hooks, and replace the basic layout with a more polished, modern aesthetic.
+### 1. Unified Search Functionality
+- **Search Library**: Utilize the `search.lua` library (`utilities/search.lua`) for all search bars across the editor (e.g., Prefabs, Scenes, Components, Add Menus) for consistent filtering.
 
-### 2. Scene & Prefab Hierarchy Polish
-- **Context-Menu Driven Creation**: Remove the standalone "New Scene" and "New State" buttons. Migrate creation actions to intuitive right-click context menus attached to the root nodes or subsections.
-- **Hierarchy Root Node**: Inject a visual "Root" node at the very top of the Prefabs and Scene inspector boxes to clearly represent the top-level container.
-- **Alphabetical Sorting**: Automatically execute `table.sort` on the Scene and State navigation lists.
-- **Manual Ordering**: Implement ImGui drag-and-drop payload logic to allow manual reordering of items directly within the Scene and State inspectors.
+### 2. Section Management & Hierarchy
+- **Sections Support**: Implement logical sections/folders across the `prefabs`, `states`, `scenes`, and `components` modules.
+- **Section ECS Naming**: When organizing items in sections, store them in ECS and JSON using the format `(<section_name>::<name>)` (e.g., `enemies::goblin`).
+- **Root Section Rules**:
+  - Do NOT name the top-level section "root". 
+  - The base section for each module must simply be named `scenes`, `states`, `prefabs`, or `components`.
+  - There can only be exactly one root section for each module.
+  - The root section cannot be deleted or duplicated.
 
 ### 3. Editor Configuration & Project Meta
-- **Dedicated Info Page**: Create an "Info" module page to directly edit the project`s `configuration.json` file. This should expose high-level project metadata for editing, including the application Name, Version, Description, and required engine modules.
-- **Arguments Page**: Implement an Arguments page to configure and pass command-line arguments to the launched project.
+- **Dedicated Info Page**: Create an "Info" module page to directly edit the project's `configuration.json` file. This exposes high-level project metadata for editing:
+  - App Name, Version, Description, and required engine modules.
+  - **Launch Arguments**: Add a text field on this info page to configure a single string of command-line arguments to be passed when launching the project.
+- **Project Menu Integration**: In the Project selection view (`interface/views/projects.lua`), add a right-click context menu that spawns a popup showing the project's meta info (Title, Version, Description, Modules, etc.).
+- **Runtime Execution**: Update the `projects.run` function to fetch the configured argument string from the info configuration and automatically append it to the launch command.
+
+### 4. Scene Visualizer
+- **Visualizer Implementation**: Create a Scene Visualizer by implementing a render module function that can draw an entity and all its children into an arbitrary sprite/image renderable entity, rather than strictly drawing to the main window.
+- **Renderer Target**: Modify `renderer_module.cpp` so that developers can actively swap the rendering target between the window and a sprite texture.
+
+### 5. In-Process Scene Runtime
+- **In-Process Runtime Mode**: Modify the `spectre` runtime module to support an in-process execution mode.
+- **Manual Engine Updates**: Instead of blocking execution by running the engine in a continuous `while` loop, expose a manual `update()` function to step the engine per-tick.
+- **Inspector Module**: Create a C++ Inspector module to receive commands (Play/Pause/Stop) via network and transmit entity data (positions, properties) back to the editor visualization.
+
+### 6. 2D/3D Camera System
+- **Camera Component**: Implement a formal Camera component containing standard spatial properties: `x`, `y`, `z` (acting as zoom for 2D), `fov`, `pitch`, `yaw`, etc.
+- **Active Camera Query**: Implement a camera flag/tag so the renderer can dynamically query the "active" camera when executing the render pipeline.
+- **Dimensional Support**: If necessary for optimal architectural clarity, split the properties into distinct `Camera2D` and `Camera3D` components.
 
 ---
 
