@@ -38,7 +38,7 @@ To ensure a prioritized workflow, issues are divided into three phases: **Phase 
 1. Fix the immediate leaks by adding `:destroy()` calls to all `props:sub()` usages in the UI scripts.
 2. Long-term fix: Implement a `__gc` metamethod in `sandbox.lua` for the `sandbox.Properties` metatable so that LuaJIT's garbage collector automatically frees the C handle when the Lua table falls out of scope.
 
-### 5. Lua Editor Performance: 60FPS Disk I/O & JSON Parsing
+O ### 5. Lua Editor Performance: 60FPS Disk I JSON Parsing/O & JSON Parsing
 **Severity**: Critical
 **Location**: `demo/spectre-editor/resources/scripts/interface/pages/modules/components.lua` (`draw_dynamic_component`)
 **Root Cause**: The function `load_schema()` reads the `.json` schema file from the disk and parses it into a `sandbox.Properties` object. However, `draw_dynamic_component()` invokes this function *every single frame* (60 FPS) when rendering dynamic components in the Prefab and Scene inspectors. This results in massive, constant Disk I/O and JSON parsing overhead on the main thread.

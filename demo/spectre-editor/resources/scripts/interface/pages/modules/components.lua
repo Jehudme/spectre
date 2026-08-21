@@ -33,7 +33,9 @@ local function get_dyn_path(name)
 	return "project://scenes/components/" .. name .. ".json"
 end
 
+local _schema_cache = {}
 local function load_schema(world, name)
+	if _schema_cache[name] then return _schema_cache[name] end
 	local path = get_dyn_path(name)
 	local content = read_file(world, path)
 	local props = sandbox.Properties.new()
@@ -42,7 +44,12 @@ local function load_schema(world, name)
 	else
 		props:load("{}", 0)
 	end
+	_schema_cache[name] = props
 	return props
+end
+
+local function invalidate_schema(name)
+    _schema_cache[name] = nil
 end
 
 local function list_dynamic_components(world)
@@ -84,6 +91,8 @@ end
 -- ACTION FUNCTIONS
 -- ============================================================================
 local function action_write_file(path, content, desc)
+	    local comp_name = path:match("components/([^/]+)%.json$")
+    if comp_name then invalidate_schema(comp_name) end
 	local action = WriteFileAction.new(path, content, true, desc)
 	history.execute(action)
 end
@@ -125,10 +134,7 @@ end
 local function select_component(world, name)
 	selected_component = name
 
-	if current_schema then
-		current_schema:destroy()
-		current_schema = nil
-	end
+	current_schema = nil
 
 	current_schema = load_schema(world, name)
 	current_schema_keys = {}
@@ -164,18 +170,12 @@ end
 function components_page:on_enter()
 	local world = ecs.from_ptr(g_world)
 	refresh_lists(world)
-	if current_schema then
-		current_schema:destroy()
-		current_schema = nil
-	end
+	current_schema = nil
 	selected_component = nil
 end
 
 function components_page:on_exit()
-	if current_schema then
-		current_schema:destroy()
-		current_schema = nil
-	end
+	current_schema = nil
 end
 
 function components_page:on_render()
