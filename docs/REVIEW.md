@@ -73,6 +73,7 @@ O ### 5. Lua Editor Performance: 60FPS Disk I JSON Parsing/O & JSON Parsing
 **Proposed Solution**: Extract the source entity's properties via `props:sub(path)` and push the data to the new entity path using the `sandbox.Properties:merge()` C++ binding to ensure a flawless deep copy of all components and children.
 
 ### 10. Component Page Variable Deletion & Context Menus
+**Status**: 🟢 Fixed
 **Severity**: High
 **Location**: `demo/spectre-editor/resources/scripts/interface/pages/modules/components.lua`
 **Root Cause**: 

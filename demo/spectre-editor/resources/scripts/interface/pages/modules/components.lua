@@ -266,7 +266,39 @@ function components_page:on_render()
 
 	imgui.BeginChild("ComponentConfig", ffi.new("ImVec2", 0, 0), true)
 	if selected_component then
-		imgui.Text(selected_component)
+		if imgui.Selectable(selected_component, false, 0, ffi.new("ImVec2", 0, 20)) then end
+		if imgui.BeginPopupContextItem("ContextPopup_MainTitle_" .. selected_component) then
+			imgui.TextDisabled(selected_component)
+			imgui.Separator()
+			if imgui.MenuItem("Rename") then
+				show_rename_popup = true
+				rename_target = selected_component
+				ffi.copy(rename_name_buffer, selected_component)
+			end
+			if imgui.MenuItem("Duplicate") then
+				local old_path = get_dyn_path(selected_component)
+				local new_name = selected_component .. "_copy"
+				local i = 1
+				while sandbox.filesystem.exists(world, get_dyn_path(new_name)) do
+					new_name = selected_component .. "_copy" .. tostring(i)
+					i = i + 1
+				end
+				local new_path = get_dyn_path(new_name)
+				local old_content = read_file(world, old_path) or "{}"
+				action_write_file(new_path, old_content, "Duplicate Component")
+				refresh_lists(world)
+			end
+			imgui.Separator()
+			if imgui.MenuItem("Delete") then
+				local path = get_dyn_path(selected_component)
+				local content = read_file(world, path) or "{}"
+				action_remove_file(path, content, "Delete Component")
+				selected_component = nil
+				current_schema = nil
+				refresh_lists(world)
+			end
+			imgui.EndPopup()
+		end
 		imgui.TextDisabled("Dynamic Component Schema")
 		imgui.Separator()
 
@@ -279,6 +311,7 @@ function components_page:on_render()
 			imgui.Separator()
 
 			local has_changes = false
+			local remove_idx = nil
 			for i, k in ipairs(current_schema_keys) do
 				imgui.PushID(k)
 
@@ -303,11 +336,17 @@ function components_page:on_render()
 
 				imgui.SameLine()
 				if imgui.Button("Remove") then
-					table.remove(current_schema_keys, i)
+					remove_idx = i
 					has_changes = true
 				end
 
 				imgui.PopID()
+			end
+
+			if remove_idx then
+				table.remove(current_schema_keys, remove_idx)
+				remove_idx = nil
+				has_changes = true
 			end
 
 			if has_changes then
