@@ -20,6 +20,8 @@ local show_add_popup = false
 local show_rename_popup = false
 local rename_target = ""
 
+local _g_draw_int = ffi.new("int[1]")
+
 local resource_types = {}
 local resource_type_names = {}
 _g_draw_int[0] = 0
@@ -76,7 +78,7 @@ local function load_configuration(world)
 			sandbox.logs.info(world, "[Resources] Loaded content: " .. content)
 			config_props:load(content, 0)
 			end
-			if out_data[0] ~= nil then
+			if out_data[0] ~= nil and out_data[0] ~= ffi.NULL then
 				sandbox.filesystem.free_bytes(world, out_data[0])
 			end
 	end

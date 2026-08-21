@@ -127,7 +127,7 @@ resource_module_t::resource_module_t(flecs::world& world) : m_world(world) {
     // Create roots
     m_resources_root = m_world.entity("::resources");
     m_loaders_root = m_world.entity("::loaders");
-    m_resource_prefab = m_world.prefab("::resources::prefab").add<Resource>();
+    m_resource_prefab = m_world.prefab("::resources::prefab").set<Resource>({nullptr, nullptr, {0}});
 
     // Register serializer
     spectre_serializer_component resource_serializer = {
