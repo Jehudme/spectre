@@ -425,7 +425,7 @@ function prefabs_page:on_render()
 							modified = true
 						end
 					else
-						imgui.Text("No drawer for component: " .. comp_name)
+						imgui.TextColored(ffi.new("ImVec4", 1.0, 0.0, 0.0, 1.0), "⚠️ Missing Reference: " .. comp_name)
 					end
 				end
 

@@ -38,7 +38,8 @@ To ensure a prioritized workflow, issues are divided into three phases: **Phase 
 1. Fix the immediate leaks by adding `:destroy()` calls to all `props:sub()` usages in the UI scripts.
 2. Long-term fix: Implement a `__gc` metamethod in `sandbox.lua` for the `sandbox.Properties` metatable so that LuaJIT's garbage collector automatically frees the C handle when the Lua table falls out of scope.
 
-O ### 5. Lua Editor Performance: 60FPS Disk I JSON Parsing/O & JSON Parsing
+### 5. Lua Editor Performance: 60FPS Disk I/O & JSON Parsing
+**Status**: 🟢 Fixed
 **Severity**: Critical
 **Location**: `demo/spectre-editor/resources/scripts/interface/pages/modules/components.lua` (`draw_dynamic_component`)
 **Root Cause**: The function `load_schema()` reads the `.json` schema file from the disk and parses it into a `sandbox.Properties` object. However, `draw_dynamic_component()` invokes this function *every single frame* (60 FPS) when rendering dynamic components in the Prefab and Scene inspectors. This results in massive, constant Disk I/O and JSON parsing overhead on the main thread.
@@ -82,12 +83,14 @@ O ### 5. Lua Editor Performance: 60FPS Disk I JSON Parsing/O & JSON Parsing
 **Proposed Solution**: Buffer variable deletion requests and process them *after* the `ipairs` loop finishes. Wrap the component title in a stylized `imgui.Selectable` or bounding box and attach a `BeginPopupContextItem` to expose Rename, Duplicate, and Delete actions for the component schema file.
 
 ### 11. Missing Broken Reference Validations
+**Status**: 🟢 Fixed
 **Severity**: Medium
 **Location**: `prefabs.lua`, `scripts.lua`, `scenes.lua`
 **Root Cause**: If a dynamic component schema or Lua script is deleted/renamed from the filesystem, the editor's JSON still contains the stale string references. The UI blindly loops over these strings and fails silently (or displays raw text) when they don't resolve.
 **Proposed Solution**: Actively validate script function names against the `get_available_scripts()` cache and component schemas against `list_dynamic_components()`. If a reference is broken, render a high-visibility red error icon (`⚠️ Missing Reference`) to alert the user. Extend this to entities that are actively referenced by other systems but have been deleted.
 
 ### 12. Resource Path Validation (Folder vs. File)
+**Status**: 🟢 Fixed
 **Severity**: Low
 **Location**: `demo/spectre-editor/resources/scripts/interface/pages/modules/resources.lua`
 **Root Cause**: The resource path input field validates whether a path *exists*, but it does not restrict the path to being a file. Users can accidentally bind directories.

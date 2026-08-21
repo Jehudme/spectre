@@ -251,7 +251,20 @@ Drawers["scripts"] = function(props, path)
 				local script_path = list_path .. "/" .. key
 				local func_name = props:read_string(script_path .. "/function") or ""
 				imgui.PushID_Str(list_name .. "_" .. key)
-				if imgui.TreeNodeEx(func_name ~= "" and func_name or "Unknown", 0) then
+				local scripts_info = get_available_scripts()
+				local is_valid = scripts_info[func_name] ~= nil
+				local display_name = (func_name ~= "" and func_name or "Unknown")
+				
+				if not is_valid and func_name ~= "" then
+					imgui.PushStyleColor(0, ffi.new("ImVec4", 1.0, 0.0, 0.0, 1.0))
+					display_name = "⚠️ Missing Reference: " .. display_name
+				end
+				local tree_open = imgui.TreeNodeEx(display_name, 0)
+				if not is_valid and func_name ~= "" then
+					imgui.PopStyleColor(1)
+				end
+				
+				if tree_open then
 					if imgui.BeginPopupContextItem("Context_" .. key) then
 						if imgui.MenuItem("Remove") then
 							action_clear_property(props, script_path)

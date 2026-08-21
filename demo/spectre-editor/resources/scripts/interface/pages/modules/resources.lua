@@ -304,6 +304,9 @@ function resources_page:on_render()
 		if vpath_str ~= "" and not sandbox.filesystem.exists(world, vpath_str) then
 			imgui.TextColored(ffi.new("ImVec4", 1.0, 0.0, 0.0, 1.0), "Error: Virtual path does not exist!")
 		end
+		if vpath_str ~= "" and sandbox.filesystem.exists(world, vpath_str) and sandbox.filesystem.is_directory(world, vpath_str) then
+			imgui.TextColored(ffi.new("ImVec4", 1.0, 0.0, 0.0, 1.0), "Error: Path must point to a file, not a folder.")
+		end
 
 		local current_type = current_resource_state.type
 
