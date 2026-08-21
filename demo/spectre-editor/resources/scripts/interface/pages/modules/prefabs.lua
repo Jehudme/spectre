@@ -58,7 +58,7 @@ local function read_file(world, path)
 		if tonumber(out_size[0]) > 0 and out_data[0] ~= nil then
 			content = ffi.string(out_data[0], tonumber(out_size[0]))
 		end
-		if out_data[0] ~= nil then
+		if out_data[0] ~= nil and out_data[0] ~= ffi.NULL then
 			sandbox.filesystem.free_bytes(world, out_data[0])
 		end
 		return content

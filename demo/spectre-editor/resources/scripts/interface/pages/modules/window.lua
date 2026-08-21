@@ -122,7 +122,7 @@ local function load_configuration(world)
 				local content = ffi.string(out_data[0], tonumber(out_size[0]))
 				load_configuration_from_string(world, content)
 			end
-			if out_data[0] ~= nil then
+			if out_data[0] ~= nil and out_data[0] ~= ffi.NULL then
 				sandbox.filesystem.free_bytes(world, out_data[0])
 			end
 		end
