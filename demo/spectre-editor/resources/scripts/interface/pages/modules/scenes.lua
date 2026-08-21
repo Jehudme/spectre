@@ -158,8 +158,8 @@ local function draw_hierarchy(world, props, path, name)
 				new_name = name .. "_copy" .. tostring(idx)
 				idx = idx + 1
 			end
-			props:set_string(parent_path .. "/" .. new_name .. "/dummy", "0")
-			props:clear(parent_path .. "/" .. new_name .. "/dummy")
+			local source_data = props:sub(path)
+			props:merge(parent_path .. "/" .. new_name, source_data)
 			save_item(world, selected_mode, selected_item, props)
 		end
 		if not is_root and imgui.MenuItem("Delete") then

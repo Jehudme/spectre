@@ -66,6 +66,7 @@ O ### 5. Lua Editor Performance: 60FPS Disk I JSON Parsing/O & JSON Parsing
 **Proposed Solution**: Ensure `free_bytes()` is always called if `out_data[0]` is not null, regardless of whether `out_size[0] > 0`.
 
 ### 9. Entity Duplication Fails to Deep Copy
+**Status**: 🟢 Fixed
 **Severity**: High
 **Location**: `demo/spectre-editor/resources/scripts/interface/pages/modules/prefabs.lua`
 **Root Cause**: When duplicating an entity, the UI script simply executes `props:set_string(.../dummy, "0")` and immediately clears it. This hack initializes an empty JSON object (`{}`) instead of actually cloning the source entity's data.
