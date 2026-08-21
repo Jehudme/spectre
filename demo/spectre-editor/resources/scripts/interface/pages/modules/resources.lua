@@ -72,11 +72,13 @@ local function load_configuration(world)
 	local out_size = ffi.new("size_t[1]")
 	if sandbox.filesystem.read_all_bytes(world, config_path, out_data, out_size) then
 		if tonumber(out_size[0]) > 0 and out_data[0] ~= nil then
-			local content = ffi.string(out_data[0], tonumber(out_size[0]))
+				local content = ffi.string(out_data[0], tonumber(out_size[0]))
 			sandbox.logs.info(world, "[Resources] Loaded content: " .. content)
 			config_props:load(content, 0)
-			sandbox.filesystem.free_bytes(world, out_data[0])
-		end
+			end
+			if out_data[0] ~= nil then
+				sandbox.filesystem.free_bytes(world, out_data[0])
+			end
 	end
 	update_cached_resources()
 end

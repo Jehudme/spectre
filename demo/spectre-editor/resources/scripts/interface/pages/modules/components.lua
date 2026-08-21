@@ -20,11 +20,14 @@ local function read_file(world, path)
 	local out_data = ffi.new("uint8_t*[1]")
 	local out_size = ffi.new("size_t[1]")
 	if sandbox.filesystem.read_all_bytes(world, path, out_data, out_size) then
+		local content = ""
 		if tonumber(out_size[0]) > 0 and out_data[0] ~= nil then
-			local content = ffi.string(out_data[0], tonumber(out_size[0]))
-			sandbox.filesystem.free_bytes(world, out_data[0])
-			return content
+			content = ffi.string(out_data[0], tonumber(out_size[0]))
 		end
+		if out_data[0] ~= nil then
+			sandbox.filesystem.free_bytes(world, out_data[0])
+		end
+		return content
 	end
 	return nil
 end

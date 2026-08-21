@@ -59,6 +59,7 @@ O ### 5. Lua Editor Performance: 60FPS Disk I JSON Parsing/O & JSON Parsing
 **Proposed Solution**: Lift FFI buffer instantiations out of the render loop. Cache them as global or static state variables (e.g., `local temp_vec2 = ffi.new("float[2]")`) and simply overwrite their values using `ffi.copy` or assignment each frame before passing them to ImGui.
 
 ### 8. Memory Leaks: Unfreed Pointers on Empty File Reads
+**Status**: 🟢 Fixed
 **Severity**: High
 **Location**: `read_file` helper across `components.lua`, `prefabs.lua`, `renderer.lua`, `resources.lua`, `window.lua`
 **Root Cause**: In the pattern used to read files, if `sandbox.filesystem.read_all_bytes(...)` returns true but the file is empty (`out_size == 0`), the condition `tonumber(out_size[0]) > 0` evaluates to false. This skips the `sandbox.filesystem.free_bytes()` block entirely, permanently leaking the C-buffer allocated for the empty file.

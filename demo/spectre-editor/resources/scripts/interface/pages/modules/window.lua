@@ -121,6 +121,8 @@ local function load_configuration(world)
 			if tonumber(out_size[0]) > 0 and out_data[0] ~= nil then
 				local content = ffi.string(out_data[0], tonumber(out_size[0]))
 				load_configuration_from_string(world, content)
+			end
+			if out_data[0] ~= nil then
 				sandbox.filesystem.free_bytes(world, out_data[0])
 			end
 		end
