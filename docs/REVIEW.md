@@ -52,6 +52,7 @@ O ### 5. Lua Editor Performance: 60FPS Disk I JSON Parsing/O & JSON Parsing
 **Proposed Solution**: Register a Flecs `on_remove` observer for both `spectre_resource_component_t` and `spectre_window_component_t` during module initialization to guarantee the `delete[]` cleanup of the allocated `char*` arrays.
 
 ### 7. ImGui Input Glitches & FFI Allocation Thrashing
+**Status**: 🟢 Fixed
 **Severity**: High
 **Location**: `components.lua`, `renderer.lua` (Various Drawers)
 **Root Cause**: Text input buffers (e.g., `ffi.new("char[2048]")`) and numeric input buffers (e.g., `ffi.new("float[2]")`) are instantiated locally inside `on_render()`. Creating thousands of FFI cdata objects per second causes immense garbage collection thrashing in LuaJIT. Furthermore, recreating these buffers every frame passes a brand-new pointer to ImGui, which constantly breaks internal text cursor positioning and makes editing strings erratic or impossible.

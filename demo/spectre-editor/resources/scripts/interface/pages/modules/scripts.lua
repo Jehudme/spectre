@@ -2,6 +2,15 @@ local sandbox = require("sandbox")
 local ecs = require("ecs")
 local imgui = require("imgui")
 local ffi = require("ffi")
+
+local _g_draw_int = ffi.new("int[1]")
+local _g_draw_float = ffi.new("float[1]")
+local _g_draw_float2 = ffi.new("float[2]")
+local _g_draw_float3 = ffi.new("float[3]")
+local _g_draw_float4 = ffi.new("float[4]")
+local _g_draw_bool = ffi.new("bool[1]")
+local _g_draw_bool2 = ffi.new("bool[2]")
+local _g_draw_char = ffi.new("char[2048]")
 local spectre = require("spectre")
 
 require("utilities.actions.write_file")
@@ -266,7 +275,8 @@ Drawers["scripts"] = function(props, path)
 						if arg_type == "integer" or arg_type == "int" then
 							local arg_val = props:read_string(script_path .. "/arguments/" .. arg_name) or "0"
 							local n = tonumber(arg_val) or 0
-							local buf = ffi.new("int[1]", n)
+							_g_draw_int[0] = n
+	local buf = _g_draw_int
 							if imgui.InputInt(display_name, buf) then
 								action_set_property(props, script_path .. "/arguments/" .. arg_name, tostring(buf[0]))
 								modified = true
@@ -274,7 +284,8 @@ Drawers["scripts"] = function(props, path)
 						elseif arg_type == "number" or arg_type == "float" then
 							local arg_val = props:read_string(script_path .. "/arguments/" .. arg_name) or "0.0"
 							local n = tonumber(arg_val) or 0.0
-							local buf = ffi.new("float[1]", n)
+							_g_draw_float[0] = n
+	local buf = _g_draw_float
 							if imgui.InputFloat(display_name, buf) then
 								action_set_property(props, script_path .. "/arguments/" .. arg_name, tostring(buf[0]))
 								modified = true
@@ -282,15 +293,16 @@ Drawers["scripts"] = function(props, path)
 						elseif arg_type == "boolean" or arg_type == "bool" then
 							local arg_val = props:read_string(script_path .. "/arguments/" .. arg_name) or "false"
 							local b = arg_val == "true" or arg_val == "1"
-							local buf = ffi.new("bool[1]", b)
+							_g_draw_bool[0] = b
+	local buf = _g_draw_bool
 							if imgui.Checkbox(display_name, buf) then
 								action_set_property(props, script_path .. "/arguments/" .. arg_name, buf[0] and "true" or "false")
 								modified = true
 							end
 						else
 							local arg_val = props:read_string(script_path .. "/arguments/" .. arg_name) or ""
-							local buf = ffi.new("char[256]")
-							ffi.copy(buf, arg_val)
+							local buf = _g_draw_char
+	ffi.copy(buf, arg_val)
 							if imgui.InputText(display_name, buf, 256) then
 								action_set_property(props, script_path .. "/arguments/" .. arg_name, ffi.string(buf))
 								modified = true

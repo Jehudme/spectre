@@ -155,8 +155,8 @@ local function select_component(world, name)
 					end
 				end
 				schema_types_idx[m_name] = ffi.new("int[1]", idx)
-				local buf = ffi.new("char[256]")
-				ffi.copy(buf, m_name)
+				local buf = _g_draw_char
+	ffi.copy(buf, m_name)
 				schema_keys_buffers[m_name] = buf
 			end
 		end
@@ -411,8 +411,8 @@ function components_page:on_render()
 				if not exists then
 					table.insert(current_schema_keys, new_var)
 					schema_types_idx[new_var] = ffi.new("int[1]", 0)
-					local buf = ffi.new("char[256]")
-					ffi.copy(buf, new_var)
+					local buf = _g_draw_char
+	ffi.copy(buf, new_var)
 					schema_keys_buffers[new_var] = buf
 
 					current_schema:clear("members")
@@ -443,6 +443,11 @@ function components_page.list_dynamic_components()
 	return list_dynamic_components(world)
 end
 
+local _g_draw_int = ffi.new("int[1]")
+local _g_draw_float = ffi.new("float[1]")
+local _g_draw_bool = ffi.new("bool[1]")
+local _g_draw_char = ffi.new("char[2048]")
+
 function components_page.draw_dynamic_component(prefab_props, entity_path, comp_name)
 	local world = ecs.from_ptr(g_world)
 	local schema = load_schema(world, comp_name)
@@ -456,32 +461,31 @@ function components_page.draw_dynamic_component(prefab_props, entity_path, comp_
 				local val_path = entity_path .. "/components/" .. comp_name .. "/" .. m_name
 				imgui.PushID(val_path)
 				if m_type == "int" then
-					local val = prefab_props:get_int64(val_path) or 0
-					local buf = ffi.new("int[1]", val)
-					if imgui.InputInt(m_name, buf) then
-						prefab_props:set_int64(val_path, buf[0])
+										local val = prefab_props:get_int64(val_path) or 0
+					_g_draw_int[0] = val
+					if imgui.InputInt(m_name, _g_draw_int) then
+						prefab_props:set_int64(val_path, _g_draw_int[0])
 						modified = true
 					end
 				elseif m_type == "float" or m_type == "double" then
-					local val = prefab_props:get_double(val_path) or 0.0
-					local buf = ffi.new("float[1]", val)
-					if imgui.InputFloat(m_name, buf) then
-						prefab_props:set_double(val_path, buf[0])
+										local val = prefab_props:get_double(val_path) or 0.0
+					_g_draw_float[0] = val
+					if imgui.InputFloat(m_name, _g_draw_float) then
+						prefab_props:set_double(val_path, _g_draw_float[0])
 						modified = true
 					end
 				elseif m_type == "string" then
-					local val = prefab_props:read_string(val_path) or ""
-					local buf = ffi.new("char[256]")
-					ffi.copy(buf, val)
-					if imgui.InputText(m_name, buf, 256) then
-						prefab_props:set_string(val_path, ffi.string(buf))
+										local val = prefab_props:read_string(val_path) or ""
+					ffi.copy(_g_draw_char, val)
+					if imgui.InputText(m_name, _g_draw_char, 2048) then
+						prefab_props:set_string(val_path, ffi.string(_g_draw_char))
 						modified = true
 					end
 				elseif m_type == "bool" then
-					local val = prefab_props:get_bool(val_path) or false
-					local buf = ffi.new("bool[1]", val)
-					if imgui.Checkbox(m_name, buf) then
-						prefab_props:set_bool(val_path, buf[0])
+										local val = prefab_props:get_bool(val_path) or false
+					_g_draw_bool[0] = val
+					if imgui.Checkbox(m_name, _g_draw_bool) then
+						prefab_props:set_bool(val_path, _g_draw_bool[0])
 						modified = true
 					end
 				end

@@ -22,23 +22,27 @@ local rename_target = ""
 
 local resource_types = {}
 local resource_type_names = {}
-local type_current_idx = ffi.new("int[1]", 0)
+_g_draw_int[0] = 0
+	local type_current_idx = _g_draw_int
 
 local texture_filtering_modes = { "point", "bilinear", "trilinear" }
-local texture_filtering_idx = ffi.new("int[1]", 0)
+_g_draw_int[0] = 0
+	local texture_filtering_idx = _g_draw_int
 local c_filt = ffi.new("const char*[?]", #texture_filtering_modes)
 for i, v in ipairs(texture_filtering_modes) do
 	c_filt[i - 1] = v
 end
 
 local texture_wrap_modes = { "repeat", "clamp", "mirror_repeat", "mirror_clamp" }
-local texture_wrap_idx = ffi.new("int[1]", 0)
+_g_draw_int[0] = 0
+	local texture_wrap_idx = _g_draw_int
 local c_wrap = ffi.new("const char*[?]", #texture_wrap_modes)
 for i, v in ipairs(texture_wrap_modes) do
 	c_wrap[i - 1] = v
 end
 
-local font_size_val = ffi.new("int[1]", 32)
+_g_draw_int[0] = 32
+	local font_size_val = _g_draw_int
 local c_type_names = nil
 local current_resource_state = {}
 

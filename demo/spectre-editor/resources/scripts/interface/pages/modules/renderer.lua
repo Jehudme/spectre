@@ -2,6 +2,16 @@ local sandbox = require("sandbox")
 local ecs = require("ecs")
 local imgui = require("imgui")
 local ffi = require("ffi")
+
+local _g_draw_int = ffi.new("int[1]")
+local _g_draw_float = ffi.new("float[1]")
+local _g_draw_float2 = ffi.new("float[2]")
+local _g_draw_float3 = ffi.new("float[3]")
+local _g_draw_float4 = ffi.new("float[4]")
+local _g_draw_bool = ffi.new("bool[1]")
+local _g_draw_bool2 = ffi.new("bool[2]")
+local _g_draw_char = ffi.new("char[2048]")
+local _g_draw_combo = ffi.new("const char*[2048]")
 local spectre = require("spectre")
 local resources_module = require("interface.pages.modules.resources")
 
@@ -14,7 +24,8 @@ local renderer_page = Page.new()
 
 local config_props = nil
 local config_path = "project://configs/renderer.json"
-local bg_color = ffi.new("float[4]", 245.0 / 255.0, 245.0 / 255.0, 245.0 / 255.0, 1.0)
+_g_draw_float4[0] = 245.0 / 255.0; _g_draw_float4[1] = 245.0 / 255.0; _g_draw_float4[2] = 245.0 / 255.0; _g_draw_float4[3] = 1.0
+	local bg_color = _g_draw_float4
 
 -- ==========================================
 -- Inline Functions
@@ -61,7 +72,8 @@ local function draw_color(props, base_path, name)
 	local col_g = (props:get_double(base_path .. "/" .. name .. "/g") or 255.0) / 255.0
 	local col_b = (props:get_double(base_path .. "/" .. name .. "/b") or 255.0) / 255.0
 	local col_a = (props:get_double(base_path .. "/" .. name .. "/a") or 255.0) / 255.0
-	local cbuf = ffi.new("float[4]", col_r, col_g, col_b, col_a)
+	_g_draw_float4[0] = col_r; _g_draw_float4[1] = col_g; _g_draw_float4[2] = col_b; _g_draw_float4[3] = col_a
+	local cbuf = _g_draw_float4
 	if imgui.ColorEdit4(name, cbuf) then
 		props:set_double(base_path .. "/" .. name .. "/r", cbuf[0] * 255.0)
 		props:set_double(base_path .. "/" .. name .. "/g", cbuf[1] * 255.0)
@@ -153,7 +165,8 @@ function transform2d_drawer:on_render(props, path)
 	local px = props:get_double(p .. "/position_x") or 0.0
 	local py = props:get_double(p .. "/position_y") or 0.0
 	local pz = props:get_double(p .. "/position_z") or 0.0
-	local pbuf = ffi.new("float[3]", px, py, pz)
+	_g_draw_float3[0] = px; _g_draw_float3[1] = py; _g_draw_float3[2] = pz
+	local pbuf = _g_draw_float3
 	if imgui.InputFloat3("position", pbuf) then
 		props:set_double(p .. "/position_x", pbuf[0])
 		props:set_double(p .. "/position_y", pbuf[1])
@@ -163,7 +176,8 @@ function transform2d_drawer:on_render(props, path)
 
 	local sx = props:get_double(p .. "/scale_x") or 1.0
 	local sy = props:get_double(p .. "/scale_y") or 1.0
-	local sbuf = ffi.new("float[2]", sx, sy)
+	_g_draw_float2[0] = sx; _g_draw_float2[1] = sy
+	local sbuf = _g_draw_float2
 	if imgui.InputFloat2("scale", sbuf) then
 		props:set_double(p .. "/scale_x", sbuf[0])
 		props:set_double(p .. "/scale_y", sbuf[1])
@@ -172,7 +186,8 @@ function transform2d_drawer:on_render(props, path)
 
 	local ox = props:get_double(p .. "/origin_x") or 0.0
 	local oy = props:get_double(p .. "/origin_y") or 0.0
-	local obuf = ffi.new("float[2]", ox, oy)
+	_g_draw_float2[0] = ox; _g_draw_float2[1] = oy
+	local obuf = _g_draw_float2
 	if imgui.InputFloat2("origin", obuf) then
 		props:set_double(p .. "/origin_x", obuf[0])
 		props:set_double(p .. "/origin_y", obuf[1])
@@ -180,7 +195,8 @@ function transform2d_drawer:on_render(props, path)
 	end
 
 	local rot = props:get_double(p .. "/rotation") or 0.0
-	local rbuf = ffi.new("float[1]", rot)
+	_g_draw_float[0] = rot
+	local rbuf = _g_draw_float
 	if imgui.InputFloat("rotation", rbuf) then
 		props:set_double(p .. "/rotation", rbuf[0])
 		modified = true
@@ -209,7 +225,7 @@ function texture_renderable_drawer:on_render(props, path)
 	local textures = resources_module.get_resources_by_type("texture")
 
 	local current_idx = 0
-	local c_textures = ffi.new("const char*[?]", #textures + 1)
+	local c_textures = _g_draw_combo
 	c_textures[0] = "None"
 	for i, tex in ipairs(textures) do
 		c_textures[i] = tex
@@ -218,7 +234,8 @@ function texture_renderable_drawer:on_render(props, path)
 		end
 	end
 
-	local idx_buf = ffi.new("int[1]", current_idx)
+	_g_draw_int[0] = current_idx
+	local idx_buf = _g_draw_int
 	if imgui.Combo("Texture##TexRen", idx_buf, c_textures, #textures + 1) then
 		local new_name = idx_buf[0] > 0 and textures[idx_buf[0]] or ""
 		props:set_string(p .. "/name", new_name)
@@ -227,7 +244,8 @@ function texture_renderable_drawer:on_render(props, path)
 
 	local w = props:get_double(p .. "/width") or 0.0
 	local h = props:get_double(p .. "/height") or 0.0
-	local size_buf = ffi.new("float[2]", w, h)
+	_g_draw_float2[0] = w; _g_draw_float2[1] = h
+	local size_buf = _g_draw_float2
 	if imgui.InputFloat2("size##TexRen", size_buf) then
 		props:set_double(p .. "/width", size_buf[0])
 		props:set_double(p .. "/height", size_buf[1])
@@ -236,7 +254,8 @@ function texture_renderable_drawer:on_render(props, path)
 
 	local sx = props:get_double(p .. "/source_x") or 0.0
 	local sy = props:get_double(p .. "/source_y") or 0.0
-	local src_pos = ffi.new("float[2]", sx, sy)
+	_g_draw_float2[0] = sx; _g_draw_float2[1] = sy
+	local src_pos = _g_draw_float2
 	if imgui.InputFloat2("source pos##TexRen", src_pos) then
 		props:set_double(p .. "/source_x", src_pos[0])
 		props:set_double(p .. "/source_y", src_pos[1])
@@ -245,7 +264,8 @@ function texture_renderable_drawer:on_render(props, path)
 
 	local sw = props:get_double(p .. "/source_width") or 0.0
 	local sh = props:get_double(p .. "/source_height") or 0.0
-	local src_size = ffi.new("float[2]", sw, sh)
+	_g_draw_float2[0] = sw; _g_draw_float2[1] = sh
+	local src_size = _g_draw_float2
 	if imgui.InputFloat2("source size##TexRen", src_size) then
 		props:set_double(p .. "/source_width", src_size[0])
 		props:set_double(p .. "/source_height", src_size[1])
@@ -254,7 +274,8 @@ function texture_renderable_drawer:on_render(props, path)
 
 	local fx = props:read_string(p .. "/flip_x") == "true"
 	local fy = props:read_string(p .. "/flip_y") == "true"
-	local f_buf = ffi.new("bool[2]", fx, fy)
+	_g_draw_bool2[0] = fx; _g_draw_bool2[1] = fy
+	local f_buf = _g_draw_bool2
 	if imgui.Checkbox("flip x##TexRen", f_buf) then
 		props:set_string(p .. "/flip_x", f_buf[0] and "true" or "false")
 		modified = true
@@ -269,7 +290,8 @@ function texture_renderable_drawer:on_render(props, path)
 	local tg = props:get_double(p .. "/tint/g") or 255.0
 	local tb = props:get_double(p .. "/tint/b") or 255.0
 	local ta = props:get_double(p .. "/tint/a") or 255.0
-	local tbuf = ffi.new("float[4]", tr / 255.0, tg / 255.0, tb / 255.0, ta / 255.0)
+	_g_draw_float4[0] = tr / 255.0; _g_draw_float4[1] = tg / 255.0; _g_draw_float4[2] = tb / 255.0; _g_draw_float4[3] = ta / 255.0
+	local tbuf = _g_draw_float4
 	if imgui.ColorEdit4("tint##TexRen", tbuf) then
 		props:set_double(p .. "/tint/r", tbuf[0] * 255.0)
 		props:set_double(p .. "/tint/g", tbuf[1] * 255.0)
@@ -292,7 +314,7 @@ function text_renderable_drawer:on_render(props, path)
 	local fonts = resources_module.get_resources_by_type("font")
 
 	local current_idx = 0
-	local c_fonts = ffi.new("const char*[?]", #fonts + 1)
+	local c_fonts = _g_draw_combo
 	c_fonts[0] = "None"
 	for i, font in ipairs(fonts) do
 		c_fonts[i] = font
@@ -301,7 +323,8 @@ function text_renderable_drawer:on_render(props, path)
 		end
 	end
 
-	local idx_buf = ffi.new("int[1]", current_idx)
+	_g_draw_int[0] = current_idx
+	local idx_buf = _g_draw_int
 	if imgui.Combo("Font##TxtRen", idx_buf, c_fonts, #fonts + 1) then
 		local new_name = idx_buf[0] > 0 and fonts[idx_buf[0]] or ""
 		props:set_string(p .. "/name", new_name)
@@ -309,7 +332,7 @@ function text_renderable_drawer:on_render(props, path)
 	end
 
 	local txt = props:read_string(p .. "/content") or ""
-	local buf = ffi.new("char[2048]")
+	local buf = _g_draw_char
 	ffi.copy(buf, txt)
 	if imgui.InputTextMultiline("content##TxtRen", buf, 2048, ffi.new("ImVec2", 0, 50)) then
 		props:set_string(p .. "/content", ffi.string(buf))
@@ -317,14 +340,16 @@ function text_renderable_drawer:on_render(props, path)
 	end
 
 	local fs = props:get_double(p .. "/font_size") or 20.0
-	local fs_buf = ffi.new("float[1]", fs)
+	_g_draw_float[0] = fs
+	local fs_buf = _g_draw_float
 	if imgui.InputFloat("font size##TxtRen", fs_buf) then
 		props:set_double(p .. "/font_size", fs_buf[0])
 		modified = true
 	end
 
 	local sp = props:get_double(p .. "/spacing") or 1.0
-	local sp_buf = ffi.new("float[1]", sp)
+	_g_draw_float[0] = sp
+	local sp_buf = _g_draw_float
 	if imgui.InputFloat("spacing##TxtRen", sp_buf) then
 		props:set_double(p .. "/spacing", sp_buf[0])
 		modified = true
@@ -334,7 +359,8 @@ function text_renderable_drawer:on_render(props, path)
 	local tg = props:get_double(p .. "/tint/g") or 255.0
 	local tb = props:get_double(p .. "/tint/b") or 255.0
 	local ta = props:get_double(p .. "/tint/a") or 255.0
-	local tbuf = ffi.new("float[4]", tr / 255.0, tg / 255.0, tb / 255.0, ta / 255.0)
+	_g_draw_float4[0] = tr / 255.0; _g_draw_float4[1] = tg / 255.0; _g_draw_float4[2] = tb / 255.0; _g_draw_float4[3] = ta / 255.0
+	local tbuf = _g_draw_float4
 	if imgui.ColorEdit4("tint##TxtRen", tbuf) then
 		props:set_double(p .. "/tint/r", tbuf[0] * 255.0)
 		props:set_double(p .. "/tint/g", tbuf[1] * 255.0)
@@ -345,7 +371,8 @@ function text_renderable_drawer:on_render(props, path)
 
 	local b = props:read_string(p .. "/bold") == "true"
 	local i = props:read_string(p .. "/italic") == "true"
-	local b_buf = ffi.new("bool[2]", b, i)
+	_g_draw_bool2[0] = b; _g_draw_bool2[1] = i
+	local b_buf = _g_draw_bool2
 	if imgui.Checkbox("bold##TxtRen", b_buf) then
 		props:set_string(p .. "/bold", b_buf[0] and "true" or "false")
 		modified = true
@@ -369,7 +396,8 @@ function material_drawer:on_render(props, path)
 	local col_g = props:get_double(p .. "/color/g") or 1.0
 	local col_b = props:get_double(p .. "/color/b") or 1.0
 	local col_a = props:get_double(p .. "/color/a") or 1.0
-	local cbuf = ffi.new("float[4]", col_r, col_g, col_b, col_a)
+	_g_draw_float4[0] = col_r; _g_draw_float4[1] = col_g; _g_draw_float4[2] = col_b; _g_draw_float4[3] = col_a
+	local cbuf = _g_draw_float4
 	if imgui.ColorEdit4("color", cbuf) then
 		props:set_double(p .. "/color/r", cbuf[0])
 		props:set_double(p .. "/color/g", cbuf[1])
@@ -389,7 +417,8 @@ function rectangle_renderable_drawer:on_render(props, path)
 
 	local w = props:get_double(p .. "/width") or 10.0
 	local h = props:get_double(p .. "/height") or 10.0
-	local sbuf = ffi.new("float[2]", w, h)
+	_g_draw_float2[0] = w; _g_draw_float2[1] = h
+	local sbuf = _g_draw_float2
 	if imgui.InputFloat2("size", sbuf) then
 		props:set_double(p .. "/width", sbuf[0])
 		props:set_double(p .. "/height", sbuf[1])
@@ -404,7 +433,8 @@ function rectangle_renderable_drawer:on_render(props, path)
 	end
 
 	local thick = props:get_double(p .. "/outline_thickness") or 0.0
-	local tbuf = ffi.new("float[1]", thick)
+	_g_draw_float[0] = thick
+	local tbuf = _g_draw_float
 	if imgui.InputFloat("outline_thickness", tbuf) then
 		props:set_double(p .. "/outline_thickness", tbuf[0])
 		modified = true
@@ -421,7 +451,8 @@ function circle_renderable_drawer:on_render(props, path)
 	local modified = false
 
 	local r = props:get_double(p .. "/radius") or 10.0
-	local rbuf = ffi.new("float[1]", r)
+	_g_draw_float[0] = r
+	local rbuf = _g_draw_float
 	if imgui.InputFloat("radius", rbuf) then
 		props:set_double(p .. "/radius", rbuf[0])
 		modified = true
@@ -435,7 +466,8 @@ function circle_renderable_drawer:on_render(props, path)
 	end
 
 	local thick = props:get_double(p .. "/outline_thickness") or 0.0
-	local tbuf = ffi.new("float[1]", thick)
+	_g_draw_float[0] = thick
+	local tbuf = _g_draw_float
 	if imgui.InputFloat("outline_thickness", tbuf) then
 		props:set_double(p .. "/outline_thickness", tbuf[0])
 		modified = true
@@ -452,14 +484,16 @@ function polygone_renderable_drawer:on_render(props, path)
 	local modified = false
 
 	local r = props:get_double(p .. "/radius") or 10.0
-	local rbuf = ffi.new("float[1]", r)
+	_g_draw_float[0] = r
+	local rbuf = _g_draw_float
 	if imgui.InputFloat("radius", rbuf) then
 		props:set_double(p .. "/radius", rbuf[0])
 		modified = true
 	end
 
 	local pt = props:get_int64(p .. "/point_count") or 3
-	local ptbuf = ffi.new("int[1]", pt)
+	_g_draw_int[0] = pt
+	local ptbuf = _g_draw_int
 	if imgui.InputInt("point_count", ptbuf) then
 		props:set_int64(p .. "/point_count", ptbuf[0])
 		modified = true
@@ -473,7 +507,8 @@ function polygone_renderable_drawer:on_render(props, path)
 	end
 
 	local thick = props:get_double(p .. "/outline_thickness") or 0.0
-	local tbuf = ffi.new("float[1]", thick)
+	_g_draw_float[0] = thick
+	local tbuf = _g_draw_float
 	if imgui.InputFloat("outline_thickness", tbuf) then
 		props:set_double(p .. "/outline_thickness", tbuf[0])
 		modified = true
@@ -491,7 +526,8 @@ function ligne_renderable_drawer:on_render(props, path)
 
 	local x1 = props:get_double(p .. "/position_x1") or 0.0
 	local y1 = props:get_double(p .. "/position_y1") or 0.0
-	local p1buf = ffi.new("float[2]", x1, y1)
+	_g_draw_float2[0] = x1; _g_draw_float2[1] = y1
+	local p1buf = _g_draw_float2
 	if imgui.InputFloat2("point 1", p1buf) then
 		props:set_double(p .. "/position_x1", p1buf[0])
 		props:set_double(p .. "/position_y1", p1buf[1])
@@ -500,7 +536,8 @@ function ligne_renderable_drawer:on_render(props, path)
 
 	local x2 = props:get_double(p .. "/position_x2") or 10.0
 	local y2 = props:get_double(p .. "/position_y2") or 10.0
-	local p2buf = ffi.new("float[2]", x2, y2)
+	_g_draw_float2[0] = x2; _g_draw_float2[1] = y2
+	local p2buf = _g_draw_float2
 	if imgui.InputFloat2("point 2", p2buf) then
 		props:set_double(p .. "/position_x2", p2buf[0])
 		props:set_double(p .. "/position_y2", p2buf[1])
@@ -512,7 +549,8 @@ function ligne_renderable_drawer:on_render(props, path)
 	end
 
 	local thick = props:get_double(p .. "/thickness") or 1.0
-	local tbuf = ffi.new("float[1]", thick)
+	_g_draw_float[0] = thick
+	local tbuf = _g_draw_float
 	if imgui.InputFloat("thickness", tbuf) then
 		props:set_double(p .. "/thickness", tbuf[0])
 		modified = true
